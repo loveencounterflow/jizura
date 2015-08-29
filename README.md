@@ -1,0 +1,2 @@
+# jizura
+CJK character information
