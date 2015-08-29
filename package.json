@@ -1,0 +1,44 @@
+{
+  "name": "jizura",
+  "version": "1.0.0",
+  "description": "CJK character information",
+  "main": "lib/main.js",
+  "dependencies": {
+    "async": "^1.3.0",
+    "cnd": "^1.0.8",
+    "coffeenode-docopt": "^0.1.1",
+    "coffeenode-suspend": "^0.1.11",
+    "hollerith-codec": "^1.0.23",
+    "kwic": "^1.0.7",
+    "level": "^1.2.0",
+    "leveldown": "^1.4.0",
+    "lodash": "^3.10.0",
+    "mkdirp": "^0.5.1",
+    "pipedreams": "^0.2.24",
+    "segfault-handler": "^0.2.4"
+  },
+  "devDependencies": {
+    "coffee-script": "^1.9.2",
+    "coffeelint-variable-scope": "0.0.3",
+    "coffeenode-chr": "^0.1.6",
+    "coffeenode-passphrase": "^0.1.7",
+    "gulp": "^3.9.0",
+    "gulp-coffee": "^2.3.1",
+    "gulp-sourcemaps": "^1.5.2",
+    "guy-test": "^1.0.5"
+  },
+  "scripts": {
+    "build": "gulp --harmony build",
+    "test": "npm run build && node --harmony lib/tests.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/loveencounterflow/jizura.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/loveencounterflow/jizura/issues"
+  },
+  "homepage": "https://github.com/loveencounterflow/jizura#readme"
+}
