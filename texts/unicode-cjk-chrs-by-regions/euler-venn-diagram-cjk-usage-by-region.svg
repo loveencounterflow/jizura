@@ -15,7 +15,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="euler-venn-diagram-cjk-usage-by-region-scan.svg"
+   sodipodi:docname="euler-venn-diagram-cjk-usage-by-region.svg"
    enable-background="new"
    inkscape:export-filename="/Volumes/Storage/io/jizura/texts/unicode-cjk-chrs-by-regions/euler-venn-diagram-cjk-usage-by-region-scan.png"
    inkscape:export-xdpi="300.01077"
@@ -988,7 +988,7 @@
     <flowRoot
        xml:space="preserve"
        id="flowRoot13642"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.54512525px;line-height:110%;font-family:gentium2;-inkscape-font-specification:'gentium2, Normal';text-align:justify;writing-mode:lr;text-anchor:start;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.73699999;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.54512501px;line-height:110.00000238%;font-family:gentium2;-inkscape-font-specification:'gentium2, Normal';text-align:justify;writing-mode:lr-tb;text-anchor:start;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.73699999;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        transform="translate(-2.6019618,-2.8026158)"><flowRegion
          id="flowRegion13644"><rect
            id="rect13646"
@@ -996,8 +996,8 @@
            height="256.43936"
            x="72.167358"
            y="730.0614"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.54512525px;line-height:110%;font-family:gentium2;-inkscape-font-specification:'gentium2, Normal';text-align:justify;writing-mode:lr;text-anchor:start;" /></flowRegion><flowPara
-         id="flowPara13792">Shown here are (1) the numbers of characters deemed essential for general usage as reported by the ISO/IEC 10646 IICore initiative, consolidated into three regions: Ⓒ Mainland China, Ⓙ Japan, Ⓣ (Taiwan, Hong Kong, Macau, Korea). Circled capital letters show sum totals; plain lower case letters show partial sums for codepoints reported only for (possibly overlapping) sub-regions (e.g. ‘j’ for characters only used in Japan, ‘cj’ for forms used only in the PRC and Japan, etc). (2) For comparison, the three outer circles marked ❶, ❻, and ❽ show the growing number of CJK codepoints in Unicode through different versions.—All circles and overlaps are area-proportional to the resp. character counts; not shown is the small number of characters included in IICore, but missing from UCS V1. (3) Representative samples for the 7 subregions, showing most frequently used characters. </flowPara></flowRoot>    <text
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.54512501px;line-height:110.00000238%;font-family:gentium2;-inkscape-font-specification:'gentium2, Normal';text-align:justify;writing-mode:lr-tb;text-anchor:start" /></flowRegion><flowPara
+         id="flowPara13792">Shown here are (1) the numbers of characters deemed essential for general usage (as per the ISO/IEC 10646 IICore initiative), consolidated into three regions: Ⓒ Mainland China, Ⓙ Japan, Ⓣ (Taiwan, Hong Kong, Macau, Korea). Circled capital letters show sum totals; plain lower case letters show partial sums for codepoints reported only for (possibly overlapping) sub-regions (e.g. ‘j’ for characters only used in Japan, ‘cj’ for forms used only in the PRC and Japan, etc). (2) For comparison, the three outer circles marked ❶, ❻, and ❽ show the growing number of CJK codepoints in Unicode through different versions.—All circles and overlaps are area-proportional to the resp. character counts; not shown is the small number of characters included in IICore, but missing from UCS V1. (3) Representative samples for the 7 subregions, showing most frequently used characters. </flowPara></flowRoot>    <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:30.83322525px;line-height:100%;font-family:gentium2;-inkscape-font-specification:'gentium2, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.73699999;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        x="66.900909"
