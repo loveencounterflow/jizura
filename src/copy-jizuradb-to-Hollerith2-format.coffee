@@ -8,7 +8,7 @@ join                      = njs_path.join
 #...........................................................................................................
 CND                       = require 'cnd'
 rpr                       = CND.rpr
-badge                     = 'HOLLERITH/copy'
+badge                     = 'JIZURA/copy-jizuradb-to-Hollerith2-format'
 log                       = CND.get_logger 'plain',     badge
 info                      = CND.get_logger 'info',      badge
 whisper                   = CND.get_logger 'whisper',   badge
@@ -31,7 +31,7 @@ D                         = require 'pipedreams'
 $                         = D.remit.bind D
 $async                    = D.remit_async.bind D
 #...........................................................................................................
-HOLLERITH                 = require './main'
+HOLLERITH                 = require 'hollerith'
 # DEMO                      = require './demo'
 KWIC                      = require 'kwic'
 ƒ                         = CND.format_number.bind CND

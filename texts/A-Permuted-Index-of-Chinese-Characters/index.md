@@ -23,6 +23,9 @@
 
 # A Permuted Index of Chinese Character Components
 
+![](../unicode-cjk-chrs-by-regions/euler-venn-diagram-cjk-usage-by-region.png)
+
+
 ## Data Collections
 
 ```

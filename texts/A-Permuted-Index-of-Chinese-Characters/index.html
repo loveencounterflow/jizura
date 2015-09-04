@@ -1,35 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="generator" content="pandoc">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title></title>
-  <style type="text/css">code{white-space: pre;}</style>
-  <!--[if lt IE 9]>
-    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-  <![endif]-->
-  <style type="text/css">
-table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
-  margin: 0; padding: 0; vertical-align: baseline; border: none; }
-table.sourceCode { width: 100%; line-height: 100%; }
-td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
-td.sourceCode { padding-left: 5px; }
-code > span.kw { color: #007020; font-weight: bold; }
-code > span.dt { color: #902000; }
-code > span.dv { color: #40a070; }
-code > span.bn { color: #40a070; }
-code > span.fl { color: #40a070; }
-code > span.ch { color: #4070a0; }
-code > span.st { color: #4070a0; }
-code > span.co { color: #60a0b0; font-style: italic; }
-code > span.ot { color: #007020; }
-code > span.al { color: #ff0000; font-weight: bold; }
-code > span.fu { color: #06287e; }
-code > span.er { color: #ff0000; font-weight: bold; }
-  </style>
-</head>
-<body>
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
@@ -60,397 +28,170 @@ code > span.er { color: #ff0000; font-weight: bold; }
 </ul>
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-
-
-<script src='./public/jquery-2.1.3.js'></script>
-<script src='./public/webpjs-0.0.2.min.js'></script>
-<p><link rel='stylesheet' href='./public/spreewebdesign-common.css'> <link rel='stylesheet' href='./public/extras.css'></p>
-<h1 id="bildoptimierung">Bildoptimierung</h1>
-<h2 id="die-bedeutung-von-bildmaterial-für-die-webseitenoptimierung">Die Bedeutung von Bildmaterial für die Webseitenoptimierung</h2>
-<p>Bildelemente sind auch auf vielen textlastigen Webseiten zu finden, da sie neben ihrer Hauptfunktion – der Illustration – auch eingesetzt werden um Bedienelemente, Logos und Hintergründe zu realisieren.</p>
-<p>Bildformate spielen bei der Webseitenoptimierung eine zentrale Rolle, da sie durch ihre schiere typische Dateigröße schnell die Gesamtladezeit einer Seite dominieren können. Das wird durch folgenden Vergleich deutlich, der auf <a href="http://httparchive.org/interesting.php?a=All&amp;l=Feb%2015%202015">Daten des Internetarchivierungsdienstes httparchive.org</a> beruht:</p>
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: left;">Kategorie</th>
-<th style="text-align: right;">2010 (abs)</th>
-<th style="text-align: right;">2010 (rel)</th>
-<th style="text-align: right;">2015 (abs)</th>
-<th style="text-align: right;">2015 (rel)</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">JavaScript</td>
-<td style="text-align: right;">113°KB</td>
-<td style="text-align: right;">16,07°%</td>
-<td style="text-align: right;">307°KB</td>
-<td style="text-align: right;">15,99°%</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">CSS</td>
-<td style="text-align: right;">25°KB</td>
-<td style="text-align: right;">3,56°%</td>
-<td style="text-align: right;">63°KB</td>
-<td style="text-align: right;">3,28°%</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Flash</td>
-<td style="text-align: right;">90°KB</td>
-<td style="text-align: right;">12,80°%</td>
-<td style="text-align: right;">82°KB</td>
-<td style="text-align: right;">4,27°%</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Andere</td>
-<td style="text-align: right;">22°KB</td>
-<td style="text-align: right;">3,13°%</td>
-<td style="text-align: right;">142°KB</td>
-<td style="text-align: right;">7,40°%</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">HTML</td>
-<td style="text-align: right;">34°KB</td>
-<td style="text-align: right;">4,84°%</td>
-<td style="text-align: right;">60°KB</td>
-<td style="text-align: right;">3,13°%</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Bilder</td>
-<td style="text-align: right;">419°KB</td>
-<td style="text-align: right;">59,60°%</td>
-<td style="text-align: right;">1´266°KB</td>
-<td style="text-align: right;">65,94°%</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Gesamt</td>
-<td style="text-align: right;">703°KB</td>
-<td style="text-align: right;">100,00°%</td>
-<td style="text-align: right;">1´920°KB</td>
-<td style="text-align: right;">100,00°%</td>
-</tr>
-</tbody>
-</table>
-<p><x-caption>Vergleich der mittleren absoluten (in°KB) und relativen (in°Prozent)<br>Download-Volumina typischer Webseiten in°2010 und°2015</x-caption></p>
-<!--
-<script src="https://www.google.com/jsapi"></script>
-<script>
-  // Load the Visualization API and the piechart package.
-  google.load('visualization', '1.0', { 'packages':[ 'corechart', ] } );
-  // Set a callback to run when the Google Visualization API is loaded.
-  google.setOnLoadCallback( draw_chart );
-  function draw_chart() {
-
-    // Average download sizes of web pages (in KB)
-    var raw_data_abs = [
-        [ 'Type', 'CSS', 'HTML', 'Flash', 'Andere', 'JavaScript', 'Bilder', 'Gesamt', { role: 'annotation', } ],
-        [ '2010',            25,     34,      90,      22,       113,      419,  703, '', ],
-        [ '2015',            63,     60,      82,     142,       307,     1266, 1920, '', ],
-      ];
-    var dl_abs_options = {
-      width: 746,
-      height: 400,
-      legend: { position: 'top', maxLines: 3 },
-      bar: { groupWidth: '75%' },
-      isStacked: false, };
-
-    // Average download sizes of web pages (in percent)
-    var raw_data_rel = [
-        [ 'Type', 'CSS', 'HTML', 'Flash', 'Andere', 'JavaScript', 'Bilder', { role: 'annotation', } ],
-        [ '2010',          3.56,   4.84,   12.80,    3.13,     16.07,    59.60, '', ],
-        [ '2015',          3.28,   3.13,    4.27,    7.40,     15.99,    65.94, '', ],
-      ];
-    var dl_rel_column_options = {
-      width: 746,
-      height: 400,
-      legend: { position: 'top', maxLines: 3 },
-      bar: { groupWidth: '75%' },
-      isStacked: true, };
-
-    var dl_rel_column_data      = google.visualization.arrayToDataTable( raw_data_rel );
-    var dl_rel_column_chart_dom = document.getElementById( 'chart-dl-sizes-rel' );
-    var dl_rel_chart            = new google.visualization.ColumnChart( dl_rel_column_chart_dom );
-    dl_rel_chart.draw( dl_rel_column_data, dl_rel_column_options );
-
-    var dl_abs_data       = google.visualization.arrayToDataTable( raw_data_abs );
-    var dl_abs_chart_dom  = document.getElementById( 'chart-dl-sizes-abs' );
-    var dl_abs_chart      = new google.visualization.LineChart( dl_abs_chart_dom );
-    dl_abs_chart.draw( dl_abs_data, dl_abs_options );
-}
-</script>
- -->
-
-<p>°</p>
-<p><img width='750' src='./Bildoptimierung/website-dl-volumes-abs-fs8.png'> <x-caption>Vergleich der mittleren absoluten (in°KB) Download-Volumina<br>typischer Webseiten in°2010 und°2015</x-caption></p>
-<p>°</p>
-<p><img width='750' src='./Bildoptimierung/website-dl-volumes-rel-fs8.png'> <x-caption>Vergleich der mittleren relativen (in°Prozent) Download-Volumina<br>typischer Webseiten in°2010 und°2015</x-caption></p>
-<p>Die Visualisierung macht deutlicher, was die wichtigen Trends sind. Schauen wir zunächst die absoluten Zahlen an. Die oberste Linie steht für die Gesamtzahl der typischerweise übertragenen Bytes pro Seite in 2010 und 2015. Sie steigt steil an, da Webseiten immer umfangreicher geworden sind. Fast parallel dazu verläuft die Linie, die die Entwicklung der auf Bilddateien entfallenden Bytes wiedergibt. Weit abgeschlagen und allesamt flacher verlaufend sind die Kurven der anderen Dateitypen:</p>
-<div id="chart-dl-sizes-abs">
-
+<h1 id="a-permuted-index-of-chinese-characters">A Permuted Index of Chinese Characters</h1>
+<h1 id="a-permuted-index-of-chinese-character-components">A Permuted Index of Chinese Character Components</h1>
+<div class="figure">
+<img src="../unicode-cjk-chrs-by-regions/euler-venn-diagram-cjk-usage-by-region.png" />
 </div>
-<p>Die nächste Grafik veranschaulicht die Entwicklung der Dateigrößen in den einzelnen Sparten relativ zu einander:</p>
-<div id="chart-dl-sizes-rel">
+<h2 id="data-collections">Data Collections</h2>
+<pre><code>meaning/meanings.txt
+shape/extra-shapeclasses.txt
+shape/shape-breakdown-formula-naive.txt
+shape/shape-breakdown-formula.txt
+shape/shape-factor-hierarchy.txt
+shape/shape-figural-themes.txt
+shape/shape-guides-similarity.txt
+shape/shape-similarity-identity.txt
+shape/shape-strokeorder-zhaziwubifa.txt
+usage/IRGN1067R2_IICore22_MappingTable.txt
+usage/usage-missing-chrs.txt
+usage/usage-rank-ja-chubu-2050chrs-2050ranks.txt
+usage/usage-rank-ja-jouyoujinmeiyou-3140chrs-8ranks.txt
+usage/usage-rank-ja-kanjicards-2500chrs-2500ranks.txt
+usage/usage-rank-ja-koohii-9920chrs-3250ranks.txt
+usage/usage-rank-ja-leedscorpus-words-2300chrs-1700ranks.txt
+usage/usage-rank-ja-touyou-1850chrs-1rank.txt
+usage/usage-rank-zh-zeinse-3650chrs-2700ranks.txt
+usage/usage-rank-zhcn-junda-3500chrs-3300ranks.txt
+usage/usage-rank-zhcn-leedscorpus-chrs-6800chrs-3500ranks.txt
+usage/usage-rank-zhcn-leedscorpus-words-1950chrs-490ranks.txt
+usage/usage-rank-zhcn-moecn-3500chrs-2ranks.txt
+usage/usage-rank-zhcn-upennldc-words-4550chrs-1100ranks.txt
+usage/usage-rank-zhtw-chtsai-13000chrs-3700ranks.txt
+variants/harigaya-variants.txt
+variants/reform-japan-1949.txt
+variants/reform-japan-asahi.txt
+variants/reform-japan-update.txt
+variants/reform-prc-1964.txt
+variants/reform-singapore.txt
+variants/Unihan_Variants.txt
+variants/variants-corrections.varcor
+variantusage/variants-and-usage.txt</code></pre>
+<h3 id="coverage">Coverage</h3>
+<h3 id="binary-and-n-ary-character-decompositions">Binary and N-Ary Character Decompositions</h3>
+<p>Geometric (or graphic) decomposition is a process by which we can formally notate the geometric structure of a given writing system entity.</p>
+<p>Composition and decomposition have always been an integral part of all human writing systems. For example, the letters 'ä', 'ø', and 'ç' are conventionally thought of as 'a with two dots', 'o crossed with a slanted stroke', and 'c with cedilla (comma) beneath'. In the age of typewriters when available type bars were a limited resource, one often had to resort to overstrinking 'a' with '¨' 'o' with '/' and 'c' with ',' two get the appearance of the desired letter.</p>
+<p>Similarly, users of CJK characters think of many characters as being made up from smaller parts; up to a few hundred of frequently recurring parts have acquired commonly used names such as '氵' being known as 'three-dots (or drops) of water', '冫' as 'two-dots (or drops) of water', and so on.</p>
+<p>When decomposing a given glyph into its constituent parts, it is essential to keep in mind a few pertinent considerations:</p>
+<h4 id="section"></h4>
+<h4 id="positional-and-stylistic-variants">Positional and Stylistic Variants</h4>
+<p><a href="http://kanji-database.sourceforge.net/ucs/ucv.html">http://kanji-database.sourceforge.net/ucs/ucv.html</a></p>
+<p>Unicode purports to identify &quot;Characters, not Glyphs&quot; (see section 2.2 of [The Unicode Standard])</p>
+<p>344511534 │ │ ┌ 食 u-cjk-98df 34451154 │ └ 飠 u-cjk-98e0</p>
+<h4 id="historical-etymological-truth-vs.-apparent-conventional-visual-fact">Historical (etymological) 'truth' vs. apparent / conventional / visual 'fact'</h4>
+<h4 id="ambiguity-of-decomposition-where-to-draw-the-line">Ambiguity of Decomposition (where to draw the line)</h4>
+<p>sfo5763u-cjk/6380 掀 ⿰折欠 sfo5764u-cjk/6380 掀 ⿰扌欣 sfo5765u-cjk/6380 掀 ⿻扻斤</p>
+<p>sfo1033u-cjk/514a 兊 ⿱公儿 sfo1034u-cjk/514a 兊 ⿱八允 sfo1048u-cjk/5156 兖 ⿱亠兊</p>
+<h4 id="ambiguity-of-atomicity">Ambiguity of Atomicity</h4>
+<p>While the letter 'G' is nowadays considered an atomic, non-decomposable entity of the Latin alphabet, a certain Roman by the name of Spurius Carvilius Ruga, around 230 BCE</p>
+<p>34 ├ 人 u-cjk-4eba 341 │ ├ 亼 u-cjk-4ebc 34112431 │ │ └ 金 u-cjk-91d1 34112431x │ │ ├ 鍂 u-cjk-9342 34112431xx │ │ └ 鑫 u-cjk-946b 341251 │ │ 合 x u-cjk-5408 34125134 │ │ └ 㑒 u-cjk-xa-3452 344 │ └ 亽 u-cjk-4ebd 3444 │ ├ 仒 u-cjk-4ed2 3445113251 │ ├ 倉 u-cjk-5009</p>
+<p>亠 衣, 立, 方, 言, 主, 卞, 亦, 文, 六</p>
+<h4 id="reduplications">Reduplications</h4>
+<p>人 从, 仌, 众, 𠈌 言 誩, 𧨟, 𧮦</p>
+<h3 id="differences-between-cjkvi-and-jizura-formulas">Differences between CJKVI and Jizura Formulas</h3>
+<pre><code>HOLLERITH/copy  ☛  read 109&#39;984 records
+HOLLERITH/copy  ☛  read categories for 109&#39;984 glyphs
+HOLLERITH/copy  ☛  read 81&#39;869 records
+HOLLERITH/copy  ☛  filtering counts:
+HOLLERITH/copy  ☛
+{ unknown: 5945,
+  &#39;cp/inner/original&#39;: 74595,
+  &#39;cp/inner/mapped&#39;: 778,
+  &#39;cp/outer/original&#39;: 284,
+  &#39;cp/outer/mapped&#39;: 267 }
+HOLLERITH/copy  ☛
+HOLLERITH/copy  ☛  of the 5&#39;945 unknown codepoints,
+HOLLERITH/copy  ☛  56 are *not* from Unicode V8 CJK Ext. E:
+HOLLERITH/copy  ☛
+[ &#39;glyph u-grek-3b1 α&#39;,
+  &#39;glyph u-llsym-2113 ℓ&#39;,
+  &#39;glyph u-geoms-25b3 △&#39;,
+  &#39;glyph u-enalp-2460 ①&#39;,
+  &#39;glyph u-enalp-2461 ②&#39;,
+  &#39;glyph u-enalp-2462 ③&#39;,
+  &#39;glyph u-enalp-2463 ④&#39;,
+  &#39;glyph u-enalp-2464 ⑤&#39;,
+  &#39;glyph u-enalp-2465 ⑥&#39;,
+  &#39;glyph u-enalp-2466 ⑦&#39;,
+  &#39;glyph u-enalp-2467 ⑧&#39;,
+  &#39;glyph u-enalp-2468 ⑨&#39;,
+  &#39;glyph u-enalp-2469 ⑩&#39;,
+  &#39;glyph u-enalp-246a ⑪&#39;,
+  &#39;glyph u-enalp-246b ⑫&#39;,
+  &#39;glyph u-enalp-246c ⑬&#39;,
+  &#39;glyph u-enalp-246d ⑭&#39;,
+  &#39;glyph u-enalp-246e ⑮&#39;,
+  &#39;glyph u-enalp-246f ⑯&#39;,
+  &#39;glyph u-enalp-2470 ⑰&#39;,
+  &#39;glyph u-enalp-2471 ⑱&#39;,
+  &#39;glyph u-enalp-2472 ⑲&#39;,
+  &#39;glyph u-enalp-2473 ⑳&#39;,
+  &#39;glyph u-cjk-hira-3044 い&#39;,
+  &#39;glyph u-cjk-hira-3088 よ&#39;,
+  &#39;glyph u-cjk-kata-30ad キ&#39;,
+  &#39;glyph u-cjk-kata-30b5 サ&#39;,
+  &#39;glyph u-cjk-9fcd 鿍&#39;,
+  &#39;glyph u-cjk-9fce 鿎&#39;,
+  &#39;glyph u-cjk-9fcf 鿏&#39;,
+  &#39;glyph u-cjk-9fd0 鿐&#39;,
+  &#39;glyph u-cjk-9fd1 鿑&#39;,
+  &#39;glyph u-cjk-9fd2 鿒&#39;,
+  &#39;glyph u-cjk-9fd3 鿓&#39;,
+  &#39;glyph u-cjk-9fd4 鿔&#39;,
+  &#39;glyph u-cjk-9fd5 鿕&#39;,
+  &#39;glyph u-cjk-9fd6 鿖&#39;,
+  &#39;glyph u-cjk-9fd7 鿗&#39;,
+  &#39;glyph u-cjk-9fd8 鿘&#39;,
+  &#39;glyph u-cjk-9fd9 鿙&#39;,
+  &#39;glyph u-cjk-9fda 鿚&#39;,
+  &#39;glyph u-cjk-9fdb 鿛&#39;,
+  &#39;glyph u-cjk-9fdc 鿜&#39;,
+  &#39;glyph u-cjk-9fdd 鿝&#39;,
+  &#39;glyph u-cjk-9fde 鿞&#39;,
+  &#39;glyph u-cjk-9fdf 鿟&#39;,
+  &#39;glyph u-cjk-9fe0 鿠&#39;,
+  &#39;glyph u-cjk-9fe1 鿡&#39;,
+  &#39;glyph u-cjk-9fe2 鿢&#39;,
+  &#39;glyph u-cjk-9fe3 鿣&#39;,
+  &#39;glyph u-cjk-9fe4 鿤&#39;,
+  &#39;glyph u-cjk-9fe5 鿥&#39;,
+  &#39;glyph u-cjk-9fe6 鿦&#39;,
+  &#39;glyph u-cjk-9fe7 鿧&#39;,
+  &#39;glyph u-cjk-9fe8 鿨&#39;,
+  &#39;glyph u-cjk-9fe9 鿩&#39; ]
+HOLLERITH/copy  ☛  differences in formulas:
+HOLLERITH/copy  ☛  glyphs:             74&#39;595
+HOLLERITH/copy  ☛  missing formulas:   0
+HOLLERITH/copy  ☛  different formulas: 21&#39;210</code></pre>
+<p>These figures mean that around two thirds of all Unicode CJK character decompositions are identical in the original and the Jizura data set, while one third differs (either because of changes in the CJKVI or in the Jizura data set).</p>
+<pre><code>difference: u-cjk-5018 倘 ⿰亻尙 [ &#39;⿰亻尚&#39; ]
+difference: u-cjk-5019 候 ⿰&amp;cdp#x8b7a;&amp;cdp#x8bc7; [ &#39;⿰&amp;jzr#xe219;(⿱&amp;jzr#xe1c2;矢)&#39; ]
+difference: u-cjk-4fbb 侻 ⿰亻兌 [ &#39;⿰亻兑&#39; ]
+difference: u-cjk-4fc8 俈 ⿰亻吿 [ &#39;⿰亻告&#39; ]
+difference: u-cjk-5149 光 ⿳⺌一儿 [ &#39;(⿱⺌一儿)&#39; ]
+difference: u-cjk-514a 兊 ⿱八允 [ &#39;⿱公儿&#39; ]
+difference: u-cjk-514c 兌 ⿱㕣儿 [ &#39;⿱八兄&#39; ]
 
-</div>
-<p>Aus diesen Angaben geht hervor:</p>
-<ul>
-<li><p>Gemessen am Download-Volumen ist die typische Webseite in den vergangenen fünf Jahren <strong>2 bis 4mal so groß</strong> geworden. Während man für die Gesamtgröße einer Webseite mit allen Resourcen früher 1°MB als ‘Schallmauer’ angesehen hat, liegen heute viele Websites bei einer Seitengröße von <strong>mehreren Megabytes</strong>.</p></li>
-<li><p>Die <em>anteiligen</em> Größen von CSS-Stylesheets und JavaScript-Programmen sind konstant geblieben, auch wenn sie in <em>absoluten</em> Zahlen heute 2,5 bis 3mal so groß wie vor einem halben Jahrzehnt sind. Umgekehrt hat sich Flash hinsichtlich des <em>absoluten</em> Umfangs in Bytes fast konstant halten können, was aber angesichts des allgemeinen Wachstums als <em>anteiliger</em> Rückgang zu Buche schlägt.</p></li>
-<li><p>Der Zuwachs der Bilddaten auf Webseiten ist zwar anteilig nicht dramatisch; in absoluten Zahlen jedoch <strong>fallen bei einer typischen Webseite dreimal so viele Bilddaten an wie noch vor fünf Jahren</strong>.<br><br> Damit <strong>entfallen fast 7 von 10 übertragenen Bytes auf Bilder</strong>, die mittlerweile <strong>über 1°MB des Übertragungsvolumens einer typischen Webseite ausmachen</strong>.</p></li>
-</ul>
-<p>Nebenbei bemerkt sei, dass die Plätze zwei und drei in der Wachstumsstärke von den ‘Anderen’ Medienformaten und JavaScript dominiert werden. Dass JavaScript zunehmend Verwendung findet und dabei auch größenmäßig absolut zunimmt, kann nicht wirklich überraschen – lassen wir doch heute routinemäßig Apps von erheblicher Komplexität mal eben im Browserfenster laufen, deren Leistung man früher bestenfalls einer in C geschriebenen, kompilierten und auf dem Desktop-PC zu installierenden Anwendung zugetraut hätte.</p>
-<p>Was sich hinter den von httparchive unter ‘Anderen’ zusammengefassten Zahlen verbirgt, darüber kann nur spekuliert werden; zweifelsohne sind hier aber PDF-Dokumente und Webfonts (d.h. in eine Webseite eingebundene Schriftarten) ganz vorne dabei, möglicherweise auch das von YouTube promotete HTML5 Video-Format, das Filme ohne Einsatz von Flash erlaubt.</p>
-<p>Unsere Schlussfolgerung:</p>
-<p><takeaway>Der Umfang moderner Webseiten wird vom Umfang des Bildmaterials dominiert; gleichzeitig wird deren Größenzunahme gegenwärtig von der des Bildmaterials bestimmt. Die Optimierung von Bildformaten und -größen stellt daher das A°und°O der Webseitenoptimierung überhaupt dar.</takeaway></p>
-<h2 id="um-welche-bildformate-geht-es">Um welche Bildformate geht es?</h2>
-<p>Drei digitale Bildformate haben sich auf dem Internet durchgesetzt und stellen quasi 100% des gesamten vefügbaren digitalen Bildmaterials dar: <strong>JPG</strong>, <strong>GIF</strong> und <strong>PNG</strong>. Bei allen drei Formaten handelt es sich um Pixel-orientierte Formate, d.h. die Bildinformationen werden als ein Raster von Bildpunkten abgespeichert.</p>
-<p>Daneben existieren zum Beispiel noch: ●°das Vektorformat SVG, das erst seit kurzem problemlos von allen Browsern wiedergegeben wird; ●°das aus alter Zeit stammende Microsoft Device-Independent Bitmap-Format (BMP), das in völlige Bedeutungslosigkeit versunken ist; ●°Formate speziell für Icons; ●°das alte, aber immer noch weiter entwickelte PDF-Format; ●°eine Anzahl von mehr oder weniger obskuren Formaten, die sich in der Vergangeheit nicht haben durchsetzen können; sowie ●°<a href="#the-new-kids-on-the-block">Neuentwicklungen</a> die auf den Erfahrungen mit den klassischen Formaten aufsetzen und sich neue Entwicklungen in der Bildverarbeitungstechnik zu Nutze machen um – vielleicht – einmal kleinere Dateigrößen mit verbesserter Qualität für die Bilddarstellung im Browser zu bieten.</p>
-<p><takeaway>Nur die drei Klassiker unter den Bildformaten – JPG, GIF, PNG – sind in erster Linie interessant für Darstellung Webseiten; in zweiter Linie gibt es drei weitere – BPG, JPEG°XR, WebP – die vielleicht eine Zukunft auf dem Web haben könnten.</takeaway></p>
-<h2 id="gif-png-jpg-das-format-ist-wichtig">GIF, PNG, JPG: Das Format ist wichtig</h2>
-<p>Für welches der drei Web-Bildformate man sich entscheiden sollte, wird in den allermeisten Fällen durch die beabsichtigte Anwendung bestimmt. Der Grund dafür liegt darin, dass jedes Bildformat für eine bestimmte Einsatzweise optimiert wurde, aus der jeweils gewisse Charakteristika und mancherlei Einschränkungen resultieren.</p>
-<h3 id="gif">GIF</h3>
-<p>Das GIF-Format wurde bereits 1987 konzipiert, zu einem Zeitpunkt also, als noch längst nicht jeder einen PC zu Hause hatte und das World Wide Web noch seiner Erfindung harrte. Rechenleistung und Speicherkapazitäten damaliger Tischgeräte betrugen ein Bruchteil der Leistung heutiger Smartphones. Dementsprechend gering sind die Anforderungen, die man damals an ein Bildformat stellte: GIF erlaubt zwar 24 Bit Farbtiefe, dies jedoch nur mit dem Umweg über eine sog. ‘Palette’, die bis zu 256 Einträgen umfassen kann – mit anderen Worten: jedes GIF-Bild kann nur bis zu 256 <em>verschiedene</em> Farben aufweisen, egal ob es sich dabei um Schwarz, Weiß, Grün und Rot usw. oder ob es sich dabei um ein fast weißes, ein helles, ein dunkleres und ein schattiges Ocker handelt, die zusammengenommen erst den realistischen Eindruck eines Ockerfelsens bei Roussillon ergeben.</p>
-<p>Zudem ist der bei GIFs angewendete Komprimierungsalgorithmus im Vergleich zu heutigen Verfahren eher einfach gestrickt und führt zu relativ großen Bilddateien.</p>
-<p>Alle diese Nachteile haben zur Entwicklung von alternativen Formaten beigetragen; das GIF-Format als solches haben sie jedoch nicht ganz verdrängt. Dies hängt mit mehreren Faktoren zusammen: GIF konnte sich früh etablieren und wird daher universell von Bildbearbeitungs-Software und Browsern unterstützt; außerdem bietet es die Möglichkeit zur Darstellung von Transparenz <em>und</em> Animation <em>ohne</em> die Installation von Browser-Erweiterungen vorauszusetzen. Zusammengenommen wird diese Kombination von Eigenschaften erst in jüngster Zeit durch HTML5-Video erreicht; andere Konkurrenzformate (z.B. APNG, d.h. PNGs mit Animation) haben sich in der Vergangenheit nie durchsetzen können.</p>
-<p>Die Beschränkung auf 256°Farben bzw. 255°Farben plus einen Ein/Aus-Kanal für Transparenz und die damit einhergehenden Grenzen in der erreichbaren Bildqualität schließen übrigens viele Sujets gar nicht unbedingt aus; vielmehr ist es so, dass bei einer geschickten Gestaltung, sinnvoller Anwendung von <a href="http://de.wikipedia.org/wiki/Dithering_%28Bildbearbeitung%29">Dithering-Algorithmen</a> und anderer Tricks (z.B. dem in den 90ern weit verbreiteten Zerlegen großer Bilder in viele kleine Kacheln) auch qualitativ höherwertige Darstellungen möglich sind.</p>
-<p>Ebenfalls aus den 90ern stammt die untenstehende Filmschleife einer Taube im Flug (die dermaßen populär war, dass eine <a href="https://www.google.de/search?q=animated+gif+flying+dove">Google-Suche nach ‘animated gif flying dove’</a> noch heute dutzendweise Treffer bringt). Der Vogel ist auf einem transparentem Hintergrund dargestellt, was bei GIF schnell zu Problemen führt, weil das Format keine Transparenzverläufe zuläßt – ein Pixel muss entweder eine deckende Farbe aufweisen oder ganz durchsichtig sein, so etwas wie ein transparentes Grün oder ein Milchglasscheibeneffekt gehen nicht. Bei diesem speziellen Motiv führt das dazu, dass unschön, gezackte Ränder erscheinen. Da kommt der nächste Trick ins Spiel: dunkelt man den Hintergrund ab, werden die gepixelten Ränder kaschiert:</p>
-<table><tr>
-<td style='background-color:white;text-align:center;'>
-<img src="./Bildoptimierung/doveflying.gif" />
-</td>
-<td style='background-color:black;text-align:center;'>
-<img src="./Bildoptimierung/doveflying.gif" />
-</td>
-</tr></table>
+difference: u-cjk-5153 兓 ⿰兂兂 [ &#39;⿰旡旡&#39; ]
 
-<p>Ein weiteres Beispiel: Unten ist das im Wesentlichen gleiche Motiv zweimal in animierten GIFs wiedergegeben. Bei der oberen Darstellung lassen sich bei genauerem Hinsehen z.B. Artefakte in der Form dunkler Pixelgruppen im Himmel über der Brücke feststellen, die aber vielleicht noch als künstlerisches Stilmittel durchgehen:</p>
-<p><img src="./Bildoptimierung/oberbaum.gif" /> <x-caption>Animated GIF – der Klassiker kann ordentliche Qualität zeigen,<br> wenn man Motiv und Farben geschickt wählt.</x-caption></p>
-<p>Aber jetzt der Stresstest: wir haben nichts anderes gemacht, als einen Farbbalken in das Bild einzufügen. Die Übergänge in diesem Balken, die ursprünglich fließend waren, können in einem GIF schlechterdings nicht ohne Dithering dargestellt werden, da im Original mehr als 256°Farben vorliegen, das verfügbare Spektrum also mehr als ausschöpft wird. Beim Übergang von Cyan zu Grün klappt das ganz ordentlich, aber die Übergänge von Cyan zu Blau und von Blau zu Magenta vertragen das Dithering nicht gut:</p>
-<p><img src="./Bildoptimierung/oberbaum-rainbow-prepaletted-optimized.gif" /> <x-caption>Das Hinzufügen des Farbbalkens – an sich eine lokale Änderung – hat die Bildqualität global verschlechtert.</x-caption></p>
-<p>Abgesehen von der suboptimalen Darstellung des Farbbalkens an sich führt dessen Einfügung leider dazu, dass auch weit entfernte, vorher noch ganz ordentlich dargestellte Bildteile nun in schlechterer Qualität erscheinen: so sind die dunklen Pixel im Himmel deutlicher geworden, und vorne auf dem Steg ist ein feines Rauschen zu erkennen:</p>
-<table>
-<tr>
-  <td style='height:100px;background-repeat:no-repeat;background-position:10% 80%;background-size:300%;background-image:url(./Bildoptimierung/oberbaum.gif);'></td>
-  <td style='height:100px;background-repeat:no-repeat;background-position:90% 16%;background-size:300%;background-image:url(./Bildoptimierung/oberbaum.gif);'></td>
-  </tr>
-<tr>
-  <td style='height:100px;background-repeat:no-repeat;background-position:10% 80%;background-size:300%;background-image:url(./Bildoptimierung/oberbaum-rainbow-prepaletted-optimized.gif);'></td>
-  <td style='height:100px;background-repeat:no-repeat;background-position:90% 16%;background-size:300%;background-image:url(./Bildoptimierung/oberbaum-rainbow-prepaletted-optimized.gif);'></td>
-  </tr>
-</table>
+difference: u-cjk-xd-2b798 𫞘 ⿰氵⿲丿关丨 [ &#39;(⿰氵丿关丨)&#39; ]
+difference: u-cjk-xd-2b799 𫞙 ⿰氵⿱共〓 [ &#39;⿰氵⿱共⿰卄丶&#39; ]
+difference: u-cjk-xd-2b815 𫠕 ⿸广⿱隹〓 [ &#39;⿸㢈〓&#39; ]</code></pre>
+<h3 id="song-characters">'Song Characters'</h3>
+<p>In some cases, Song forms are encoded as compatibility characters:</p>
+<pre><code>sid1338u-cjk/4ee4   令   u-cjk-cmpi1/f9a8    令</code></pre>
+<h3 id="stroke-classifications">Stroke Classifications</h3>
+<p>[Kangxi] has 了 with two strokes and 子 with three strokes, and probably the majority of modern dictionaries (e.g. [新华写字字典]) follow it in this respect.</p>
+<p>[Yu Peilin 1990] and [Hadamitzky 2002] (pp 100, 132, 134, 276 etc) both have 了 with one stroke and 子 with two strokes</p>
+<h3 id="formulas">Formulas</h3>
+<h3 id="factors">Factors</h3>
+<h2 id="bibliography">Bibliography</h2>
+<p>[Kangxi] — 《康熙字典》</p>
+<p>[Hadamitzky 2002] — 漢独小字典 = Japanisch-deutsches Zeichenwörterbuch / Wolfgang Hadamitzky. Hamburg: Buske, 2002</p>
+<p>[LSZWZD] — 李氏中文字典 / 李卓敏. 香港: 中文大學出版社, 1989</p>
+<p>[Yu Peilin 1990] — 中文字序學 / 俞佩琳. 臺北: 啓業書局, 1990</p>
+<!-- [GYBXZD] —《國語筆形字典》(周徐慶, 臺灣高雄市大順公司, 1987) -->
 
-<p><x-caption>Vorher (oben) und nachher (unten): Die Hinzufügung eines<br>Farbbalkens hat die Bildqualität global verschlechtert.</x-caption></p>
-<p>Beide Demonstrationen machen augenscheinlich, wie leicht man bei der Verwendung von GIFs sosehr an die Grenzen des technisch Möglichen stößt, dass nur der zielgerichtete Einsatz von Tricks den Gesamteindruck retten kann. Besonders unangenehm ist, dass bei GIFs eine Veränderung in einem Teil des Bildes Veränderungen in einem anderen, weit entfernten Bildteil nach sich ziehen kann.</p>
-<p><takeaway>Im Hinblick darauf, dass andere Formate und Techniken viel mehr Einzelfarben (PNG und JPG), bessere Kompressionsraten bei Fotos (JPG), echte Transparenzverläufe (PNG), besseres Dithering (pngquant) und – inzwischen – auch bessere Animationen mit kleineren Dateien (HTML5-Video) bieten, sollte jede Verwendung von GIFs überdacht werden. Meist wird es auf die Entscheidung zwischen PNG für Grafiken oder JPG für Fotos hinauslaufen.</takeaway></p>
-<h3 id="png">PNG</h3>
-<p>Das PNG-Format (die Abkürzung steht für Portable Network Graphics) wurde Mitte der 90er Jahre eingeführt, um den Schwächen des GIF-Standards ein besseres Bildformat entgegenzusetzen. Mit PNG lassen sich Bilder sowohl – wie bei GIF – indiziert mit bis zu 256°Farben abspeichern, darüber hinaus aber werden nicht nur Farbtiefen von 8 und 16°Bit je Farb-Kanal (Rot, Grün, Blau), sondern auch ein vollwertiger Kanal für Transparenz geboten, so dass statt gezackter Ränder mit PNG weiche Verläufe von deckend über durchscheinend bis durchsichtig möglich werden. Darüberhinaus sieht das PNG-Format einen gegenüber GIF verbesserten Komprimierungsalgorithmus vor, so dass PNG kleinere Dateien in besserer Qualität als GIF ermöglicht.</p>
-<p>Die einzige Disziplin, in der PNG nicht mit GIFs mithalten kann, ist Animation: Wohl um den Standard einfacher zu halten wurden Animationen bewusst in einen verwandten Standard, MNG (Multiple-Image Network Graphics), ausgegliedert, der aber nie Bedeutung erlangt hat. Ebensowenig konnte sich das APNG-Format durchsetzen; es wird heute <a href="http://caniuse.com/#feat=apng">nur in Firefox und Safari unterstützt, nicht von Internet Explorer, Chrome oder Opera</a>, was das Format für Webentwickler relativ unattraktiv macht. Glücklicherweise erlauben es neuere Entwicklungen aber, Animationen effizienter, vielseitiger und mit fließendem Übergang zu vollständigen Filmen als HTML5-Video anzuzeigen.</p>
-<p>Bei PNGs handlet es sich um ein verlustfreies (<em>lossless</em>) komprimieren; Bildbearbeitungsprogramme bieten hierfür zehn Stufen zwischen 0 (keine Kompression, große Dateien) und 9 (höchste Kompression, kleine Dateien) an.</p>
-<p>Anders als bei JPGs bedeutet bei PNGs die höhere Kompression und die kleinere Datei <em>keinen</em> Verlust der Bildqualität – mithin sollte man in der Regel <em>immer</em> die höchste Kompressionsstufe°9 wählen, da eine größere Datei nur mehr Platz weg nimmt, aber am Bildeindruck nichts verbessert. Das einzige Argument das für eine niedrigere Kompressionsstufe spricht ist der verringerte Rechenaufwand, der vom Empfänger für die Rückgewinnung der ursprünglichen Daten getrieben werden muss (schließlich muss der Browser Pixel für Pixel in der richtigen Farbe darstellen – das <em>angezeigte</em> Bild ist also nie komprimiert). Dem spricht aber entgegen, dass der Unterschied bei kleinen Bildern nicht ins Gewicht fällt und andererseits bei großen Bildern die Download-, nicht die Rechenzeit die dominante Größe darstellt; ältere Hardware schließlich hat bei der Anzeige von sehr großen Illustrationen meist eher Probleme durch einen begrenzten Hauptspeicher – wobei die größere Kompressionsstufe als solche nichts nützt, da zur Anzeige ja das unkomprimierte Bild im Speicher abgelegt werden muss.</p>
-<!--
-<a href='http://en.wikipedia.org/wiki/File:PNG-Gradient.png'><img
-style='width:100%;' src='./Bildoptimierung/Comparison_between_JPEG%2C_JPEG_2000_and_JPEG_XR.png'></a>
- -->
-
-<p>Wie gut der PNG-Kompressionsalgorithmus im Vergleich ist, macht folgende Demonstration deutlich: Der unten gezeigte (<a href="http://en.wikipedia.org/wiki/File:PNG-Gradient.png">Wikipedia</a> entnommene) Farbverlauf hat trotz einer Bildgröße von 128°×°68 Pixel (das bei einer Farbtiefe von 8°Bit ja Kanal 128°×°68°×°3×°8 Bit = 208´896°Bit = 26´112°Byte im Speicher beansprucht) nur eine komprimierte Größe von 251°Bytes, ist also auf gerade mal <em>ein</em> Prozent seiner vollen Größe reduziert worden. Das gleiche Bild als GIF abgespeichert nimmt dagegen bald 3,5°KB (13°% der unkomprimierten Größe) ein:</p>
-<table><tr>
-<td style='background-color:black;text-align:center;'>
-<x-osd>PNG (251 Bytes ≙ 1°% O-Größe)</x-osd><br><img src="./Bildoptimierung/PNG-Gradient.png" />
-</td>
-<td style='background-color:black;text-align:center;'>
-<x-osd>PNG → GIF (3´432 Bytes ≙ 13°% O-Größe)</x-osd><br><img src="./Bildoptimierung/PNG-Gradient.png.gif" />
-</td>
-</tr></table>
-
-<p>Wir wir <a href="#pngquant">im nächsten Abschnitt über pngquant</a> zeigen werden, fallen PNG-Dateien leider bei typischen Fotomotiven trotz des durchdachten Kompressionsalgorithmus zu deutlich größeren Dateien als ein JPG mit vergleichbarer Qualitätsstufe.</p>
-<p><takeaway>PNGs brillieren bei Grafiken, aber performen schlechter bei Fotomotiven. Ein Sondergebiet stellen Transparenzverläufe dar, die mit GIF nur schlecht und mit JPG gar nicht zu realisieren sind.</takeaway></p>
-<h4 id="pngquant">pngquant</h4>
-<p>Obwohl PNGs von Hause aus eine (von der Bildqualität her) verlust<em>freie</em> Darstellung bei größtmöglicher Komprimierung der Datei<em>größe</em> anstreben, so ist es doch möglich, mit dem PNG-Format eine verlust<em>behaftete</em>, noch weitergehend komprimierte Darstellung zu erreichen. Dies ist das Versprechen von <a href="http://pngquant.org/">pngquant</a>: Laut Eigendarstellung bis zu 70°% kleinere Dateien ohne große sichtbare Einbußen, und das <em>unter vollem Erhalt eines gradierten Alpha-Kanals (d.h. mehrstufiger Transparenz)</em>.</p>
-<p>Technisch gesehen kann pngquant diese Größengewinne dadurch erreichen, dass es auf den indizierten Modus des PNG-Formats zurückgreift, der ähnlich wie GIF 8°Bit pro Pixel als Zeiger auf auf eine bis zu 256-stellige Farbtabelle benutzt. Was die Bildqualität angeht, so werden raffinierte Dithering-Techniken eingesetzt, die die Beeinträchtigung durch das verringerte Spektrum auf ein Minimum beschränken sollen. Das scheint bei ‘natürlichen’ Motiven, also typischerweise Fotos, auch ganz gut zu klappen, wie dieses Beispiel zeigt:</p>
-<table><tr>
-<td style='width:247px;height:785px;padding:0;'><div style='width:247px;height:785px;background-image:url(./Bildoptimierung/parcguel-q085.jpg);background-repeat:no-repeat;background-position:77% 85%;background-size:1050px;'>
-<x-osd>JPG, Q°=°85°%, 142°KB</x-osd>
-</div></td>
-<td style='width:247px;height:785px;padding:0;'><div style='width:247px;height:785px;background-image:url(./Bildoptimierung/parcguel-q100.png);background-repeat:no-repeat;background-position:77% 85%;background-size:1050px;'>
-<x-osd>PNG, 785°KB</x-osd>
-</div></td>
-<td style='width:247px;height:785px;padding:0;'><div style='width:247px;height:785px;background-image:url(./Bildoptimierung/parcguel-q100-pngquant-imageoptim.png);background-repeat:no-repeat;background-position:77% 85%;background-size:1050px;'>
-<x-osd>PNG quantized, 262°KB</x-osd>
-</div></td>
-</tr></table>
-<p><x-caption>Quantized PNG im Qualitäts- und Dateigrößenvergleich<br>(auf 150°% skaliert; ganzes Bild jeweils mit Rechtsklick &gt; ‘Hintergrundbild anzeigen’) </x-caption></p>
-<p>Der Größengewinn beim quantisierten PNG ist gegenüber der vollfarbigen (Farbtiefe 3°×°8°=°24°Bit) Ausgangsdatei deutlich; an Artefakten fallen höchstens die im quantisierten PNG dunkleren Wolkenbänder auf. Allerdings ist auch das quantisierte PNG noch größer als das gleiche Motiv als JPG mit Q°=°85°%.</p>
-<p>Nun fällt es nicht schwer, ein Motiv zu konstruieren, das pngquant an den Rand des Machbaren treibt, indem man nämlich einen Farbkreis nimmt, optional wie hier mit einem Transparenzverlauf kombiniert. Unschöne Treppen- bzw Farbbandeffekte treten dann auf, wenn auch der Transparenzverlauf sehr schön erhalten bleibt. Umgekehrt ist beim Vergleichs-GIF das Dithering (das mit GIMPs Floyd-Steinberg Algorithmus erstellt wurde) eher besser gelungen, während die Transparenz im Verlaufsbalken, aber auch am Rand des Farbkreises ungleich schlechter aussieht:</p>
-<table><tr>
-<td style='width:247px;height:500px;padding:0;'><div style='width:247px;height:500px;background-image:url(./Bildoptimierung/colorcircle-with-gradient.png);background-repeat:no-repeat;background-position:16%;'>
-<x-osd>PNG, 115°KB</x-osd>
-</div></td>
-<td style='width:247px;height:500px;padding:0;'><div style='width:247px;height:500px;background-image:url(./Bildoptimierung/colorcircle-with-gradient-fs8.png);background-repeat:no-repeat;background-position:16%;'>
-<x-osd>PNG quantized, 27°KB</x-osd>
-</div></td>
-<td style='width:247px;height:500px;padding:0;'><div style='width:247px;height:500px;background-image:url(./Bildoptimierung/colorcircle-with-gradient.gif);background-repeat:no-repeat;background-position:16%;'>
-<x-osd>GIF, 47°KB</x-osd>
-</div></td>
-</tr></table>
-<p><x-caption>Quantized PNG im Qualitäts- und Dateigrößenvergleich<br>(auf 150°% skaliert; ganzes Bild jeweils mit Rechtsklick &gt; ‘Hintergrundbild anzeigen’) </x-caption></p>
-<p>Soll pngquant zum Einsatz kommen, so empfiehlt sich daher sicher eine visuelle Qualitätskontrolle der Resultate.</p>
-<p>Ein weiteres, kleines Caveat sei nicht verschwiegen: während pngquant bei vielen Motiven überzeugende Resultate in Puncto Qualität und Dateigröße liefern kann, ist doch in der Regel anzuraten, ein quantisiertes PNG anschließend noch mit ImageOptim zu behandeln. Bei einem Testlauf mit dem <a href="png">im Abschnitt über das PNG-Format gezeigten PNG-Farbverlauf</a> machte pngquant aus den ursprünglichen 251°Byte eine Datei von 1´227°Byte – ImageOptim konnte diese wieder auf 257°Byte reduzieren.</p>
-<!--
-Einige mit pngquant verwandte Programme wie
-[neuquant](http://members.ozemail.com.au/~dekker/NEUQUANT.HTML) oder
-[pngq](http://pngnq.sourceforge.net/) konnten letztlich nicht überzeugen. Alle
-diese Lösungen scheitern in der Praxis daran dass sie zu langsam sind, zu viel
-Speicherplatz benötigen, unter bestimmten Bedingungen versagen – oder auch
-darunter, dass kein fertiges Programm, sondern nur ein selbst zu kompilierender
-C-Quelltext angeboten wird. Darüberhinaus verrät der [Streit der hundert
-Schulen](https://news.ycombinator.com/item?id=7050218) uns am Rande auch, dass
-das Ei des Kolumbus in dieser Frage noch nicht gefunden worden ist.
- -->
-
-<p><takeaway>Das Alleinstellungsmerkmal von pngquant ist die Möglichkeit, bei geeigneten Motiven abgestufte Transparenz, farbgetreue Darstellung, hohe Auflösung und kleine Dateigröße zu kombinieren – und das bei Kompatibilität zu allen jetztzeitigen Browsern ohne zusätzliche Client-Software. Auf jeden Fall ist eine Qualitätskontrolle anzuraten.</takeaway></p>
-<p><takeaway>Wer sich gerne mit Bildverarbeitung beschäftigt, sollte sich bestimmt pngquant und verwandte Programme ansehen. In der Vergangenheit sind schon erstaunliche Qualitätsgewinne beim Dithern von Schwarzweißbildern erzielt worden; möglicherweise bringt die Zukunft da noch Überraschungen auch für farbige Abbildungen.</takeaway></p>
-<h3 id="jpg">JPG</h3>
-<p>Das JPG-Format wurde in den 1990er Jahren definiert, um ein möglichst qualitätsbewahrendes, speichereffizientes, in der Qualität anpassbares und über Plattformen hinweg austauschbares Bildformat zu schaffen. Im Wesentlichen sind alle diese Anforderungen erfüllt worden, und JPG wurde schnell zu <em>dem</em> Bildformat schlechthin, wenigstens wenn es um Schwarzweiß- und Farbfotografien geht.</p>
-<p>JPGs benutzen ein sogenanntes ‘verlustbehaftetes’ (<em>lossy</em>) Komprimierungsverfahren, d.h. dass eine Reduzierung der Dateigröße immer mit einem unwiederbringlichen Verlust an Bildinformation erkauft wird. Diese Einstellung lässt sich bei vielen Bildbearbeitungsprogrammen beim Abspeichern des Bildes festlegen; in diesem Post schreiben wir kurz ‘Q°=°85°%’, was für “mit 85prozentiger Qualität abgespeichert” stehen soll (dabei gibt es i.A. keinen linearen Zusammenhang zwischen Qualitätsstufe und Dateigröße und noch weniger eine objektive, allgemein akzeptierte Meßgröße ‘Bildqualität’, vielmehr nennen wir nur die Einstellungen und die Resultate, die wir mit <a href="http://www.gimp.org/">Gimp</a> und <a href="https://imageoptim.com/">ImageOptim</a> erhalten haben).</p>
-<blockquote>
-<p><strong>Anmerkung zu Qualitäts- und Komprimierungsstufen</strong>: Die Terminologie ist in der Praxis leider unheitlich; <a href="http://blog.codinghorror.com/a-comparison-of-jpeg-compression-levels-and-recompression/">J.°Atwood spricht von <em>compression factors</em></a> und zählt von 10 (d.h. 10°% weg-komprimiert, 90°% Dateigröße erhalten) bis 50 (kleine Datei, schlechte Qualität). In Adobe Photoshop werden <em>Quality Levels</em> von 0°(kleine Datei, schlechte Qualität) bis 12°(große Datei, gute Qualität) verwendet, während Adobe Photoshop Lightroom <a href="http://regex.info/blog/lightroom-goodies/jpeg-quality">eine andere Skala°(!)</a> verwendet, die von 0°(kleine Datei) bis 100°(große Datei) reicht. Dies entspricht oberflächlich der in Gimp und in diesem Post verwendeten Konvention (Lightrooms <em>Quality</em>°0 erzeugt allerdings Dateien, die ungefähr der Einstellung Q°=°50°% bei Gimp gleichzusetzen sind). Zu beachten ist noch, dass eine Änderung des Qualitäts- / Komprimierungsfaktors bei manchen Programmen <a href="http://petapixel.com/2011/08/26/a-higher-quality-setting-in-photoshop-sometimes-reduces-jpeg-quality/">mehrere Parameter im JPG-Speicheralgorithmus auf einmal verstellt</a>, so dass die volle Wahrheit deutlich komplexer ist.</p>
-</blockquote>
-<p><em>Wieviel</em> Verlust von Information und damit von Bildqualität akzeptabel ist, wird immer von den Eigenschaften des jeweiligen Motivs, Beschränkungen in Speicherplatz und Downloadgeschwindigkeiten sowie persönlichen Vorlieben abhängen, so dass es unmöglich ist, eine für alle Fälle optimale Einstellung anzugeben. Als Faustregel kann aber wohl gesagt werden, dass Q°=°85°% <a href="http://blog.codinghorror.com/a-comparison-of-jpeg-compression-levels-and-recompression/">eine für viele typische Fotos gute Wahl</a> darstellt. – In der untenstehenden Serie sieht das Foto mit der Qualitätsstufe Q°=°85°% ganz ordentlich aus; das mit Q°=°50°% zeigt zwar leichte Artefakte besonders in den detaillierten Bildteilen, seine Dateigröße beträgt aber auch nur noch 46°% des gleichen JPG-Bildes mit Q°=°85°%, 11°% der Größe des Bildes mit Q°=°100°%, und gar nur 8°% der Dateigröße des gleichen Motivs im PNG-Format (man sieht daran, dass nur die oberen Prozentpunkte zwischen Q°=°100°% und ca. Q°=°50°% die für die Praxis relevanten sind):</p>
-<table><tr>
-<td style='width:148px;height:785px;padding:0;'><div style='width:148px;height:785px;background-image:url(./Bildoptimierung/parcguel-q100.jpg);background-repeat:no-repeat;background-position:77% 85%;background-size:1050px;'>
-<x-osd>Q°=°100°%, 600°KB</x-osd>
-</div></td>
-<td style='width:148px;height:785px;padding:0;'><div style='width:148px;height:785px;background-image:url(./Bildoptimierung/parcguel-q085.jpg);background-repeat:no-repeat;background-position:77% 85%;background-size:1050px;'>
-<x-osd>Q°=°85°%, 142°KB</x-osd>
-</div></td>
-<td style='width:148px;height:785px;padding:0;'><div style='width:148px;height:785px;background-image:url(./Bildoptimierung/parcguel-q050.jpg);background-repeat:no-repeat;background-position:77% 85%;background-size:1050px;'>
-<x-osd>Q°=°50°%, 66°KB</x-osd>
-</div></td>
-<td style='width:148px;height:785px;padding:0;'><div style='width:148px;height:785px;background-image:url(./Bildoptimierung/parcguel-q025.jpg);background-repeat:no-repeat;background-position:77% 85%;background-size:1050px;'>
-<x-osd>Q°=°25°%, 40°KB</x-osd>
-</div></td>
-<td style='width:148px;height:785px;padding:0;'><div style='width:148px;height:785px;background-image:url(./Bildoptimierung/parcguel-q010.jpg);background-repeat:no-repeat;background-position:77% 85%;background-size:1050px;'>
-<x-osd>Q°=°10°%, 20°KB</x-osd>
-</div></td>
-</tr></table>
-<p><x-caption>JPG-Qualitätsstufen im Vergleich<br>(auf 150°% skaliert; ganzes Bild jeweils mit Rechtsklick &gt; ‘Hintergrundbild anzeigen’) </x-caption></p>
-<p>Wie gesagt würde man eine JPG-Qualitätsstufe von Q°=°10°% in der Praxis kaum je wählen; das Experiment macht aber deutlich, worauf man bei JPGs achten sollte: An den Kanten entstehen artifizielle Schattenechos, reich gegliederte Details werden – je nachdem – manchmal wie mit einer schwammigen Schicht überzogen, unscharf wiedergegeben oder auch umgekehrt mit überscharfen Kanten versehen, und ursprünglich weiche Farbverläufe verwandeln sich in Muster fehlfarbener Rechtecke oder auch in gradierte Bänder (dies übrigens besonders gerne bei Sonnenuntergängen mit großflächigen rötlichen Verläufen, da <a href="http://graphicdesign.stackexchange.com/questions/21204/why-do-jpeg-files-blur-red-more-than-other-colors">JPGs mit Rottönen nicht so gut wie mit anderen Farben umgehen können</a>).</p>
-<p>Aus dem vorher Gesagten folgt, wofür sich JPGs so gar nicht eignen: nämlich zur Wiedergabe großer Strichzeichnungen. Die nächst Abbildung zeigt Ausschnitte aus einem <a href="http://reprap.org/wiki/File:Arduinomegapololushieldschematic.png">im Original 3´696°×°2´783 Pixel großen Schaltplan</a> als GIF, als JPG und als PNG.</p>
-<table><tr>
-<td style='width:246px;height:525px;padding:0;'><div style='width:246px;height:525px;background-image:url(./Bildoptimierung/Arduinomegapololushieldschematic.gif);background-repeat:no-repeat;background-position:0% 0%;'>
-<x-osd>GIF (&gt;°200°KB)</x-osd>
-</div></td>
-<td style='width:246px;height:525px;padding:0;'><div style='width:246px;height:525px;background-image:url(./Bildoptimierung/Arduinomegapololushieldschematic.jpg);background-repeat:no-repeat;background-position:0% 0%;'>
-<x-osd>JPG (&gt;°200°KB)</x-osd>
-</div></td>
-<td style='width:246px;height:525px;padding:0;'><div style='width:246px;height:525px;background-image:url(./Bildoptimierung/Arduinomegapololushieldschematic.png);background-repeat:no-repeat;background-position:0% 0%;'>
-<x-osd>PNG (100°KB)</x-osd>
-</div></td>
-</tr></table>
-<p><x-caption>Vergleich von Dateigrößen und visueller Qualität einer Grafik:<br>PNG liegt deutlich vorn, JPG ist weit abgeschlagen..</x-caption></p>
-<p>Speichert man dieses per se ziemlich genau 10°Megapixel große Bild unkompromiert im Windows-BMP-Format ab, so kommt man auf eine Dateigröße von nicht weniger als 5´000°KB (5°MB); für ein GIF ergeben sich etwas über 200°KB (also weniger als 1°/°20tel) und für PNG – ebenfalls bei voller Qualitätserhaltung – gar nur 100°KB (1°/°50tel der Vergleichsgröße).</p>
-<p>Und JPG? Es eignet sich nicht für Grafiken! In einer erträglichen Qualität, aber doch schon mit deutlichen Artefakten belastet kommt man in der Qualitätsstufe Q°=°50°% auf nicht weniger als 750°KB. Versuchte man bei diesem Motiv mit JPG die Dateigröße auch nur des GIFs zu erreichen, müsste man auf Q°=°1°% heruntergehen – mit dem Erfolg, dass wichtige Bildinfos, nämlich das Kleingedruckte, bis zur Unleserlichkeit verschliert werden. JPG ist eben ein verlustbehaftetes Format – bei Motiven dieser Art sollte man das wörtlich nehmen. Nebenher: Das gilt auch, wenn man nach einem geeigneten Format für zu scannende Dokumente sucht.</p>
-<p>Abschließend sei angemerkt, dass JPG nicht nur ein <em>grundsätzlich</em>, sondern auch ein <em>unausweichlich</em> verlustbehaftetes Format darstellt, und das gilt auch beim Abspeichern in der höchsten Qualitätsstufe: selbst wenn wir von Q°=°100°% sprechen, so werden z.B. bei der Umkodierung von PNG zu JPG doch einige Bilddetails fast unmerklich verändert. Und, Vorsicht: immer vermeiden, ein JPG mehrfach zu öffnen und wieder als JPG abzuspeichern – <a href="http://graphicdesign.stackexchange.com/a/21213">bei jedem Abspeichern geht Qualität verloren</a>! Dieser Mangel wird von neueren Formaten wie <a href="#better-network-graphics-bpg">BPG</a>, <a href="#webp">WEBP</a> und <a href="#jpeg°xr">JPEG°XR</a> völlig zu Recht angesprochen – zur Zeit jedoch sollte man vermutlich ein bekanntes und gut etabliertes Format für die Archivierung verwenden und auf dem Web die breite Kompatibilität über Betriebssysteme und Browsermodelle hinweg anstreben.</p>
-<p><takeaway>JPG ist nach wie vor <em>das</em> Bildformat für Fotomaterial; bei der Wahl der Qualitätsstufe (des Komprimierungsgrades) sollte man es nicht übertreiben, sonst leidet die Bildqualität. Für Grafiken sollte man immer PNG vorziehen.</takeaway></p>
-<h3 id="the-new-kids-on-the-block">The New Kids on the Block</h3>
-<p>Wie wir gesehen haben, konnten sich von <a href="http://en.wikipedia.org/wiki/Image_file_formats">den dutzenden digitalen Bildformaten die überhaupt Bedeutung erlangt haben</a> nur drei (bzw. mit SVG vier) Formate auf dem Web durchsetzen: GIF (1987), JPG (1992), und PNG (1996). Andre Formate wie JPEG°2000 die angetreten sind, die Schwächen bestehender Formate bezüglich erzielbarer Qualität und Deiteigröße auszubessern, sind immer Randerscheinungen geblieben.</p>
-<p>In diesem Abschnitt wollen wir kurz die Formate <a href="#better-network-graphics-bpg">BPG</a>, <a href="#jpeg°xr">JPEG°XR</a> und <a href="#webp">WebP</a> besprechen; dabei schätzen wir ein, dass BPG gegenwärtig die schlechtesten und WebP die besten Chancen auf universelle Unterstützung in Webbrowsern zu erlangen (es gibt zu diesem Thema <a href="http://www.philipstorry.net/thoughts/bpg-vs-jpeg-vs-webp-vs-jpeg-xr">übereinstimmende</a>, aber natürlich auch <a href="http://blog.jpegmini.com/5-reasons-why-bpg-will-eventually-replace-jpeg/">divergierende Meinungen</a>).</p>
-<h4 id="better-network-graphics-bpg">Better Network Graphics: BPG</h4>
-<p>Als erstes Beispiel sei das noch junge BPG-Format (für ‘Better Portable Graphics’; vorgeschlagen 2014 von F. Bellard) genannt. Seine Vorzüge gegenüber dem altehrwürdigen JPG-Format sind bestechend:</p>
-<ul>
-<li>Dateien mit vergleichbarer Bildqualität sind in BPG dramatisch kleiner als im JPG-Format; hier ist von Verhältnissen von 1:2 die Rede.</li>
-<li>Der Seite-an-Seite-Vergleich von BPG und JPG (z.B. mit <a href="http://xooyoozoo.github.io/yolo-octo-bugfixes/#vintage-car&amp;jpg=s&amp;bpg=s">diesem Online-Tool</a>) zeigt, dass ein BPG-Bild bei vergleichbarer Kompressionsrate deutlich weniger Farbbänder, Blöcke and Treppenstufeneffekte hat.</li>
-<li>Während JPG nur 8 Bit pro Farbkanal unterstützt, sind es bei BPG bis zu 14 Bits.</li>
-<li>Alle JPG-Unterformate werden unterstützt; hinzu kommen RGB, YCgCO und CMYK, sowie ein Alpha-Kanal.</li>
-<li>Verlustfreie Darstellung ohne Komprimierung wird unterstützt.</li>
-<li>Nicht zuletzt sind Animationen möglich.</li>
-</ul>
-<p>Zusammenfassend kann gesagt werden, dass Webseitenbetreiber mit BPG die Wahl hätten: sie könnten entweder an Bytes pro Seite sparen und die gleiche Bildqualität bieten, oder aber bei gleicher Seitengröße mehr, größere und besser Bilder anbieten, oder sogar bessere Bilder bei verringertem Umfang.</p>
-<p>Bei einer solchen Aufzählung von Eigenschaften sollte man meinen, dass die Browserhersteller sich auf das neue Format stürzen müssten; davon ist jedoch nichts zu bemerken, denn bis dato unterstützt kein Webbrowser BPG direkt, und solange dies nicht geschieht, wird sich das Format nicht durchsetzen können.</p>
-<p>Allerdings existiert ein JavaScript-Decoder, der das Rendering mithilfe eines HTML-Canvas-Elements leistet; der Decoder ist mindestens auf Desktop-Geräten so schnell, dass man von verzögerungsfreier Darstellung reden kann.</p>
-<p>Technisch gesehen beruht BPG auf Routinen, die für den High Efficiency Video Coding (HEVC) entwickelt wurden, was zur Auswirkung hat, dass Teile des BPG-Standards einen patentrechtlichen Schutz genießen könnten. Für einen offenen Standard ist das leider keine gute Voraussetzung – zumal sich ganz aktuell (März 2015) <a href="http://tech.slashdot.org/story/15/03/28/1640243/another-patent-pool-forms-for-hevc">ein neuer Patent-Pool für HEVC gebildet hat</a>, der sich um die kommerzielle Verwertung der HEVC Lizenzrechte kümmern will. Unter diesen Umständen kann es wohl als ausgeschlossen gelten, dass sich BPG durchsetzt.</p>
-<p>Da wir hier über Webseiten- und Search-Engine-Optimierung reden, darf natürlich nicht unerwähnt bleiben, dass <strong>Abbildungen im BPG-Format derzeit nicht bei Bildsuchen auftauchen werden</strong>. Um das zu gewährleisten, sollte man auf jeden Fall Alternativformate für die Webcrawler von Google und Bing anbieten.</p>
-<p><takeaway>BPG ist von den drei hier diskutierten neuen Web-Bild-Formaten das <em>technisch</em> gesehen interessanteste, leidet aber erheblich unter der <em>rechtlichen</em> Unsicherheit, wem die Rechte eigentlich gehören und zu welchen Konditionen die Technik angeboten wird. Solange diese Fragen nicht geklärt sind, wird BPG nur eine Fußnote in der Geschichte der Bildverarbeitung bleiben.</takeaway></p>
-<h4 id="jpegxr">JPEG°XR</h4>
-<p>Beim JPEG-XR-Format handelt es sich um eine von Microsoft begonnene Weiterentwicklung der für das bekannte JPG-Format bekannten Techniken zur verlustbehafteten Komprimierung, die besonders bei fotografischen Abbildungen (und dementsprechend weniger bei Grafiken) ihre Stärken ausspielen kann. Diese Techniken stützen sich im Prinzip auf die Erfahrung, dass die meisten Übergänge in ‘natürlichen’ Abbildungen fließend und nicht plötzlich sind – das zeigt sich schon daran, dass oftmals (bei zu starker Kompression) charakteristische helle und dunkle Ränder an kontrastreichen Kanten auftreten. Aber auch unschöne verschmierte Flächen an Stelle von Details sowie Blöcke mit scharfen Kanten an Stelle von Verläufen treten leider regelmäßig auf – es sei denn, die Dateigröße wird deutlich erhöht, und gerade das will man ja gerne vermeiden.</p>
-<p>Alle diese Artefakte lassen sich im Vergleich gut bei der folgenden, im <a href="http://en.wikipedia.org/wiki/JPEG_XR">Wikipedia-Artikel über JPEG°XR</a> verwendeten Vergleichsabbildung studieren (zur Anzeige in Originalgröße auf das Bild klicken):</p>
-<p><a href='https://upload.wikimedia.org/wikipedia/commons/2/20/Comparison_between_JPEG%2C_JPEG_2000_and_JPEG_XR.png'><img
-style='width:100%;' src='./Bildoptimierung/Comparison_between_JPEG%2C_JPEG_2000_and_JPEG_XR.png'></a></p>
-<p>Tatsächlich scheint hier JPEG°XR die Nase vorn zu haben, auch wenn der Qualitätsgewinn im Vergleich zu JPEG°2000 nicht wirklich dramatisch ausfällt. Nun wurde JPEG°2000 aber bereits im Jahre°2000 vorgeschlagen (daher der Name), 15°Jahre später ist jedoch der Support unter den Browsern <a href="http://programmers.stackexchange.com/questions/195359/what-is-the-current-status-of-software-support-for-jpeg-2000">bestenfalls durchwachsen</a>; aus dieser Perspektive heraus scheinen die Aussichten für JPEG°XR eher begrenzt zu sein.</p>
-<p>Ein Blick auf die aktuelle <a href="http://caniuse.com/#feat=jpegxr">Kompatibilitätstabelle für JPEG°XR bei caniuse.com</a> zeigt schnell, dass JPEG°2000 bisher lediglich von Microsofts Internet Explorer unterstützt wird – und selbst das nur eingeschränkt, denn <a href="http://calendar.perfplanet.com/2013/browser-specific-image-formats/">noch IE°9 zeigt JPEG°XR mit unschönen Rändern um das Bild herum an</a>; erst ab IE°10 darf von wirklicher Unterstützung gesprochen werden.</p>
-<p><takeaway>Die Zukunft von JPEG°XR kann derzeit nur als ungewiss beschrieben werden.</takeaway></p>
-<h4 id="webp">WebP</h4>
-<p>WebP (sprich: ‘weppy’) ist ein weiteres relativ junges Bildformat, dass angetreten ist, Bildgrößen auf dem Web zu reduzieren. Ähnlich wie BPG beruht es auf einem Video-Standard, und zwar in diesem Falle auf VP8, über das Google nicht zufälligerweise auch die Rechte besitzt. Wie bei BPG gab es auch hier zeitweise patentrechtliche Hürden, die allerdings – anders als bei BPG – bei WebP bereits ausgeräumt zu sein scheinen.</p>
-<p>Da Google mit Chrome (bzw. Chromium) über eine eigene Browser-Baureihe verfügt, kann es nicht verwundern, dass WebP bereits teilweise auf dem Web unterstützt wird; Anfang 2015 wurde das Format von Chrome, Chrome for Android, Opera, Opera Mini und dem Android Browser unterstützt (diese Aufzählung wirkt weniger beeindruckend wenn man bedenkt, dass Opera seit 2013 die gleiche Rendering Engine verwendet wie Google Chrome (nämlich Blink) und Android von Google entwickelt wurde).</p>
-<p>Alle anderen Browser von Bedeutung unterstützen WebP bisher <em>nicht</em> – kein Safari, kein Firefox, kein Internet Explorer.</p>
-<p>Allerdings existieren wie bei BPG Ansätze, die fehlende Unterstützung mithilfe von JavaScript nachzuliefern. Für das folgende Beispiel haben wir <a href="http://webpjs.appspot.com">webpjs</a> genommen:</p>
-<table><tr><td style='padding:0;'>
-<x-osd style='position:absolute;'>WEBP von PNG, Q°=°50°%: 27°KB</x-osd><a href="./Bildoptimierung/erker.png.webp" download="erker.png.webp" title="ImageName"><img src='./Bildoptimierung/erker.png.webp' alt='erker.png.webp'></a>
-</td></tr></table>
-
-<p>Hier unser Markup; die zusätzlichen Angaben sorgen dafür, dass Rechtsklick°&gt;°‘Bild anzeigen’ und ‘Bild speichern’ (fast perfekt) funktionieren:</p>
-<pre class="sourceCode html"><code class="sourceCode html"><span class="kw">&lt;a</span><span class="ot"> href=</span><span class="st">&quot;./Bildoptimierung/erker.png.webp&quot;</span><span class="ot"> download=</span><span class="st">&quot;erker.png.webp&quot;</span><span class="ot"> title=</span><span class="st">&quot;ImageName&quot;</span><span class="kw">&gt;</span>
-  <span class="kw">&lt;img</span><span class="ot"> src=</span><span class="st">&#39;./Bildoptimierung/erker.png.webp&#39;</span><span class="ot"> alt=</span><span class="st">&#39;erker.png.webp&#39;</span><span class="kw">&gt;</span>
-<span class="kw">&lt;/a&gt;</span></code></pre>
-<p>Um dieses Besipiel zeigen zu können, haben wir ein PNG mit <a href="http://imagemagick.org/script/index.php">ImageMagick</a> auf der Kommandozeile <a href="http://www.imagemagick.org/script/webp.php">konvertiert</a>:</p>
-<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">convert</span> mein-ausgangsbild.png -quality 50 mein-zielbild.webp</code></pre>
-<p>Bildqualität unf Dateigröße sind überzeugend; das gleiche Motiv braucht als PNG 712°KB, als JPG (Q°=°85%) noch 93°KB, aber als WEBP mit Q°=°50°% nur noch ganze 27°KB. Allerdings ist wie in anderen Fällen in denen über JavaScript fehlende Funktionalität emuliert wird auch hier der technische Aufwand etwas höher und die Performance im Zweifelsfalle eher etwas schlechter als bei einer voll integrierten Lösung. Und wenn was schiefgeht – falls der Client von webpjs nicht unterstützt werden sollte oder gar JavaScript deaktiviert hat – wird nur ein unschönes Kästchen angezeigt:</p>
-<figure>
-<img src="./Bildoptimierung/a-plugin-is-needed.png" />
-</figure>
-<p>Wer auf Nummer Sicher gehen will wird wohl nicht umhinkommen, alternative Formate bereitzuhalten – was wiederum voraussetzt, dass man eine verlässliche Browser- / Capability-Erkennung am Start hat. Auf jeden Fall steht ein gewisser Mehraufwand ins Haus.</p>
-<p><takeaway>WebP ist von allen neuen Web-Bild-Formaten das wohl vielversprechendste; was fehlt ist entweder eine breitere browserseitige Unterstützung oder eine äquivalente Standardlösung. Zur Zeit braucht es noch viel technisches Wissen, um eine überall reibungslos funktionierenden Ansatz zu implementieren. Und nichts schützt den eifrigen Entwickler davor, dass Google nächste Woche die Unterstützung für WebP einstellt.</takeaway></p>
-<h2 id="post-production-mit-imageoptim">Post-Production mit ImageOptim</h2>
-<p>In diesem Post ist bereits mehrfach der Name <a href="https://imageoptim.com/">ImageOptim</a> gefallen; dabei handelt es sich um eine <a href="https://github.com/pornel/ImageOptim">quellen-offene und gratis erhältliche</a> Software (leider nur für OS°X) zur verlustfreien Nachbearbeitung von Bildern in den drei klassischen Formaten (GIF, PNG, JPG).</p>
-<p>Technisch gesehen ist ImageOptim eigentlich ein Bündel aus nicht weniger als neun (PNGOUT, Zopfli, Pngcrush, AdvPNG, extended OptiPNG, JpegOptim, jpegrescan, jpegtran, und Gifsicle) spezialisierten Programmen; seine Daseinsberechtigung liegt in der bequemen und handhabbaren Zusammenfassung der Bedien- und Einstellmöglichkeiten.</p>
-<p>Die Benutzung könnte kaum einfacher sein: nach dem Start der App öffnet sich ein Fenster, in das geeignete Dateien aus dem Finder gezogen werden können. ImageOptim tut dann alles, um die Dateien klein zu rechnen; das braucht mal weniger, mal mehr Sekunden. Der resultierende Gewinn an Dateigröße wird angezeigt, und die Ursprungsdatei ohne weitere Nachfrage überschrieben – superpraktisch wenn man schnell mal den Bildordner seiner Webseite komprimieren will (und u.U. ärgerlich, falls man gerade aus Versehen alle Metadaten (Ort, Zeit, Kamera, Belichtung…) aus den Urlaubsbildern entfernt hat).</p>
-<p><takeaway>ImageOptim ist ein spielend einfach zu bedienendes Tool, das jedes entbehrliche Byte aus bestehendem Bildmaterial herausholt, ohne die Bildqualität zu verändern. Schnell sind Größengewinne von 10 oder 50°% realisiert, ohne Wesentliches – Qualität, Dateiname, Format, Auflösung – zu ändern. ImageOptim eignet sich deshalb auch, um als Hotfix eingesetzt zu werden. Wir empfehlen das Tool für den täglichen Einsatz; alle Vergleichszahlen in diesem Post beruhen auf Dateigrößen nach der Behandlung durch ImageOptim.</takeaway></p>
-<h2 id="zusammenfassung">Zusammenfassung</h2>
-<table>
-<caption>Feature-Matrix der Web-Bildformate</caption>
-<thead>
-<tr class="header">
-<th style="text-align: left;"></th>
-<th style="text-align: center;">GIF</th>
-<th style="text-align: center;">PNG</th>
-<th style="text-align: center;">JPG</th>
-<th style="text-align: center;">WebP</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">Strichzeichnungen</td>
-<td style="text-align: center;">☑</td>
-<td style="text-align: center;">☑</td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Fotos</td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;">☑</td>
-<td style="text-align: center;">☑</td>
-<td style="text-align: center;">☑</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Transparenz</td>
-<td style="text-align: center;">☑<sup>1</sup></td>
-<td style="text-align: center;">☑</td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;">☑</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Animation</td>
-<td style="text-align: center;">☑</td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p>Zu beachten: (<sup>1</sup>) GIFs unterstützen nur einen 1-Bit-Alpha-Kanal, d.h. Transparenz kann keinen Verlauf haben und erzeugt Treppenstufeneffekte an den Rändern des Bildgegenstands, die nur mit Mehraufwand zu kaschieren sind.</p>
-</blockquote>
-<p><takeaway>In der Regel eignen sich JPGs am besten für Fotos, GIFs haben bislang noch eine Nische in der einfachen, plattformübergreifenden Darstellung von Animationsschleifen (die sich aber schon heute <a href="#html5-video-als-ersatz-für-animierte-gifs">besser als HTML5-Videos</a> realisieren lassen), und PNGs eignen sich für Strichzeichnungen sowie Fotos und Illustrationen die Farbverläufe und / oder Transparenz aufweisen.</takeaway></p>
-</body>
-</html>
+<p>[新华写字字典] — 新华写字字典 / 商务印书馆辞书研究中心. 北京: 商务印书馆, 2010</p>
+<p>https://github.com/cjkvi/cjkvi-ids, http://kanji-database.sourceforge.net/</p>
+<p>[The Unicode Standard] — http://www.unicode.org/versions/Unicode8.0.0/</p>
