@@ -16,7 +16,10 @@
    version="1.1"
    inkscape:version="0.91 r13725"
    sodipodi:docname="euler-venn-diagram-cjk-usage-by-region-scan.svg"
-   enable-background="new">
+   enable-background="new"
+   inkscape:export-filename="/Volumes/Storage/io/jizura/texts/unicode-cjk-chrs-by-regions/euler-venn-diagram-cjk-usage-by-region-scan.png"
+   inkscape:export-xdpi="300.01077"
+   inkscape:export-ydpi="300.01077">
   <defs
      id="defs4">
     <marker
@@ -148,9 +151,9 @@
      borderopacity="1"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.9771687"
-     inkscape:cx="225.91934"
-     inkscape:cy="373.06417"
+     inkscape:zoom="1.4272381"
+     inkscape:cx="372.04724"
+     inkscape:cy="526.18109"
      inkscape:document-units="px"
      inkscape:current-layer="layer5"
      showgrid="false"
@@ -175,7 +178,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -193,7 +196,7 @@
          sodipodi:role="line"
          id="tspan4196"
          x="-572.79517"
-         y="178.97304"></tspan></text>
+         y="178.97304" /></text>
   </g>
   <g
      inkscape:groupmode="layer"
@@ -882,7 +885,7 @@
            id="tspan13565"
            y="664.57037"
            x="361.38684"
-           sodipodi:role="line">6947</tspan><tspan
+           sodipodi:role="line">6,947</tspan><tspan
            id="tspan13567"
            y="676.11548"
            x="361.38684"
@@ -985,7 +988,7 @@
     <flowRoot
        xml:space="preserve"
        id="flowRoot13642"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.54512501px;line-height:100%;font-family:gentium2;-inkscape-font-specification:'gentium2, Normal';text-align:justify;writing-mode:lr-tb;text-anchor:start;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.73699999;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.54512525px;line-height:110%;font-family:gentium2;-inkscape-font-specification:'gentium2, Normal';text-align:justify;writing-mode:lr;text-anchor:start;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.73699999;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;"
        transform="translate(-2.6019618,-2.8026158)"><flowRegion
          id="flowRegion13644"><rect
            id="rect13646"
@@ -993,21 +996,8 @@
            height="256.43936"
            x="72.167358"
            y="730.0614"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.54512501px;line-height:100%;font-family:gentium2;-inkscape-font-specification:'gentium2, Normal';text-align:justify;writing-mode:lr-tb;text-anchor:start" /></flowRegion><flowPara
-         id="flowPara13792">Shown here are (1) the numbers of characters deemed essential for general usage as reported by the ISO/IEC 10646 IICore initiative, consolidated into three regions: Ⓒ Mainland China, Ⓙ Japan, Ⓣ (Taiwan, Hong Kong, Macau, Korea). Circled capital letters show sum totals; plain lower case letters show partial sums for codepoints reported only for (possibly overlapping) sub-regions (e.g. ‘j’ for characters only used in Japan, ‘cj’ for forms used only in the PRC and Japan, etc). (2) For comparison, the three outer circles marked ❶, ❻, and ❽ show the growing number of CJK codepoints in Unicode through different versions.—All circles and overlaps are area-proportional to the resp. character counts; not shown is the small number of characters included in IICore, but missing from UCS V1. (3) Representative samples for the 7 subregions, showing most frequently used characters. </flowPara></flowRoot>    <flowRoot
-       xml:space="preserve"
-       id="flowRoot13794"
-       style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:100%;font-family:gentium2;-inkscape-font-specification:'gentium2, Italic';text-align:start;writing-mode:lr-tb;text-anchor:start;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.73699999;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       transform="translate(0.98031089,129.8255)"><flowRegion
-         id="flowRegion13796"><rect
-           id="rect13798"
-           width="181.33875"
-           height="95.17878"
-           x="70.700729"
-           y="930.67999"
-           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;line-height:100%;font-family:gentium2;-inkscape-font-specification:'gentium2, Italic';text-align:start;writing-mode:lr-tb;text-anchor:start" /></flowRegion><flowPara
-         id="flowPara13808">http://appsrv.cse.cuhk.edu.hk/~irg/irg/IICore/IICore.htm, http://www.ogcio.gov.hk/en/business/tech_promotion/ccli/download_area/iicore_compare_utility.htm, https://en.wikipedia.org/wiki/CJK_Unified_Ideographs</flowPara><flowPara
-         id="flowPara13802" /></flowRoot>    <text
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.54512525px;line-height:110%;font-family:gentium2;-inkscape-font-specification:'gentium2, Normal';text-align:justify;writing-mode:lr;text-anchor:start;" /></flowRegion><flowPara
+         id="flowPara13792">Shown here are (1) the numbers of characters deemed essential for general usage as reported by the ISO/IEC 10646 IICore initiative, consolidated into three regions: Ⓒ Mainland China, Ⓙ Japan, Ⓣ (Taiwan, Hong Kong, Macau, Korea). Circled capital letters show sum totals; plain lower case letters show partial sums for codepoints reported only for (possibly overlapping) sub-regions (e.g. ‘j’ for characters only used in Japan, ‘cj’ for forms used only in the PRC and Japan, etc). (2) For comparison, the three outer circles marked ❶, ❻, and ❽ show the growing number of CJK codepoints in Unicode through different versions.—All circles and overlaps are area-proportional to the resp. character counts; not shown is the small number of characters included in IICore, but missing from UCS V1. (3) Representative samples for the 7 subregions, showing most frequently used characters. </flowPara></flowRoot>    <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:30.83322525px;line-height:100%;font-family:gentium2;-inkscape-font-specification:'gentium2, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.73699999;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        x="66.900909"
