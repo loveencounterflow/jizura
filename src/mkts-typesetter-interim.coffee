@@ -116,34 +116,19 @@ HELPERS.write_pdf = ( layout_info, handler ) ->
 
 
 #-----------------------------------------------------------------------------------------------------------
-@write = ( handler ) ->
+@pdf_from_md = ( source_route, handler ) ->
   ###
   FI = require 'coffeenode-fillin'
+  text                    = FI.fill_in template, kwic_details
   ###
   HELPERS.provide_tmp_folder()
   handler                ?= ->
-  source_route            = '/tmp/mkts-typesetter-interim-output.md'
   layout_info             = HELPERS.new_layout_info source_route
+  source_locator          = layout_info[ 'source-locator']
   tex_locator             = layout_info[ 'tex-locator']
   tex_output              = njs_fs.createWriteStream tex_locator
-  text                    = """
-    # Helo World
-
-    Just a test.
-
-    ‡new-document 'preface'
-    This is the preface.
-    """
-  ###
-  details_route           = CND.swap_extension aux_route, '.json'
-  template                = njs_fs.readFileSync template_route, encoding: 'utf-8'
-  #.........................................................................................................
-  kwic_details                  = require details_route
-  kwic_details[ 'glyph-count' ] = ( ƒ kwic_details[ 'glyph-count' ] ).replace "'", '.'
-  kwic_details[ 'kwic-count'  ] = ( ƒ kwic_details[ 'kwic-count'  ] ).replace "'", '.'
-  #.........................................................................................................
-  text                    = FI.fill_in template, kwic_details
-  ###
+  ### TAINT should read MD source stream ###
+  text                    = njs_fs.readFileSync source_locator, encoding: 'utf-8'
   #---------------------------------------------------------------------------------------------------------
   tex_output.on 'close', =>
     HELPERS.write_pdf layout_info, handler
@@ -420,6 +405,6 @@ HELPERS.write_pdf = ( layout_info, handler ) ->
 
 ############################################################################################################
 unless module.parent?
-  @write()
+  @pdf_from_md 'texts/A-Permuted-Index-of-Chinese-Characters/index.md'
 
 
