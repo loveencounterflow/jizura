@@ -9,6 +9,7 @@
     "coffeenode-chr": "^1.0.2",
     "coffeenode-docopt": "^0.1.1",
     "coffeenode-suspend": "^0.1.11",
+    "coffeenode-tex": "0.0.2",
     "coffeenode-text": "^0.1.9",
     "hollerith": "^1.0.2",
     "hollerith-codec": "^1.0.23",

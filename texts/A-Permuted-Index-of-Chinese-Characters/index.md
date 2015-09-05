@@ -2,21 +2,6 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 
-- [Bildoptimierung](#bildoptimierung)
-    - [Die Bedeutung von Bildmaterial für die Webseitenoptimierung](#die-bedeutung-von-bildmaterial-f%C3%BCr-die-webseitenoptimierung)
-    - [Um welche Bildformate geht es?](#um-welche-bildformate-geht-es)
-    - [GIF, PNG, JPG: Das Format ist wichtig](#gif-png-jpg-das-format-ist-wichtig)
-        - [GIF](#gif)
-        - [PNG](#png)
-            - [pngquant](#pngquant)
-        - [JPG](#jpg)
-        - [The New Kids on the Block](#the-new-kids-on-the-block)
-            - [Better Network Graphics: BPG](#better-network-graphics-bpg)
-            - [JPEG°XR](#jpeg%C2%B0xr)
-            - [WebP](#webp)
-    - [Post-Production mit ImageOptim](#post-production-mit-imageoptim)
-    - [Zusammenfassung](#zusammenfassung)
-
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # A Permuted Index of Chinese Characters

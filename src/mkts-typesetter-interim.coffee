@@ -29,90 +29,8 @@ $async                    = D.remit_async.bind D
 #...........................................................................................................
 ƒ                         = CND.format_number.bind CND
 TYPESETTER                = require 'mingkwai-typesetter'
-ASYNC                     = require 'async'
-
-
-#-----------------------------------------------------------------------------------------------------------
-options =
-  'pdf-command':          "bin/pdf-from-tex.sh"
-#...........................................................................................................
-do ->
-  home                      = njs_path.join __dirname, '..'
-  options[ 'home' ]         = home
-  options[ 'tmp-home' ]     = njs_path.join home, 'tmp'
-  options[ 'pdf-command' ]  = njs_path.resolve home, options[ 'pdf-command' ]
-
-#-----------------------------------------------------------------------------------------------------------
-HELPERS = {}
-
-#-----------------------------------------------------------------------------------------------------------
-HELPERS.provide_tmp_folder = ->
-  njs_fs.mkdirSync options[ 'tmp-home' ] unless njs_fs.existsSync options[ 'tmp-home' ]
-  return null
-
-#-----------------------------------------------------------------------------------------------------------
-HELPERS.new_layout_info = ( source_route ) ->
-  pdf_command         = options[ 'pdf-command' ]
-  tmp_home            = options[ 'tmp-home' ]
-  source_locator      = njs_path.resolve process.cwd(), source_route
-  source_home         = njs_path.dirname source_locator
-  source_name         = njs_path.basename source_locator
-  tex_locator         = njs_path.join tmp_home, CND.swap_extension source_name, '.tex'
-  aux_locator         = njs_path.join tmp_home, CND.swap_extension source_name, '.aux'
-  pdf_source_locator  = njs_path.join tmp_home, CND.swap_extension source_name, '.pdf'
-  pdf_target_locator  = njs_path.join source_home, CND.swap_extension source_name, '.pdf'
-  #.........................................................................................................
-  R =
-    'pdf-command':          pdf_command
-    'tmp-home':             tmp_home
-    'source-route':         source_route
-    'source-locator':       source_locator
-    'source-home':          source_home
-    'source-name':          source_name
-    'tex-locator':          tex_locator
-    'aux-locator':          aux_locator
-    'pdf-source-locator':   pdf_source_locator
-    'pdf-target-locator':   pdf_target_locator
-    'latex-run-count':      0
-  #.........................................................................................................
-  return R
-
-#-----------------------------------------------------------------------------------------------------------
-HELPERS.write_pdf = ( layout_info, handler ) ->
-  #.........................................................................................................
-  pdf_command         = layout_info[ 'pdf-command'          ]
-  tmp_home            = layout_info[ 'tmp-home'             ]
-  tex_locator         = layout_info[ 'tex-locator'          ]
-  aux_locator         = layout_info[ 'aux-locator'          ]
-  pdf_source_locator  = layout_info[ 'pdf-source-locator'   ]
-  pdf_target_locator  = layout_info[ 'pdf-target-locator'   ]
-  last_digest         = null
-  last_digest         = CND.id_from_route aux_locator if njs_fs.existsSync aux_locator
-  digest              = null
-  count               = 0
-  #.........................................................................................................
-  pdf_from_tex = ( next ) =>
-    count += 1
-    urge "run ##{count} #{pdf_command}"
-    urge "#{pdf_command}"
-    urge "$1: #{tmp_home}"
-    urge "$2: #{tex_locator}"
-    CND.spawn pdf_command, [ tmp_home, tex_locator, ], ( error, data ) =>
-      error = undefined if error is 0
-      if error?
-        alert error
-        return handler error
-      digest = CND.id_from_route aux_locator
-      if digest is last_digest
-        echo ( CND.grey badge ), CND.lime "done."
-        layout_info[ 'latex-run-count' ] = count
-        ### TAINT move pdf to layout_info[ 'source-home' ] ###
-        handler null
-      else
-        last_digest = digest
-        next()
-  #.........................................................................................................
-  ASYNC.forever pdf_from_tex
+HELPERS                   = require './HELPERS'
+options                   = require './options'
 
 
 #-----------------------------------------------------------------------------------------------------------
@@ -136,12 +54,12 @@ HELPERS.write_pdf = ( layout_info, handler ) ->
   input = TYPESETTER.create_html_readstream_from_mdx_text text
   input
     # .pipe @$transform_commands()
+    .pipe HELPERS.TYPO.$fix_typography_for_tex()
+    .pipe D.$show()
     .pipe @$assemble_tex_events()
     .pipe @$filter_tex()
-    # .pipe @$supply_cjk_markup()
     .pipe @$insert_preamble()
     .pipe @$insert_postscript()
-    .pipe D.$show()
     .pipe tex_output
   #---------------------------------------------------------------------------------------------------------
   # D.resume input
@@ -172,6 +90,7 @@ HELPERS.write_pdf = ( layout_info, handler ) ->
   start_multicol_after    = null
   add_newline_before_end  = null
   list_level              = 0
+  keep_lines              = no
   #.........................................................................................................
   return $ ( event, send, end ) =>
     # if is_first_event
@@ -206,8 +125,9 @@ HELPERS.write_pdf = ( layout_info, handler ) ->
         #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         when 'text'
           text = tail[ 0 ]
-          text = @fix_quotes  text
-          text = @escape_text text
+          # text = @fix_quotes  text
+          # text = @escape_text text
+          text = text.replace /\n/g, '\\\\\n' if keep_lines
           send [ 'text', text, ]
         #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         when 'open-tag'
@@ -259,6 +179,13 @@ HELPERS.write_pdf = ( layout_info, handler ) ->
             when 'h3'
               send [ 'tex', "\\subsection{", ]
             #...............................................................................................
+            when 'h4'
+              ### TAINT subsection or deeper? ###
+              send [ 'tex', "\\subsection{", ]
+            #...............................................................................................
+            when 'h5', 'h6'
+              send [ 'tex', "\\subsection{", ]
+            #...............................................................................................
             when 'p'
               unless within_multicol
                 send [ 'tex', '\\begin{multicols}{2}\n' ]
@@ -289,7 +216,14 @@ HELPERS.write_pdf = ( layout_info, handler ) ->
             #...............................................................................................
             when 'li'
               # send [ 'tex', "\\item ", ]
-              send [ 'tex', "\\item[¶] ", ]
+              # send [ 'tex', "\\item[¶] ", ]
+              send [ 'tex', "\\item[—] ", ]
+            #...............................................................................................
+            when 'code'
+              # send [ 'tex', "\\begingroup\\setCodeLatin\n", ]
+              # send [ 'tex', "\\begingroup\\jzrFontSunXA\n", ]
+              send [ 'tex', "\\begingroup\\jzrFontSourceCodePro\n", ]
+              keep_lines = yes
             # #...............................................................................................
             # when 'span'
             #   switch clasz = attributes[ 'class' ]
@@ -326,6 +260,9 @@ HELPERS.write_pdf = ( layout_info, handler ) ->
                 # send [ 'tex', "\\endgroup\n\n", ]
               when 'p', 'li', 'br', 'newpage', 'fullwidth'
                 null
+              when 'code'
+                send [ 'tex', "\n\\endgroup\n", ]
+                keep_lines = no
               when 'ul'
                 # send [ 'tex', "\\end{itemize}", ]
                 send [ 'tex', "\\end{description}", ]
@@ -376,35 +313,14 @@ HELPERS.write_pdf = ( layout_info, handler ) ->
       """
     end()
 
-#-----------------------------------------------------------------------------------------------------------
-@fix_quotes = ( text ) ->
-  R = text
-  R = R.replace /'([^\s]+)’/g, '‘$1’'
-  return R
-
-#-----------------------------------------------------------------------------------------------------------
-@escape_text = ( text ) ->
-  R = text
-  R = R.replace /‰/g, '\\permille{}'
-  R = R.replace /&amp;/g, '\\&'
-  return R
-
-#-----------------------------------------------------------------------------------------------------------
-@$supply_cjk_markup = ->
-  tag_stack = []
-  #.........................................................................................................
-  return $ ( event, send ) =>
-    [ type, tail..., ] = event
-    return send event unless type is 'text'
-    text  = tail[ 0 ]
-    tex   = H1.cjk_as_tex_text text
-    # tex   = tex.replace /\\latin\{([^]+)\}/g, '$1'
-    send [ 'tex', tex, ]
-
 
 
 ############################################################################################################
 unless module.parent?
-  @pdf_from_md 'texts/A-Permuted-Index-of-Chinese-Characters/index.md'
+  # @pdf_from_md 'texts/A-Permuted-Index-of-Chinese-Characters/index.md'
+  @pdf_from_md 'texts/demo/demo.md'
+
+  # debug '©nL12s', HELPERS.TYPO.as_tex_text '亻龵helo さしすサシス 臺灣國語Ⓒ, Ⓙ, Ⓣ𠀤𠁥&jzr#e202;'
+  # debug '©nL12s', HELPERS.TYPO.as_tex_text 'helo さし'
 
 
