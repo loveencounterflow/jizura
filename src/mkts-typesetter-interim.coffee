@@ -6,7 +6,6 @@
 ############################################################################################################
 njs_path                  = require 'path'
 njs_fs                    = require 'fs'
-join                      = njs_path.join
 #...........................................................................................................
 CND                       = require 'cnd'
 rpr                       = CND.rpr
@@ -33,7 +32,90 @@ TYPESETTER                = require 'mingkwai-typesetter'
 
 
 #-----------------------------------------------------------------------------------------------------------
-@write = ( index_name, handler ) ->
+options =
+  'pdf-command':          """
+    xelatex
+      -8bit
+      -halt-on-error
+      --enable-write18
+      --recorder
+      -output-directory=$1
+      $2""".replace /\s+/g, ' '
+#...........................................................................................................
+do ->
+  home                    = njs_path.join __dirname, '..'
+  options[ 'home' ]       = home
+  options[ 'tmp-home' ]   = njs_path.join home, 'tmp'
+
+#-----------------------------------------------------------------------------------------------------------
+HELPERS = {}
+
+#-----------------------------------------------------------------------------------------------------------
+HELPERS.provide_tmp_folder = ->
+  njs_fs.mkdirSync options[ 'tmp-home' ] unless njs_fs.existsSync options[ 'tmp-home' ]
+  return null
+
+#-----------------------------------------------------------------------------------------------------------
+HELPERS.new_layout_info = ( source_route ) ->
+  pdf_command         = options[ 'pdf-command' ]
+  tmp_home            = options[ 'tmp-home' ]
+  source_locator      = njs_path.resolve process.cwd(), source_route
+  source_home         = njs_path.dirname source_locator
+  source_name         = njs_path.basename source_locator
+  tex_locator         = njs_path.join tmp_home, CND.swap_extension source_name, '.tex'
+  aux_locator         = njs_path.join tmp_home, CND.swap_extension source_name, '.aux'
+  pdf_source_locator  = njs_path.join tmp_home, CND.swap_extension source_name, '.pdf'
+  pdf_target_locator  = njs_path.join source_home, CND.swap_extension source_name, '.pdf'
+  #.........................................................................................................
+  R =
+    'pdf-command':          pdf_command
+    'tmp-home':             tmp_home
+    'source-route':         source_route
+    'source-locator':       source_locator
+    'source-home':          source_home
+    'source-name':          source_name
+    'tex-locator':          tex_locator
+    'aux-locator':          aux_locator
+    'pdf-source-locator':   pdf_source_locator
+    'pdf-target-locator':   pdf_target_locator
+    'latex-run-count':      0
+  #.........................................................................................................
+  return R
+
+#-----------------------------------------------------------------------------------------------------------
+HELPERS.write_pdf = ( layout_info, handler ) ->
+  #.........................................................................................................
+  pdf_command         = layout_info[ 'pdf-command'          ]
+  tmp_home            = layout_info[ 'tmp-home'             ]
+  tex_locator         = layout_info[ 'tex-locator'          ]
+  aux_locator         = layout_info[ 'aux-locator'          ]
+  pdf_source_locator  = layout_info[ 'pdf-source-locator'   ]
+  pdf_target_locator  = layout_info[ 'pdf-target-locator'   ]
+  last_digest         = if njs_fs.existsSync aux_locator then BNP.id_from_route aux_locator else null
+  digest              = null
+  count               = 0
+  #.........................................................................................................
+  pdf_from_tex = ( next ) =>
+    count += 1
+    urge "run ##{count} #{pdf_command} #{pdf_output_home} #{tex_locator}"
+    TRM.spawn pdf_command, [ tmp_home, tex_locator, ], ( error, data ) =>
+      error = undefined if error is 0
+      return handler error if error?
+      digest = BNP.id_from_route aux_locator
+      if digest is last_digest
+        echo ( TRM.grey badge ), TRM.lime "done."
+        layout_info[ 'latex-run-count' ] = count
+        ### TAINT move pdf to layout_info[ 'source-home' ] ###
+        handler null
+      else
+        last_digest = digest
+        next()
+  #.........................................................................................................
+  ASYNC.forever pdf_from_tex
+
+
+#-----------------------------------------------------------------------------------------------------------
+@write = ( handler ) ->
   ###
   FI = require 'coffeenode-fillin'
   ###
@@ -44,14 +126,17 @@ TYPESETTER                = require 'mingkwai-typesetter'
   # #.........................................................................................................
   # # cli                     = options[ 'cli' ]
   # content_layout_info     = options[ 'tex-generated' ][ index_name ]
-  # tex_output_route        = content_layout_info[ 'route' ]
-  # tex_output              = njs_fs.createWriteStream tex_output_route
+  # tex_route        = content_layout_info[ 'route' ]
+  # tex_output              = njs_fs.createWriteStream tex_route
   # pdf_routes              = H1.get_pdf_routes options[ 'tex-generated' ][ 'kwic' ]
   # aux_route               = pdf_routes[ 'aux-route' ]
   # template_route          = content_layout_info[ 'text-route' ]
   # text                    = njs_fs.readFileSync template_route, encoding: 'utf-8'
-  tex_output_route        = '/tmp/mkts-typesetter-interim-output.tex'
-  tex_output              = njs_fs.createWriteStream tex_output_route
+  HELPERS.provide_tmp_folder()
+  source_route            = '/tmp/mkts-typesetter-interim-output.md'
+  layout_info             = HELPERS.new_layout_info source_route
+  tex_locator             = layout_info[ 'tex-locator']
+  tex_output              = njs_fs.createWriteStream tex_locator
   text                    = """
     # Helo World
 
@@ -60,7 +145,6 @@ TYPESETTER                = require 'mingkwai-typesetter'
     ‡new-document 'preface'
     This is the preface.
     """
-  debug '©H9UrZ', text
   ###
   details_route           = CND.swap_extension aux_route, '.json'
   template                = njs_fs.readFileSync template_route, encoding: 'utf-8'
@@ -72,8 +156,8 @@ TYPESETTER                = require 'mingkwai-typesetter'
   text                    = FI.fill_in template, kwic_details
   ###
   #---------------------------------------------------------------------------------------------------------
-  # tex_output.on 'close', =>
-  #   H1.write_pdf content_layout_info, handler
+  tex_output.on 'close', =>
+    H1.write_pdf content_layout_info, handler
   #---------------------------------------------------------------------------------------------------------
   input = TYPESETTER.create_html_readstream_from_mdx_text text
   input
@@ -307,9 +391,6 @@ TYPESETTER                = require 'mingkwai-typesetter'
       \\documentclass[a4paper,twoside]{book}
       \\usepackage{jzr2014}
       \\usepackage{jzr2015-article}
-      \\usepackage{multicol}
-      \\setlength{\\columnsep}{3mm}
-      \\setlength\\columnseprule{0.155mm}
       \\begin{document}
       """
 
