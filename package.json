@@ -4,7 +4,7 @@
   "description": "CJK character information",
   "main": "lib/main.js",
   "dependencies": {
-    "async": "^1.3.0",
+    "async": "^1.4.2",
     "cnd": "^1.0.8",
     "coffeenode-chr": "^1.0.2",
     "coffeenode-docopt": "^0.1.1",
