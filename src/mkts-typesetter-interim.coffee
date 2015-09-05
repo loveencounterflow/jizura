@@ -54,8 +54,8 @@ options                   = require './options'
   input = TYPESETTER.create_html_readstream_from_mdx_text text
   input
     # .pipe @$transform_commands()
-    .pipe HELPERS.TYPO.$fix_typography_for_tex()
     .pipe D.$show()
+    .pipe HELPERS.TYPO.$fix_typography_for_tex()
     .pipe @$assemble_tex_events()
     .pipe @$filter_tex()
     .pipe @$insert_preamble()
@@ -222,7 +222,7 @@ options                   = require './options'
             when 'code'
               # send [ 'tex', "\\begingroup\\setCodeLatin\n", ]
               # send [ 'tex', "\\begingroup\\jzrFontSunXA\n", ]
-              send [ 'tex', "\\begingroup\\jzrFontSourceCodePro\n", ]
+              send [ 'tex', "\n\n\n\\begingroup\\jzrFontSourceCodePro\n", ]
               keep_lines = yes
             # #...............................................................................................
             # when 'span'

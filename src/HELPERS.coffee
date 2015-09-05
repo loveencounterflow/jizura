@@ -168,6 +168,7 @@ options                   = require './options'
   #.........................................................................................................
   advance = =>
     if stretch.length > 0
+      debug '©zDJqU', last_command, JSON.stringify stretch.join '.'
       if last_command in [ null, 'latin', ]
         R.push @TYPO.escape_for_tex stretch.join ''
       else

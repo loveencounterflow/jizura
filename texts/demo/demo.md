@@ -1,12 +1,23 @@
 
-
 # This is a Demonstration
 
 ## Of Typesetting Features
 
 ### Using Special Characters
 
-difference: u-cjk-5019 候 ⿰&cdp#x8b7a;&cdp#x8bc7; [ '⿰&jzr#xe219;(⿱&jzr#xe1c2;矢)' ]
+
+m&jzr#xe219;&jzr#xe219;&jzr#xe219;m
+
+c&cdp#x8b7a;c
+
+xxx
+
+```
+m&jzr#xe219;m
+c&cdp#x8b7a;c
+```
+
+<!-- difference: u-cjk-5019 候 ⿰&cdp#x8b7a;&cdp#x8bc7; [ '⿰&jzr#xe219;(⿱&jzr#xe1c2;矢)' ]
 
 'this' & "that"
 
@@ -41,6 +52,19 @@ and keep line breaks
 ```
 
 ### Chracter Formulas
+
+difference: u-cjk-5019 候 ⿰&cdp#x8b7a;&cdp#x8bc7; [ '⿰&jzr#xe219;(⿱&jzr#xe1c2;矢)' ]
+
+&jzr#xe219;
+
++&jzr#xe219;+
+
+候 ⿰ +&cdp#x8b7a;+&cdp#x8bc7;+ +&jzr#xe219;+&jzr#xe1c2;矢+
+
+```
+候 ⿰ +&cdp#x8b7a;+&cdp#x8bc7;+ +&jzr#xe219;+&jzr#xe1c2;矢+
+```
+
 
 ```
 u-cjk/4e36  丶   ●
@@ -101,3 +125,4 @@ u-cjk-xb/250b8  𥂸   ⿱楊皿
 The above are just a few of the over 75,000 formulas in the Jizura collection.
 
 
+ -->
