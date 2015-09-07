@@ -28,7 +28,6 @@ $                         = D.remit.bind D
 $async                    = D.remit_async.bind D
 #...........................................................................................................
 ƒ                         = CND.format_number.bind CND
-TYPESETTER                = require 'mingkwai-typesetter'
 HELPERS                   = require './HELPERS'
 options                   = require './options'
 
@@ -51,7 +50,7 @@ options                   = require './options'
   tex_output.on 'close', =>
     HELPERS.write_pdf layout_info, handler
   #---------------------------------------------------------------------------------------------------------
-  input = TYPESETTER.create_html_readstream_from_mdx_text text
+  input = HELPERS.create_html_readstream_from_mdx_text text
   input
     # .pipe @$transform_commands()
     .pipe D.$show()
@@ -90,7 +89,8 @@ options                   = require './options'
   start_multicol_after    = null
   add_newline_before_end  = null
   list_level              = 0
-  keep_lines              = no
+  within_keeplines        = no
+  within_pre              = no
   #.........................................................................................................
   return $ ( event, send, end ) =>
     # if is_first_event
@@ -127,7 +127,11 @@ options                   = require './options'
           text = tail[ 0 ]
           # text = @fix_quotes  text
           # text = @escape_text text
-          text = text.replace /\n/g, '\\\\\n' if keep_lines
+          if within_keeplines
+            text = text.replace /^\n*/, ''
+            text = text.replace /\n/g, '\\\\\n'
+          if within_pre
+            text = text.replace /\u0020/g, '\u00a0'
           send [ 'text', text, ]
         #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         when 'open-tag'
@@ -219,11 +223,18 @@ options                   = require './options'
               # send [ 'tex', "\\item[¶] ", ]
               send [ 'tex', "\\item[—] ", ]
             #...............................................................................................
+            when 'pre'
+              send [ 'tex', "\n\n", ]
+              within_pre        = yes
+              within_keeplines  = yes
+            #...............................................................................................
             when 'code'
               # send [ 'tex', "\\begingroup\\setCodeLatin\n", ]
               # send [ 'tex', "\\begingroup\\jzrFontSunXA\n", ]
-              send [ 'tex', "\n\n\n\\begingroup\\jzrFontSourceCodePro\n", ]
-              keep_lines = yes
+              send [ 'tex', "\\begingroup\\jzrFontSourceCodePro{}", ]
+            #...............................................................................................
+            when 'keeplines'
+              within_keeplines = yes
             # #...............................................................................................
             # when 'span'
             #   switch clasz = attributes[ 'class' ]
@@ -260,9 +271,15 @@ options                   = require './options'
                 # send [ 'tex', "\\endgroup\n\n", ]
               when 'p', 'li', 'br', 'newpage', 'fullwidth'
                 null
+              when 'pre'
+                send [ 'tex', "\n\n", ]
+                within_keeplines  = no
+                within_pre        = no
               when 'code'
-                send [ 'tex', "\n\\endgroup\n", ]
-                keep_lines = no
+                send [ 'tex', "\\endgroup{}", ]
+              when 'keeplines'
+                # send [ 'tex', "\n\n", ]
+                within_keeplines = no
               when 'ul'
                 # send [ 'tex', "\\end{itemize}", ]
                 send [ 'tex', "\\end{description}", ]

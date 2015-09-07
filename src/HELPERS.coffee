@@ -26,6 +26,10 @@ D                         = require 'pipedreams'
 $                         = D.remit.bind D
 $async                    = D.remit_async.bind D
 #...........................................................................................................
+Markdown_parser           = require 'markdown-it'
+Html_parser               = ( require 'htmlparser2' ).Parser
+new_md_inline_plugin      = require 'markdown-it-regexp'
+#...........................................................................................................
 options                   = require './options'
 
 
@@ -210,14 +214,109 @@ options                   = require './options'
   advance()
   return R.join ''
 
-# #-----------------------------------------------------------------------------------------------------------
-# @TYPO.cjk_as_tex_text = ( text ) =>
-#   chrs    = XNCHR.chrs_from_text text
-#   R       = []
-#   is_cjk  = ( x ) => /^(u-cjk|u-halfull|u-hang-syl|jzr-fig|u-pua)/.test XNCHR.as_rsg x
-#   for chr in chrs
-#     R.push if ( is_cjk chr ) then ( XELATEX.tag_rpr_from_chr options[ 'glyph-styles' ], chr ) else chr
-#   return R.join ''
+
+### # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # ###
+### # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # ###
+### # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # ###
+### # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # ###
+### # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # ###
+### # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # ###
+### # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # ###
+
+#-----------------------------------------------------------------------------------------------------------
+@_new_markdown_parser = ->
+  #.........................................................................................................
+  ### https://markdown-it.github.io/markdown-it/#MarkdownIt.new ###
+  # feature_set = 'commonmark'
+  # feature_set = 'zero'
+  #.........................................................................................................
+  settings    =
+    html:           yes,            # Enable HTML tags in source
+    xhtmlOut:       no,             # Use '/' to close single tags (<br />)
+    breaks:         no,             # Convert '\n' in paragraphs into <br>
+    langPrefix:     'language-',    # CSS language prefix for fenced blocks
+    linkify:        yes,            # Autoconvert URL-like text to links
+    typographer:    yes,
+    # quotes:         '“”‘’'
+    # quotes:         '""\'\''
+    # quotes:         '""`\''
+    # quotes:         [ '<<', '>>', '!!!', '???', ]
+    quotes:   ['«\xA0', '\xA0»', '‹\xA0', '\xA0›'] # French
+  #.........................................................................................................
+  # R = new Markdown_parser feature_set, settings
+  R = new Markdown_parser settings
+  #.......................................................................................................
+  ### sample plugin ###
+  user_pattern  = /@(\w+)/
+  user_handler  = ( match, utils ) ->
+    url = 'http://example.org/u/' + match[ 1 ]
+    return '<a href="' + utils.escape(url) + '">' + utils.escape(match[1]) + '</a>'
+  user_plugin = new_md_inline_plugin user_pattern, user_handler
+  R.use user_plugin
+  #.......................................................................................................
+  return R
+
+#-----------------------------------------------------------------------------------------------------------
+@_new_html_parser = ( stream ) ->
+  ### https://github.com/fb55/htmlparser2/wiki/Parser-options ###
+  settings =
+    xmlMode:                 no   # Indicates whether special tags (<script> and <style>) should get special
+                                  # treatment and if "empty" tags (eg. <br>) can have children. If false,
+                                  # the content of special tags will be text only.
+                                  # For feeds and other XML content (documents that don't consist of HTML),
+                                  # set this to true. Default: false.
+    decodeEntities:          no   # If set to true, entities within the document will be decoded. Defaults
+                                  # to false.
+    lowerCaseTags:           no   # If set to true, all tags will be lowercased. If xmlMode is disabled,
+                                  # this defaults to true.
+    lowerCaseAttributeNames: no   # If set to true, all attribute names will be lowercased. This has
+                                  # noticeable impact on speed, so it defaults to false.
+    recognizeCDATA:          yes  # If set to true, CDATA sections will be recognized as text even if the
+                                  # xmlMode option is not enabled. NOTE: If xmlMode is set to true then
+                                  # CDATA sections will always be recognized as text.
+    recognizeSelfClosing:    yes  # If set to true, self-closing tags will trigger the onclosetag event even
+                                  # if xmlMode is not set to true. NOTE: If xmlMode is set to true then
+                                  # self-closing tags will always be recognized.
+  #.........................................................................................................
+  handlers =
+    onopentag:  ( name, attributes )  -> stream.write [ 'open-tag',  name, attributes, ]
+    ontext:     ( text )              -> stream.write [ 'text',      text, ]
+    onclosetag: ( name )              -> stream.write [ 'close-tag', name, ]
+    onerror:    ( error )             -> stream.error error
+    oncomment:  ( text )              -> stream.write [ 'comment',   text, ]
+    onend:                            -> stream.write [ 'end', ]; stream.end()
+    # oncdatastart:            ( P... ) -> debug 'cdatastart           ', P  # 0
+    # oncdataend:              ( P... ) -> debug 'cdataend             ', P  # 0
+    # onprocessinginstruction: ( P... ) -> debug 'processinginstruction', P  # 2
+  #.........................................................................................................
+  return new Html_parser handlers, settings
+
+#-----------------------------------------------------------------------------------------------------------
+@create_html_readstream_from_md_text = ( text, settings ) ->
+  throw new Error "settings currently unsupported" if settings?
+  #.........................................................................................................
+  R = D.create_throughstream()
+  R.pause()
+  #.........................................................................................................
+  # setImmediate =>
+  md_parser   = @_new_markdown_parser()
+  html_parser = @_new_html_parser R
+  html        = md_parser.render text
+  # help '©YzNQP',  html
+  html_parser.write html
+  html_parser.end()
+  #.........................................................................................................
+  return R
+
+# source_route  = njs_path.resolve __dirname, '../jizura/texts/demo/demo.md'
+# source_md     = njs_fs.readFileSync source_route, encoding: 'utf-8'
+# debug '©3E4JY', source_md
+# input =  @create_html_readstream_from_mdx_text source_md
+# input
+#   .pipe D.$show()
+# input.resume()
+
+
 
 
 
