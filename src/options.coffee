@@ -17,6 +17,7 @@ module.exports = options =
     'tex-command-by-rsgs':
       'u-latn':                 'latin'
       'u-latn-1':               'latin'
+      'u-punct':                'latin'
       'u-cjk':                  'cn'
       'u-halfull':              'cn'
       'u-dingb':                'cn'

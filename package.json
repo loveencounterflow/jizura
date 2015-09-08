@@ -17,7 +17,11 @@
     "kwic": "^1.0.7",
     "level": "^1.2.0",
     "markdown-it": "^4.4.0",
+    "markdown-it-container": "^1.0.0",
+    "markdown-it-mark": "^1.0.0",
     "markdown-it-regexp": "^0.4.0",
+    "markdown-it-sub": "^1.0.0",
+    "markdown-it-sup": "^1.0.0",
     "pipedreams": "^0.2.28"
   },
   "devDependencies": {

@@ -108,7 +108,7 @@ options                   = require './options'
 @TYPO = {}
 
 #-----------------------------------------------------------------------------------------------------------
-@TYPO._escape_replacements = [
+@TYPO._tex_escape_replacements = [
   [ ///  \\         ///g,  '\\textbackslash{}',     ]
   [ ///  \{         ///g,  '\\{',                   ]
   [ ///  \}         ///g,  '\\}',                   ]
@@ -122,42 +122,52 @@ options                   = require './options'
   [ ///  &amp;      ///g, '\\&',                    ]
   [ ///  &quot;     ///g, '"',                      ]
   [ ///  '([^\s]+)’ ///g, '‘$1’',                   ]
-  [ ///  (^|[^\\])& ///g, '\\&',                    ]
-  # [ ///  &   ///g,  '\\&',                  ]
+  [ ///  &   ///g,  '\\&',                  ]
+  # [ ///  (^|[^\\])& ///g, '$1\\&',                    ]
   # [ ///  ([^\\])&   ///g,  '$1\\&',                  ]
   # '`'   # these two are very hard to catch when TeX's character handling is switched on
   # "'"   #
   ]
 
 #-----------------------------------------------------------------------------------------------------------
-@TYPO.escape_for_tex = ( text ) =>
+@TYPO.escape_for_tex = ( text ) ->
   R = text
-  R = R.replace matcher, replacement for [ matcher, replacement, ] in @TYPO._escape_replacements
+  for [ pattern, replacement, ] in @_tex_escape_replacements
+    R = R.replace pattern, replacement
   return R
 
 #-----------------------------------------------------------------------------------------------------------
-@TYPO.$fix_typography_for_tex = =>
+@TYPO.$resolve_html_entities = ->
   return $ ( event, send ) =>
     [ type, tail..., ] = event
     if type is 'text'
-      send [ 'text', ( @TYPO.as_tex_text tail[ 0 ] ), ]
+      send [ 'text', ( @resolve_html_entities tail[ 0 ] ), ]
     else
       send event
 
-# #-----------------------------------------------------------------------------------------------------------
-# @TYPO.supply_cjk_markup = =>
-#   tag_stack = []
-#   #.........................................................................................................
-#   return $ ( event, send ) =>
-#     [ type, tail..., ] = event
-#     return send event unless type is 'text'
-#     text  = tail[ 0 ]
-#     tex   = H1.cjk_as_tex_text text
-#     # tex   = tex.replace /\\latin\{([^]+)\}/g, '$1'
-#     send [ 'tex', tex, ]
+#-----------------------------------------------------------------------------------------------------------
+@TYPO.$fix_typography_for_tex = ->
+  return $ ( event, send ) =>
+    [ type, tail..., ] = event
+    if type is 'text'
+      send [ 'text', ( @fix_typography_for_tex tail[ 0 ] ), ]
+    else
+      send event
 
 #-----------------------------------------------------------------------------------------------------------
-@TYPO.as_tex_text = ( text, settings ) =>
+@TYPO.resolve_html_entities = ( text ) ->
+  R = text
+  R = R.replace /&lt;/g, '<'
+  R = R.replace /&gt;/g, '>'
+  R = R.replace /&quot;/g, '"'
+  R = R.replace /&amp;/g, '&'
+  R = R.replace /&[^a-z0-9]+;/g, ( match ) ->
+    warn "unable to resolve HTML entity #{match}"
+    return match
+  return R
+
+#-----------------------------------------------------------------------------------------------------------
+@TYPO.fix_typography_for_tex = ( text, settings ) ->
   ### An improved version of `XELATEX.tag_from_chr` ###
   settings             ?= options
   glyph_styles          = settings[ 'tex' ]?[ 'glyph-styles'             ] ? {}
@@ -172,9 +182,9 @@ options                   = require './options'
   #.........................................................................................................
   advance = =>
     if stretch.length > 0
-      debug '©zDJqU', last_command, JSON.stringify stretch.join '.'
+      # debug '©zDJqU', last_command, JSON.stringify stretch.join '.'
       if last_command in [ null, 'latin', ]
-        R.push @TYPO.escape_for_tex stretch.join ''
+        R.push @escape_for_tex stretch.join ''
       else
         R.push stretch.join ''
         R.push '}'
@@ -215,16 +225,10 @@ options                   = require './options'
   return R.join ''
 
 
-### # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # ###
-### # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # ###
-### # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # ###
-### # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # ###
-### # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # ###
-### # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # ###
-### # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # ###
-
+#===========================================================================================================
+# MD / HTML PARSING
 #-----------------------------------------------------------------------------------------------------------
-@_new_markdown_parser = ->
+@TYPO._new_markdown_parser = ->
   #.........................................................................................................
   ### https://markdown-it.github.io/markdown-it/#MarkdownIt.new ###
   # feature_set = 'commonmark'
@@ -252,12 +256,25 @@ options                   = require './options'
     url = 'http://example.org/u/' + match[ 1 ]
     return '<a href="' + utils.escape(url) + '">' + utils.escape(match[1]) + '</a>'
   user_plugin = new_md_inline_plugin user_pattern, user_handler
+  #.......................................................................................................
   R.use user_plugin
+  # R.use require 'markdown-it-mark'
+  # R.use require 'markdown-it-sub'
+  # R.use require 'markdown-it-sup'
+  R.use ( require 'markdown-it-container' ), 'keeplines', render: ( tokens, idx ) ->
+    # debug '©0KgAK', rpr tokens[ idx .. idx + 20 ]
+    return '<keeplines>' if tokens[ idx ][ 'nesting' ] is 1
+    return '</keeplines>'
+  # R.use require './markdown-it-wall'
+  # debug '©1EaXq', R[ 'block' ][ 'ruler' ]
+  # debug '©FVzlq', ( rule for rule in R[ 'block' ][ 'ruler' ]['__rules__'] )
+  # R[ 'block' ][ 'ruler' ].before 'fence', 'wall', ( require './markdown-it-wall' ), { alt: [ 'paragraph', 'reference', 'blockquote', 'list' ] }
+  # R[ 'block' ][ 'ruler' ].push require './markdown-it-wall'
   #.......................................................................................................
   return R
 
 #-----------------------------------------------------------------------------------------------------------
-@_new_html_parser = ( stream ) ->
+@TYPO._new_html_parser = ( stream ) ->
   ### https://github.com/fb55/htmlparser2/wiki/Parser-options ###
   settings =
     xmlMode:                 no   # Indicates whether special tags (<script> and <style>) should get special
@@ -292,7 +309,7 @@ options                   = require './options'
   return new Html_parser handlers, settings
 
 #-----------------------------------------------------------------------------------------------------------
-@create_html_readstream_from_md_text = ( text, settings ) ->
+@TYPO.create_html_readstream_from_md = ( text, settings ) ->
   throw new Error "settings currently unsupported" if settings?
   #.........................................................................................................
   R = D.create_throughstream()
@@ -305,6 +322,56 @@ options                   = require './options'
   # help '©YzNQP',  html
   html_parser.write html
   html_parser.end()
+  #.........................................................................................................
+  $remove_block_tags_from_keeplines = =>
+    within_keeplines = no
+    return $ ( event, send ) =>
+      [ type, tag, tail..., ] = event
+      if type is 'open-tag' and tag is 'keeplines'
+        within_keeplines = yes
+        return send event
+      if type is 'close-tag' and tag is 'keeplines'
+        within_keeplines = no
+        return send event
+      if within_keeplines
+        if type in [ 'open-tag', 'close-tag', ]
+          ###TAINT apply to other block-level tags? ###
+          send event unless tag is 'p'
+        else
+          send event
+      else
+        send event
+  #.........................................................................................................
+  $consolidate_texts = =>
+    collector = []
+    _send     = null
+    #.......................................................................................................
+    flush = ->
+      if collector.length > 0
+        text  = collector.join ''
+        text  = text.replace /^\n+/, ''
+        text  = text.replace /\n+$/, ''
+        # text = ( collector.join '' ).trim()
+        _send [ 'text', text, ] if text.length > 0
+        collector.length = 0
+        return null
+    #.......................................................................................................
+    return $ ( event, send, end ) =>
+      _send = send
+      if event?
+        [ type, text, ] = event
+        if type is 'text'
+          collector.push text
+        else
+          flush()
+          send event
+      if end?
+        flush()
+        end()
+  #.........................................................................................................
+  R = R
+    .pipe $remove_block_tags_from_keeplines()
+    .pipe $consolidate_texts()
   #.........................................................................................................
   return R
 

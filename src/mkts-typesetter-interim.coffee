@@ -50,11 +50,12 @@ options                   = require './options'
   tex_output.on 'close', =>
     HELPERS.write_pdf layout_info, handler
   #---------------------------------------------------------------------------------------------------------
-  input = HELPERS.create_html_readstream_from_mdx_text text
+  input = HELPERS.TYPO.create_html_readstream_from_md text
   input
     # .pipe @$transform_commands()
-    .pipe D.$show()
+    .pipe HELPERS.TYPO.$resolve_html_entities()
     .pipe HELPERS.TYPO.$fix_typography_for_tex()
+    .pipe D.$show()
     .pipe @$assemble_tex_events()
     .pipe @$filter_tex()
     .pipe @$insert_preamble()
@@ -93,10 +94,6 @@ options                   = require './options'
   within_pre              = no
   #.........................................................................................................
   return $ ( event, send, end ) =>
-    # if is_first_event
-    #   start_size 1
-    #   send [ 'doc', me, ]
-    #   is_first_event = no
     #.......................................................................................................
     if event?
       [ type, tail..., ]  = event
@@ -113,8 +110,6 @@ options                   = require './options'
                 send [ 'tex', '\\end{multicols}\n\n' ]
                 within_multicol = no
               send [ 'tex', "\\null\\newpage%‡#{command} #{document_name}‡\n" ]
-              # send [ 'tex', "\\null\\newpage\n" ]
-              # send [ 'tex', "\n%‡#{command} #{document_name}\n\n" ]
             when 'newpage'
               if within_multicol
                 send [ 'tex', '\\end{multicols}\n\n' ]
@@ -123,12 +118,13 @@ options                   = require './options'
             else
               warn "ignored command #{rpr event}"
         #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        when 'comment'
+          for line in tail[ 0 ].split '\n'
+            send [ 'tex', "% #{line}\n", ]
+        #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         when 'text'
           text = tail[ 0 ]
-          # text = @fix_quotes  text
-          # text = @escape_text text
           if within_keeplines
-            text = text.replace /^\n*/, ''
             text = text.replace /\n/g, '\\\\\n'
           if within_pre
             text = text.replace /\u0020/g, '\u00a0'
@@ -139,14 +135,17 @@ options                   = require './options'
           tag_stack.push name
           #.................................................................................................
           switch name
-    #         #...............................................................................................
-    #         when 'span'
-    #           if attributes[ 'class' ]? and ( match = attributes[ 'class' ].match /^size-([0-9]+)$/ )?
-    #             size = parseInt match[ 1 ], 10
-    #           else
-    #             size = get_size()
-    #           start_size size
-    #           ok = yes
+            #...............................................................................................
+            # when 'div'
+            #   ### modify tag stack so we know which tag was popped: ###
+            #   clasz                             = attributes[ 'class' ]
+            #   tag_stack[ tag_stack.length - 1 ] = clasz
+            #   switch clasz
+            #     when 'keeplines'
+            #       within_keeplines        = yes
+            #       ignore_next_nl          = yes
+            #     else
+            #       warn "ignored unknown div class #{rpr clasz}"
             #...............................................................................................
             when 'newpage'
               if within_multicol
@@ -223,6 +222,11 @@ options                   = require './options'
               # send [ 'tex', "\\item[¶] ", ]
               send [ 'tex', "\\item[—] ", ]
             #...............................................................................................
+            when 'keeplines'
+              within_keeplines        = yes
+              send [ 'tex', "\n\n", ]
+              # ignore_next_nl          = yes
+            #...............................................................................................
             when 'pre'
               send [ 'tex', "\n\n", ]
               within_pre        = yes
@@ -232,20 +236,6 @@ options                   = require './options'
               # send [ 'tex', "\\begingroup\\setCodeLatin\n", ]
               # send [ 'tex', "\\begingroup\\jzrFontSunXA\n", ]
               send [ 'tex', "\\begingroup\\jzrFontSourceCodePro{}", ]
-            #...............................................................................................
-            when 'keeplines'
-              within_keeplines = yes
-            # #...............................................................................................
-            # when 'span'
-            #   switch clasz = attributes[ 'class' ]
-            #     when 'fullwidth'
-            #       if within_multicol
-            #         send [ 'tex', '\\end{multicols}\n\n' ]
-            #         within_multicol                   = no
-            #         start_multicol_after              = 'fullwidth'
-            #         tag_stack[ tag_stack.length - 1 ] = 'fullwidth'
-            #     else
-            #       warn "ignored HTML span of class #{rpr clasz}"
             #...............................................................................................
             else
               warn "ignored opening HTML tag #{rpr name}"
@@ -279,7 +269,8 @@ options                   = require './options'
                 send [ 'tex', "\\endgroup{}", ]
               when 'keeplines'
                 # send [ 'tex', "\n\n", ]
-                within_keeplines = no
+                within_keeplines  = no
+                # ignore_next_nl    = yes
               when 'ul'
                 # send [ 'tex', "\\end{itemize}", ]
                 send [ 'tex', "\\end{description}", ]

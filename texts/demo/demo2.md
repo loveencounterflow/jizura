@@ -6,6 +6,7 @@
 ### Using Special Characters
 
 
+
 m&jzr#xe219;&jzr#xe219;&jzr#xe219;m
 
 c&cdp#x8b7a;c
@@ -130,4 +131,56 @@ difference: u-cjk-5019 候 ⿰&cdp#x8b7a;&cdp#x8bc7; [ '⿰&jzr#xe219;(⿱&jzr#x
 
 The above are just a few of the over 75,000 formulas in the Jizura collection.
 
+
+-------------------------------------------------------------------
+
+
+
+&jzr#xe219; `&cdp#x8b7a;`
+
+It's possible to switch on `inline code`. It's also possible
+to have a block of code with lines rendered as in the source:
+
+```
+&gt; >
+#-----------------------------------------------------------------------------------------------------------
+@_shuffle = ( list, ratio, rnd, random_integer ) ->
+  #.........................................................................................................
+  return list if ( this_idx = list.length ) < 2
+```
+
+Code sample, keeping indentations:
+
+```
+x
+  x
+    x
+```
+
+### [Footnotes](https://github.com/markdown-it/markdown-it-footnote)
+
+Footnote 1 link[^first].
+
+Footnote 2 link[^second].
+
+Inline footnote^[Text of inline footnote] definition.
+
+Duplicated footnote reference[^second].
+
+[^first]: Footnote **can have markup**
+
+    and multiple paragraphs.
+
+[^second]: Footnote text.
+
+
+<b foo='bar'>xxx</b>
+
+3 > 2
+
+Here we reference a @user. "Fancy" 'quotes' are possible.
+ <!--
+comments
+in MD
+will appear in <b>TeX</b> --> xxx
 

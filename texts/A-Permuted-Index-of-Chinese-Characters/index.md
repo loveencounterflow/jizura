@@ -118,6 +118,11 @@ a certain Roman by the name of Spurius Carvilius Ruga, around 230 BCE
 亠
 衣, 立, 方, 言, 主, 卞, 亦, 文, 六
 
+u-cjk/4ea4  交 ⿱亠父
+u-cjk/4ea4  交 ⿱六乂
+u-cjk/4ea4  交 ⿻文八
+
+
 #### Reduplications
 
 人

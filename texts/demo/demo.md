@@ -1,33 +1,64 @@
 
 # This is a Demonstration
 
+Here comes a `keeplines` block:
+::: keeplines
+lines are kept
+as they are
+in the markdown source
+:::
+this line directly below `keeplines` block
 
-&jzr#xe219; `&cdp#x8b7a;`
+Here comes another `keeplines` block:
 
-It's possible to switch on `inline code`. It's also possible
-to have a block of code with lines rendered as in the source:
+::: keeplines
+lines are kept
+as they are
+in the markdown source
+:::
+
+this line *not* directly below `keeplines` block
+
+&jzr#xe202;
+`&jzr#xe202;`
 
 ```
-&gt; >
-#-----------------------------------------------------------------------------------------------------------
-@_shuffle = ( list, ratio, rnd, random_integer ) ->
-  #.........................................................................................................
-  return list if ( this_idx = list.length ) < 2
+this is
+a code block &jzr#xe202;
+with three lines & an XNCR
 ```
 
-```
-x
-  x
-    x
-```
+some **bold** attempts
 
-<b foo='bar'>xxx</b>
+::: keeplines
+foobar 1
+foobar 2
+foobar 3
+foobar 4
+foobar 5
 
-3 > 2
+foobar 6
+foobar 7
+foobar 8
+foobar 9
+foobar 10
+:::
 
-Here we reference a @user. "Fancy" 'quotes' are possible.
- <!--
-comments
-in MD
-will appear in <b>TeX</b> --> xxx
+4 > 3
+&gt;
+\&gt;
 
+
+x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x
+
+x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x
