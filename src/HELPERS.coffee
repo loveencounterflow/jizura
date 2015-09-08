@@ -232,7 +232,7 @@ options                   = require './options'
   #.........................................................................................................
   ### https://markdown-it.github.io/markdown-it/#MarkdownIt.new ###
   # feature_set = 'commonmark'
-  # feature_set = 'zero'
+  feature_set = 'zero'
   #.........................................................................................................
   settings    =
     html:           yes,            # Enable HTML tags in source
@@ -241,35 +241,55 @@ options                   = require './options'
     langPrefix:     'language-',    # CSS language prefix for fenced blocks
     linkify:        yes,            # Autoconvert URL-like text to links
     typographer:    yes,
-    # quotes:         '“”‘’'
+    quotes:         '“”‘’'
     # quotes:         '""\'\''
     # quotes:         '""`\''
     # quotes:         [ '<<', '>>', '!!!', '???', ]
-    quotes:   ['«\xA0', '\xA0»', '‹\xA0', '\xA0›'] # French
+    # quotes:   ['«\xa0', '\xa0»', '‹\xa0', '\xa0›'] # French
   #.........................................................................................................
-  # R = new Markdown_parser feature_set, settings
-  R = new Markdown_parser settings
+  R = new Markdown_parser feature_set, settings
+  # R = new Markdown_parser settings
+  R
+    .enable 'text'
+    # .enable 'newline'
+    .enable 'escape'
+    .enable 'backticks'
+    .enable 'strikethrough'
+    .enable 'emphasis'
+    .enable 'link'
+    .enable 'image'
+    .enable 'autolink'
+    .enable 'html_inline'
+    .enable 'entity'
+    # .enable 'code'
+    .enable 'fence'
+    .enable 'blockquote'
+    .enable 'hr'
+    .enable 'list'
+    .enable 'reference'
+    .enable 'heading'
+    .enable 'lheading'
+    .enable 'html_block'
+    .enable 'table'
+    .enable 'paragraph'
+    .enable 'normalize'
+    .enable 'block'
+    .enable 'inline'
+    .enable 'linkify'
+    .enable 'replacements'
+    .enable 'smartquotes'
   #.......................................................................................................
-  ### sample plugin ###
-  user_pattern  = /@(\w+)/
-  user_handler  = ( match, utils ) ->
-    url = 'http://example.org/u/' + match[ 1 ]
-    return '<a href="' + utils.escape(url) + '">' + utils.escape(match[1]) + '</a>'
-  user_plugin = new_md_inline_plugin user_pattern, user_handler
-  #.......................................................................................................
-  R.use user_plugin
   # R.use require 'markdown-it-mark'
   # R.use require 'markdown-it-sub'
   # R.use require 'markdown-it-sup'
-  R.use ( require 'markdown-it-container' ), 'keeplines', render: ( tokens, idx ) ->
-    # debug '©0KgAK', rpr tokens[ idx .. idx + 20 ]
-    return '<keeplines>' if tokens[ idx ][ 'nesting' ] is 1
-    return '</keeplines>'
-  # R.use require './markdown-it-wall'
-  # debug '©1EaXq', R[ 'block' ][ 'ruler' ]
-  # debug '©FVzlq', ( rule for rule in R[ 'block' ][ 'ruler' ]['__rules__'] )
-  # R[ 'block' ][ 'ruler' ].before 'fence', 'wall', ( require './markdown-it-wall' ), { alt: [ 'paragraph', 'reference', 'blockquote', 'list' ] }
-  # R[ 'block' ][ 'ruler' ].push require './markdown-it-wall'
+  # #.......................................................................................................
+  # ### sample plugin ###
+  # user_pattern  = /@(\w+)/
+  # user_handler  = ( match, utils ) ->
+  #   url = 'http://example.org/u/' + match[ 1 ]
+  #   return '<a href="' + utils.escape(url) + '">' + utils.escape(match[1]) + '</a>'
+  # user_plugin = new_md_inline_plugin user_pattern, user_handler
+  # R.use user_plugin
   #.......................................................................................................
   return R
 
@@ -309,6 +329,121 @@ options                   = require './options'
   return new Html_parser handlers, settings
 
 #-----------------------------------------------------------------------------------------------------------
+@TYPO._$add_regions = ->
+  stack           = []
+  opening_pattern = /^@@@[\x20\xa0]+(\S.+)(?:\n|$)/
+  closing_pattern = /(^|\n)@@@\s*$/
+  #.........................................................................................................
+  return $ ( event, send, end ) =>
+    #.......................................................................................................
+    if event?
+      [ type, text, ] = event
+      #.....................................................................................................
+      if type is 'text'
+        opening_match = text.match opening_pattern
+        closing_match = text.match closing_pattern
+        #...................................................................................................
+        if opening_match?
+          name    = opening_match[ 1 ].trim()
+          text    = text[ opening_match[ 0 ].length .. ]
+          stack.push name
+          send [ 'start-region', name, ]
+        #...................................................................................................
+        if closing_match?
+          text    = text[ ... text.length - closing_match[ 0 ].length ]
+        #...................................................................................................
+        send [ 'text', text, ]
+        #...................................................................................................
+        if closing_match?
+          if stack.length > 0
+            send [ 'end-region', stack.pop(), ]
+          else
+            warn "ignoring end-region"
+      #.....................................................................................................
+      else
+        send event
+    #.......................................................................................................
+    if end?
+      if stack.length > 0
+        warn "auto-closing regions: #{rpr stack.join ', '}"
+        send [ 'close-tag', stack.pop(), ] while stack.length > 0
+      end()
+
+#-----------------------------------------------------------------------------------------------------------
+@TYPO._$add_commands = ->
+  pattern = /^∆∆∆[\x20\xa0]+(\S.+)(?:\n|$)/
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    #.......................................................................................................
+    if event?
+      [ type, text, ] = event
+      #.....................................................................................................
+      if type is 'text'
+        #...................................................................................................
+        if ( match = text.match pattern )?
+          name    = match[ 1 ].trim()
+          text    = text[ match[ 0 ].length .. ]
+          send [ 'command', name, ]
+        #...................................................................................................
+        send [ 'text', text, ]
+      #.....................................................................................................
+      else
+        send event
+
+#-----------------------------------------------------------------------------------------------------------
+@TYPO._$remove_block_tags_from_keeplines = =>
+  within_keeplines = no
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    [ type, tag, tail..., ] = event
+    #.......................................................................................................
+    if type is 'start-region' and tag is 'keeplines'
+      within_keeplines = yes
+      return send event
+    #.......................................................................................................
+    if type is 'end-region' and tag is 'keeplines'
+      within_keeplines = no
+      return send event
+    #.......................................................................................................
+    if within_keeplines
+      if type in [ 'open-tag', 'close-tag', ]
+        ###TAINT apply to other block-level tags? ###
+        send event unless tag is 'p'
+      else
+        send event
+    #.......................................................................................................
+    else
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
+@TYPO._$consolidate_texts = =>
+  collector = []
+  _send     = null
+  #.........................................................................................................
+  flush = ->
+    if collector.length > 0
+      text  = collector.join ''
+      text  = text.replace /^\n+/, ''
+      text  = text.replace /\n+$/, ''
+      # text = ( collector.join '' ).trim()
+      _send [ 'text', text, ] if text.length > 0
+      collector.length = 0
+      return null
+  #.........................................................................................................
+  return $ ( event, send, end ) =>
+    _send = send
+    if event?
+      [ type, text, ] = event
+      if type is 'text'
+        collector.push text
+      else
+        flush()
+        send event
+    if end?
+      flush()
+      end()
+
+#-----------------------------------------------------------------------------------------------------------
 @TYPO.create_html_readstream_from_md = ( text, settings ) ->
   throw new Error "settings currently unsupported" if settings?
   #.........................................................................................................
@@ -323,55 +458,11 @@ options                   = require './options'
   html_parser.write html
   html_parser.end()
   #.........................................................................................................
-  $remove_block_tags_from_keeplines = =>
-    within_keeplines = no
-    return $ ( event, send ) =>
-      [ type, tag, tail..., ] = event
-      if type is 'open-tag' and tag is 'keeplines'
-        within_keeplines = yes
-        return send event
-      if type is 'close-tag' and tag is 'keeplines'
-        within_keeplines = no
-        return send event
-      if within_keeplines
-        if type in [ 'open-tag', 'close-tag', ]
-          ###TAINT apply to other block-level tags? ###
-          send event unless tag is 'p'
-        else
-          send event
-      else
-        send event
-  #.........................................................................................................
-  $consolidate_texts = =>
-    collector = []
-    _send     = null
-    #.......................................................................................................
-    flush = ->
-      if collector.length > 0
-        text  = collector.join ''
-        text  = text.replace /^\n+/, ''
-        text  = text.replace /\n+$/, ''
-        # text = ( collector.join '' ).trim()
-        _send [ 'text', text, ] if text.length > 0
-        collector.length = 0
-        return null
-    #.......................................................................................................
-    return $ ( event, send, end ) =>
-      _send = send
-      if event?
-        [ type, text, ] = event
-        if type is 'text'
-          collector.push text
-        else
-          flush()
-          send event
-      if end?
-        flush()
-        end()
-  #.........................................................................................................
   R = R
-    .pipe $remove_block_tags_from_keeplines()
-    .pipe $consolidate_texts()
+    .pipe @_$add_regions()
+    .pipe @_$add_commands()
+    .pipe @_$remove_block_tags_from_keeplines()
+    .pipe @_$consolidate_texts()
   #.........................................................................................................
   return R
 

@@ -92,6 +92,7 @@ options                   = require './options'
   list_level              = 0
   within_keeplines        = no
   within_pre              = no
+  within_single_column    = no
   #.........................................................................................................
   return $ ( event, send, end ) =>
     #.......................................................................................................
@@ -110,7 +111,7 @@ options                   = require './options'
                 send [ 'tex', '\\end{multicols}\n\n' ]
                 within_multicol = no
               send [ 'tex', "\\null\\newpage%‡#{command} #{document_name}‡\n" ]
-            when 'newpage'
+            when 'new-page'
               if within_multicol
                 send [ 'tex', '\\end{multicols}\n\n' ]
                 within_multicol = no
@@ -129,6 +130,48 @@ options                   = require './options'
           if within_pre
             text = text.replace /\u0020/g, '\u00a0'
           send [ 'text', text, ]
+        #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        when 'start-region'
+          [ name, ] = tail
+          switch name
+            #...............................................................................................
+            when 'single-column'
+              debug '©x1ESw', '---------------------------single-column('
+              within_single_column = yes
+              if within_multicol
+                send [ 'tex', '\\end{multicols}\n' ]
+                within_multicol = no
+              send [ 'tex', '\n\n', ]
+            #...............................................................................................
+            when 'keeplines'
+              ### TAINT differences between pre and keeplines? ###
+              debug '©x1ESw', '---------------------------keeplines('
+              within_pre        = yes
+              within_keeplines  = yes
+              send [ 'tex', "\n\n", ]
+              # ignore_next_nl          = yes
+            #...............................................................................................
+            else
+              warn "ignored start-region #{rpr name}"
+        #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        when 'end-region'
+          [ name, ] = tail
+          switch name
+            #...............................................................................................
+            when 'single-column'
+              debug '©x1ESw', ')single-column---------------------------'
+              send [ 'tex', '\\begin{multicols}{2}\n' ]
+              within_multicol       = yes
+              within_single_column  = no
+            #...............................................................................................
+            when 'keeplines'
+              debug '©x1ESw', ')keeplines---------------------------'
+              send [ 'tex', "\n\n", ]
+              within_keeplines  = no
+              within_pre        = no
+            #...............................................................................................
+            else
+              warn "ignored start-region #{rpr name}"
         #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         when 'open-tag'
           [ name, attributes, ] = tail
@@ -190,7 +233,7 @@ options                   = require './options'
               send [ 'tex', "\\subsection{", ]
             #...............................................................................................
             when 'p'
-              unless within_multicol
+              if ( not within_single_column ) and ( not within_multicol )
                 send [ 'tex', '\\begin{multicols}{2}\n' ]
                 within_multicol = yes
               send [ 'tex', '\n\n', ]
@@ -222,11 +265,6 @@ options                   = require './options'
               # send [ 'tex', "\\item[¶] ", ]
               send [ 'tex', "\\item[—] ", ]
             #...............................................................................................
-            when 'keeplines'
-              within_keeplines        = yes
-              send [ 'tex', "\n\n", ]
-              # ignore_next_nl          = yes
-            #...............................................................................................
             when 'pre'
               send [ 'tex', "\n\n", ]
               within_pre        = yes
@@ -244,6 +282,7 @@ options                   = require './options'
           if tag_stack.length < 1
             warn "empty tag stack"
           else
+            ### TAINT wrongly pops tags that got omitted ###
             name = tag_stack.pop()
             #...............................................................................................
             if add_newline_before_end is name
@@ -267,10 +306,6 @@ options                   = require './options'
                 within_pre        = no
               when 'code'
                 send [ 'tex', "\\endgroup{}", ]
-              when 'keeplines'
-                # send [ 'tex', "\n\n", ]
-                within_keeplines  = no
-                # ignore_next_nl    = yes
               when 'ul'
                 # send [ 'tex', "\\end{itemize}", ]
                 send [ 'tex', "\\end{description}", ]
