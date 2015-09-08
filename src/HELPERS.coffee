@@ -175,7 +175,7 @@ options                   = require './options'
   last_command          = null
   R                     = []
   stretch               = []
-  last_tag_name         = null
+  last_rsg              = null
   #.........................................................................................................
   unless tex_command_by_rsgs?
     throw new Error "need setting 'tex-command-by-rsgs'"
