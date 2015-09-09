@@ -39,16 +39,27 @@ options                   = require './options'
   return null
 
 #-----------------------------------------------------------------------------------------------------------
+@tmp_locator_for_extension = ( layout_info, extension ) ->
+  tmp_home            = layout_info[ 'tmp-home' ]
+  tex_locator         = layout_info[ 'tex-locator' ]
+  ### TAINT should extension be sanitized? maybe just check for /^\.?[-a-z0-9]$/? ###
+  throw new Error "need non-empty extension" unless extension.length > 0
+  extension           = ".#{extension}" unless ( /^\./ ).test extension
+  return njs_path.join CND.swap_extension tex_locator, extension
+
+#-----------------------------------------------------------------------------------------------------------
 @new_layout_info = ( source_route ) ->
   pdf_command         = options[ 'pdf-command' ]
   tmp_home            = options[ 'tmp-home' ]
   source_locator      = njs_path.resolve process.cwd(), source_route
   source_home         = njs_path.dirname source_locator
   source_name         = njs_path.basename source_locator
+  ### TAINT use `tmp_locator_for_extension` ###
   tex_locator         = njs_path.join tmp_home, CND.swap_extension source_name, '.tex'
   aux_locator         = njs_path.join tmp_home, CND.swap_extension source_name, '.aux'
   pdf_source_locator  = njs_path.join tmp_home, CND.swap_extension source_name, '.pdf'
   pdf_target_locator  = njs_path.join source_home, CND.swap_extension source_name, '.pdf'
+  tex_inputs_home     = njs_path.resolve __dirname, '..', 'tex-inputs'
   #.........................................................................................................
   R =
     'pdf-command':          pdf_command
@@ -58,6 +69,7 @@ options                   = require './options'
     'source-home':          source_home
     'source-name':          source_name
     'tex-locator':          tex_locator
+    'tex-inputs-home':      tex_inputs_home
     'aux-locator':          aux_locator
     'pdf-source-locator':   pdf_source_locator
     'pdf-target-locator':   pdf_target_locator
@@ -105,7 +117,20 @@ options                   = require './options'
 #===========================================================================================================
 # TYPO
 #-----------------------------------------------------------------------------------------------------------
-@TYPO = {}
+@TYPO   = {}
+@_meta  = Symbol 'meta'
+
+#-----------------------------------------------------------------------------------------------------------
+@TYPO.set_meta = ( x, name, value = true ) ->
+  target          = x[ @_meta ]?= {}
+  target[ name ]  = value
+  return x
+
+#-----------------------------------------------------------------------------------------------------------
+@TYPO.get_meta = ( x, name = null ) ->
+  R = x[ @_meta ]
+  R = R[ name ] if name
+  return R
 
 #-----------------------------------------------------------------------------------------------------------
 @TYPO._tex_escape_replacements = [
@@ -279,6 +304,7 @@ options                   = require './options'
     .enable 'replacements'
     .enable 'smartquotes'
   #.......................................................................................................
+  R.use require 'markdown-it-footnote'
   # R.use require 'markdown-it-mark'
   # R.use require 'markdown-it-sub'
   # R.use require 'markdown-it-sup'
@@ -331,7 +357,8 @@ options                   = require './options'
 #-----------------------------------------------------------------------------------------------------------
 @TYPO._$add_regions = ->
   stack           = []
-  opening_pattern = /^@@@[\x20\xa0]+(\S.+)(?:\n|$)/
+  ### TAINT use Regex that matches single line ###
+  opening_pattern = /^@@@(\S.+)(?:\n|$)/
   closing_pattern = /(^|\n)@@@\s*$/
   #.........................................................................................................
   return $ ( event, send, end ) =>
@@ -371,7 +398,8 @@ options                   = require './options'
 
 #-----------------------------------------------------------------------------------------------------------
 @TYPO._$add_commands = ->
-  pattern = /^∆∆∆[\x20\xa0]+(\S.+)(?:\n|$)/
+  ### TAINT use Regex that matches single line ###
+  pattern = /^∆∆∆(\S.+)(?:\n|$)/
   #.........................................................................................................
   return $ ( event, send ) =>
     #.......................................................................................................
@@ -423,9 +451,8 @@ options                   = require './options'
   flush = ->
     if collector.length > 0
       text  = collector.join ''
-      text  = text.replace /^\n+/, ''
-      text  = text.replace /\n+$/, ''
-      # text = ( collector.join '' ).trim()
+      # text  = text.replace /^\n+/, ''
+      # text  = text.replace /\n+$/, ''
       _send [ 'text', text, ] if text.length > 0
       collector.length = 0
       return null
@@ -464,6 +491,7 @@ options                   = require './options'
     .pipe @_$remove_block_tags_from_keeplines()
     .pipe @_$consolidate_texts()
   #.........................................................................................................
+  @set_meta R, 'html', html
   return R
 
 # source_route  = njs_path.resolve __dirname, '../jizura/texts/demo/demo.md'

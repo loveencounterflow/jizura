@@ -18,6 +18,7 @@
     "level": "^1.2.0",
     "markdown-it": "^4.4.0",
     "markdown-it-container": "^1.0.0",
+    "markdown-it-footnote": "^1.0.0",
     "markdown-it-mark": "^1.0.0",
     "markdown-it-regexp": "^0.4.0",
     "markdown-it-sub": "^1.0.0",

@@ -27,8 +27,11 @@ D                         = require 'pipedreams'
 $                         = D.remit.bind D
 $async                    = D.remit_async.bind D
 #...........................................................................................................
+ASYNC                     = require 'async'
+#...........................................................................................................
 ƒ                         = CND.format_number.bind CND
 HELPERS                   = require './HELPERS'
+TYPO                      = HELPERS[ 'TYPO' ]
 options                   = require './options'
 
 
@@ -48,17 +51,25 @@ options                   = require './options'
   text                    = njs_fs.readFileSync source_locator, encoding: 'utf-8'
   #---------------------------------------------------------------------------------------------------------
   tex_output.on 'close', =>
-    HELPERS.write_pdf layout_info, handler
+    tasks = []
+    tasks.push ( done ) -> HELPERS.write_pdf layout_info, done
+    ### TAINT put into HELPERS ###
+    tasks.push ( done ) ->
+      html          = TYPO.get_meta input, 'html'
+      html_locator  = HELPERS.tmp_locator_for_extension layout_info, 'html'
+      help "writing intermediary HTML to #{html_locator}"
+      njs_fs.writeFile html_locator, html, done
+    ASYNC.parallel tasks, handler
   #---------------------------------------------------------------------------------------------------------
-  input = HELPERS.TYPO.create_html_readstream_from_md text
+  input = TYPO.create_html_readstream_from_md text
   input
     # .pipe @$transform_commands()
-    .pipe HELPERS.TYPO.$resolve_html_entities()
-    .pipe HELPERS.TYPO.$fix_typography_for_tex()
+    .pipe TYPO.$resolve_html_entities()
+    .pipe TYPO.$fix_typography_for_tex()
     .pipe D.$show()
     .pipe @$assemble_tex_events()
     .pipe @$filter_tex()
-    .pipe @$insert_preamble()
+    .pipe @$insert_preamble layout_info
     .pipe @$insert_postscript()
     .pipe tex_output
   #---------------------------------------------------------------------------------------------------------
@@ -143,7 +154,7 @@ options                   = require './options'
                 within_multicol = no
               send [ 'tex', '\n\n', ]
             #...............................................................................................
-            when 'keeplines'
+            when 'keep-lines'
               ### TAINT differences between pre and keeplines? ###
               debug '©x1ESw', '---------------------------keeplines('
               within_pre        = yes
@@ -164,7 +175,7 @@ options                   = require './options'
               within_multicol       = yes
               within_single_column  = no
             #...............................................................................................
-            when 'keeplines'
+            when 'keep-lines'
               debug '©x1ESw', ')keeplines---------------------------'
               send [ 'tex', "\n\n", ]
               within_keeplines  = no
@@ -184,7 +195,7 @@ options                   = require './options'
             #   clasz                             = attributes[ 'class' ]
             #   tag_stack[ tag_stack.length - 1 ] = clasz
             #   switch clasz
-            #     when 'keeplines'
+            #     when 'keep-lines'
             #       within_keeplines        = yes
             #       ignore_next_nl          = yes
             #     else
@@ -260,6 +271,11 @@ options                   = require './options'
               # send [ 'tex', "\\setlength{\\topsep}{\\parskip}\n", ]
               list_level += 1
             #...............................................................................................
+            when 'ol'
+              ### TAINT doing an unordered list here ###
+              send [ 'tex', "\\begin{enumerate}\n", ]
+              list_level += 1
+            #...............................................................................................
             when 'li'
               # send [ 'tex', "\\item ", ]
               # send [ 'tex', "\\item[¶] ", ]
@@ -306,10 +322,10 @@ options                   = require './options'
                 within_pre        = no
               when 'code'
                 send [ 'tex', "\\endgroup{}", ]
-              when 'ul'
-                # send [ 'tex', "\\end{itemize}", ]
-                send [ 'tex', "\\end{description}", ]
-                list_level -= 1
+              when 'ul', 'ol'
+                send [ 'tex', "\\end{enumerate}", ]
+                # send [ 'tex', "\\end{description}", ]
+                list_level += -1
               else
                 warn "ignored closing HTML tag #{rpr name}"
             #...............................................................................................
@@ -339,12 +355,15 @@ options                   = require './options'
         send.error "unknown event type #{rpr type}"
 
 #-----------------------------------------------------------------------------------------------------------
-@$insert_preamble = ->
+@$insert_preamble = ( layout_info ) ->
   return D.$on_start ( send ) =>
+    tex_inputs_home = layout_info[ 'tex-inputs-home' ]
+    ### TAINT should escape locators to prevent clashes with LaTeX syntax ###
     send """
       \\documentclass[a4paper,twoside]{book}
-      \\usepackage{jzr2014}
-      \\usepackage{jzr2015-article}
+      \\usepackage{#{njs_path.join tex_inputs_home, 'mkts2015-main'}}
+      \\usepackage{#{njs_path.join tex_inputs_home, 'mkts2015-fonts'}}
+      \\usepackage{#{njs_path.join tex_inputs_home, 'mkts2015-article'}}
       \\begin{document}
       """
 
@@ -363,7 +382,7 @@ unless module.parent?
   # @pdf_from_md 'texts/A-Permuted-Index-of-Chinese-Characters/index.md'
   @pdf_from_md 'texts/demo/demo.md'
 
-  # debug '©nL12s', HELPERS.TYPO.as_tex_text '亻龵helo さしすサシス 臺灣國語Ⓒ, Ⓙ, Ⓣ𠀤𠁥&jzr#e202;'
-  # debug '©nL12s', HELPERS.TYPO.as_tex_text 'helo さし'
+  # debug '©nL12s', TYPO.as_tex_text '亻龵helo さしすサシス 臺灣國語Ⓒ, Ⓙ, Ⓣ𠀤𠁥&jzr#e202;'
+  # debug '©nL12s', TYPO.as_tex_text 'helo さし'
 
 

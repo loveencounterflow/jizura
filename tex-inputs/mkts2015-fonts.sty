@@ -1,0 +1,207 @@
+
+% ==========================================================================================================
+%
+% 8888888888  .d88888b.  888b    888 88888888888  .d8888b.
+% 888        d88P" "Y88b 8888b   888     888     d88P  Y88b
+% 888        888     888 88888b  888     888     Y88b.
+% 8888888    888     888 888Y88b 888     888      "Y888b.
+% 888        888     888 888 Y88b888     888         "Y88b.
+% 888        888     888 888  Y88888     888           "888
+% 888        Y88b. .d88P 888   Y8888     888     Y88b  d88P
+% 888         "Y88888P"  888    Y888     888      "Y8888P"
+%
+% ==========================================================================================================
+%
+% Fonts are set up in two steps:
+%
+% 1)  Physical Font Definitions, e.g. `\jzrFontGaramond` is mapped to EB Garamond 12 Regular; in order to
+%     use these definitions directly, enclose them in a group, e.g. `{\jzrFontGaramond helo world}`.
+%
+% 2)  Font Style definitions, e.g. `\cnxc` (*C*hi*n*ese E*x*tension *C*) is mapped to the physical font name
+%     `\jzrFontHanaMinA`. Use them as commands with a single argument, e.g. `\cnxc{...}`.
+%
+% In order to build a style for a particular class of documents, use `\renewcommand`; for example to typeset
+% in 楷體 instead of 明體, use
+%
+%     \renewcommand\cn[1]{{\jzrFontCwKai#1}}
+%
+% or
+%     \renewcommand{\cn}[1]{\adjustCjkIdeograph{\jzrFontCwKai#1}}
+%
+% to make `\cn{}` use the font cwTeX Q Kai Medium.
+
+% ==========================================================================================================
+% \usepackage[CJKglue={\hskip 0pt plus 0.08\baselineskip}]{xeCJK}
+% \usepackage[CJKglue={\hskip -8pt plus 3pt minus 3pt}]{xeCJK}
+\usepackage{xeCJK}
+\setmainfont[Mapping=tex-text]{EB Garamond 12 Regular}
+% \setmainfont[Mapping=tex-text]{Georgia}
+% Replaced `\jzrFontJizura` by CJK Block Declaration; this seems to work better in terms of spacing.
+% We still retain the `\cnjzr` command just in case we need to make display adjustments:
+% \xeCJKDeclareSubCJKBlock{PUA}{ "E000 -> "F8FF }
+% \newCJKfontfamily\jzrFontJizura[Scale=1,AutoFakeBold=1]{jizura3a}
+
+
+% \setCJKmainfont[PUA=jizura3b]{Sun-ExtA}
+\setCJKmainfont{Sun-ExtA}
+% \setCJKmainfont{EB Garamond 12 Regular}
+% this produces some weirdly spaced punctuation marks:
+% \newCJKfontfamily\missingFont[Scale=1.10,Color=red]{Sun-ExtA}
+
+% ==========================================================================================================
+% 1) Fonts as LaTeX commands
+% ----------------------------------------------------------------------------------------------------------
+% Latin
+% ..........................................................................................................
+\newfontfamily\jzrFontGaramond[Mapping=tex-text]{EB Garamond 12 Regular}
+\newfontfamily\jzrFontGaraqmondSC{EB Garamond 12 Regular SmallCaps}
+% ..........................................................................................................
+\newfontfamily\jzrFontOptima[Mapping=tex-text]{Optima Regular}
+% \newfontfamily\jzrFontSourceCodePro[Scale=0.8]{Source Code Pro Medium}
+\newfontfamily\jzrFontSourceCodePro[Scale=0.8]{Source Code Pro}
+% ..........................................................................................................
+\newfontfamily\jzrFontUbuntuBold{Ubuntu Bold}
+\newfontfamily\jzrFontUbuntu[Scale=0.8]{Ubuntu}
+\newfontfamily\jzrFontUbuntuItalic[Scale=0.8]{Ubuntu Italic}
+% ..........................................................................................................
+\newfontfamily\jzrFontDejaVuSansMono[Scale=0.8]{Flow DejaVu Sans Mono}
+\newfontfamily\jzrFontDejaVuSansMonoBold{DejaVu Sans Mono Bold}
+% ..........................................................................................................
+\newfontfamily\jzrFontPtSansNarrow{PT Sans Narrow}% looks nice
+\newfontfamily\jzrFontPtSansNarrowBold{PT Sans Narrow Bold}% looks nice
+% ..........................................................................................................
+\newfontfamily\jzrFontInputMonoCompressedLight{InputMonoCompressed Light}
+\newfontfamily\jzrFontInputMonoCompressedMedium{InputMonoCompressed Medium}
+
+% ----------------------------------------------------------------------------------------------------------
+% CJK
+% ..........................................................................................................
+\newCJKfontfamily\jzrFontSunXA[Scale=1.10]{Sun-ExtA}
+\newCJKfontfamily\jzrFontSunflowerXA[Scale=1.10]{sunflower-u-cjk-xa-centered}
+\newCJKfontfamily\jzrFontSunflowerXB[Scale=1.10]{sunflower-u-cjk-xb}
+% ..........................................................................................................
+\newCJKfontfamily\jzrFontAdbHei[Scale=1.10]{Adobe Heiti Std R}
+\newCJKfontfamily\jzrFontAplHei[Scale=1.10]{Apple LiGothic Medium}
+% ..........................................................................................................
+\newCJKfontfamily\jzrFontAdbKai[Scale=1.10]{Adobe Kaiti Std R}
+\newCJKfontfamily\jzrFontKaiR[Scale=1.10]{Kai Regular}
+\newCJKfontfamily\jzrFontSongScBlack[Scale=1.10]{Songti SC Black}
+\newCJKfontfamily\jzrFontStKai[Scale=1.10]{STKaiti}
+\newCJKfontfamily\jzrFontBiauKai[Scale=1.10]{BiauKai}
+\newCJKfontfamily\jzrFontJzrXingkai[Scale=1.10]{jzrxingkai}
+\newCJKfontfamily\jzrFontJzrFanshu[Scale=1.10]{jzrfanshu}
+\newCJKfontfamily\jzrFontJzrSongbold[Scale=1.10]{jzrsongbold}
+\newCJKfontfamily\jzrFontChaoHei[Scale=1.10]{CTChaoHeiSF}
+% ..........................................................................................................
+% These fonts cause problems with embedding:
+% \newCJKfontfamily\jzrFontKaiSc[Scale=1.10]{Kaiti SC Regular}
+% \newCJKfontfamily\jzrFontKaiScBlack[Scale=1.10]{Kaiti SC Black}
+% \newCJKfontfamily\jzrFontKaiScBold[Scale=1.10]{Kaiti SC Bold}
+% ..........................................................................................................
+% \newCJKfontfamily\jzrFontHyXingKaiF[Scale=1.10]{HYXingKaiF} % doesn't work?
+% \newCJKfontfamily\jzrFontHYDaLiShuF[Scale=1.10]{HYDaLiShuF} % doesn't work?
+% \newCJKfontfamily\jzrFontA[Scale=1.10]{䡡湄楮札䍓ⵆ潮瑳} % doesn't work?
+% \newCJKfontfamily\jzrFontB[Scale=1.10]{卣桷慢慣桥} % doesn't work?
+% \newCJKfontfamily\jzrFontC[Scale=1.10]{教育部標準楷書} % doesn't work?
+% \newCJKfontfamily\jzrFontD[Scale=1.10]{经典繁方篆} % doesn't work?
+% ..........................................................................................................
+\newCJKfontfamily\jzrFontCwFangsong[Scale=1.10]{cwTeX Q Fangsong Medium}
+\newCJKfontfamily\jzrFontCwHei[Scale=1.10]{cwTeX Q Hei Bold}
+\newCJKfontfamily\jzrFontCwKai[Scale=1.10]{cwTeX Q Kai Medium}
+% \newCJKfontfamily\jzrFontCwKaiZH[Scale=1.10]{cwTeX Q KaiZH Medium}
+\newCJKfontfamily\jzrFontCwMing[Scale=1.10]{cwTeX Q Ming Medium}
+% ..........................................................................................................
+\newCJKfontfamily\jzrFontHanaMinA[Scale=1.10]{HanaMinA}
+\newCJKfontfamily\jzrFontHanaMinB[Scale=1.10]{HanaMinB}
+% ..........................................................................................................
+\newCJKfontfamily\jzrFontBabelstoneHan[Scale=1.10]{BabelStone Han}
+\newCJKfontfamily\jzrFontNanumMyeongjo[Scale=1.10]{NanumMyeongjo}
+\newCJKfontfamily\jzrFontHiragana[Scale=1.10]{NanumMyeongjo}
+\newCJKfontfamily\jzrFontKatakana[Scale=1.10]{NanumMyeongjo}
+\newCJKfontfamily\jzrFontHangeul[Scale=1.10]{cwTeX Q Ming Medium}
+% ..........................................................................................................
+% \newfontfamily\jzrFontJizura[Scale=1,AutoFakeBold=1]{jizura}
+% \newfontfamily\jzrFontJizura[Scale=1,AutoFakeBold=1]{jizura2}
+% \newfontfamily\jzrFontJizura[Scale=1,AutoFakeBold=1]{jizura2svg}
+% \newfontfamily\jzrFontJizura[Scale=1,AutoFakeBold=1]{jizura3}
+\newfontfamily\jzrFontJizura[Scale=1.2]{jizura3b}
+
+
+
+
+% ==========================================================================================================
+% 2) Display Styles
+% ----------------------------------------------------------------------------------------------------------
+\newcommand{\cjkInterchrSpacing}{\hskip -0.4pt plus 3pt minus 1pt}
+% \newcommand{\cjkInterchrSpacingA}{\hskip -0.4pt plus 3pt minus 1pt}
+\newcommand{\adjustCjkIdeograph}[1]{\prRaise{-0.125}{#1}} % !!!
+\newcommand{\adjustJzrCjkIdeograph}[1]{\prRaise{-0.125}{#1}} % !!!
+\newcommand{\adjustKatakana}[1]{\cjkInterchrSpacing\prRaise{-0.125}{#1}}
+\newcommand{\adjustHiragana}[1]{\cjkInterchrSpacing\prRaise{-0.125}{#1}}
+\newcommand{\adjustHangeul}[1]{\cjkInterchrSpacing\prRaise{-0.125}{#1}}
+% ..........................................................................................................
+\newcommand{\latin}[1]{{\jzrFontGaramond#1}}
+% \newcommand{\setPlainLatin}{\renewcommand{\latin}[1]{{\jzrFontGaramond#1}}}
+% \newcommand{\setCodeLatin}{\renewcommand{\latin}[1]{{\jzrFontSunXA#1}}}
+\newcommand{\py}[1]{{\jzrFontUbuntu#1}}
+\newcommand{\ncr}[1]{{\jzrFontUbuntu#1}}
+\newcommand{\gloss}[1]{{\jzrFontGaramond#1}}
+% ..........................................................................................................
+\newcommand{\cn}[1]{{\adjustCjkIdeograph{\jzrFontSunXA#1}}}
+\newcommand{\cnxa}[1]{{\adjustCjkIdeograph{\jzrFontSunXA#1}}}
+\newcommand{\cnxb}[1]{{\adjustCjkIdeograph{\jzrFontSunflowerXB#1}}}
+\newcommand{\cnxc}[1]{{\adjustCjkIdeograph{\jzrFontHanaMinB#1}}}
+\newcommand{\cnxd}[1]{{\adjustCjkIdeograph{\jzrFontBabelstoneHan#1}}}
+\newcommand{\cncone}[1]{{\adjustCjkIdeograph{\jzrFontSunXA#1}}}      	% CJK Compatibility 1
+\newcommand{\cnctwo}[1]{{\adjustCjkIdeograph{\jzrFontHanaMinA#1}}}   				% CJK Compatibility 2
+\newcommand{\cnrone}[1]{{\adjustCjkIdeograph{\jzrFontSunXA#1}}}      	% CJK Radicals 1
+\newcommand{\cnrtwo}[1]{{\adjustCjkIdeograph{\jzrFontSunXA#1}}}      	% CJK Radicals 2
+\newcommand{\cnsym}[1]{{\adjustCjkIdeograph{\jzrFontHanaMinA#1}}}
+\newcommand{\cnstrk}[1]{{\adjustCjkIdeograph{\jzrFontSunXA#1}}}
+% \newcommand{\cnjzr}[1]{{\cn{#1}}}       													% Jizura Font handled by CJK Block Declaration, above
+\newcommand{\cnjzr}[1]{{\adjustJzrCjkIdeograph{\jzrFontJizura#1}}}
+\newcommand{\ka}[1]{\adjustKatakana{\jzrFontKatakana#1}}
+\newcommand{\hi}[1]{\adjustHiragana{\jzrFontHiragana#1}}
+\newcommand{\hg}[1]{\adjustHangeul{\jzrFontHangeul#1}}
+% ..........................................................................................................
+\newcommand{\cnxBabel}[1]{{\adjustCjkIdeograph{\jzrFontBabelstoneHan#1}}}
+\newcommand{\cnxHanaA}[1]{{\adjustCjkIdeograph{\jzrFontHanaMinA#1}}}
+\newcommand{\cnxHanaB}[1]{{\adjustCjkIdeograph{\jzrFontHanaMinB#1}}}
+\newcommand{\cnxSunXA}[1]{{\adjustCjkIdeograph{\jzrFontSunXA#1}}}
+\newcommand{\cnxJzr}[1]{{\adjustJzrCjkIdeograph{\jzrFontJizura#1}}}
+% \newcommand{\missing}[1]{{\missingFont#1}}
+% ..........................................................................................................
+\newcommand{\jzrStrokeclassZZWBF}{\prPushRaise{-0.1}{-0.1}{{\jzrFontJizura{}}}}
+\newcommand{\jzrStrokeclassOne}{\prPushRaise{-0.1}{-0.1}{{\jzrFontJizura{}}}}
+\newcommand{\jzrStrokeclassTwo}{\prPushRaise{-0.1}{-0.1}{{\jzrFontJizura{}}}}
+\newcommand{\jzrStrokeclassThree}{\prPushRaise{-0.1}{-0.1}{{\jzrFontJizura{}}}}
+\newcommand{\jzrStrokeclassFour}{\prPushRaise{-0.1}{-0.15}{{\jzrFontJizura{}}}}
+\newcommand{\jzrStrokeclassFive}{\prPushRaise{-0.1}{-0.1}{{\jzrFontJizura{}}}}
+\newcommand{\jzrStrokeclassLeftHook}{\prPushRaise{-0.1}{-0.1}{{\jzrFontJizura{}}}}
+\newcommand{\jzrStrokeclassRightHook}{\prPushRaise{-0.1}{-0.1}{{\jzrFontJizura{}}}}
+% ..........................................................................................................
+\newcommand{\jzrStrokeclassTextZZWBF}{\prPushRaise{0}{-0.15}{{\jzrFontJizura{}}}}
+\newcommand{\jzrStrokeclassTextOne}{\prPushRaise{0}{-0.15}{{\jzrFontJizura{}}}}
+\newcommand{\jzrStrokeclassTextTwo}{\prPushRaise{0}{-0.15}{{\jzrFontJizura{}}}}
+\newcommand{\jzrStrokeclassTextTwoHook}{\prPushRaise{0}{-0.15}{{\jzrFontJizura{}}}}
+\newcommand{\jzrStrokeclassTextThree}{\prPushRaise{0}{-0.15}{{\jzrFontJizura{}}}}
+\newcommand{\jzrStrokeclassTextFour}{\prPushRaise{0}{-0.15}{{\jzrFontJizura{}}}}
+\newcommand{\jzrStrokeclassTextFourSlant}{\prPushRaise{0}{-0.15}{{\jzrFontJizura{}}}}
+\newcommand{\jzrStrokeclassTextFive}{\prPushRaise{0}{-0.15}{{\jzrFontJizura{}}}}
+\newcommand{\jzrStrokeclassTextLeftHook}{\prPushRaise{0}{-0.15}{{\jzrFontJizura{}}}}
+\newcommand{\jzrStrokeclassTextRightHook}{\prPushRaise{0}{-0.15}{{\jzrFontJizura{}}}}
+% ..........................................................................................................
+\newcommand{\kai}[1]{{\jzrFontKaiR{}#1}}
+\newcommand{\jzrkai}[1]{{\jzrFontJizura{}#1}}
+% ..........................................................................................................
+\newcommand{\pageNr}[1]{{\fontsize{2.5mm}{2.5mm}\jzrFontPtSansNarrow#1}}
+\newcommand{\sfncr}[1]{{\fontsize{2mm}{2mm}\jzrFontInputMonoCompressedLight#1}}
+\newcommand{\wbf}[1]{{\fontsize{2mm}{2mm}\jzrFontInputMonoCompressedMedium#1}}
+\newcommand{\pageNrText}[1]{{\fontsize{3mm}{5mm}\jzrFontPtSansNarrow#1}}
+\newcommand{\wbfText}[1]{{\fontsize{3mm}{5mm}\jzrFontInputMonoCompressedMedium#1}}
+\newcommand{\permille}{{\jzrFontOptima‰}}
+
+
+
+
+
