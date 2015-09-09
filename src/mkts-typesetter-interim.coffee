@@ -159,8 +159,8 @@ options                   = require './options'
             #...............................................................................................
             when 'keep-lines'
               send [ 'tex', '% ### MKTS @@@keep-lines ###\n', ]
-              ### TAINT differences between pre and keeplines? ###
-              debug '©x1ESw', '---------------------------keeplines('
+              ### TAINT differences between pre and keep-lines? ###
+              debug '©x1ESw', '---------------------------keep-lines('
               within_pre        = yes
               within_keeplines  = yes
               send [ 'tex', "\\begingroup\\obeyalllines{}", ]
@@ -181,7 +181,7 @@ options                   = require './options'
               within_single_column  = no
             #...............................................................................................
             when 'keep-lines'
-              debug '©x1ESw', ')keeplines---------------------------'
+              debug '©x1ESw', ')keep-lines---------------------------'
               send [ 'tex', "\\endgroup{}\n", ]
               # send [ 'tex', "\n\n", ]
               within_keeplines  = no
