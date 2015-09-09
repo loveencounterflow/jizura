@@ -158,6 +158,26 @@
 \setlength{\columnsep}{3mm}
 \setlength\columnseprule{0.155mm}
 
+% ----------------------------------------------------------------------------------------------------------
+% https://groups.google.com/d/msg/comp.text.tex/J2qcZxgcR5M/3HyPquEDkcgJ
+% obeyalllines is like obeylines, excepts it also keeps blank lines
+\def\makeactive#1{\catcode`#113\relax}
+
+\def\adjustedpar{\par\mbox{}}
+\newdimen\adjustedparindent
+\adjustedparindent=0em
+\newskip\adjustedparskip
+\adjustedparskip=0pt plus 1pt
+
+{\makeactive\^^M
+  \gdef\obeyalllines{%
+    \parindent=\adjustedparindent%
+    \parskip=\adjustedparskip%
+    \makeactive\^^M%
+    \let^^M=\adjustedpar%
+    \leavevmode\hbox{}}}
+
+
 % ..........................................................................................................
 \usepackage[
   % asymmetric,% see http://tex.stackexchange.com/a/42051/28067

@@ -57,7 +57,7 @@ options                   = require './options'
     tasks.push ( done ) ->
       html          = TYPO.get_meta input, 'html'
       html_locator  = HELPERS.tmp_locator_for_extension layout_info, 'html'
-      help "writing intermediary HTML to #{html_locator}"
+      help "writing HTML to #{html_locator}"
       njs_fs.writeFile html_locator, html, done
     ASYNC.parallel tasks, handler
   #---------------------------------------------------------------------------------------------------------
@@ -66,8 +66,8 @@ options                   = require './options'
     # .pipe @$transform_commands()
     .pipe TYPO.$resolve_html_entities()
     .pipe TYPO.$fix_typography_for_tex()
-    .pipe D.$show()
     .pipe @$assemble_tex_events()
+    .pipe D.$show()
     .pipe @$filter_tex()
     .pipe @$insert_preamble layout_info
     .pipe @$insert_postscript()
@@ -117,14 +117,16 @@ options                   = require './options'
           [ command, values, ] = tail
           switch command
             when 'new-document'
+              send [ 'tex', '% ### MKTS ∆∆∆new-document ###\n', ]
               document_name = values
               if within_multicol
-                send [ 'tex', '\\end{multicols}\n\n' ]
+                send [ 'tex', '\\end{multicols}' ]
                 within_multicol = no
               send [ 'tex', "\\null\\newpage%‡#{command} #{document_name}‡\n" ]
             when 'new-page'
+              send [ 'tex', '% ### MKTS ∆∆∆new-page ###\n', ]
               if within_multicol
-                send [ 'tex', '\\end{multicols}\n\n' ]
+                send [ 'tex', '\\end{multicols}' ]
                 within_multicol = no
               send [ 'tex', "\\null\\newpage%1\n" ]
             else
@@ -136,8 +138,8 @@ options                   = require './options'
         #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         when 'text'
           text = tail[ 0 ]
-          if within_keeplines
-            text = text.replace /\n/g, '\\\\\n'
+          # if within_keeplines
+          #   text = text.replace /\n\n/g, '~\\\\\n'
           if within_pre
             text = text.replace /\u0020/g, '\u00a0'
           send [ 'text', text, ]
@@ -147,25 +149,28 @@ options                   = require './options'
           switch name
             #...............................................................................................
             when 'single-column'
+              send [ 'tex', '% ### MKTS @@@single-column ###\n', ]
               debug '©x1ESw', '---------------------------single-column('
               within_single_column = yes
               if within_multicol
-                send [ 'tex', '\\end{multicols}\n' ]
+                send [ 'tex', '\\end{multicols}' ]
                 within_multicol = no
               send [ 'tex', '\n\n', ]
             #...............................................................................................
             when 'keep-lines'
+              send [ 'tex', '% ### MKTS @@@keep-lines ###\n', ]
               ### TAINT differences between pre and keeplines? ###
               debug '©x1ESw', '---------------------------keeplines('
               within_pre        = yes
               within_keeplines  = yes
-              send [ 'tex', "\n\n", ]
+              send [ 'tex', "\\begingroup\\obeyalllines{}", ]
               # ignore_next_nl          = yes
             #...............................................................................................
             else
               warn "ignored start-region #{rpr name}"
         #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         when 'end-region'
+          send [ 'tex', '% ### MKTS @@@ ###\n', ]
           [ name, ] = tail
           switch name
             #...............................................................................................
@@ -177,7 +182,8 @@ options                   = require './options'
             #...............................................................................................
             when 'keep-lines'
               debug '©x1ESw', ')keeplines---------------------------'
-              send [ 'tex', "\n\n", ]
+              send [ 'tex', "\\endgroup{}\n", ]
+              # send [ 'tex', "\n\n", ]
               within_keeplines  = no
               within_pre        = no
             #...............................................................................................
@@ -203,18 +209,18 @@ options                   = require './options'
             #...............................................................................................
             when 'newpage'
               if within_multicol
-                send [ 'tex', '\\end{multicols}\n\n' ]
+                send [ 'tex', '\\end{multicols}' ]
                 within_multicol = no
               send [ 'tex', "\\null\\newpage%2\n" ]
             #...............................................................................................
             when 'fullwidth'
               if within_multicol
-                send [ 'tex', '\\end{multicols}\n\n' ]
+                send [ 'tex', '\\end{multicols}' ]
                 within_multicol = no
             #...............................................................................................
             when 'h1'
               if within_multicol
-                send [ 'tex', '\\end{multicols}\n\n' ]
+                send [ 'tex', '\\end{multicols}' ]
                 within_multicol = no
               # img_route = '/Volumes/Storage/temp/french-rule-swell-dash-englische-line/swell-dash.pdf'
               # send [ 'tex', "\\includegraphics[width=0.75\\linewidth]{#{img_route}}", ]
@@ -228,7 +234,7 @@ options                   = require './options'
             #...............................................................................................
             when 'h2'
               if within_multicol
-                send [ 'tex', '\\end{multicols}\n\n' ]
+                send [ 'tex', '\\end{multicols}' ]
                 within_multicol = no
               send [ 'tex', "\\jzrSection{", ]
               start_multicol_after = name
@@ -247,7 +253,7 @@ options                   = require './options'
               if ( not within_single_column ) and ( not within_multicol )
                 send [ 'tex', '\\begin{multicols}{2}\n' ]
                 within_multicol = yes
-              send [ 'tex', '\n\n', ]
+              send [ 'tex', '\n', ]
             #...............................................................................................
             when 'br'
               send [ 'tex', '\\\\', ]

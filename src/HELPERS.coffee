@@ -355,68 +355,73 @@ options                   = require './options'
   return new Html_parser handlers, settings
 
 #-----------------------------------------------------------------------------------------------------------
+@TYPO._preprocess_regions = ( md_source ) ->
+  opening_pattern   = /(\n|^)@@@(\S.+)(\n|$)/g
+  closing_pattern   = /(\n|^)@@@\s*(\n|$)/g
+  md_source         = md_source.replace opening_pattern, "$1<mkts-mark x-role='start-region' x-name='$2'></mkts-mark>$3"
+  md_source         = md_source.replace closing_pattern, "$1<mkts-mark x-role='end-region'></mkts-mark>$2"
+  return md_source
+
+#-----------------------------------------------------------------------------------------------------------
+@TYPO._preprocess_commands = ( md_source ) ->
+  pattern     = /(\n|^)∆∆∆(\S.+)(\n|$)/g
+  md_source   = md_source.replace pattern, "$1<mkts-mark x-role='command' x-name='$2'></mkts-mark>$3"
+  debug '©I74uq', md_source
+  return md_source
+
+#-----------------------------------------------------------------------------------------------------------
+@TYPO._$remove_mkts_close_tags = ->
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    [ type, tag_name, ] = event
+    send event unless ( type is 'close-tag' ) and ( tag_name is 'mkts-mark' )
+
+#-----------------------------------------------------------------------------------------------------------
 @TYPO._$add_regions = ->
-  stack           = []
-  ### TAINT use Regex that matches single line ###
-  opening_pattern = /^@@@(\S.+)(?:\n|$)/
-  closing_pattern = /(^|\n)@@@\s*$/
+  region_stack              = []
   #.........................................................................................................
   return $ ( event, send, end ) =>
     #.......................................................................................................
     if event?
-      [ type, text, ] = event
+      [ type, tag_name, attributes, ] = event
       #.....................................................................................................
-      if type is 'text'
-        opening_match = text.match opening_pattern
-        closing_match = text.match closing_pattern
-        #...................................................................................................
-        if opening_match?
-          name    = opening_match[ 1 ].trim()
-          text    = text[ opening_match[ 0 ].length .. ]
-          stack.push name
-          send [ 'start-region', name, ]
-        #...................................................................................................
-        if closing_match?
-          text    = text[ ... text.length - closing_match[ 0 ].length ]
-        #...................................................................................................
-        send [ 'text', text, ]
-        #...................................................................................................
-        if closing_match?
-          if stack.length > 0
-            send [ 'end-region', stack.pop(), ]
+      if ( type is 'open-tag' )
+        if ( tag_name is 'mkts-mark' ) and ( attributes[ 'x-role' ] is 'start-region' )
+          region_name = attributes[ 'x-name' ]
+          region_stack.push region_name
+          send [ 'start-region', region_name, ]
+        else if ( tag_name is 'mkts-mark' ) and ( attributes[ 'x-role' ] is 'end-region' )
+          if region_stack.length > 0
+            send [ 'end-region', region_stack.pop(), ]
           else
             warn "ignoring end-region"
-      #.....................................................................................................
+        else
+          send event
+      #...................................................................................................
       else
         send event
     #.......................................................................................................
     if end?
-      if stack.length > 0
-        warn "auto-closing regions: #{rpr stack.join ', '}"
-        send [ 'close-tag', stack.pop(), ] while stack.length > 0
+      if region_stack.length > 0
+        warn "auto-closing regions: #{rpr region_stack.join ', '}"
+        send [ 'end-region', region_stack.pop(), ] while region_stack.length > 0
       end()
 
 #-----------------------------------------------------------------------------------------------------------
 @TYPO._$add_commands = ->
-  ### TAINT use Regex that matches single line ###
-  pattern = /^∆∆∆(\S.+)(?:\n|$)/
   #.........................................................................................................
   return $ ( event, send ) =>
-    #.......................................................................................................
-    if event?
-      [ type, text, ] = event
-      #.....................................................................................................
-      if type is 'text'
-        #...................................................................................................
-        if ( match = text.match pattern )?
-          name    = match[ 1 ].trim()
-          text    = text[ match[ 0 ].length .. ]
-          send [ 'command', name, ]
-        #...................................................................................................
-        send [ 'text', text, ]
-      #.....................................................................................................
+    [ type, tag_name, attributes, ] = event
+    #.....................................................................................................
+    if ( type is 'open-tag' )
+      if ( tag_name is 'mkts-mark' ) and ( attributes[ 'x-role' ] is 'command' )
+        command = attributes[ 'x-name' ]
+        send [ 'command', command, ]
       else
         send event
+    #...................................................................................................
+    else
+      send event
 
 #-----------------------------------------------------------------------------------------------------------
 @TYPO._$remove_block_tags_from_keeplines = =>
@@ -471,7 +476,7 @@ options                   = require './options'
       end()
 
 #-----------------------------------------------------------------------------------------------------------
-@TYPO.create_html_readstream_from_md = ( text, settings ) ->
+@TYPO.create_html_readstream_from_md = ( md_source, settings ) ->
   throw new Error "settings currently unsupported" if settings?
   #.........................................................................................................
   R = D.create_throughstream()
@@ -479,13 +484,17 @@ options                   = require './options'
   #.........................................................................................................
   # setImmediate =>
   md_parser   = @_new_markdown_parser()
+  md_source   = @_preprocess_regions  md_source
+  md_source   = @_preprocess_commands md_source
   html_parser = @_new_html_parser R
-  html        = md_parser.render text
+  html        = md_parser.render md_source
   # help '©YzNQP',  html
   html_parser.write html
   html_parser.end()
   #.........................................................................................................
   R = R
+    # .pipe D.$show()
+    .pipe @_$remove_mkts_close_tags()
     .pipe @_$add_regions()
     .pipe @_$add_commands()
     .pipe @_$remove_block_tags_from_keeplines()
