@@ -66,8 +66,8 @@ options                   = require './options'
     # .pipe @$transform_commands()
     .pipe TYPO.$resolve_html_entities()
     .pipe TYPO.$fix_typography_for_tex()
-    .pipe @$assemble_tex_events()
     .pipe D.$show()
+    .pipe @$assemble_tex_events()
     .pipe @$filter_tex()
     .pipe @$insert_preamble layout_info
     .pipe @$insert_postscript()
@@ -288,7 +288,8 @@ options                   = require './options'
               send [ 'tex', "\\item[—] ", ]
             #...............................................................................................
             when 'pre'
-              send [ 'tex', "\n\n", ]
+              # send [ 'tex', "\n\n", ]
+              send [ 'tex', "\\begingroup\\obeyalllines\n", ]
               within_pre        = yes
               within_keeplines  = yes
             #...............................................................................................
@@ -323,7 +324,7 @@ options                   = require './options'
               when 'p', 'li', 'br', 'newpage', 'fullwidth'
                 null
               when 'pre'
-                send [ 'tex', "\n\n", ]
+                send [ 'tex', "\\endgroup\n", ]
                 within_keeplines  = no
                 within_pre        = no
               when 'code'

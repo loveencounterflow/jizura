@@ -366,15 +366,58 @@ options                   = require './options'
 @TYPO._preprocess_commands = ( md_source ) ->
   pattern     = /(\n|^)∆∆∆(\S.+)(\n|$)/g
   md_source   = md_source.replace pattern, "$1<mkts-mark x-role='command' x-name='$2'></mkts-mark>$3"
-  debug '©I74uq', md_source
   return md_source
 
 #-----------------------------------------------------------------------------------------------------------
-@TYPO._$remove_mkts_close_tags = ->
+@TYPO._$remove_superfluous_tags = ->
+  skip_next_text            = no
+  skip_next_closing_anchor  = no
+  skip_next_closing_hr      = no
   #.........................................................................................................
   return $ ( event, send ) =>
-    [ type, tag_name, ] = event
-    send event unless ( type is 'close-tag' ) and ( tag_name is 'mkts-mark' )
+    [ type, tag_name, attributes, ] = event
+    #.......................................................................................................
+    if type is 'text'
+      if skip_next_text
+        skip_next_text = no
+        return
+    #.......................................................................................................
+    else if type is 'close-tag'
+      return if tag_name is 'mkts-mark'
+      if skip_next_closing_anchor and tag_name is 'a'
+        skip_next_closing_anchor = no
+        return
+      if skip_next_closing_hr and tag_name is 'hr'
+        skip_next_closing_hr = no
+        return
+    #.......................................................................................................
+    else if type is 'open-tag'
+      if tag_name is 'a' and attributes[ 'class' ] is 'footnote-backref'
+        skip_next_text            = yes
+        skip_next_closing_anchor  = yes
+        return
+      if tag_name is 'hr' and attributes[ 'class' ] is 'footnotes-sep'
+        skip_next_closing_hr      = yes
+        return
+    #.......................................................................................................
+    send event
+
+# #-----------------------------------------------------------------------------------------------------------
+# @TYPO._$collect_footnotes = =>
+#   collector         = []
+#   within_footnotes  = no
+#   #.........................................................................................................
+#   return $ ( event, send ) =>
+#     [ type, tag_name, attributes, ] = event
+#     if type is 'open-tag'
+#       if ( tag_name is 'section' ) and ( attributes[ 'class' ] is 'footnotes' )
+#         within_footnotes = yes
+#         return
+#     else if type is 'close-tag'
+#       if within_footnotes and tag_name is 'section'
+#         within_footnotes = no
+#         return
+#     send event
 
 #-----------------------------------------------------------------------------------------------------------
 @TYPO._$add_regions = ->
@@ -494,7 +537,8 @@ options                   = require './options'
   #.........................................................................................................
   R = R
     # .pipe D.$show()
-    .pipe @_$remove_mkts_close_tags()
+    .pipe @_$remove_superfluous_tags()
+    # .pipe @_$collect_footnotes()
     .pipe @_$add_regions()
     .pipe @_$add_commands()
     .pipe @_$remove_block_tags_from_keeplines()
@@ -502,15 +546,6 @@ options                   = require './options'
   #.........................................................................................................
   @set_meta R, 'html', html
   return R
-
-# source_route  = njs_path.resolve __dirname, '../jizura/texts/demo/demo.md'
-# source_md     = njs_fs.readFileSync source_route, encoding: 'utf-8'
-# debug '©3E4JY', source_md
-# input =  @create_html_readstream_from_mdx_text source_md
-# input
-#   .pipe D.$show()
-# input.resume()
-
 
 
 

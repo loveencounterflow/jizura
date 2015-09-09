@@ -37,44 +37,21 @@ area.
 ∆∆∆new-page
 
 
-### Fenced Code Blocks
+## Fenced Code Blocks
 
-Code sample, keeping indentations:
+Fenced code blocks are ended and started by pairs of triple backticks.
+Here's a code sample that shows how line breaks and indentations are
+kept:
 
 ```
-x
-  x
-    x
+
+if a > 10
+  if b < 100
+    echo "success!"
 ```
 
-### Footnotes
 
-Footnote 1 link[^first].
-
-Footnote 2 link[^second].
-
-Inline footnote^[Text of inline footnote] definition.
-
-Duplicated footnote reference[^second].
-
-[^first]: Footnote **can have markup**
-
-    and multiple paragraphs.
-
-[^second]: Footnote text.
-
-
-<b foo='bar'>xxx</b>
-
-3 > 2
-
-Here we reference a @user. "Fancy" 'quotes' are possible.
- <!--
-comments
-in MD
-will appear in <b>TeX</b> --> xxx
-
-### Lists
+## Lists
 An unordered list:
 
 <!--
@@ -121,51 +98,22 @@ An ordered list:
 1) Eritrea (State of Eritrea)
 1) Estonia (Republic of Estonia)
 
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
-x x x x x x x x x x x x x x x x x x x x x x x
 
+## Footnotes
+
+Footnote 1 link[^first].
+
+Footnote 2 link[^second].
+
+Inline footnote^[Text of inline footnote] definition.
+
+Duplicated footnote reference[^second].
+
+[^first]: Footnotes **can have markup**
+
+    and multiple paragraphs.
+
+[^second]: Footnote text.
 
 
 
