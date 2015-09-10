@@ -173,8 +173,8 @@ options                   = require './options'
 #-----------------------------------------------------------------------------------------------------------
 @TYPO.$fix_typography_for_tex = ->
   return $ ( event, send ) =>
+    return send event unless @isa event, '.', [ 'text', 'code', ]
     [ type, name, text, meta, ] = event
-    return send event unless ( type is '.' ) and name in [ 'text', 'code', ]
     text = @fix_typography_for_tex text
     send [ type, name, text, meta, ]
 
@@ -617,7 +617,16 @@ options                   = require './options'
     return null
 
 #-----------------------------------------------------------------------------------------------------------
-@TYPO.isa = ( event, type, name ) -> ( event[ 0 ] is type ) and ( event[ 1 ] is name )
+@TYPO.isa = ( event, type, name ) ->
+  switch type_of_type = CND.type_of type
+    when 'text' then return false unless event[ 0 ] is type
+    when 'list' then return false unless event[ 0 ] in type
+    else throw new Error "expected text or list, got a #{type_of_type}"
+  switch type_of_name = CND.type_of name
+    when 'text' then return false unless event[ 1 ] is name
+    when 'list' then return false unless event[ 1 ] in name
+    else throw new Error "expected text or list, got a #{type_of_name}"
+  return true
 
 #-----------------------------------------------------------------------------------------------------------
 @TYPO._copy = ( meta, overwrites ) ->

@@ -50,6 +50,13 @@ options                   = require './options'
   ### TAINT should read MD source stream ###
   text                    = njs_fs.readFileSync source_locator, encoding: 'utf-8'
   #---------------------------------------------------------------------------------------------------------
+  state = {
+    within_multicol:      no
+    within_keeplines:     no
+    within_pre:           no
+    within_single_column: no
+    layout_info }
+  #---------------------------------------------------------------------------------------------------------
   tex_output.on 'close', =>
     tasks = []
     tasks.push ( done ) -> HELPERS.write_pdf layout_info, done
@@ -66,11 +73,13 @@ options                   = require './options'
     # .pipe TYPO.$resolve_html_entities()
     .pipe TYPO.$fix_typography_for_tex()
     .pipe TYPO.$show_mktsmd_events()
-    .pipe @MKTX.$command_new_page()
-    .pipe @MKTX.$region_single_column()
+    .pipe @MKTX.COMMAND.$new_page       state
+    .pipe @MKTX.REGION.$single_column   state
+    .pipe @MKTX.REGION.$keep_lines      state
+    .pipe @MKTX.INLINE.$code            state
     .pipe @$filter_tex()
     .pipe D.$show()
-    .pipe @$insert_preamble layout_info
+    .pipe @$insert_preamble state
     .pipe @$insert_postscript()
     .pipe tex_output
   #---------------------------------------------------------------------------------------------------------
@@ -79,23 +88,102 @@ options                   = require './options'
   # debug '©Fad1u', TYPO.get_meta input
 
 #-----------------------------------------------------------------------------------------------------------
-@MKTX = {}
+@MKTX =
+  COMMAND:    {}
+  REGION:     {}
+  BLOCK:      {}
+  INLINE:     {}
 
 #-----------------------------------------------------------------------------------------------------------
-@MKTX.$command_new_page = ->
+@MKTX.COMMAND.$new_page = ( S ) =>
   #.........................................................................................................
   return $ ( event, send ) =>
-    return unless TYPO.isa event, '∆', 'new-page'
+    return send event unless TYPO.isa event, '∆', 'new-page'
     # [ type, name, text, meta, ] = event
-    send [ 'tex', "\\null\\newpage", ]
+    send [ 'tex', "\\null\\newpage{}", ]
+
+# #-----------------------------------------------------------------------------------------------------------
+# @MKTX.change_column_count = ( S, send, end ) =>
 
 #-----------------------------------------------------------------------------------------------------------
-@MKTX.$region_single_column = ->
+@MKTX.REGION.$single_column = ( S ) =>
+  ### TAINT consider to implement command `change_column_count = ( send, n )` ###
+  #.........................................................................................................
+  return $ ( event, send, end ) =>
+    if event?
+      unless TYPO.isa event, [ '{', '}', ], 'single-column'
+        send event
+      else
+        [ type, name, text, meta, ] = event
+        #...................................................................................................
+        if type is '{'
+          send [ 'tex', '% ### MKTS @@@single-column ###\n', ]
+          debug '©x1ESw', '---------------------------single-column('
+          S.within_single_column = yes
+          if S.within_multicol
+            send [ 'tex', '\\end{multicols}' ]
+            S.within_multicol = no
+          send [ 'tex', '\n\n', ]
+        #...................................................................................................
+        else
+          debug '©x1ESw', ')single-column---------------------------'
+          send [ 'tex', '\\begin{multicols}{2}\n' ]
+          S.within_multicol       = yes
+          S.within_single_column  = no
+    #.......................................................................................................
+    if end?
+      if S.within_multicol
+        send [ 'tex', '\\end{multicols}' ]
+        S.within_multicol = no
+      end()
+    #.......................................................................................................
+    return null
+
+#-----------------------------------------------------------------------------------------------------------
+@MKTX.REGION.$keep_lines = ( S ) =>
   #.........................................................................................................
   return $ ( event, send ) =>
-    return unless TYPO.isa event, [ '{', '}'], 'single-column'
-    # [ type, name, text, meta, ] = event
-    # send [ 'tex', "\\null\\newpage", ]
+    #.......................................................................................................
+    if TYPO.isa event, '.', 'text'
+      ### TAINT differences between pre and keep-lines? ###
+      [ type, name, text, meta, ] = event
+      # if S.within_keeplines
+      #   text = text.replace /\n\n/g, '~\\\\\n'
+      if S.within_pre
+        text = text.replace /\u0020/g, '\u00a0'
+      send [ type, name, text, meta, ]
+    #.......................................................................................................
+    else if TYPO.isa event, [ '{', '}', ], 'keep-lines'
+      [ type, name, text, meta, ] = event
+      #.....................................................................................................
+      if type is '{'
+        send [ 'tex', '% ### MKTS @@@keep-lines ###\n', ]
+        debug '©x1ESw', '---------------------------keep-lines('
+        S.within_pre        = yes
+        S.within_keeplines  = yes
+        send [ 'tex', "\\begingroup\\obeyalllines{}", ]
+      else
+        debug '©x1ESw', ')keep-lines---------------------------'
+        send [ 'tex', "\\endgroup{}\n", ]
+        within_keeplines    = no
+        within_pre          = no
+    #.......................................................................................................
+    else
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
+@MKTX.INLINE.$code = ( S ) =>
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    #.......................................................................................................
+    if TYPO.isa event, '.', 'code'
+      [ type, name, text, meta, ] = event
+      send [ 'tex', "\\begingroup\\jzrFontSourceCodePro{}", ]
+      send [ 'text', text, ]
+      send [ 'tex', "\\endgroup{}\n", ]
+    #.......................................................................................................
+    else
+      send event
 
 #-----------------------------------------------------------------------------------------------------------
 @$assemble_tex_events_v1 = ->
@@ -357,17 +445,15 @@ options                   = require './options'
 #-----------------------------------------------------------------------------------------------------------
 @$filter_tex = ->
   return $ ( event, send ) =>
-    [ type, tail..., ] = event
-    switch type
-      when 'text', 'tex'
-        send tail[ 0 ]
-      else
-        send.error "unknown event type #{rpr type}"
+    if event[ 0 ] in [ 'tex', 'text', ]
+      send event[ 1 ]
+    else if TYPO.isa event, '.', 'text'
+      send event[ 2 ]
 
 #-----------------------------------------------------------------------------------------------------------
-@$insert_preamble = ( layout_info ) ->
+@$insert_preamble = ( state ) ->
+  { layout_info } = state
   return D.$on_start ( send ) =>
-    debug '©6jV0o', TYPO.get_meta send[ 'stream' ]
     tex_inputs_home = layout_info[ 'tex-inputs-home' ]
     ### TAINT should escape locators to prevent clashes with LaTeX syntax ###
     send """
@@ -395,5 +481,8 @@ unless module.parent?
 
   # debug '©nL12s', TYPO.as_tex_text '亻龵helo さしすサシス 臺灣國語Ⓒ, Ⓙ, Ⓣ𠀤𠁥&jzr#e202;'
   # debug '©nL12s', TYPO.as_tex_text 'helo さし'
-
+  # event = [ '{', 'single-column', ]
+  # event = [ '}', 'single-column', ]
+  # event = [ '{', 'new-page', ]
+  # debug '©Gpn1J', TYPO.isa event, [ '{', '}'], [ 'single-column', 'new-page', ]
 
