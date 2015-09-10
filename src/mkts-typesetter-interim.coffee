@@ -66,9 +66,10 @@ options                   = require './options'
     # .pipe TYPO.$resolve_html_entities()
     .pipe TYPO.$fix_typography_for_tex()
     .pipe TYPO.$show_mktsmd_events()
-    # .pipe D.$show()
-    .pipe @$translate_new_page()
+    .pipe @MKTX.$command_new_page()
+    .pipe @MKTX.$region_single_column()
     .pipe @$filter_tex()
+    .pipe D.$show()
     .pipe @$insert_preamble layout_info
     .pipe @$insert_postscript()
     .pipe tex_output
@@ -78,12 +79,23 @@ options                   = require './options'
   # debug '©Fad1u', TYPO.get_meta input
 
 #-----------------------------------------------------------------------------------------------------------
-@$translate_new_page = ->
+@MKTX = {}
+
+#-----------------------------------------------------------------------------------------------------------
+@MKTX.$command_new_page = ->
   #.........................................................................................................
   return $ ( event, send ) =>
     return unless TYPO.isa event, '∆', 'new-page'
     # [ type, name, text, meta, ] = event
     send [ 'tex', "\\null\\newpage", ]
+
+#-----------------------------------------------------------------------------------------------------------
+@MKTX.$region_single_column = ->
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    return unless TYPO.isa event, [ '{', '}'], 'single-column'
+    # [ type, name, text, meta, ] = event
+    # send [ 'tex', "\\null\\newpage", ]
 
 #-----------------------------------------------------------------------------------------------------------
 @$assemble_tex_events_v1 = ->
