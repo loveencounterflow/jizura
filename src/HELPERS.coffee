@@ -161,23 +161,22 @@ options                   = require './options'
     R = R.replace pattern, replacement
   return R
 
-#-----------------------------------------------------------------------------------------------------------
-@TYPO.$resolve_html_entities = ->
-  return $ ( event, send ) =>
-    [ type, tail..., ] = event
-    if type is 'text'
-      send [ 'text', ( @resolve_html_entities tail[ 0 ] ), ]
-    else
-      send event
+# #-----------------------------------------------------------------------------------------------------------
+# @TYPO.$resolve_html_entities = ->
+#   return $ ( event, send ) =>
+#     [ type, tail..., ] = event
+#     if type is 'text'
+#       send [ 'text', ( @resolve_html_entities tail[ 0 ] ), ]
+#     else
+#       send event
 
 #-----------------------------------------------------------------------------------------------------------
 @TYPO.$fix_typography_for_tex = ->
   return $ ( event, send ) =>
-    [ type, tail..., ] = event
-    if type is 'text'
-      send [ 'text', ( @fix_typography_for_tex tail[ 0 ] ), ]
-    else
-      send event
+    [ type, name, text, meta, ] = event
+    return send event unless ( type is '.' ) and name in [ 'text', 'code', ]
+    text = @fix_typography_for_tex text
+    send [ type, name, text, meta, ]
 
 #-----------------------------------------------------------------------------------------------------------
 @TYPO.resolve_html_entities = ( text ) ->
@@ -319,232 +318,413 @@ options                   = require './options'
   #.......................................................................................................
   return R
 
-#-----------------------------------------------------------------------------------------------------------
-@TYPO._new_html_parser = ( stream ) ->
-  ### https://github.com/fb55/htmlparser2/wiki/Parser-options ###
-  settings =
-    xmlMode:                 no   # Indicates whether special tags (<script> and <style>) should get special
-                                  # treatment and if "empty" tags (eg. <br>) can have children. If false,
-                                  # the content of special tags will be text only.
-                                  # For feeds and other XML content (documents that don't consist of HTML),
-                                  # set this to true. Default: false.
-    decodeEntities:          no   # If set to true, entities within the document will be decoded. Defaults
-                                  # to false.
-    lowerCaseTags:           no   # If set to true, all tags will be lowercased. If xmlMode is disabled,
-                                  # this defaults to true.
-    lowerCaseAttributeNames: no   # If set to true, all attribute names will be lowercased. This has
-                                  # noticeable impact on speed, so it defaults to false.
-    recognizeCDATA:          yes  # If set to true, CDATA sections will be recognized as text even if the
-                                  # xmlMode option is not enabled. NOTE: If xmlMode is set to true then
-                                  # CDATA sections will always be recognized as text.
-    recognizeSelfClosing:    yes  # If set to true, self-closing tags will trigger the onclosetag event even
-                                  # if xmlMode is not set to true. NOTE: If xmlMode is set to true then
-                                  # self-closing tags will always be recognized.
-  #.........................................................................................................
-  handlers =
-    onopentag:  ( name, attributes )  -> stream.write [ 'open-tag',  name, attributes, ]
-    ontext:     ( text )              -> stream.write [ 'text',      text, ]
-    onclosetag: ( name )              -> stream.write [ 'close-tag', name, ]
-    onerror:    ( error )             -> stream.error error
-    oncomment:  ( text )              -> stream.write [ 'comment',   text, ]
-    onend:                            -> stream.write [ 'end', ]; stream.end()
-    # oncdatastart:            ( P... ) -> debug 'cdatastart           ', P  # 0
-    # oncdataend:              ( P... ) -> debug 'cdataend             ', P  # 0
-    # onprocessinginstruction: ( P... ) -> debug 'processinginstruction', P  # 2
-  #.........................................................................................................
-  return new Html_parser handlers, settings
-
-#-----------------------------------------------------------------------------------------------------------
-@TYPO._preprocess_regions = ( md_source ) ->
-  opening_pattern   = /(\n|^)@@@(\S.+)(\n|$)/g
-  closing_pattern   = /(\n|^)@@@\s*(\n|$)/g
-  md_source         = md_source.replace opening_pattern, "$1<mkts-mark x-role='start-region' x-name='$2'></mkts-mark>$3"
-  md_source         = md_source.replace closing_pattern, "$1<mkts-mark x-role='end-region'></mkts-mark>$2"
-  return md_source
-
-#-----------------------------------------------------------------------------------------------------------
-@TYPO._preprocess_commands = ( md_source ) ->
-  pattern     = /(\n|^)∆∆∆(\S.+)(\n|$)/g
-  md_source   = md_source.replace pattern, "$1<mkts-mark x-role='command' x-name='$2'></mkts-mark>$3"
-  return md_source
-
-#-----------------------------------------------------------------------------------------------------------
-@TYPO._$remove_superfluous_tags = ->
-  skip_next_text            = no
-  skip_next_closing_anchor  = no
-  skip_next_closing_hr      = no
-  #.........................................................................................................
-  return $ ( event, send ) =>
-    [ type, tag_name, attributes, ] = event
-    #.......................................................................................................
-    if type is 'text'
-      if skip_next_text
-        skip_next_text = no
-        return
-    #.......................................................................................................
-    else if type is 'close-tag'
-      return if tag_name is 'mkts-mark'
-      if skip_next_closing_anchor and tag_name is 'a'
-        skip_next_closing_anchor = no
-        return
-      if skip_next_closing_hr and tag_name is 'hr'
-        skip_next_closing_hr = no
-        return
-    #.......................................................................................................
-    else if type is 'open-tag'
-      if tag_name is 'a' and attributes[ 'class' ] is 'footnote-backref'
-        skip_next_text            = yes
-        skip_next_closing_anchor  = yes
-        return
-      if tag_name is 'hr' and attributes[ 'class' ] is 'footnotes-sep'
-        skip_next_closing_hr      = yes
-        return
-    #.......................................................................................................
-    send event
+# #-----------------------------------------------------------------------------------------------------------
+# @TYPO._new_html_parser = ( stream ) ->
+#   ### https://github.com/fb55/htmlparser2/wiki/Parser-options ###
+#   settings =
+#     xmlMode:                 no   # Indicates whether special tags (<script> and <style>) should get special
+#                                   # treatment and if "empty" tags (eg. <br>) can have children. If false,
+#                                   # the content of special tags will be text only.
+#                                   # For feeds and other XML content (documents that don't consist of HTML),
+#                                   # set this to true. Default: false.
+#     decodeEntities:          no   # If set to true, entities within the document will be decoded. Defaults
+#                                   # to false.
+#     lowerCaseTags:           no   # If set to true, all tags will be lowercased. If xmlMode is disabled,
+#                                   # this defaults to true.
+#     lowerCaseAttributeNames: no   # If set to true, all attribute names will be lowercased. This has
+#                                   # noticeable impact on speed, so it defaults to false.
+#     recognizeCDATA:          yes  # If set to true, CDATA sections will be recognized as text even if the
+#                                   # xmlMode option is not enabled. NOTE: If xmlMode is set to true then
+#                                   # CDATA sections will always be recognized as text.
+#     recognizeSelfClosing:    yes  # If set to true, self-closing tags will trigger the onclosetag event even
+#                                   # if xmlMode is not set to true. NOTE: If xmlMode is set to true then
+#                                   # self-closing tags will always be recognized.
+#   #.........................................................................................................
+#   handlers =
+#     onopentag:  ( name, attributes )  -> stream.write [ 'open-tag',  name, attributes, ]
+#     ontext:     ( text )              -> stream.write [ 'text',      text, ]
+#     onclosetag: ( name )              -> stream.write [ 'close-tag', name, ]
+#     onerror:    ( error )             -> stream.error error
+#     oncomment:  ( text )              -> stream.write [ 'comment',   text, ]
+#     onend:                            -> stream.write [ 'end', ]; stream.end()
+#     # oncdatastart:            ( P... ) -> debug 'cdatastart           ', P  # 0
+#     # oncdataend:              ( P... ) -> debug 'cdataend             ', P  # 0
+#     # onprocessinginstruction: ( P... ) -> debug 'processinginstruction', P  # 2
+#   #.........................................................................................................
+#   return new Html_parser handlers, settings
 
 # #-----------------------------------------------------------------------------------------------------------
-# @TYPO._$collect_footnotes = =>
-#   collector         = []
-#   within_footnotes  = no
+# @TYPO._preprocess_regions = ( md_source ) ->
+#   opening_pattern   = /(\n|^)@@@(\S.+)(\n|$)/g
+#   closing_pattern   = /(\n|^)@@@\s*(\n|$)/g
+#   md_source         = md_source.replace opening_pattern, "$1<mkts-mark x-role='start-region' x-name='$2'></mkts-mark>$3"
+#   md_source         = md_source.replace closing_pattern, "$1<mkts-mark x-role='end-region'></mkts-mark>$2"
+#   return md_source
+
+# #-----------------------------------------------------------------------------------------------------------
+# @TYPO._preprocess_commands = ( md_source ) ->
+#   pattern     = /(\n|^)∆∆∆(\S.+)(\n|$)/g
+#   md_source   = md_source.replace pattern, "$1<mkts-mark x-role='command' x-name='$2'></mkts-mark>$3"
+#   return md_source
+
+# #-----------------------------------------------------------------------------------------------------------
+# @TYPO._$remove_superfluous_tags = ->
+#   skip_next_text            = no
+#   skip_next_closing_anchor  = no
+#   skip_next_closing_hr      = no
 #   #.........................................................................................................
 #   return $ ( event, send ) =>
 #     [ type, tag_name, attributes, ] = event
-#     if type is 'open-tag'
-#       if ( tag_name is 'section' ) and ( attributes[ 'class' ] is 'footnotes' )
-#         within_footnotes = yes
+#     #.......................................................................................................
+#     if type is 'text'
+#       if skip_next_text
+#         skip_next_text = no
 #         return
+#     #.......................................................................................................
 #     else if type is 'close-tag'
-#       if within_footnotes and tag_name is 'section'
-#         within_footnotes = no
+#       return if tag_name is 'mkts-mark'
+#       if skip_next_closing_anchor and tag_name is 'a'
+#         skip_next_closing_anchor = no
 #         return
+#       if skip_next_closing_hr and tag_name is 'hr'
+#         skip_next_closing_hr = no
+#         return
+#     #.......................................................................................................
+#     else if type is 'open-tag'
+#       if tag_name is 'a' and attributes[ 'class' ] is 'footnote-backref'
+#         skip_next_text            = yes
+#         skip_next_closing_anchor  = yes
+#         return
+#       if tag_name is 'hr' and attributes[ 'class' ] is 'footnotes-sep'
+#         skip_next_closing_hr      = yes
+#         return
+#     #.......................................................................................................
 #     send event
 
+# # #-----------------------------------------------------------------------------------------------------------
+# # @TYPO._$collect_footnotes = =>
+# #   collector         = []
+# #   within_footnotes  = no
+# #   #.........................................................................................................
+# #   return $ ( event, send ) =>
+# #     [ type, tag_name, attributes, ] = event
+# #     if type is 'open-tag'
+# #       if ( tag_name is 'section' ) and ( attributes[ 'class' ] is 'footnotes' )
+# #         within_footnotes = yes
+# #         return
+# #     else if type is 'close-tag'
+# #       if within_footnotes and tag_name is 'section'
+# #         within_footnotes = no
+# #         return
+# #     send event
+
+# #-----------------------------------------------------------------------------------------------------------
+# @TYPO._$add_regions = ->
+#   region_stack              = []
+#   #.........................................................................................................
+#   return $ ( event, send, end ) =>
+#     #.......................................................................................................
+#     if event?
+#       [ type, tag_name, attributes, ] = event
+#       #.....................................................................................................
+#       if ( type is 'open-tag' )
+#         if ( tag_name is 'mkts-mark' ) and ( attributes[ 'x-role' ] is 'start-region' )
+#           region_name = attributes[ 'x-name' ]
+#           region_stack.push region_name
+#           send [ 'start-region', region_name, ]
+#         else if ( tag_name is 'mkts-mark' ) and ( attributes[ 'x-role' ] is 'end-region' )
+#           if region_stack.length > 0
+#             send [ 'end-region', region_stack.pop(), ]
+#           else
+#             warn "ignoring end-region"
+#         else
+#           send event
+#       #...................................................................................................
+#       else
+#         send event
+#     #.......................................................................................................
+#     if end?
+#       if region_stack.length > 0
+#         warn "auto-closing regions: #{rpr region_stack.join ', '}"
+#         send [ 'end-region', region_stack.pop(), ] while region_stack.length > 0
+#       end()
+
+# #-----------------------------------------------------------------------------------------------------------
+# @TYPO._$add_commands = ->
+#   #.........................................................................................................
+#   return $ ( event, send ) =>
+#     [ type, tag_name, attributes, ] = event
+#     #.....................................................................................................
+#     if ( type is 'open-tag' )
+#       if ( tag_name is 'mkts-mark' ) and ( attributes[ 'x-role' ] is 'command' )
+#         command = attributes[ 'x-name' ]
+#         send [ 'command', command, ]
+#       else
+#         send event
+#     #...................................................................................................
+#     else
+#       send event
+
+# #-----------------------------------------------------------------------------------------------------------
+# @TYPO._$remove_block_tags_from_keeplines = =>
+#   within_keeplines = no
+#   #.........................................................................................................
+#   return $ ( event, send ) =>
+#     [ type, tag, tail..., ] = event
+#     #.......................................................................................................
+#     if type is 'start-region' and tag is 'keeplines'
+#       within_keeplines = yes
+#       return send event
+#     #.......................................................................................................
+#     if type is 'end-region' and tag is 'keeplines'
+#       within_keeplines = no
+#       return send event
+#     #.......................................................................................................
+#     if within_keeplines
+#       if type in [ 'open-tag', 'close-tag', ]
+#         ###TAINT apply to other block-level tags? ###
+#         send event unless tag is 'p'
+#       else
+#         send event
+#     #.......................................................................................................
+#     else
+#       send event
+
+# #-----------------------------------------------------------------------------------------------------------
+# @TYPO._$consolidate_texts = =>
+#   collector = []
+#   _send     = null
+#   #.........................................................................................................
+#   flush = ->
+#     if collector.length > 0
+#       text  = collector.join ''
+#       # text  = text.replace /^\n+/, ''
+#       # text  = text.replace /\n+$/, ''
+#       _send [ 'text', text, ] if text.length > 0
+#       collector.length = 0
+#       return null
+#   #.........................................................................................................
+#   return $ ( event, send, end ) =>
+#     _send = send
+#     if event?
+#       [ type, text, ] = event
+#       if type is 'text'
+#         collector.push text
+#       else
+#         flush()
+#         send event
+#     if end?
+#       flush()
+#       end()
+
+###
+###
+
 #-----------------------------------------------------------------------------------------------------------
-@TYPO._$add_regions = ->
-  region_stack              = []
+@TYPO.$flatten_tokens = ->
+  return $ ( token, send ) ->
+    switch ( type = token[ 'type' ] )
+      when 'inline' then send sub_token for sub_token in token[ 'children' ]
+      else send token
+
+#-----------------------------------------------------------------------------------------------------------
+@TYPO.$rewrite_markdownit_tokens = ->
+  unknown_tokens = []
+  return $ ( token, send, end ) ->
+    if token?
+      meta =
+        block:  token[ 'block' ]
+      switch ( type = token[ 'type' ] )
+        when 'text'               then send [ '.', 'text',          token[ 'content' ], meta, ]
+        when 'heading_open'       then send [ '(', token[ 'tag' ],  null,               meta, ]
+        when 'heading_close'      then send [ ')', token[ 'tag' ],  null,               meta, ]
+        when 'paragraph_open'     then send [ '(', 'p',             null,               meta, ]
+        when 'paragraph_close'    then send [ ')', 'p',             null,               meta, ]
+        when 'strong_open'        then send [ '(', 'strong',        null,               meta, ]
+        when 'strong_close'       then send [ ')', 'strong',        null,               meta, ]
+        when 'list_item_open'     then send [ '(', 'li',            null,               meta, ]
+        when 'list_item_close'    then send [ ')', 'li',            null,               meta, ]
+        when 'code_inline'        then send [ '.', 'code',          token[ 'content' ], meta, ]
+        when 'hr'                 then send [ '.', 'hr',            null,               meta, ]
+        else
+          send [ '?', token[ 'tag' ], token[ 'content' ], meta, ]
+          unknown_tokens.push type unless type in unknown_tokens
+    if end?
+      if unknown_tokens.length > 0
+        warn "unknown tokens: #{unknown_tokens.sort().join ', '}"
+      end()
+    return null
+
+#-----------------------------------------------------------------------------------------------------------
+@TYPO.$preprocess_regions = ->
+  opening_pattern   = /^@@@(\S.+)(\n|$)/
+  closing_pattern   = /^@@@\s*(\n|$)/
+  collector         = []
+  region_stack      = []
   #.........................................................................................................
   return $ ( event, send, end ) =>
     #.......................................................................................................
     if event?
-      [ type, tag_name, attributes, ] = event
-      #.....................................................................................................
-      if ( type is 'open-tag' )
-        if ( tag_name is 'mkts-mark' ) and ( attributes[ 'x-role' ] is 'start-region' )
-          region_name = attributes[ 'x-name' ]
+      [ type, name, text, meta, ] = event
+      return send event unless ( type is '.' ) and ( name is 'text' )
+      lines = @_split_lines_with_nl text
+      #.......................................................................................................
+      for line in lines
+        if ( match = line.match opening_pattern )?
+          @_flush_text_collector send, collector, meta
+          region_name = match[ 1 ]
           region_stack.push region_name
-          send [ 'start-region', region_name, ]
-        else if ( tag_name is 'mkts-mark' ) and ( attributes[ 'x-role' ] is 'end-region' )
+          ### TAINT use `meta`? ###
+          send [ '{', region_name, null, ( @_copy meta, block: true ), ]
+        else if ( match = line.match closing_pattern )?
+          @_flush_text_collector send, collector, meta
+          ### TAINT use `meta`? ###
           if region_stack.length > 0
-            send [ 'end-region', region_stack.pop(), ]
+            send [ '}', region_stack.pop(), null, ( @_copy meta, block: true ), ]
           else
             warn "ignoring end-region"
         else
-          send event
-      #...................................................................................................
-      else
-        send event
+          collector.push line
+      #.......................................................................................................
+      @_flush_text_collector send, collector, meta
     #.......................................................................................................
     if end?
       if region_stack.length > 0
         warn "auto-closing regions: #{rpr region_stack.join ', '}"
-        send [ 'end-region', region_stack.pop(), ] while region_stack.length > 0
+        send [ '}', region_stack.pop(), null, ( @_copy meta, block: true ), ] while region_stack.length > 0
       end()
+    #.......................................................................................................
+    return null
 
 #-----------------------------------------------------------------------------------------------------------
-@TYPO._$add_commands = ->
-  #.........................................................................................................
-  return $ ( event, send ) =>
-    [ type, tag_name, attributes, ] = event
-    #.....................................................................................................
-    if ( type is 'open-tag' )
-      if ( tag_name is 'mkts-mark' ) and ( attributes[ 'x-role' ] is 'command' )
-        command = attributes[ 'x-name' ]
-        send [ 'command', command, ]
-      else
-        send event
-    #...................................................................................................
-    else
-      send event
-
-#-----------------------------------------------------------------------------------------------------------
-@TYPO._$remove_block_tags_from_keeplines = =>
-  within_keeplines = no
-  #.........................................................................................................
-  return $ ( event, send ) =>
-    [ type, tag, tail..., ] = event
-    #.......................................................................................................
-    if type is 'start-region' and tag is 'keeplines'
-      within_keeplines = yes
-      return send event
-    #.......................................................................................................
-    if type is 'end-region' and tag is 'keeplines'
-      within_keeplines = no
-      return send event
-    #.......................................................................................................
-    if within_keeplines
-      if type in [ 'open-tag', 'close-tag', ]
-        ###TAINT apply to other block-level tags? ###
-        send event unless tag is 'p'
-      else
-        send event
-    #.......................................................................................................
-    else
-      send event
-
-#-----------------------------------------------------------------------------------------------------------
-@TYPO._$consolidate_texts = =>
+@TYPO.$preprocess_commands = ->
+  pattern   = /^∆∆∆(\S.+)(\n|$)/
   collector = []
-  _send     = null
   #.........................................................................................................
-  flush = ->
-    if collector.length > 0
-      text  = collector.join ''
-      # text  = text.replace /^\n+/, ''
-      # text  = text.replace /\n+$/, ''
-      _send [ 'text', text, ] if text.length > 0
-      collector.length = 0
-      return null
-  #.........................................................................................................
-  return $ ( event, send, end ) =>
-    _send = send
-    if event?
-      [ type, text, ] = event
-      if type is 'text'
-        collector.push text
+  return $ ( event, send ) =>
+    [ type, name, text, meta, ] = event
+    return send event unless ( type is '.' ) and ( name is 'text' )
+    lines = @_split_lines_with_nl text
+    #.......................................................................................................
+    for line in lines
+      if ( match = line.match pattern )?
+        @_flush_text_collector send, collector, meta
+        send [ '∆', match[ 1 ], null, ( @_copy meta ), ]
       else
-        flush()
-        send event
-    if end?
-      flush()
-      end()
+        collector.push line
+    #.......................................................................................................
+    @_flush_text_collector send, collector, meta
+    return null
 
 #-----------------------------------------------------------------------------------------------------------
-@TYPO.create_html_readstream_from_md = ( md_source, settings ) ->
+@TYPO.isa = ( event, type, name ) -> ( event[ 0 ] is type ) and ( event[ 1 ] is name )
+
+#-----------------------------------------------------------------------------------------------------------
+@TYPO._copy = ( meta, overwrites ) ->
+  R = {}
+  R[ name ] = value for name, value of meta
+  R[ name ] = value for name, value of overwrites if overwrites?
+  return R
+
+#-----------------------------------------------------------------------------------------------------------
+@TYPO._split_lines_with_nl = ( text ) -> ( line for line in text.split /(.*\n)/ when line.length > 0 )
+
+#-----------------------------------------------------------------------------------------------------------
+@TYPO._flush_text_collector = ( send, collector, meta ) ->
+  if collector.length > 0
+    send [ '.', 'text', ( collector.join '' ), ( @_copy meta ), ]
+    collector.length = 0
+  return null
+
+#-----------------------------------------------------------------------------------------------------------
+@TYPO.$add_lookahead = ->
+  previous_event = null
+  return $ ( event, send, end ) ->
+    if event?
+      # debug '©t9r7W', event
+      if previous_event?
+        previous_event[ 3 ][ 'ends-block' ] = event[ 3 ][ 'block' ]
+        send previous_event
+      previous_event = event
+    if end?
+      previous_event[ 3 ][ 'ends-block' ] = no
+      send previous_event
+      end()
+    return null
+
+# #-----------------------------------------------------------------------------------------------------------
+# @TYPO.$remove_superfluous_tags = ->
+#   return $ ( event, send ) ->
+#     [ type, name, text, meta, ] = event
+
+#-----------------------------------------------------------------------------------------------------------
+@TYPO.$show_mktsmd_events = ->
+  unknown_events    = []
+  level             = 0
+  indentation       = ''
+  next_indentation  = indentation
+  return D.$observe ( event, has_ended ) ->
+    if event?
+      [ type, name, text, meta, ] = event
+      if type is '?'
+        unknown_events.push name unless name in unknown_events
+        warn JSON.stringify event
+      else
+        color = CND.blue
+        switch type
+          when '{', '[', '('
+            level            += +1
+            next_indentation  = ( new Array level ).join '  '
+          when ')', ']', '}'
+            level            += -1
+            next_indentation  = ( new Array level ).join '  '
+          when '.'
+            switch name
+              when 'text' then color = CND.green
+              when 'code' then color = CND.orange
+        switch type
+          when '{'
+            color         = CND.red
+          when '∆'
+            color         = CND.red
+          when ')', ']', '}'
+            color         = CND.grey
+        text = if text? then ( color rpr text ) else ''
+        log indentation + ( CND.grey type ) + ( color name ) + ' ' + text
+        indentation = next_indentation
+    if has_ended
+      if unknown_events.length > 0
+        warn "unknown events: #{unknown_events.sort().join ', '}"
+    return null
+
+
+#-----------------------------------------------------------------------------------------------------------
+@TYPO.create_mdreadstream = ( md_source, settings ) ->
   throw new Error "settings currently unsupported" if settings?
   #.........................................................................................................
-  R = D.create_throughstream()
+  confluence  = D.create_throughstream()
+  R           = D.create_throughstream()
   R.pause()
   #.........................................................................................................
-  # setImmediate =>
-  md_parser   = @_new_markdown_parser()
-  md_source   = @_preprocess_regions  md_source
-  md_source   = @_preprocess_commands md_source
-  html_parser = @_new_html_parser R
-  html        = md_parser.render md_source
-  # help '©YzNQP',  html
-  html_parser.write html
-  html_parser.end()
-  #.........................................................................................................
-  R = R
+  confluence
+    .pipe @$flatten_tokens()
+    .pipe @$rewrite_markdownit_tokens()
+    .pipe @$preprocess_regions()
+    .pipe @$preprocess_commands()
+    # .pipe @$remove_superfluous_tags()
+    .pipe @$add_lookahead()
     # .pipe D.$show()
-    .pipe @_$remove_superfluous_tags()
-    # .pipe @_$collect_footnotes()
-    .pipe @_$add_regions()
-    .pipe @_$add_commands()
-    .pipe @_$remove_block_tags_from_keeplines()
-    .pipe @_$consolidate_texts()
+    # .pipe @$show_mktsmd_events()
+    .pipe R
   #.........................................................................................................
-  @set_meta R, 'html', html
+  R.on 'resume', =>
+    md_parser   = @_new_markdown_parser()
+    environment = {}
+    tokens      = md_parser.parse md_source, environment
+    @set_meta R, 'environment', environment
+    confluence.write token for token in tokens
+    confluence.end()
+  #.........................................................................................................
   return R
 
 

@@ -53,21 +53,21 @@ options                   = require './options'
   tex_output.on 'close', =>
     tasks = []
     tasks.push ( done ) -> HELPERS.write_pdf layout_info, done
-    ### TAINT put into HELPERS ###
-    tasks.push ( done ) ->
-      html          = TYPO.get_meta input, 'html'
-      html_locator  = HELPERS.tmp_locator_for_extension layout_info, 'html'
-      help "writing HTML to #{html_locator}"
-      njs_fs.writeFile html_locator, html, done
+    # ### TAINT put into HELPERS ###
+    # tasks.push ( done ) ->
+    #   html          = TYPO.get_meta input, 'html'
+    #   html_locator  = HELPERS.tmp_locator_for_extension layout_info, 'html'
+    #   help "writing HTML to #{html_locator}"
+    #   njs_fs.writeFile html_locator, html, done
     ASYNC.parallel tasks, handler
   #---------------------------------------------------------------------------------------------------------
-  input = TYPO.create_html_readstream_from_md text
+  input = TYPO.create_mdreadstream text
   input
-    # .pipe @$transform_commands()
-    .pipe TYPO.$resolve_html_entities()
+    # .pipe TYPO.$resolve_html_entities()
     .pipe TYPO.$fix_typography_for_tex()
-    .pipe D.$show()
-    .pipe @$assemble_tex_events()
+    .pipe TYPO.$show_mktsmd_events()
+    # .pipe D.$show()
+    .pipe @$translate_new_page()
     .pipe @$filter_tex()
     .pipe @$insert_preamble layout_info
     .pipe @$insert_postscript()
@@ -75,27 +75,18 @@ options                   = require './options'
   #---------------------------------------------------------------------------------------------------------
   # D.resume input
   input.resume()
+  # debug '©Fad1u', TYPO.get_meta input
 
-###
 #-----------------------------------------------------------------------------------------------------------
-@$transform_commands = ->
-  command_pattern = /^\n?‡([^\s][^\n]*)\n$/
+@$translate_new_page = ->
+  #.........................................................................................................
   return $ ( event, send ) =>
-    [ type, tail..., ]  = event
-    if ( type is 'text' ) and ( match = tail[ 0 ].match command_pattern )?
-      command = match[ 1 ]
-      match   = command.match /^(\S+)\s+(.+)$/
-      if match?
-        [ _, command, values, ] = match
-        send [ 'command', command, values, ]
-      else
-        send [ 'command', command, ]
-    else
-      send event
-###
+    return unless TYPO.isa event, '∆', 'new-page'
+    # [ type, name, text, meta, ] = event
+    send [ 'tex', "\\null\\newpage", ]
 
 #-----------------------------------------------------------------------------------------------------------
-@$assemble_tex_events = ->
+@$assemble_tex_events_v1 = ->
   tag_stack               = []
   within_multicol         = no
   start_multicol_after    = null
@@ -364,6 +355,7 @@ options                   = require './options'
 #-----------------------------------------------------------------------------------------------------------
 @$insert_preamble = ( layout_info ) ->
   return D.$on_start ( send ) =>
+    debug '©6jV0o', TYPO.get_meta send[ 'stream' ]
     tex_inputs_home = layout_info[ 'tex-inputs-home' ]
     ### TAINT should escape locators to prevent clashes with LaTeX syntax ###
     send """
