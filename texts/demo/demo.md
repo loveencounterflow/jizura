@@ -26,15 +26,93 @@ Here are some formulas:
 
 `u-cjk-xb/250b7`  𥂷   ⿱⿰告巨皿
 `u-cjk-xb/250b8`  𥂸   ⿱楊皿
+
 @@@
-At this point, a line consisting of a  triple at-sign `@@@`
+
+At this point, a line consisting of a triple at-sign `@@@`
 indicates the end of the `keep-lines` region; since the
-`single-column` region is still active, however, this
-paragraph runs across the entire width of the document's text
+`single-column` region is still active, however, *this
+paragraph runs across the entire width* of the document's text
 area.
 
 @@@
 
-a rule:
+Rules:
 
 --------------------------------------------------------------
+
+yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
+yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
+yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
+yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
+yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
+yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
+yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
+
+**************************************************************
+
+yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
+yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
+yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
+yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
+yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
+yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
+yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
+
+
+# Regions
+
+## Keep-Lines
+
+--------------------------------------------------------------
+
+A-before
+@@@keep-lines
+A-within
+A-within
+A-within
+@@@
+A-after
+
+
+--------------------------------------------------------------
+
+B-before
+
+@@@keep-lines
+B-within
+B-within
+B-within
+@@@
+
+B-after
+
+
+--------------------------------------------------------------
+
+C-before
+@@@keep-lines
+
+C-within
+C-within
+C-within
+
+@@@
+C-after
+
+--------------------------------------------------------------
+
+
+D-before
+
+@@@keep-lines
+
+D-within
+D-within
+D-within
+
+@@@
+
+D-after
+
+

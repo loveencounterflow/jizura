@@ -50,12 +50,12 @@ options                   = require './options'
   ### TAINT should read MD source stream ###
   text                    = njs_fs.readFileSync source_locator, encoding: 'utf-8'
   #---------------------------------------------------------------------------------------------------------
-  state = {
+  state =
     within_multicol:      no
     within_keeplines:     no
     within_pre:           no
     within_single_column: no
-    layout_info }
+    layout_info:          layout_info
   #---------------------------------------------------------------------------------------------------------
   tex_output.on 'close', =>
     tasks = []
@@ -74,11 +74,15 @@ options                   = require './options'
     .pipe TYPO.$fix_typography_for_tex()
     .pipe TYPO.$show_mktsmd_events()
     .pipe @MKTX.COMMAND.$new_page       state
-    .pipe @MKTX.REGION.$single_column   state
+    # .pipe @MKTX.REGION.$single_column   state
     .pipe @MKTX.REGION.$keep_lines      state
+    .pipe @MKTX.BLOCK.$heading          state
+    .pipe @MKTX.BLOCK.$paragraph        state
+    .pipe @MKTX.BLOCK.$hr               state
+    # .pipe D.$show()
     .pipe @MKTX.INLINE.$code            state
+    .pipe @MKTX.INLINE.$em_and_strong   state
     .pipe @$filter_tex()
-    .pipe D.$show()
     .pipe @$insert_preamble state
     .pipe @$insert_postscript()
     .pipe tex_output
@@ -105,39 +109,41 @@ options                   = require './options'
 # #-----------------------------------------------------------------------------------------------------------
 # @MKTX.change_column_count = ( S, send, end ) =>
 
-#-----------------------------------------------------------------------------------------------------------
-@MKTX.REGION.$single_column = ( S ) =>
-  ### TAINT consider to implement command `change_column_count = ( send, n )` ###
-  #.........................................................................................................
-  return $ ( event, send, end ) =>
-    if event?
-      unless TYPO.isa event, [ '{', '}', ], 'single-column'
-        send event
-      else
-        [ type, name, text, meta, ] = event
-        #...................................................................................................
-        if type is '{'
-          send [ 'tex', '% ### MKTS @@@single-column ###\n', ]
-          debug '©x1ESw', '---------------------------single-column('
-          S.within_single_column = yes
-          if S.within_multicol
-            send [ 'tex', '\\end{multicols}' ]
-            S.within_multicol = no
-          send [ 'tex', '\n\n', ]
-        #...................................................................................................
-        else
-          debug '©x1ESw', ')single-column---------------------------'
-          send [ 'tex', '\\begin{multicols}{2}\n' ]
-          S.within_multicol       = yes
-          S.within_single_column  = no
-    #.......................................................................................................
-    if end?
-      if S.within_multicol
-        send [ 'tex', '\\end{multicols}' ]
-        S.within_multicol = no
-      end()
-    #.......................................................................................................
-    return null
+### Pending ###
+# #-----------------------------------------------------------------------------------------------------------
+# @MKTX.REGION.$single_column = ( S ) =>
+#   ### TAINT consider to implement command `change_column_count = ( send, n )` ###
+#   #.........................................................................................................
+#   return $ ( event, send, end ) =>
+#     if event?
+#       if TYPO.isa event, [ '{', '}', ], 'single-column'
+#         [ type, name, text, meta, ] = event
+#         #...................................................................................................
+#         if type is '{'
+#           send [ 'tex', '% ### MKTS @@@single-column ###\n', ]
+#           debug '©x1ESw', '---------------------------single-column('
+#           S.within_single_column = yes
+#           if S.within_multicol
+#             send [ 'tex', '\\end{multicols}' ]
+#             S.within_multicol = no
+#           send [ 'tex', '\n\n', ]
+#         #...................................................................................................
+#         else
+#           debug '©x1ESw', ')single-column---------------------------'
+#           send [ 'tex', '\\begin{multicols}{2}\n' ]
+#           S.within_multicol       = yes
+#           S.within_single_column  = no
+#       #.....................................................................................................
+#       else
+#         send event
+#     #.......................................................................................................
+#     if end?
+#       if S.within_multicol
+#         send [ 'tex', '\\end{multicols}' ]
+#         S.within_multicol = no
+#       end()
+#     #.......................................................................................................
+#     return null
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.REGION.$keep_lines = ( S ) =>
@@ -157,16 +163,87 @@ options                   = require './options'
       [ type, name, text, meta, ] = event
       #.....................................................................................................
       if type is '{'
-        send [ 'tex', '% ### MKTS @@@keep-lines ###\n', ]
-        debug '©x1ESw', '---------------------------keep-lines('
+        # send [ 'tex', '% ### MKTS @@@keep-lines ###\n', ]
         S.within_pre        = yes
         S.within_keeplines  = yes
         send [ 'tex', "\\begingroup\\obeyalllines{}", ]
       else
-        debug '©x1ESw', ')keep-lines---------------------------'
-        send [ 'tex', "\\endgroup{}\n", ]
-        within_keeplines    = no
-        within_pre          = no
+        send [ 'tex', "\\endgroup{}", ]
+        S.within_keeplines    = no
+        S.within_pre          = no
+    #.......................................................................................................
+    else
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
+@MKTX.BLOCK.$heading = ( S ) =>
+  restart_multicols = no
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    #.......................................................................................................
+    if TYPO.isa event, [ '[', ']', ], [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', ]
+      [ type, name, text, meta, ] = event
+      #.....................................................................................................
+      # OPEN
+      #.....................................................................................................
+      if type is '['
+        #...................................................................................................
+        ### TAINT Pending
+        if S.within_multicol and name in [ 'h1', 'h2', ]
+          send [ 'tex', '\\end{multicols}' ]
+          S.within_multicol = no
+          restart_multicols = yes
+        ###
+        #...................................................................................................
+        send [ 'tex', "\n", ]
+        #...................................................................................................
+        switch name
+          when 'h1' then  send [ 'tex', "\\jzrChapter{", ]
+          when 'h2' then  send [ 'tex', "\\jzrSection{", ]
+          else            send [ 'tex', "\\subsection{", ]
+      #.....................................................................................................
+      # CLOSE
+      #.....................................................................................................
+      else
+        ### Placing the closing brace on a new line seems to improve line breaking ###
+        send [ 'tex', "\n", ]
+        send [ 'tex', "}", ]
+        send [ 'tex', "\n", ]
+        ### TAINT Pending
+        if restart_multicols
+          send [ 'tex', '\\begin{multicols}{2}\n' ]
+          S.within_multicol = yes
+        ###
+    #.......................................................................................................
+    else
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
+@MKTX.BLOCK.$paragraph = ( S ) =>
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    #.......................................................................................................
+    if TYPO.isa event, [ '[', ']', ], 'p'
+      [ type, name, text, meta, ] = event
+      if type is '['
+        send [ 'text', '\n\n' ]
+      else
+        send [ 'tex', '\\par' ]
+    #.......................................................................................................
+    else
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
+@MKTX.BLOCK.$hr = ( S ) =>
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    #.......................................................................................................
+    if TYPO.isa event, '.', 'hr'
+      [ type, name, text, meta, ] = event
+      switch chr = text[ 0 ]
+        when '-' then send [ 'text', '\n--------------\n' ]
+        when '*' then send [ 'text', '\n**************\n' ]
+        else warn "ignored hr markup #{rpr text}"
     #.......................................................................................................
     else
       send event
@@ -176,11 +253,29 @@ options                   = require './options'
   #.........................................................................................................
   return $ ( event, send ) =>
     #.......................................................................................................
-    if TYPO.isa event, '.', 'code'
+    if TYPO.isa event, [ '(', ')', ], 'code'
       [ type, name, text, meta, ] = event
-      send [ 'tex', "\\begingroup\\jzrFontSourceCodePro{}", ]
-      send [ 'text', text, ]
-      send [ 'tex', "\\endgroup{}\n", ]
+      ### TAINT should use proper command ###
+      if type is '(' then send [ 'tex', "{\\jzrFontSourceCodePro{}", ]
+      else                send [ 'tex', "}", ]
+    #.......................................................................................................
+    else
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
+@MKTX.INLINE.$em_and_strong = ( S ) =>
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    #.......................................................................................................
+    if TYPO.isa event, [ '(', ')', ], [ 'em', 'strong', ]
+      [ type, name, text, meta, ] = event
+      if type is '('
+        if name is 'em'
+          send [ 'tex', '\\textit{', ]
+        else
+          send [ 'tex', '\\bold{', ]
+      else
+        send [ 'tex', "}", ]
     #.......................................................................................................
     else
       send event
@@ -449,6 +544,8 @@ options                   = require './options'
       send event[ 1 ]
     else if TYPO.isa event, '.', 'text'
       send event[ 2 ]
+    else
+      warn "unhandled event: #{JSON.stringify event}"
 
 #-----------------------------------------------------------------------------------------------------------
 @$insert_preamble = ( state ) ->
@@ -456,12 +553,13 @@ options                   = require './options'
   return D.$on_start ( send ) =>
     tex_inputs_home = layout_info[ 'tex-inputs-home' ]
     ### TAINT should escape locators to prevent clashes with LaTeX syntax ###
+    ### TAINT should be located in style / document folder / file ###
     send """
       \\documentclass[a4paper,twoside]{book}
       \\usepackage{#{njs_path.join tex_inputs_home, 'mkts2015-main'}}
       \\usepackage{#{njs_path.join tex_inputs_home, 'mkts2015-fonts'}}
       \\usepackage{#{njs_path.join tex_inputs_home, 'mkts2015-article'}}
-      \\begin{document}
+      \\begin{document}\n\n
       """
 
 #-----------------------------------------------------------------------------------------------------------

@@ -173,18 +173,20 @@ options                   = require './options'
 #-----------------------------------------------------------------------------------------------------------
 @TYPO.$fix_typography_for_tex = ->
   return $ ( event, send ) =>
-    return send event unless @isa event, '.', [ 'text', 'code', ]
-    [ type, name, text, meta, ] = event
-    text = @fix_typography_for_tex text
-    send [ type, name, text, meta, ]
+    if @isa event, '.', 'text'
+      [ type, name, text, meta, ] = event
+      text = @fix_typography_for_tex text
+      send [ type, name, text, meta, ]
+    else
+      send event
 
 #-----------------------------------------------------------------------------------------------------------
 @TYPO.resolve_html_entities = ( text ) ->
   R = text
-  R = R.replace /&lt;/g, '<'
-  R = R.replace /&gt;/g, '>'
-  R = R.replace /&quot;/g, '"'
-  R = R.replace /&amp;/g, '&'
+  R = R.replace /&lt;/g,    '<'
+  R = R.replace /&gt;/g,    '>'
+  R = R.replace /&quot;/g,  '"'
+  R = R.replace /&amp;/g,   '&'
   R = R.replace /&[^a-z0-9]+;/g, ( match ) ->
     warn "unable to resolve HTML entity #{match}"
     return match
@@ -530,22 +532,33 @@ options                   = require './options'
 #-----------------------------------------------------------------------------------------------------------
 @TYPO.$rewrite_markdownit_tokens = ->
   unknown_tokens = []
-  return $ ( token, send, end ) ->
+  return $ ( token, send, end ) =>
     if token?
       meta =
-        block:  token[ 'block' ]
+        within_text_literal:    no
+        # within_keep_lines:      no
+        # within_single_column:   no
       switch ( type = token[ 'type' ] )
-        when 'text'               then send [ '.', 'text',          token[ 'content' ], meta, ]
-        when 'heading_open'       then send [ '(', token[ 'tag' ],  null,               meta, ]
-        when 'heading_close'      then send [ ')', token[ 'tag' ],  null,               meta, ]
-        when 'paragraph_open'     then send [ '(', 'p',             null,               meta, ]
-        when 'paragraph_close'    then send [ ')', 'p',             null,               meta, ]
+        # blocks
+        when 'heading_open'       then send [ '[', token[ 'tag' ],  null,               meta, ]
+        when 'heading_close'      then send [ ']', token[ 'tag' ],  null,               meta, ]
+        when 'paragraph_open'     then send [ '[', 'p',             null,               meta, ]
+        when 'paragraph_close'    then send [ ']', 'p',             null,               meta, ]
+        when 'list_item_open'     then send [ '[', 'li',            null,               meta, ]
+        when 'list_item_close'    then send [ ']', 'li',            null,               meta, ]
+        # inlines
         when 'strong_open'        then send [ '(', 'strong',        null,               meta, ]
         when 'strong_close'       then send [ ')', 'strong',        null,               meta, ]
-        when 'list_item_open'     then send [ '(', 'li',            null,               meta, ]
-        when 'list_item_close'    then send [ ')', 'li',            null,               meta, ]
-        when 'code_inline'        then send [ '.', 'code',          token[ 'content' ], meta, ]
-        when 'hr'                 then send [ '.', 'hr',            null,               meta, ]
+        when 'em_open'            then send [ '(', 'em',            null,               meta, ]
+        when 'em_close'           then send [ ')', 'em',            null,               meta, ]
+        # singles
+        when 'text'               then send [ '.', 'text',          token[ 'content' ], meta, ]
+        when 'hr'                 then send [ '.', 'hr',            token[ 'markup' ],  meta, ]
+        # specials
+        when 'code_inline'
+          send [ '(', 'code', null,               ( @_copy meta ), ]
+          send [ '.', 'text', token[ 'content' ], ( @_copy meta, within_text_literal: yes, ), ]
+          send [ ')', 'code', null,               ( @_copy meta ), ]
         else
           send [ '?', token[ 'tag' ], token[ 'content' ], meta, ]
           unknown_tokens.push type unless type in unknown_tokens
@@ -566,27 +579,28 @@ options                   = require './options'
     #.......................................................................................................
     if event?
       [ type, name, text, meta, ] = event
-      return send event unless ( type is '.' ) and ( name is 'text' )
-      lines = @_split_lines_with_nl text
-      #.......................................................................................................
-      for line in lines
-        if ( match = line.match opening_pattern )?
-          @_flush_text_collector send, collector, meta
-          region_name = match[ 1 ]
-          region_stack.push region_name
-          ### TAINT use `meta`? ###
-          send [ '{', region_name, null, ( @_copy meta, block: true ), ]
-        else if ( match = line.match closing_pattern )?
-          @_flush_text_collector send, collector, meta
-          ### TAINT use `meta`? ###
-          if region_stack.length > 0
-            send [ '}', region_stack.pop(), null, ( @_copy meta, block: true ), ]
+      if ( not meta.within_text_literal ) and ( @isa event, '.', 'text' )
+        lines = @_split_lines_with_nl text
+        #...................................................................................................
+        for line in lines
+          if ( match = line.match opening_pattern )?
+            @_flush_text_collector send, collector, ( @_copy meta )
+            region_name = match[ 1 ]
+            region_stack.push region_name
+            send [ '{', region_name, null, ( @_copy meta ), ]
+          else if ( match = line.match closing_pattern )?
+            @_flush_text_collector send, collector, ( @_copy meta )
+            if region_stack.length > 0
+              send [ '}', region_stack.pop(), null, ( @_copy meta ), ]
+            else
+              warn "ignoring end-region"
           else
-            warn "ignoring end-region"
-        else
-          collector.push line
-      #.......................................................................................................
-      @_flush_text_collector send, collector, meta
+            collector.push line
+        #...................................................................................................
+        @_flush_text_collector send, collector, ( @_copy meta )
+      #.....................................................................................................
+      else
+        send event
     #.......................................................................................................
     if end?
       if region_stack.length > 0
@@ -608,12 +622,12 @@ options                   = require './options'
     #.......................................................................................................
     for line in lines
       if ( match = line.match pattern )?
-        @_flush_text_collector send, collector, meta
+        @_flush_text_collector send, collector, ( @_copy meta )
         send [ '∆', match[ 1 ], null, ( @_copy meta ), ]
       else
         collector.push line
     #.......................................................................................................
-    @_flush_text_collector send, collector, meta
+    @_flush_text_collector send, collector, ( @_copy meta )
     return null
 
 #-----------------------------------------------------------------------------------------------------------
@@ -641,7 +655,7 @@ options                   = require './options'
 #-----------------------------------------------------------------------------------------------------------
 @TYPO._flush_text_collector = ( send, collector, meta ) ->
   if collector.length > 0
-    send [ '.', 'text', ( collector.join '' ), ( @_copy meta ), ]
+    send [ '.', 'text', ( collector.join '' ), meta, ]
     collector.length = 0
   return null
 
@@ -721,7 +735,7 @@ options                   = require './options'
     .pipe @$preprocess_regions()
     .pipe @$preprocess_commands()
     # .pipe @$remove_superfluous_tags()
-    .pipe @$add_lookahead()
+    # .pipe @$add_lookahead()
     # .pipe D.$show()
     # .pipe @$show_mktsmd_events()
     .pipe R
