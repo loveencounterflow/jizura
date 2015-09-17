@@ -17,7 +17,7 @@
    inkscape:version="0.91 r13725"
    sodipodi:docname="euler-venn-diagram-cjk-usage-by-region.svg"
    enable-background="new"
-   inkscape:export-filename="/Volumes/Storage/io/jizura/texts/unicode-cjk-chrs-by-regions/euler-venn-diagram-cjk-usage-by-region-scan.png"
+   inkscape:export-filename="/Volumes/Storage/io/jizura/texts/unicode-cjk-chrs-by-regions/euler-venn-diagram-cjk-usage-by-region.png"
    inkscape:export-xdpi="300.01077"
    inkscape:export-ydpi="300.01077">
   <defs
@@ -149,10 +149,10 @@
      pagecolor="#ffffff"
      bordercolor="#c60606"
      borderopacity="1"
-     inkscape:pageopacity="0.0"
+     inkscape:pageopacity="1"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4272381"
-     inkscape:cx="372.04724"
+     inkscape:cx="210.54651"
      inkscape:cy="526.18109"
      inkscape:document-units="px"
      inkscape:current-layer="layer5"
@@ -178,7 +178,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -374,20 +374,22 @@
        style="display:inline;opacity:1"
        id="g11925">
       <flowRoot
-         transform="matrix(1.1021735,0,0,1.1004481,158.50348,-635.93416)"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:42.87749863px;line-height:100%;font-family:Sun-ExtA;-inkscape-font-specification:'Sun-ExtA, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start;opacity:1;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.66920274;stroke-linecap:square;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         transform="matrix(1.2144065,0,0,1.2120814,167.82876,-705.85793)"
+         style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:36.32036591px;line-height:100%;font-family:'cwTeX Q MingZH';-inkscape-font-specification:'cwTeX Q MingZH, Medium';text-align:start;writing-mode:lr-tb;text-anchor:start;opacity:1;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.11292046;stroke-linecap:square;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
          id="flowRoot4692"
          xml:space="preserve"><flowRegion
-           style="stroke-width:0.66920274"
+           style="stroke-width:0.60746258"
            id="flowRegion4694"><rect
-             style="stroke-width:0.66920274"
+             style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:36.32036591px;line-height:100%;font-family:'cwTeX Q MingZH';-inkscape-font-specification:'cwTeX Q MingZH, Medium';text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.11292046;stroke-miterlimit:4;stroke-dasharray:none"
              y="626.72864"
              x="-84.117302"
              height="540.87427"
              width="55.517414"
              id="rect4696" /></flowRegion><flowPara
-           style="stroke-width:0.66920274"
-           id="flowPara4698">萬國碼漢字字形實用範圍圖</flowPara></flowRoot>      <text
+           style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:36.32036591px;line-height:100%;font-family:'cwTeX Q MingZH';-inkscape-font-specification:'cwTeX Q MingZH, Medium';text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.11292046;stroke-miterlimit:4;stroke-dasharray:none"
+           id="flowPara4698">萬國碼漢字字形實用範圍視圖</flowPara><flowPara
+           style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:36.32036591px;line-height:100%;font-family:'cwTeX Q MingZH';-inkscape-font-specification:'cwTeX Q MingZH, Medium';text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.11292046;stroke-miterlimit:4;stroke-dasharray:none"
+           id="flowPara3534" /></flowRoot>      <text
          sodipodi:linespacing="100%"
          id="text4744"
          y="416.02948"
