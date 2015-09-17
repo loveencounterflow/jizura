@@ -36,6 +36,7 @@ TYPO                      = HELPERS[ 'TYPO' ]
 TEXLIVEPACKAGEINFO        = require './TEXLIVEPACKAGEINFO'
 options_route             = '../options.coffee'
 { CACHE, OPTIONS, }       = require './OPTIONS'
+SEMVER                    = require 'semver'
 
 
 #===========================================================================================================
@@ -102,7 +103,7 @@ options_route             = '../options.coffee'
     #-------------------------------------------------------------------------------------------------------
     # FONTS
     #.......................................................................................................
-    fontspec_version  = yield TEXLIVEPACKAGEINFO.read_texlive_package_version 'fontspec', resume
+    fontspec_version  = yield TEXLIVEPACKAGEINFO.read_texlive_package_version @options, 'fontspec', resume
     use_new_syntax    = SEMVER.satisfies fontspec_version, '>=2.4.0'
     #.......................................................................................................
     lines.push ""
@@ -129,59 +130,57 @@ options_route             = '../options.coffee'
 #
 #-----------------------------------------------------------------------------------------------------------
 @pdf_from_md = ( source_route, handler ) ->
-  ###
-  FI = require 'coffeenode-fillin'
-  text                    = FI.fill_in template, kwic_details
-  ###
-  HELPERS.provide_tmp_folder @options
-  handler                ?= ->
-  layout_info             = HELPERS.new_layout_info source_route
-  source_locator          = layout_info[ 'source-locator']
-  tex_locator             = layout_info[ 'tex-locator']
-  tex_output              = njs_fs.createWriteStream tex_locator
-  ### TAINT should read MD source stream ###
-  text                    = njs_fs.readFileSync source_locator, encoding: 'utf-8'
-  #---------------------------------------------------------------------------------------------------------
-  state =
-    within_multicol:      no
-    within_keeplines:     no
-    within_pre:           no
-    within_single_column: no
-    layout_info:          layout_info
-  #---------------------------------------------------------------------------------------------------------
-  tex_output.on 'close', =>
-    tasks = []
-    tasks.push ( done ) -> HELPERS.write_pdf layout_info, done
-    # ### TAINT put into HELPERS ###
-    # tasks.push ( done ) ->
-    #   html          = TYPO.get_meta input, 'html'
-    #   html_locator  = HELPERS.tmp_locator_for_extension layout_info, 'html'
-    #   help "writing HTML to #{html_locator}"
-    #   njs_fs.writeFile html_locator, html, done
-    ASYNC.parallel tasks, handler
-  #---------------------------------------------------------------------------------------------------------
-  input = TYPO.create_mdreadstream text
-  input
-    # .pipe TYPO.$resolve_html_entities()
-    .pipe TYPO.$fix_typography_for_tex()
-    .pipe TYPO.$show_mktsmd_events()
-    .pipe @MKTX.COMMAND.$new_page       state
-    # .pipe @MKTX.REGION.$single_column   state
-    .pipe @MKTX.REGION.$keep_lines      state
-    .pipe @MKTX.BLOCK.$heading          state
-    .pipe @MKTX.BLOCK.$paragraph        state
-    .pipe @MKTX.BLOCK.$hr               state
-    # .pipe D.$show()
-    .pipe @MKTX.INLINE.$code            state
-    .pipe @MKTX.INLINE.$em_and_strong   state
-    .pipe @$filter_tex()
-    .pipe @$insert_preamble state
-    .pipe @$insert_postscript()
-    .pipe tex_output
-  #---------------------------------------------------------------------------------------------------------
-  # D.resume input
-  input.resume()
-  # debug '©Fad1u', TYPO.get_meta input
+  step ( resume ) =>
+    HELPERS.provide_tmp_folder @options
+    yield @write_mkts_settings resume
+    handler                ?= ->
+    layout_info             = HELPERS.new_layout_info source_route
+    source_locator          = layout_info[ 'source-locator']
+    tex_locator             = layout_info[ 'tex-locator']
+    tex_output              = njs_fs.createWriteStream tex_locator
+    ### TAINT should read MD source stream ###
+    text                    = njs_fs.readFileSync source_locator, encoding: 'utf-8'
+    #---------------------------------------------------------------------------------------------------------
+    state =
+      within_multicol:      no
+      within_keeplines:     no
+      within_pre:           no
+      within_single_column: no
+      layout_info:          layout_info
+    #---------------------------------------------------------------------------------------------------------
+    tex_output.on 'close', =>
+      tasks = []
+      tasks.push ( done ) -> HELPERS.write_pdf layout_info, done
+      # ### TAINT put into HELPERS ###
+      # tasks.push ( done ) ->
+      #   html          = TYPO.get_meta input, 'html'
+      #   html_locator  = HELPERS.tmp_locator_for_extension layout_info, 'html'
+      #   help "writing HTML to #{html_locator}"
+      #   njs_fs.writeFile html_locator, html, done
+      ASYNC.parallel tasks, handler
+    #---------------------------------------------------------------------------------------------------------
+    input = TYPO.create_mdreadstream text
+    input
+      # .pipe TYPO.$resolve_html_entities()
+      .pipe TYPO.$fix_typography_for_tex()
+      .pipe TYPO.$show_mktsmd_events()
+      .pipe @MKTX.COMMAND.$new_page       state
+      # .pipe @MKTX.REGION.$single_column   state
+      .pipe @MKTX.REGION.$keep_lines      state
+      .pipe @MKTX.BLOCK.$heading          state
+      .pipe @MKTX.BLOCK.$paragraph        state
+      .pipe @MKTX.BLOCK.$hr               state
+      # .pipe D.$show()
+      .pipe @MKTX.INLINE.$code            state
+      .pipe @MKTX.INLINE.$em_and_strong   state
+      .pipe @$filter_tex()
+      .pipe @$insert_preamble state
+      .pipe @$insert_postscript()
+      .pipe tex_output
+    #---------------------------------------------------------------------------------------------------------
+    # D.resume input
+    input.resume()
+    # debug '©Fad1u', TYPO.get_meta input
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX =
