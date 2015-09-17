@@ -29,12 +29,10 @@ $async                    = D.remit_async.bind D
 Markdown_parser           = require 'markdown-it'
 Html_parser               = ( require 'htmlparser2' ).Parser
 new_md_inline_plugin      = require 'markdown-it-regexp'
-#...........................................................................................................
-options                   = require './options'
 
 
 #-----------------------------------------------------------------------------------------------------------
-@provide_tmp_folder = ->
+@provide_tmp_folder = ( options ) ->
   njs_fs.mkdirSync options[ 'tmp-home' ] unless njs_fs.existsSync options[ 'tmp-home' ]
   return null
 
