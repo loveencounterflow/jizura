@@ -36,72 +36,81 @@ module.exports = options =
   fonts:
 
     #.......................................................................................................
-    main: '\\mktsFontEbgaramondtwelveregular'
+    main: '\\mktsFontfileEbgaramondtwelveregular'
     # main: '\\mktsFontSunexta'
     home: '\\mktsPathsFontsHome'
-    declarations: [
-      { texname: 'mktsFontBabelstonehan',                  filename: 'BabelStoneHan.ttf',                   }
-      { texname: 'mktsFontCwtexqfangsongmedium',           filename: 'cwTeXQFangsong-Medium.ttf',           }
-      { texname: 'mktsFontCwtexqheibold',                  filename: 'cwTeXQHei-Bold.ttf',                  }
-      { texname: 'mktsFontCwtexqkaimedium',                filename: 'cwTeXQKai-Medium.ttf',                }
-      { texname: 'mktsFontCwtexqmingmedium',               filename: 'cwTeXQMing-Medium.ttf',               }
-      { texname: 'mktsFontCwtexqyuanmedium',               filename: 'cwTeXQYuan-Medium.ttf',               }
-      { texname: 'mktsFontDejavusansbold',                 filename: 'DejaVuSans-Bold.ttf',                 }
-      { texname: 'mktsFontDejavusansboldoblique',          filename: 'DejaVuSans-BoldOblique.ttf',          }
-      { texname: 'mktsFontDejavusansoblique',              filename: 'DejaVuSans-Oblique.ttf',              }
-      { texname: 'mktsFontDejavusans',                     filename: 'DejaVuSans.ttf',                      }
-      { texname: 'mktsFontDejavusanscondensedbold',        filename: 'DejaVuSansCondensed-Bold.ttf',        }
-      { texname: 'mktsFontDejavusanscondensedboldoblique', filename: 'DejaVuSansCondensed-BoldOblique.ttf', }
-      { texname: 'mktsFontDejavusanscondensedoblique',     filename: 'DejaVuSansCondensed-Oblique.ttf',     }
-      { texname: 'mktsFontDejavusanscondensed',            filename: 'DejaVuSansCondensed.ttf',             }
-      { texname: 'mktsFontDejavusansmonobold',             filename: 'DejaVuSansMono-Bold.ttf',             }
-      { texname: 'mktsFontDejavusansmonoboldoblique',      filename: 'DejaVuSansMono-BoldOblique.ttf',      }
-      { texname: 'mktsFontDejavusansmonooblique',          filename: 'DejaVuSansMono-Oblique.ttf',          }
-      { texname: 'mktsFontDejavusansmono',                 filename: 'DejaVuSansMono.ttf',                  }
-      { texname: 'mktsFontDejavuserifbold',                filename: 'DejaVuSerif-Bold.ttf',                }
-      { texname: 'mktsFontDejavuserifbolditalic',          filename: 'DejaVuSerif-BoldItalic.ttf',          }
-      { texname: 'mktsFontDejavuserifitalic',              filename: 'DejaVuSerif-Italic.ttf',              }
-      { texname: 'mktsFontDejavuserif',                    filename: 'DejaVuSerif.ttf',                     }
-      { texname: 'mktsFontDejavuserifcondensedbold',       filename: 'DejaVuSerifCondensed-Bold.ttf',       }
-      { texname: 'mktsFontDejavuserifcondensedbolditalic', filename: 'DejaVuSerifCondensed-BoldItalic.ttf', }
-      { texname: 'mktsFontDejavuserifcondenseditalic',     filename: 'DejaVuSerifCondensed-Italic.ttf',     }
-      { texname: 'mktsFontDejavuserifcondensed',           filename: 'DejaVuSerifCondensed.ttf',            }
-      { texname: 'mktsFontEbgaramondinitials',             filename: 'EBGaramond-Initials.otf',             }
-      { texname: 'mktsFontEbgaramondinitialsfone',         filename: 'EBGaramond-InitialsF1.otf',           }
-      { texname: 'mktsFontEbgaramondinitialsftwo',         filename: 'EBGaramond-InitialsF2.otf',           }
-      { texname: 'mktsFontEbgaramondeightitalic',          filename: 'EBGaramond08-Italic.otf',             }
-      { texname: 'mktsFontEbgaramondeightregular',         filename: 'EBGaramond08-Regular.otf',            }
-      { texname: 'mktsFontEbgaramondeightsc',              filename: 'EBGaramond08-SC.otf',                 }
-      { texname: 'mktsFontEbgaramondtwelveallsc',          filename: 'EBGaramond12-AllSC.otf',              }
-      { texname: 'mktsFontEbgaramondtwelveitalic',         filename: 'EBGaramond12-Italic.otf',             }
-      { texname: 'mktsFontEbgaramondtwelveregular',        filename: 'EBGaramond12-Regular.otf',            }
-      { texname: 'mktsFontEbgaramondtwelvesc',             filename: 'EBGaramond12-SC.otf',                 }
-      { texname: 'mktsFontFlowdejavusansmono',             filename: 'FlowDejaVuSansMono.ttf',              }
-      { texname: 'mktsFontHanamina',                       filename: 'HanaMinA.ttf',                        }
-      { texname: 'mktsFontHanaminb',                       filename: 'HanaMinB.ttf',                        }
-      { texname: 'mktsFontSunexta',                        filename: 'sun-exta.ttf',                        }
-      { texname: 'mktsFontSunextb',                        filename: 'Sun-ExtB.ttf',                        }
-      { texname: 'mktsFontSunflowerucjkxb',                filename: 'sunflower-u-cjk-xb.ttf',              }
-      { texname: 'mktsFontUbuntub',                        filename: 'Ubuntu-B.ttf',                        }
-      { texname: 'mktsFontUbuntubi',                       filename: 'Ubuntu-BI.ttf',                       }
-      { texname: 'mktsFontUbuntuc',                        filename: 'Ubuntu-C.ttf',                        }
-      { texname: 'mktsFontUbuntul',                        filename: 'Ubuntu-L.ttf',                        }
-      { texname: 'mktsFontUbuntuli',                       filename: 'Ubuntu-LI.ttf',                       }
-      { texname: 'mktsFontUbuntur',                        filename: 'Ubuntu-R.ttf',                        }
-      { texname: 'mktsFontUbunturi',                       filename: 'Ubuntu-RI.ttf',                       }
-      { texname: 'mktsFontUbuntumonob',                    filename: 'UbuntuMono-B.ttf',                    }
-      { texname: 'mktsFontUbuntumonobi',                   filename: 'UbuntuMono-BI.ttf',                   }
-      { texname: 'mktsFontUbuntumonor',                    filename: 'UbuntuMono-R.ttf',                    }
-      { texname: 'mktsFontUbuntumonori',                   filename: 'UbuntuMono-RI.ttf',                   }
-      { texname: 'mktsFontSourcecodeproblack',             filename: 'SourceCodePro-Black.otf',             }
-      { texname: 'mktsFontSourcecodeprobold',              filename: 'SourceCodePro-Bold.otf',              }
-      { texname: 'mktsFontSourcecodeproextralight',        filename: 'SourceCodePro-ExtraLight.otf',        }
-      { texname: 'mktsFontSourcecodeprolight',             filename: 'SourceCodePro-Light.otf',             }
-      { texname: 'mktsFontSourcecodepromedium',            filename: 'SourceCodePro-Medium.otf',            }
-      { texname: 'mktsFontSourcecodeproregular',           filename: 'SourceCodePro-Regular.otf',           }
-      { texname: 'mktsFontSourcecodeprosemibold',          filename: 'SourceCodePro-Semibold.otf',          }
+    files: [
+      { texname: 'mktsFontfileBabelstonehan',                  filename: 'BabelStoneHan.ttf',                   }
+      { texname: 'mktsFontfileCwtexqfangsongmedium',           filename: 'cwTeXQFangsong-Medium.ttf',           }
+      { texname: 'mktsFontfileCwtexqheibold',                  filename: 'cwTeXQHei-Bold.ttf',                  }
+      { texname: 'mktsFontfileCwtexqkaimedium',                filename: 'cwTeXQKai-Medium.ttf',                }
+      { texname: 'mktsFontfileCwtexqmingmedium',               filename: 'cwTeXQMing-Medium.ttf',               }
+      { texname: 'mktsFontfileCwtexqyuanmedium',               filename: 'cwTeXQYuan-Medium.ttf',               }
+      { texname: 'mktsFontfileDejavusansbold',                 filename: 'DejaVuSans-Bold.ttf',                 }
+      { texname: 'mktsFontfileDejavusansboldoblique',          filename: 'DejaVuSans-BoldOblique.ttf',          }
+      { texname: 'mktsFontfileDejavusansoblique',              filename: 'DejaVuSans-Oblique.ttf',              }
+      { texname: 'mktsFontfileDejavusans',                     filename: 'DejaVuSans.ttf',                      }
+      { texname: 'mktsFontfileDejavusanscondensedbold',        filename: 'DejaVuSansCondensed-Bold.ttf',        }
+      { texname: 'mktsFontfileDejavusanscondensedboldoblique', filename: 'DejaVuSansCondensed-BoldOblique.ttf', }
+      { texname: 'mktsFontfileDejavusanscondensedoblique',     filename: 'DejaVuSansCondensed-Oblique.ttf',     }
+      { texname: 'mktsFontfileDejavusanscondensed',            filename: 'DejaVuSansCondensed.ttf',             }
+      { texname: 'mktsFontfileDejavusansmonobold',             filename: 'DejaVuSansMono-Bold.ttf',             }
+      { texname: 'mktsFontfileDejavusansmonoboldoblique',      filename: 'DejaVuSansMono-BoldOblique.ttf',      }
+      { texname: 'mktsFontfileDejavusansmonooblique',          filename: 'DejaVuSansMono-Oblique.ttf',          }
+      { texname: 'mktsFontfileDejavusansmono',                 filename: 'DejaVuSansMono.ttf',                  }
+      { texname: 'mktsFontfileDejavuserifbold',                filename: 'DejaVuSerif-Bold.ttf',                }
+      { texname: 'mktsFontfileDejavuserifbolditalic',          filename: 'DejaVuSerif-BoldItalic.ttf',          }
+      { texname: 'mktsFontfileDejavuserifitalic',              filename: 'DejaVuSerif-Italic.ttf',              }
+      { texname: 'mktsFontfileDejavuserif',                    filename: 'DejaVuSerif.ttf',                     }
+      { texname: 'mktsFontfileDejavuserifcondensedbold',       filename: 'DejaVuSerifCondensed-Bold.ttf',       }
+      { texname: 'mktsFontfileDejavuserifcondensedbolditalic', filename: 'DejaVuSerifCondensed-BoldItalic.ttf', }
+      { texname: 'mktsFontfileDejavuserifcondenseditalic',     filename: 'DejaVuSerifCondensed-Italic.ttf',     }
+      { texname: 'mktsFontfileDejavuserifcondensed',           filename: 'DejaVuSerifCondensed.ttf',            }
+      { texname: 'mktsFontfileEbgaramondinitials',             filename: 'EBGaramond-Initials.otf',             }
+      { texname: 'mktsFontfileEbgaramondinitialsfone',         filename: 'EBGaramond-InitialsF1.otf',           }
+      { texname: 'mktsFontfileEbgaramondinitialsftwo',         filename: 'EBGaramond-InitialsF2.otf',           }
+      { texname: 'mktsFontfileEbgaramondeightitalic',          filename: 'EBGaramond08-Italic.otf',             }
+      { texname: 'mktsFontfileEbgaramondeightregular',         filename: 'EBGaramond08-Regular.otf',            }
+      { texname: 'mktsFontfileEbgaramondeightsc',              filename: 'EBGaramond08-SC.otf',                 }
+      { texname: 'mktsFontfileEbgaramondtwelveallsc',          filename: 'EBGaramond12-AllSC.otf',              }
+      { texname: 'mktsFontfileEbgaramondtwelveitalic',         filename: 'EBGaramond12-Italic.otf',             }
+      { texname: 'mktsFontfileEbgaramondtwelveregular',        filename: 'EBGaramond12-Regular.otf',            }
+      { texname: 'mktsFontfileEbgaramondtwelvesc',             filename: 'EBGaramond12-SC.otf',                 }
+      { texname: 'mktsFontfileFlowdejavusansmono',             filename: 'FlowDejaVuSansMono.ttf',              }
+      { texname: 'mktsFontfileHanamina',                       filename: 'HanaMinA.ttf',                        }
+      { texname: 'mktsFontfileHanaminb',                       filename: 'HanaMinB.ttf',                        }
+      { texname: 'mktsFontfileSunexta',                        filename: 'sun-exta.ttf',                        }
+      { texname: 'mktsFontfileSunextb',                        filename: 'Sun-ExtB.ttf',                        }
+      { texname: 'mktsFontfileSunflowerucjkxb',                filename: 'sunflower-u-cjk-xb.ttf',              }
+      { texname: 'mktsFontfileUbuntub',                        filename: 'Ubuntu-B.ttf',                        }
+      { texname: 'mktsFontfileUbuntubi',                       filename: 'Ubuntu-BI.ttf',                       }
+      { texname: 'mktsFontfileUbuntuc',                        filename: 'Ubuntu-C.ttf',                        }
+      { texname: 'mktsFontfileUbuntul',                        filename: 'Ubuntu-L.ttf',                        }
+      { texname: 'mktsFontfileUbuntuli',                       filename: 'Ubuntu-LI.ttf',                       }
+      { texname: 'mktsFontfileUbuntur',                        filename: 'Ubuntu-R.ttf',                        }
+      { texname: 'mktsFontfileUbunturi',                       filename: 'Ubuntu-RI.ttf',                       }
+      { texname: 'mktsFontfileUbuntumonob',                    filename: 'UbuntuMono-B.ttf',                    }
+      { texname: 'mktsFontfileUbuntumonobi',                   filename: 'UbuntuMono-BI.ttf',                   }
+      { texname: 'mktsFontfileUbuntumonor',                    filename: 'UbuntuMono-R.ttf',                    }
+      { texname: 'mktsFontfileUbuntumonori',                   filename: 'UbuntuMono-RI.ttf',                   }
+      { texname: 'mktsFontfileSourcecodeproblack',             filename: 'SourceCodePro-Black.otf',             }
+      { texname: 'mktsFontfileSourcecodeprobold',              filename: 'SourceCodePro-Bold.otf',              }
+      { texname: 'mktsFontfileSourcecodeproextralight',        filename: 'SourceCodePro-ExtraLight.otf',        }
+      { texname: 'mktsFontfileSourcecodeprolight',             filename: 'SourceCodePro-Light.otf',             }
+      { texname: 'mktsFontfileSourcecodepromedium',            filename: 'SourceCodePro-Medium.otf',            }
+      { texname: 'mktsFontfileSourcecodeproregular',           filename: 'SourceCodePro-Regular.otf',           }
+      { texname: 'mktsFontfileSourcecodeprosemibold',          filename: 'SourceCodePro-Semibold.otf',          }
       ]
 
+  #.........................................................................................................
+  styles:
+    mktsStyleTitleChapter: """
+      \\Huge%
+      \\mktsFontfileUbuntub%
+      \\protect\\renewcommand{\\cn}[1]{{\\adjustCjkIdeograph{\\jzrFontCwHei{}##1}}}%"""
+    mktsStyleTitleSection: """
+      \\mktsFontfileUbuntub%
+      \\protect\\renewcommand{\\cn}[1]{{\\adjustCjkIdeograph{\\jzrFontCwHei{}##1}}}%"""
   #.........................................................................................................
   'tex':
     'ignore-latin':             yes

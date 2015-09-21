@@ -161,6 +161,8 @@ INPUT /usr/local/texlive/2014/texmf-dist/tex/latex/enumitem/enumitem.sty
 INPUT /usr/local/texlive/2014/texmf-dist/tex/latex/enumitem/enumitem.sty
 INPUT /usr/local/texlive/2014/texmf-dist/tex/latex/titlesec/titlesec.sty
 INPUT /usr/local/texlive/2014/texmf-dist/tex/latex/titlesec/titlesec.sty
+INPUT /usr/local/texlive/2014/texmf-dist/tex/latex/titlesec/block.tss
+INPUT /usr/local/texlive/2014/texmf-dist/tex/latex/titlesec/block.tss
 INPUT /usr/local/texlive/2014/texmf-dist/tex/latex/tools/multicol.sty
 INPUT /usr/local/texlive/2014/texmf-dist/tex/latex/tools/multicol.sty
 INPUT /usr/local/texlive/2014/texmf-dist/tex/latex/geometry/geometry.sty
@@ -272,6 +274,7 @@ INPUT /usr/local/texlive/2014/texmf-dist/tex/latex/tipa/t3cmr.fd
 INPUT /usr/local/texlive/2014/texmf-dist/tex/latex/tipa/t3cmr.fd
 INPUT /Volumes/Storage/io/jizura/texts/demo/.content.tex
 INPUT /Volumes/Storage/io/jizura/texts/demo/.content.tex
+INPUT /Volumes/Storage/io/jizura/tex-inputs/french-rule-swell-dash-englische-line/swell-dash.pdf
 INPUT /Volumes/Storage/io/jizura/tex-inputs/french-rule-swell-dash-englische-line/swell-dash.pdf
 INPUT /Volumes/Storage/io/jizura/tex-inputs/french-rule-swell-dash-englische-line/swell-dash.pdf
 INPUT /Volumes/Storage/io/jizura/texts/demo/demo.aux

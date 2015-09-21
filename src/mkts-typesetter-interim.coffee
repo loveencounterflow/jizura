@@ -99,7 +99,7 @@ SEMVER                    = require 'semver'
     write ""
     write "% NEWCOMMANDS"
     if newcommands?
-      write "\\newcommand{\\#{name}}{#{value}}" for name, value of newcommands
+      write "\\newcommand{\\#{name}}{#{value}%\n}" for name, value of newcommands
     #-------------------------------------------------------------------------------------------------------
     # PACKAGES
     #.......................................................................................................
@@ -110,7 +110,7 @@ SEMVER                    = require 'semver'
     write "\\usepackage{\\mktsPathsMktsHome/mkts2015-article}"
     #-------------------------------------------------------------------------------------------------------
     # FONTS
-    #.......................................................................................................
+    #......................................................................................................
     fontspec_version  = yield TEXLIVEPACKAGEINFO.read_texlive_package_version @options, 'fontspec', resume
     use_new_syntax    = SEMVER.satisfies fontspec_version, '>=2.4.0'
     fonts_home        = @options[ 'fonts' ][ 'home' ]
@@ -120,7 +120,7 @@ SEMVER                    = require 'semver'
     write "% assuming fontspec@#{fontspec_version}"
     write "\\usepackage{fontspec}"
     #.......................................................................................................
-    for { texname, home, filename, } in @options[ 'fonts' ][ 'declarations' ]
+    for { texname, home, filename, } in @options[ 'fonts' ][ 'files' ]
       home ?= fonts_home
       if use_new_syntax
         ### TAINT should properly escape values ###
@@ -129,8 +129,17 @@ SEMVER                    = require 'semver'
         write "\\newfontface\\#{texname}[Path=#{home}/]{#{filename}}"
     write ""
     #-------------------------------------------------------------------------------------------------------
+    # STYLES
+    #......................................................................................................
+    write ""
+    write "% STYLES"
+    if ( styles = @options[ 'styles' ] )?
+      write "\\newcommand{\\#{name}}{%\n#{value}%\n}" for name, value of styles
+    #-------------------------------------------------------------------------------------------------------
     main_font_name = @options[ 'fonts' ][ 'main' ]
     throw new Error "need entry options/fonts/name" unless main_font_name?
+    write ""
+    write "% CONTENT"
     write "\\begin{document}#{main_font_name}"
     #-------------------------------------------------------------------------------------------------------
     # INCLUDES
@@ -308,9 +317,9 @@ SEMVER                    = require 'semver'
         send [ 'tex', "\n", ]
         #...................................................................................................
         switch name
-          when 'h1' then  send [ 'tex', "\\mktsChapter{", ]
-          when 'h2' then  send [ 'tex', "\\mktsSection{", ]
-          else            send [ 'tex', "\\mktsSubsection{", ]
+          when 'h1' then  send [ 'tex', "\\chapter{", ]
+          when 'h2' then  send [ 'tex', "\\section{", ]
+          else            send [ 'tex', "\\subsection{", ]
       #.....................................................................................................
       # CLOSE
       #.....................................................................................................
@@ -366,7 +375,7 @@ SEMVER                    = require 'semver'
     if TYPO.isa event, [ '(', ')', ], 'code'
       [ type, name, text, meta, ] = event
       ### TAINT should use proper command ###
-      if type is '(' then send [ 'tex', "{\\mktsFontSourcecodeproregular{}", ]
+      if type is '(' then send [ 'tex', "{\\mktsFontfileSourcecodeproregular{}", ]
       else                send [ 'tex', "}", ]
     #.......................................................................................................
     else
