@@ -36,40 +36,45 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
   njs_fs.mkdirSync options[ 'tmp-home' ] unless njs_fs.existsSync options[ 'tmp-home' ]
   return null
 
-#-----------------------------------------------------------------------------------------------------------
-@tmp_locator_for_extension = ( layout_info, extension ) ->
-  tmp_home            = layout_info[ 'tmp-home' ]
-  tex_locator         = layout_info[ 'tex-locator' ]
-  ### TAINT should extension be sanitized? maybe just check for /^\.?[-a-z0-9]$/? ###
-  throw new Error "need non-empty extension" unless extension.length > 0
-  extension           = ".#{extension}" unless ( /^\./ ).test extension
-  return njs_path.join CND.swap_extension tex_locator, extension
+# #-----------------------------------------------------------------------------------------------------------
+# @tmp_locator_for_extension = ( layout_info, extension ) ->
+#   tmp_home            = layout_info[ 'tmp-home' ]
+#   tex_locator         = layout_info[ 'tex-locator' ]
+#   ### TAINT should extension be sanitized? maybe just check for /^\.?[-a-z0-9]$/? ###
+#   throw new Error "need non-empty extension" unless extension.length > 0
+#   extension           = ".#{extension}" unless ( /^\./ ).test extension
+#   return njs_path.join CND.swap_extension tex_locator, extension
 
 #-----------------------------------------------------------------------------------------------------------
 @new_layout_info = ( options, source_route ) ->
   pdf_command           = options[ 'pdf-command' ]
   tmp_home              = options[ 'tmp-home' ]
-  source_locator        = njs_path.resolve process.cwd(), source_route
-  source_home           = njs_path.dirname source_locator
-  source_name           = njs_path.basename source_locator
-  ### TAINT use `tmp_locator_for_extension` ###
-  tex_locator           = njs_path.join tmp_home, CND.swap_extension source_name, '.tex'
+  source_home           = njs_path.resolve process.cwd(), source_route
+  source_name           = options[ 'main' ][ 'filename' ]
+  source_locator        = njs_path.join source_home, source_name
+  #.........................................................................................................
+  throw new Error "unable to locate #{source_home}"     unless njs_fs.existsSync source_home
+  throw new Error "not a directory: #{source_home}"     unless ( njs_fs.statSync source_home ).isDirectory()
+  throw new Error "unable to locate #{source_locator}"  unless njs_fs.existsSync source_locator
+  throw new Error "not a file: #{source_locator}"       unless ( njs_fs.statSync source_locator ).isFile()
+  #.........................................................................................................
+  # tex_locator           = njs_path.join tmp_home, CND.swap_extension source_name, '.tex'
   aux_locator           = njs_path.join tmp_home, CND.swap_extension source_name, '.aux'
   pdf_source_locator    = njs_path.join tmp_home, CND.swap_extension source_name, '.pdf'
   pdf_target_locator    = njs_path.join source_home, CND.swap_extension source_name, '.pdf'
   tex_inputs_home       = njs_path.resolve __dirname, '..', 'tex-inputs'
-  settings_name         = options[ 'settings' ][ 'filename' ]
-  settings_ext          = njs_path.extname settings_name
-  settings_name_bare    = njs_path.basename settings_name, settings_ext
-  settings_locator      = njs_path.join source_home, settings_name
-  settings_locator_bare = njs_path.join source_home, settings_name_bare
+  master_name           = options[ 'master' ][ 'filename' ]
+  master_ext            = njs_path.extname master_name
+  master_name_bare      = njs_path.basename master_name, master_ext
+  master_locator        = njs_path.join source_home, master_name
+  master_locator_bare   = njs_path.join source_home, master_name_bare
   #.........................................................................................................
   R =
     'aux-locator':                aux_locator
     'latex-run-count':            0
-    'mkts-settings-locator':      settings_locator
-    'mkts-settings-locator.bare': settings_locator_bare
-    'mkts-settings-name':         settings_name
+    'master-locator':             master_locator
+    'master-locator.bare':        master_locator_bare
+    'master-name':                master_name
     'pdf-command':                pdf_command
     'pdf-source-locator':         pdf_source_locator
     'pdf-target-locator':         pdf_target_locator
