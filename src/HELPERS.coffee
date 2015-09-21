@@ -47,8 +47,7 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
 
 #-----------------------------------------------------------------------------------------------------------
 @new_layout_info = ( options, source_route ) ->
-  pdf_command           = options[ 'pdf-command' ]
-  tmp_home              = options[ 'tmp-home' ]
+  xelatex_command       = options[ 'xelatex-command' ]
   source_home           = njs_path.resolve process.cwd(), source_route
   source_name           = options[ 'main' ][ 'filename' ]
   source_locator        = njs_path.join source_home, source_name
@@ -59,9 +58,9 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
   throw new Error "not a file: #{source_locator}"       unless ( njs_fs.statSync source_locator ).isFile()
   #.........................................................................................................
   # tex_locator           = njs_path.join tmp_home, CND.swap_extension source_name, '.tex'
-  aux_locator           = njs_path.join tmp_home, CND.swap_extension source_name, '.aux'
-  pdf_source_locator    = njs_path.join tmp_home, CND.swap_extension source_name, '.pdf'
-  pdf_target_locator    = njs_path.join source_home, CND.swap_extension source_name, '.pdf'
+  job_name              = njs_path.basename source_home
+  aux_locator           = njs_path.join source_home, "#{job_name}.aux"
+  pdf_locator           = njs_path.join source_home, "#{job_name}.pdf"
   tex_inputs_home       = njs_path.resolve __dirname, '..', 'tex-inputs'
   master_name           = options[ 'master' ][ 'filename' ]
   master_ext            = njs_path.extname master_name
@@ -70,44 +69,46 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
   master_locator_bare   = njs_path.join source_home, master_name_bare
   #.........................................................................................................
   R =
+    'job-name':                   job_name
     'aux-locator':                aux_locator
-    'latex-run-count':            0
+    'xelatex-run-count':          0
     'master-locator':             master_locator
     'master-locator.bare':        master_locator_bare
     'master-name':                master_name
-    'pdf-command':                pdf_command
-    'pdf-source-locator':         pdf_source_locator
-    'pdf-target-locator':         pdf_target_locator
+    'xelatex-command':            xelatex_command
+    'pdf-locator':                pdf_locator
     'source-home':                source_home
     'source-locator':             source_locator
     'source-name':                source_name
     'source-route':               source_route
     'tex-inputs-home':            tex_inputs_home
     'tex-locator':                tex_locator
-    'tmp-home':                   tmp_home
   #.........................................................................................................
   return R
 
 #-----------------------------------------------------------------------------------------------------------
 @write_pdf = ( layout_info, handler ) ->
   #.........................................................................................................
-  pdf_command         = layout_info[ 'pdf-command'          ]
-  tmp_home            = layout_info[ 'tmp-home'             ]
+  job_name            = layout_info[ 'job-name'             ]
+  source_home         = layout_info[ 'source-home'          ]
+  xelatex_command     = layout_info[ 'xelatex-command'      ]
   tex_locator         = layout_info[ 'tex-locator'          ]
   aux_locator         = layout_info[ 'aux-locator'          ]
-  pdf_source_locator  = layout_info[ 'pdf-source-locator'   ]
-  pdf_target_locator  = layout_info[ 'pdf-target-locator'   ]
+  pdf_locator         = layout_info[ 'pdf-locator'          ]
   last_digest         = null
   last_digest         = CND.id_from_route aux_locator if njs_fs.existsSync aux_locator
   digest              = null
   count               = 0
+  parameters          = [ source_home, job_name, tex_locator, ]
+  urge "#{xelatex_command}"
+  whisper "$1: #{parameters[ 0 ]}"
+  whisper "$2: #{parameters[ 1 ]}"
+  whisper "$2: #{parameters[ 2 ]}"
   #.........................................................................................................
   pdf_from_tex = ( next ) =>
     count += 1
-    urge "run ##{count} #{pdf_command}"
-    whisper "$1: #{tmp_home}"
-    whisper "$2: #{tex_locator}"
-    CND.spawn pdf_command, [ tmp_home, tex_locator, ], ( error, data ) =>
+    urge "run ##{count}"
+    CND.spawn xelatex_command, parameters, ( error, data ) =>
       error = undefined if error is 0
       if error?
         alert error
@@ -115,7 +116,7 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
       digest = CND.id_from_route aux_locator
       if digest is last_digest
         echo ( CND.grey badge ), CND.lime "done."
-        layout_info[ 'latex-run-count' ] = count
+        layout_info[ 'xelatex-run-count' ] = count
         ### TAINT move pdf to layout_info[ 'source-home' ] ###
         handler null
       else

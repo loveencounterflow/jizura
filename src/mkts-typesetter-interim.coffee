@@ -152,8 +152,8 @@ SEMVER                    = require 'semver'
     source_locator          = layout_info[ 'source-locator']
     tex_locator             = layout_info[ 'tex-locator']
     tex_output              = njs_fs.createWriteStream tex_locator
-    debug '©y9meI', layout_info
-    process.exit()
+    # debug '©y9meI', layout_info
+    # process.exit()
     ### TAINT should read MD source stream ###
     text                    = njs_fs.readFileSync source_locator, encoding: 'utf-8'
     #---------------------------------------------------------------------------------------------------------
