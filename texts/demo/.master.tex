@@ -83,17 +83,24 @@
 \newfontface\mktsFontfileSourcecodepromedium[Path=\mktsPathsFontsHome/]{SourceCodePro-Medium.otf}
 \newfontface\mktsFontfileSourcecodeproregular[Path=\mktsPathsFontsHome/]{SourceCodePro-Regular.otf}
 \newfontface\mktsFontfileSourcecodeprosemibold[Path=\mktsPathsFontsHome/]{SourceCodePro-Semibold.otf}
+\newfontface\mktsFontfileOptima[Path=\mktsPathsFontsHome/]{Optima.ttc}
+\newfontface\mktsFontfilePtsans[Path=\mktsPathsFontsHome/]{PTSans.ttc}
+\newfontface\mktsFontfileKai[Path=\mktsPathsFontsHome/]{Kai.ttf}
+\newfontface\mktsFontfileNanumgothic[Path=\mktsPathsFontsHome/]{NanumGothic.ttc}
+\newfontface\mktsFontfileNanummyeongjo[Path=\mktsPathsFontsHome/]{NanumMyeongjo.ttc}
+\newfontface\mktsFontfileJizurathreeb[Path=\mktsPathsFontsHome/]{jizura3b.ttf}
+\newfontface\mktsFontfileBiaukai[Path=\mktsPathsFontsHome/]{BiauKai.ttf}
 
 
 % STYLES
 \newcommand{\mktsStyleTitleChapter}{%
 \Huge%
 \mktsFontfileUbuntub%
-\protect\renewcommand{\cn}[1]{{\adjustCjkIdeograph{\jzrFontCwHei{}##1}}}%%
+\protect\renewcommand{\cn}[1]{{\adjustCjkIdeograph{\mktsFontfileCwtexqheibold{}##1}}}%%
 }
 \newcommand{\mktsStyleTitleSection}{%
 \mktsFontfileUbuntub%
-\protect\renewcommand{\cn}[1]{{\adjustCjkIdeograph{\jzrFontCwHei{}##1}}}%%
+\protect\renewcommand{\cn}[1]{{\adjustCjkIdeograph{\mktsFontfileCwtexqheibold{}##1}}}%%
 }
 
 % CONTENT

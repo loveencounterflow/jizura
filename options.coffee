@@ -31,6 +31,7 @@ module.exports = options =
     ### TAINT use relative routes ###
     mktsPathsMktsHome:    '/Volumes/Storage/io/jizura/tex-inputs'
     mktsPathsFontsHome:   '/Volumes/Storage/io/jizura-fonts/fonts'
+    # \newcommand{\permille}{{\jzrFontOptima‰}}
 
   #.........................................................................................................
   fonts:
@@ -100,6 +101,14 @@ module.exports = options =
       { texname: 'mktsFontfileSourcecodepromedium',            filename: 'SourceCodePro-Medium.otf',            }
       { texname: 'mktsFontfileSourcecodeproregular',           filename: 'SourceCodePro-Regular.otf',           }
       { texname: 'mktsFontfileSourcecodeprosemibold',          filename: 'SourceCodePro-Semibold.otf',          }
+      #...........................................
+      { texname: 'mktsFontfileOptima',                         filename: 'Optima.ttc',                          }
+      { texname: 'mktsFontfilePtsans',                         filename: 'PTSans.ttc',                          }
+      { texname: 'mktsFontfileKai',                            filename: 'Kai.ttf',                             }
+      { texname: 'mktsFontfileNanumgothic',                    filename: 'NanumGothic.ttc',                     }
+      { texname: 'mktsFontfileNanummyeongjo',                  filename: 'NanumMyeongjo.ttc',                   }
+      { texname: 'mktsFontfileJizurathreeb',                   filename: 'jizura3b.ttf',                        }
+      { texname: 'mktsFontfileBiaukai',                        filename: 'BiauKai.ttf',                         }
       ]
 
   #.........................................................................................................
@@ -107,10 +116,10 @@ module.exports = options =
     mktsStyleTitleChapter: """
       \\Huge%
       \\mktsFontfileUbuntub%
-      \\protect\\renewcommand{\\cn}[1]{{\\adjustCjkIdeograph{\\jzrFontCwHei{}##1}}}%"""
+      \\protect\\renewcommand{\\cn}[1]{{\\adjustCjkIdeograph{\\mktsFontfileCwtexqheibold{}##1}}}%"""
     mktsStyleTitleSection: """
       \\mktsFontfileUbuntub%
-      \\protect\\renewcommand{\\cn}[1]{{\\adjustCjkIdeograph{\\jzrFontCwHei{}##1}}}%"""
+      \\protect\\renewcommand{\\cn}[1]{{\\adjustCjkIdeograph{\\mktsFontfileCwtexqheibold{}##1}}}%"""
   #.........................................................................................................
   'tex':
     'ignore-latin':             yes
@@ -139,6 +148,8 @@ module.exports = options =
       'u-hang-syl':             'hg'
     #.......................................................................................................
     'glyph-styles':
+      ### Other stuff: ###
+      '‰':          '{\\mktsFontfileOptima‰}'
       ### Ideographic description characters: ###
       '↻':          '\\cnxJzr{}'
       '↔':          '\\cnxJzr{}'
@@ -210,8 +221,8 @@ module.exports = options =
       #.....................................................................................................
       ### Shifted glyphs: ###
       '&#x3000;':      "\\cnjzr{}"
-      '《':            "\\prPushRaise{0}{-0.2}{\\jzrFontSunXA{《}}"
-      '》':            "\\prPushRaise{0}{-0.2}{\\jzrFontSunXA{》}}"
+      '《':            "\\prPushRaise{0}{-0.2}{\\mktsFontSunexta{《}}"
+      '》':            "\\prPushRaise{0}{-0.2}{\\mktsFontSunexta{》}}"
       # '':   "\\cnjzr{}"
       # '&jzr#xe352;':   "\\cnjzr{}"
       '囗':            "\\cnjzr{}"
