@@ -16,8 +16,8 @@ module.exports = options =
     mktsPathsFontsHome:   '/Volumes/Storage/io/jizura-fonts/fonts'
 
   #.........................................................................................................
-  routes:
-    settings:       './.mkts-settings.sty'
+  settings:
+    filename:       '.mkts-settings.sty'
 
   #.........................................................................................................
   fonts:

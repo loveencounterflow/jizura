@@ -44,7 +44,7 @@ SEMVER                    = require 'semver'
 #-----------------------------------------------------------------------------------------------------------
 @compile_options = ->
   options_locator                   = require.resolve njs_path.resolve __dirname, options_route
-  debug '©zNzKn', options_locator
+  # debug '©zNzKn', options_locator
   options_home                      = njs_path.dirname options_locator
   @options                          = OPTIONS.from_locator options_locator
   @options[ 'home' ]                = options_home
@@ -59,10 +59,10 @@ SEMVER                    = require 'semver'
     CACHE.save options
   #.........................................................................................................
   @options[ 'cache' ][ '%self' ]    = require cache_locator
-  #.........................................................................................................
-  @options[ 'locators' ] = {}
-  for key, route of @options[ 'routes' ]
-    @options[ 'locators' ][ key ] = njs_path.resolve options_home, route
+  # #.........................................................................................................
+  # @options[ 'locators' ] = {}
+  # for key, route of @options[ 'routes' ]
+  #   @options[ 'locators' ][ key ] = njs_path.resolve options_home, route
   #.........................................................................................................
   # debug '©ed8gv', JSON.stringify @options, null, '  '
   CACHE.update options
@@ -70,10 +70,10 @@ SEMVER                    = require 'semver'
 @compile_options()
 
 #-----------------------------------------------------------------------------------------------------------
-@write_mkts_settings = ( handler ) ->
+@write_mkts_settings = ( layout_info, handler ) ->
   step ( resume ) =>
     lines             = []
-    settings_locator  = @options[ 'locators' ][ 'settings' ]
+    settings_locator  = layout_info[ 'mkts-settings-locator' ]
     #.......................................................................................................
     unless settings_locator?
       ### TAINT or use default value ###
@@ -133,12 +133,14 @@ SEMVER                    = require 'semver'
 @pdf_from_md = ( source_route, handler ) ->
   step ( resume ) =>
     HELPERS.provide_tmp_folder @options
-    yield @write_mkts_settings resume
     handler                ?= ->
-    layout_info             = HELPERS.new_layout_info source_route
+    layout_info             = HELPERS.new_layout_info @options, source_route
+    yield @write_mkts_settings layout_info, resume
     source_locator          = layout_info[ 'source-locator']
     tex_locator             = layout_info[ 'tex-locator']
     tex_output              = njs_fs.createWriteStream tex_locator
+    # debug '©y9meI', layout_info
+    # process.exit()
     ### TAINT should read MD source stream ###
     text                    = njs_fs.readFileSync source_locator, encoding: 'utf-8'
     #---------------------------------------------------------------------------------------------------------
@@ -383,14 +385,18 @@ SEMVER                    = require 'semver'
       warn "unhandled event: #{JSON.stringify event}"
 
 #-----------------------------------------------------------------------------------------------------------
-@$insert_preamble = ( state ) ->
-  { layout_info } = state
+@$insert_preamble = ( S ) ->
+  # debug '©S9Fjn', @options
+  # process.exit()
+  { layout_info } = S
+  settings_locator_bare = layout_info[ 'mkts-settings-locator.bare' ]
   return D.$on_start ( send ) =>
     tex_inputs_home = layout_info[ 'tex-inputs-home' ]
     ### TAINT should escape locators to prevent clashes with LaTeX syntax ###
     ### TAINT should be located in style / document folder / file ###
     send """
       \\documentclass[a4paper,twoside]{book}
+      \\usepackage{#{settings_locator_bare}}
       \\usepackage{#{njs_path.join tex_inputs_home, 'mkts2015-main'}}
       \\usepackage{#{njs_path.join tex_inputs_home, 'mkts2015-fonts'}}
       \\usepackage{#{njs_path.join tex_inputs_home, 'mkts2015-article'}}
@@ -410,7 +416,7 @@ SEMVER                    = require 'semver'
 ############################################################################################################
 unless module.parent?
   # @pdf_from_md 'texts/A-Permuted-Index-of-Chinese-Characters/index.md'
-  @pdf_from_md 'texts/demo/demo.md'
+  @pdf_from_md 'texts/demo'
 
   # debug '©nL12s', TYPO.as_tex_text '亻龵helo さしすサシス 臺灣國語Ⓒ, Ⓙ, Ⓣ𠀤𠁥&jzr#e202;'
   # debug '©nL12s', TYPO.as_tex_text 'helo さし'

@@ -46,32 +46,40 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
   return njs_path.join CND.swap_extension tex_locator, extension
 
 #-----------------------------------------------------------------------------------------------------------
-@new_layout_info = ( source_route ) ->
-  pdf_command         = options[ 'pdf-command' ]
-  tmp_home            = options[ 'tmp-home' ]
-  source_locator      = njs_path.resolve process.cwd(), source_route
-  source_home         = njs_path.dirname source_locator
-  source_name         = njs_path.basename source_locator
+@new_layout_info = ( options, source_route ) ->
+  pdf_command           = options[ 'pdf-command' ]
+  tmp_home              = options[ 'tmp-home' ]
+  source_locator        = njs_path.resolve process.cwd(), source_route
+  source_home           = njs_path.dirname source_locator
+  source_name           = njs_path.basename source_locator
   ### TAINT use `tmp_locator_for_extension` ###
-  tex_locator         = njs_path.join tmp_home, CND.swap_extension source_name, '.tex'
-  aux_locator         = njs_path.join tmp_home, CND.swap_extension source_name, '.aux'
-  pdf_source_locator  = njs_path.join tmp_home, CND.swap_extension source_name, '.pdf'
-  pdf_target_locator  = njs_path.join source_home, CND.swap_extension source_name, '.pdf'
-  tex_inputs_home     = njs_path.resolve __dirname, '..', 'tex-inputs'
+  tex_locator           = njs_path.join tmp_home, CND.swap_extension source_name, '.tex'
+  aux_locator           = njs_path.join tmp_home, CND.swap_extension source_name, '.aux'
+  pdf_source_locator    = njs_path.join tmp_home, CND.swap_extension source_name, '.pdf'
+  pdf_target_locator    = njs_path.join source_home, CND.swap_extension source_name, '.pdf'
+  tex_inputs_home       = njs_path.resolve __dirname, '..', 'tex-inputs'
+  settings_name         = options[ 'settings' ][ 'filename' ]
+  settings_ext          = njs_path.extname settings_name
+  settings_name_bare    = njs_path.basename settings_name, settings_ext
+  settings_locator      = njs_path.join source_home, settings_name
+  settings_locator_bare = njs_path.join source_home, settings_name_bare
   #.........................................................................................................
   R =
-    'pdf-command':          pdf_command
-    'tmp-home':             tmp_home
-    'source-route':         source_route
-    'source-locator':       source_locator
-    'source-home':          source_home
-    'source-name':          source_name
-    'tex-locator':          tex_locator
-    'tex-inputs-home':      tex_inputs_home
-    'aux-locator':          aux_locator
-    'pdf-source-locator':   pdf_source_locator
-    'pdf-target-locator':   pdf_target_locator
-    'latex-run-count':      0
+    'aux-locator':                aux_locator
+    'latex-run-count':            0
+    'mkts-settings-locator':      settings_locator
+    'mkts-settings-locator.bare': settings_locator_bare
+    'mkts-settings-name':         settings_name
+    'pdf-command':                pdf_command
+    'pdf-source-locator':         pdf_source_locator
+    'pdf-target-locator':         pdf_target_locator
+    'source-home':                source_home
+    'source-locator':             source_locator
+    'source-name':                source_name
+    'source-route':               source_route
+    'tex-inputs-home':            tex_inputs_home
+    'tex-locator':                tex_locator
+    'tmp-home':                   tmp_home
   #.........................................................................................................
   return R
 
