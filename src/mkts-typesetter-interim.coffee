@@ -51,8 +51,7 @@ SEMVER                    = require 'semver'
   @options[ 'locator' ]             = options_locator
   cache_route                       = @options[ 'cache' ][ 'route' ]
   @options[ 'cache' ][ 'locator' ]  = cache_locator = njs_path.resolve options_home, cache_route
-  @options[ 'tmp-home' ]            = njs_path.join options_home, 'tmp'
-  @options[ 'pdf-command' ]         = njs_path.resolve options_home, @options[ 'pdf-command' ]
+  @options[ 'xelatex-command' ]     = njs_path.resolve options_home, @options[ 'xelatex-command' ]
   #.........................................................................................................
   unless njs_fs.existsSync cache_locator
     @options[ 'cache' ][ '%self' ] = {}
@@ -74,7 +73,8 @@ SEMVER                    = require 'semver'
   step ( resume ) =>
     lines             = []
     write             = lines.push.bind lines
-    master_locator    = layout_info[ 'master-locator' ]
+    master_locator    = layout_info[ 'master-locator'  ]
+    content_locator   = layout_info[ 'content-locator' ]
     help "writing #{master_locator}"
     #-------------------------------------------------------------------------------------------------------
     write ""
@@ -106,13 +106,14 @@ SEMVER                    = require 'semver'
     write ""
     write "% PACKAGES"
     write "\\usepackage{\\mktsPathsMktsHome/mkts2015-main}"
-    # write "\\usepackage{\\mktsPathsMktsHome/mkts2015-fonts}"
+    write "\\usepackage{\\mktsPathsMktsHome/mkts2015-fonts}"
     write "\\usepackage{\\mktsPathsMktsHome/mkts2015-article}"
     #-------------------------------------------------------------------------------------------------------
     # FONTS
     #.......................................................................................................
     fontspec_version  = yield TEXLIVEPACKAGEINFO.read_texlive_package_version @options, 'fontspec', resume
     use_new_syntax    = SEMVER.satisfies fontspec_version, '>=2.4.0'
+    fonts_home        = @options[ 'fonts' ][ 'home' ]
     #.......................................................................................................
     write ""
     write "% FONTS"
@@ -120,17 +121,22 @@ SEMVER                    = require 'semver'
     write "\\usepackage{fontspec}"
     #.......................................................................................................
     for { texname, home, filename, } in @options[ 'fonts' ][ 'declarations' ]
+      home ?= fonts_home
       if use_new_syntax
         ### TAINT should properly escape values ###
         write "\\newfontface\\#{texname}{#{filename}}[Path=#{home}/]"
       else
         write "\\newfontface\\#{texname}[Path=#{home}/]{#{filename}}"
+    write ""
     #-------------------------------------------------------------------------------------------------------
-    write "\\begin{document}\n"
+    main_font_name = @options[ 'fonts' ][ 'main' ]
+    throw new Error "need entry options/fonts/name" unless main_font_name?
+    write "\\begin{document}#{main_font_name}"
     #-------------------------------------------------------------------------------------------------------
     # INCLUDES
     #.......................................................................................................
     write ""
+    write "\\input{#{content_locator}}"
     write ""
     #-------------------------------------------------------------------------------------------------------
     write "\\end{document}"
@@ -145,13 +151,12 @@ SEMVER                    = require 'semver'
 #-----------------------------------------------------------------------------------------------------------
 @pdf_from_md = ( source_route, handler ) ->
   step ( resume ) =>
-    HELPERS.provide_tmp_folder @options
     handler                ?= ->
     layout_info             = HELPERS.new_layout_info @options, source_route
     yield @write_mkts_master layout_info, resume
-    source_locator          = layout_info[ 'source-locator']
-    tex_locator             = layout_info[ 'tex-locator']
-    tex_output              = njs_fs.createWriteStream tex_locator
+    source_locator          = layout_info[ 'source-locator'  ]
+    content_locator         = layout_info[ 'content-locator' ]
+    tex_output              = njs_fs.createWriteStream content_locator
     # debug '©y9meI', layout_info
     # process.exit()
     ### TAINT should read MD source stream ###
@@ -190,8 +195,6 @@ SEMVER                    = require 'semver'
       .pipe @MKTX.INLINE.$code            state
       .pipe @MKTX.INLINE.$em_and_strong   state
       .pipe @$filter_tex()
-      .pipe @$insert_preamble state
-      .pipe @$insert_postscript()
       .pipe tex_output
     #---------------------------------------------------------------------------------------------------------
     # D.resume input
@@ -305,9 +308,9 @@ SEMVER                    = require 'semver'
         send [ 'tex', "\n", ]
         #...................................................................................................
         switch name
-          when 'h1' then  send [ 'tex', "\\jzrChapter{", ]
-          when 'h2' then  send [ 'tex', "\\jzrSection{", ]
-          else            send [ 'tex', "\\subsection{", ]
+          when 'h1' then  send [ 'tex', "\\mktsChapter{", ]
+          when 'h2' then  send [ 'tex', "\\mktsSection{", ]
+          else            send [ 'tex', "\\mktsSubsection{", ]
       #.....................................................................................................
       # CLOSE
       #.....................................................................................................
@@ -363,7 +366,7 @@ SEMVER                    = require 'semver'
     if TYPO.isa event, [ '(', ')', ], 'code'
       [ type, name, text, meta, ] = event
       ### TAINT should use proper command ###
-      if type is '(' then send [ 'tex', "{\\jzrFontSourceCodePro{}", ]
+      if type is '(' then send [ 'tex', "{\\mktsFontSourcecodeproregular{}", ]
       else                send [ 'tex', "}", ]
     #.......................................................................................................
     else

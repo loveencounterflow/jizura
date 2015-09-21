@@ -32,8 +32,10 @@ Here are some formulas:
 At this point, a line consisting of a triple at-sign `@@@`
 indicates the end of the `keep-lines` region; since the
 `single-column` region is still active, however, *this
-paragraph runs across the entire width* of the document's text
+paragraph runs across the entire width* of the documents text
 area.
+
+xxxx
 
 @@@
 

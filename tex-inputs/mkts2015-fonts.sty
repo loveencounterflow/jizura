@@ -33,21 +33,21 @@
 % ==========================================================================================================
 % \usepackage[CJKglue={\hskip 0pt plus 0.08\baselineskip}]{xeCJK}
 % \usepackage[CJKglue={\hskip -8pt plus 3pt minus 3pt}]{xeCJK}
-\usepackage{xeCJK}
-\setmainfont[Mapping=tex-text]{EB Garamond 12 Regular}
+% \usepackage{xeCJK}
+% \setmainfont{EB Garamond 12 Regular}
 % \setmainfont[Mapping=tex-text]{Georgia}
 % Replaced `\jzrFontJizura` by CJK Block Declaration; this seems to work better in terms of spacing.
 % We still retain the `\cnjzr` command just in case we need to make display adjustments:
 % \xeCJKDeclareSubCJKBlock{PUA}{ "E000 -> "F8FF }
-% \newCJKfontfamily\jzrFontJizura[Scale=1,AutoFakeBold=1]{jizura3a}
+% \newfontfamily\jzrFontJizura[Scale=1,AutoFakeBold=1]{jizura3a}
 
 
 % \setCJKmainfont[PUA=jizura3b]{Sun-ExtA}
 % \setCJKmainfont{Sun-ExtA}
-\setCJKmainfont{/Volumes/Storage/io/jizura-fonts/fonts/sun-exta.ttf}
+% \setCJKmainfont{/Volumes/Storage/io/jizura-fonts/fonts/sun-exta.ttf}
 % \setCJKmainfont{EB Garamond 12 Regular}
 % this produces some weirdly spaced punctuation marks:
-% \newCJKfontfamily\missingFont[Scale=1.10,Color=red]{Sun-ExtA}
+% \newfontfamily\missingFont[Scale=1.10,Color=red]{Sun-ExtA}
 
 % ==========================================================================================================
 % 1) Fonts as LaTeX commands
@@ -78,49 +78,49 @@
 % ----------------------------------------------------------------------------------------------------------
 % CJK
 % ..........................................................................................................
-\newCJKfontfamily\jzrFontSunXA[Scale=1.10]{Sun-ExtA}
-\newCJKfontfamily\jzrFontSunflowerXA[Scale=1.10]{sunflower-u-cjk-xa-centered}
-\newCJKfontfamily\jzrFontSunflowerXB[Scale=1.10]{sunflower-u-cjk-xb}
+\newfontfamily\jzrFontSunXA[Scale=1.10]{Sun-ExtA}
+\newfontfamily\jzrFontSunflowerXA[Scale=1.10]{sunflower-u-cjk-xa-centered}
+\newfontfamily\jzrFontSunflowerXB[Scale=1.10]{sunflower-u-cjk-xb}
 % ..........................................................................................................
-\newCJKfontfamily\jzrFontAdbHei[Scale=1.10]{Adobe Heiti Std R}
-\newCJKfontfamily\jzrFontAplHei[Scale=1.10]{Apple LiGothic Medium}
+\newfontfamily\jzrFontAdbHei[Scale=1.10]{Adobe Heiti Std R}
+\newfontfamily\jzrFontAplHei[Scale=1.10]{Apple LiGothic Medium}
 % ..........................................................................................................
-\newCJKfontfamily\jzrFontAdbKai[Scale=1.10]{Adobe Kaiti Std R}
-\newCJKfontfamily\jzrFontKaiR[Scale=1.10]{Kai Regular}
-\newCJKfontfamily\jzrFontSongScBlack[Scale=1.10]{Songti SC Black}
-\newCJKfontfamily\jzrFontStKai[Scale=1.10]{STKaiti}
-\newCJKfontfamily\jzrFontBiauKai[Scale=1.10]{BiauKai}
-\newCJKfontfamily\jzrFontJzrXingkai[Scale=1.10]{jzrxingkai}
-\newCJKfontfamily\jzrFontJzrFanshu[Scale=1.10]{jzrfanshu}
-\newCJKfontfamily\jzrFontJzrSongbold[Scale=1.10]{jzrsongbold}
-\newCJKfontfamily\jzrFontChaoHei[Scale=1.10]{CTChaoHeiSF}
+\newfontfamily\jzrFontAdbKai[Scale=1.10]{Adobe Kaiti Std R}
+\newfontfamily\jzrFontKaiR[Scale=1.10]{Kai Regular}
+\newfontfamily\jzrFontSongScBlack[Scale=1.10]{Songti SC Black}
+\newfontfamily\jzrFontStKai[Scale=1.10]{STKaiti}
+\newfontfamily\jzrFontBiauKai[Scale=1.10]{BiauKai}
+\newfontfamily\jzrFontJzrXingkai[Scale=1.10]{jzrxingkai}
+\newfontfamily\jzrFontJzrFanshu[Scale=1.10]{jzrfanshu}
+\newfontfamily\jzrFontJzrSongbold[Scale=1.10]{jzrsongbold}
+\newfontfamily\jzrFontChaoHei[Scale=1.10]{CTChaoHeiSF}
 % ..........................................................................................................
 % These fonts cause problems with embedding:
-% \newCJKfontfamily\jzrFontKaiSc[Scale=1.10]{Kaiti SC Regular}
-% \newCJKfontfamily\jzrFontKaiScBlack[Scale=1.10]{Kaiti SC Black}
-% \newCJKfontfamily\jzrFontKaiScBold[Scale=1.10]{Kaiti SC Bold}
+% \newfontfamily\jzrFontKaiSc[Scale=1.10]{Kaiti SC Regular}
+% \newfontfamily\jzrFontKaiScBlack[Scale=1.10]{Kaiti SC Black}
+% \newfontfamily\jzrFontKaiScBold[Scale=1.10]{Kaiti SC Bold}
 % ..........................................................................................................
-% \newCJKfontfamily\jzrFontHyXingKaiF[Scale=1.10]{HYXingKaiF} % doesn't work?
-% \newCJKfontfamily\jzrFontHYDaLiShuF[Scale=1.10]{HYDaLiShuF} % doesn't work?
-% \newCJKfontfamily\jzrFontA[Scale=1.10]{䡡湄楮札䍓ⵆ潮瑳} % doesn't work?
-% \newCJKfontfamily\jzrFontB[Scale=1.10]{卣桷慢慣桥} % doesn't work?
-% \newCJKfontfamily\jzrFontC[Scale=1.10]{教育部標準楷書} % doesn't work?
-% \newCJKfontfamily\jzrFontD[Scale=1.10]{经典繁方篆} % doesn't work?
+% \newfontfamily\jzrFontHyXingKaiF[Scale=1.10]{HYXingKaiF} % doesn't work?
+% \newfontfamily\jzrFontHYDaLiShuF[Scale=1.10]{HYDaLiShuF} % doesn't work?
+% \newfontfamily\jzrFontA[Scale=1.10]{䡡湄楮札䍓ⵆ潮瑳} % doesn't work?
+% \newfontfamily\jzrFontB[Scale=1.10]{卣桷慢慣桥} % doesn't work?
+% \newfontfamily\jzrFontC[Scale=1.10]{教育部標準楷書} % doesn't work?
+% \newfontfamily\jzrFontD[Scale=1.10]{经典繁方篆} % doesn't work?
 % ..........................................................................................................
-\newCJKfontfamily\jzrFontCwFangsong[Scale=1.10]{cwTeX Q Fangsong Medium}
-\newCJKfontfamily\jzrFontCwHei[Scale=1.10]{cwTeX Q Hei Bold}
-\newCJKfontfamily\jzrFontCwKai[Scale=1.10]{cwTeX Q Kai Medium}
-% \newCJKfontfamily\jzrFontCwKaiZH[Scale=1.10]{cwTeX Q KaiZH Medium}
-\newCJKfontfamily\jzrFontCwMing[Scale=1.10]{cwTeX Q Ming Medium}
+\newfontfamily\jzrFontCwFangsong[Scale=1.10]{cwTeX Q Fangsong Medium}
+\newfontfamily\jzrFontCwHei[Scale=1.10]{cwTeX Q Hei Bold}
+\newfontfamily\jzrFontCwKai[Scale=1.10]{cwTeX Q Kai Medium}
+% \newfontfamily\jzrFontCwKaiZH[Scale=1.10]{cwTeX Q KaiZH Medium}
+\newfontfamily\jzrFontCwMing[Scale=1.10]{cwTeX Q Ming Medium}
 % ..........................................................................................................
-\newCJKfontfamily\jzrFontHanaMinA[Scale=1.10]{HanaMinA}
-\newCJKfontfamily\jzrFontHanaMinB[Scale=1.10]{HanaMinB}
+\newfontfamily\jzrFontHanaMinA[Scale=1.10]{HanaMinA}
+\newfontfamily\jzrFontHanaMinB[Scale=1.10]{HanaMinB}
 % ..........................................................................................................
-\newCJKfontfamily\jzrFontBabelstoneHan[Scale=1.10]{BabelStone Han}
-\newCJKfontfamily\jzrFontNanumMyeongjo[Scale=1.10]{NanumMyeongjo}
-\newCJKfontfamily\jzrFontHiragana[Scale=1.10]{NanumMyeongjo}
-\newCJKfontfamily\jzrFontKatakana[Scale=1.10]{NanumMyeongjo}
-\newCJKfontfamily\jzrFontHangeul[Scale=1.10]{cwTeX Q Ming Medium}
+\newfontfamily\jzrFontBabelstoneHan[Scale=1.10]{BabelStone Han}
+\newfontfamily\jzrFontNanumMyeongjo[Scale=1.10]{NanumMyeongjo}
+\newfontfamily\jzrFontHiragana[Scale=1.10]{NanumMyeongjo}
+\newfontfamily\jzrFontKatakana[Scale=1.10]{NanumMyeongjo}
+\newfontfamily\jzrFontHangeul[Scale=1.10]{cwTeX Q Ming Medium}
 % ..........................................................................................................
 % \newfontfamily\jzrFontJizura[Scale=1,AutoFakeBold=1]{jizura}
 % \newfontfamily\jzrFontJizura[Scale=1,AutoFakeBold=1]{jizura2}
@@ -137,7 +137,8 @@
 \newcommand{\cjkInterchrSpacing}{\hskip -0.4pt plus 3pt minus 1pt}
 % \newcommand{\cjkInterchrSpacingA}{\hskip -0.4pt plus 3pt minus 1pt}
 \newcommand{\adjustCjkIdeograph}[1]{\prRaise{-0.125}{#1}} % !!!
-\newcommand{\adjustJzrCjkIdeograph}[1]{\prRaise{-0.125}{#1}} % !!!
+% \newcommand{\adjustJzrCjkIdeograph}[1]{\prRaise{-0.125}{#1}} % !!!
+\newcommand{\adjustJzrCjkIdeograph}[1]{\prRaise{-0.125}{\makebox[1.1053\myFontsize]{#1}}} % !!!
 \newcommand{\adjustKatakana}[1]{\cjkInterchrSpacing\prRaise{-0.125}{#1}}
 \newcommand{\adjustHiragana}[1]{\cjkInterchrSpacing\prRaise{-0.125}{#1}}
 \newcommand{\adjustHangeul}[1]{\cjkInterchrSpacing\prRaise{-0.125}{#1}}

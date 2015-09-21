@@ -48,51 +48,36 @@
 % \titleformat{\chapter}{block}{label}{sep}{before-code}[after-code]
 % \titleformat{\chapter}[shape]{format}{label}{sep}{before-code}[after-code]
 
-% using `\setCJKmainfont{Sun-ExtA}` causes typographic errors in many punctuation details
-% (including apostrophe, ellipsis), so we set the CJK main font to our latin text font:
-\setCJKmainfont{EB Garamond 12 Regular}
+\newcommand{\mktsSwelldash}{{%
+\centering%
+% ~\vspace{4\baselineskip}\\%
+\includegraphics[%
+  width=0.75\linewidth]%
+  {\mktsPathsMktsHome/french-rule-swell-dash-englische-line/swell-dash.pdf}\\%[3\baselineskip]%
+\par%
+}}
 
-\newcommand{\jzrSection}[1]{\section[#1]{\centering #1}}
-
-% \newcommand{\jzrChapter}[1]{\chapter[#1]{\centering #1}}
-% \titleformat{\chapter}[hang]
-% {\normalfont\huge\bfseries}{}{1em}{\filcenter}
-% \titlespacing*{\chapter}{0pt}{0pt}{0pt}
-% \usepackage{etoolbox}
-% \makeatletter
-% \patchcmd{\chapter}{\if@openright\cleardoublepage\else\clearpage\fi}{\par}{}{}
-% \makeatother
-\newcommand{\jzrChapter}[1]{%
+% ----------------------------------------------------------------------------------------------------------
+\newcommand{\mktsChapter}[1]{%
   \newpage%
   \begingroup%
   \fontsize{2\myFontsize}{2\myLineheight}\leading{2\myLineheight}\selectfont%
   \setlength{\parskip}{2\myLineheight}%
   \centering%
   #1%
-  \eline%
+  \mktsSwelldash%
   \endgroup%
   }
 
-
-% % \newcommand{\jzrChapter}[1]{\chapter[#1]{\centering #1}}
-% \titleformat{\chapter}[hang]
-%   {\normalfont\huge\bfseries}
-%   {}
-%   {0pt}
-%   {\filcenter}
-%   % [\eline]
-% \titlespacing*{\chapter}{0pt}{40pt}{40pt}
-% \titleformat*{\section}{\centering\Large\bfseries}
-% \titleformat*{\subsection}{\centering\large\bfseries}
-
-\newcommand{\eline}{{%
+% ----------------------------------------------------------------------------------------------------------
+% \newcommand{\mktsSection}[1]{\section[#1]{\centering #1}}
+\newcommand{\mktsSection}[1]{%
+  \begingroup%
   \centering%
-  % {\Huge \cn{中日韓文}}\\[\baselineskip]%
-  % {\Huge \cn{字形索引}}\\[\baselineskip]%
-  % ~\vspace{4\baselineskip}\\%
-  \includegraphics[width=0.75\linewidth]{/Volumes/Storage/temp/french-rule-swell-dash-englische-line/swell-dash.pdf}\\%[3\baselineskip]%
-  \par%
-  }}
+  \par
+  #1%
+  \endgroup%
+  }
 
 % ----------------------------------------------------------------------------------------------------------
 \newenvironment{blockquote}{%
@@ -140,7 +125,8 @@
 % \myFontsize=4.1667mm
 % space between lines 4.6667mm - 3.8mm = 0.8667mm
 \myFontsize=3.8mm
-\renewcommand{\adjustJzrCjkIdeograph}[1]{\prRaise{-0.125}{\makebox[1.1053\myFontsize]{#1}}} % !!!
+% now in fonts.sty:
+% \renewcommand{\adjustJzrCjkIdeograph}[1]{\prRaise{-0.125}{\makebox[1.1053\myFontsize]{#1}}} % !!!
 \myLineheight=4.6667mm
 % \myLineheight=3.8mm % reduced to fontsize
 \setlength{\baselineskip}{\myLineheight}
@@ -341,7 +327,7 @@ contents={%
 
 % \centering
 % ~\vspace{5\baselineskip}\\%
-% \eline
+% \mktsSwelldash
 % ~\vspace{1\baselineskip}\\%
 
 % \scale{}{2}{Permuted Index\\}
@@ -351,7 +337,7 @@ contents={%
 % \scale{\jzrFontAdbKai}{3}{萬字一覽\\置換索引\\}
 
 % ~\vspace{1.5\baselineskip}\\%
-% \eline
+% \mktsSwelldash
 % ~\vspace{15\baselineskip}\\%
 % \cn{字面プロジェクト}\\
 % The Jizura Project\\

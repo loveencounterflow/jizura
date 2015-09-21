@@ -31,10 +31,10 @@ Html_parser               = ( require 'htmlparser2' ).Parser
 new_md_inline_plugin      = require 'markdown-it-regexp'
 
 
-#-----------------------------------------------------------------------------------------------------------
-@provide_tmp_folder = ( options ) ->
-  njs_fs.mkdirSync options[ 'tmp-home' ] unless njs_fs.existsSync options[ 'tmp-home' ]
-  return null
+# #-----------------------------------------------------------------------------------------------------------
+# @provide_tmp_folder = ( options ) ->
+#   njs_fs.mkdirSync options[ 'tmp-home' ] unless njs_fs.existsSync options[ 'tmp-home' ]
+#   return null
 
 # #-----------------------------------------------------------------------------------------------------------
 # @tmp_locator_for_extension = ( layout_info, extension ) ->
@@ -64,25 +64,24 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
   tex_inputs_home       = njs_path.resolve __dirname, '..', 'tex-inputs'
   master_name           = options[ 'master' ][ 'filename' ]
   master_ext            = njs_path.extname master_name
-  master_name_bare      = njs_path.basename master_name, master_ext
   master_locator        = njs_path.join source_home, master_name
-  master_locator_bare   = njs_path.join source_home, master_name_bare
+  content_name          = options[ 'content' ][ 'filename' ]
+  content_locator       = njs_path.join source_home, content_name
   #.........................................................................................................
   R =
-    'job-name':                   job_name
     'aux-locator':                aux_locator
-    'xelatex-run-count':          0
+    'content-locator':            content_locator
+    'job-name':                   job_name
     'master-locator':             master_locator
-    'master-locator.bare':        master_locator_bare
     'master-name':                master_name
-    'xelatex-command':            xelatex_command
     'pdf-locator':                pdf_locator
     'source-home':                source_home
     'source-locator':             source_locator
     'source-name':                source_name
     'source-route':               source_route
     'tex-inputs-home':            tex_inputs_home
-    'tex-locator':                tex_locator
+    'xelatex-command':            xelatex_command
+    'xelatex-run-count':          0
   #.........................................................................................................
   return R
 
@@ -92,14 +91,14 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
   job_name            = layout_info[ 'job-name'             ]
   source_home         = layout_info[ 'source-home'          ]
   xelatex_command     = layout_info[ 'xelatex-command'      ]
-  tex_locator         = layout_info[ 'tex-locator'          ]
+  master_locator      = layout_info[ 'master-locator'       ]
   aux_locator         = layout_info[ 'aux-locator'          ]
   pdf_locator         = layout_info[ 'pdf-locator'          ]
   last_digest         = null
   last_digest         = CND.id_from_route aux_locator if njs_fs.existsSync aux_locator
   digest              = null
   count               = 0
-  parameters          = [ source_home, job_name, tex_locator, ]
+  parameters          = [ source_home, job_name, master_locator, ]
   urge "#{xelatex_command}"
   whisper "$1: #{parameters[ 0 ]}"
   whisper "$2: #{parameters[ 1 ]}"
