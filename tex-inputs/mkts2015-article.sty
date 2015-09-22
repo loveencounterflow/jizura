@@ -48,9 +48,9 @@
 % \titleformat{\chapter}{block}{label}{sep}{before-code}[after-code]
 % \titleformat{\chapter}[shape]{format}{label}{sep}{before-code}[after-code]
 
-% using `\setCJKmainfont{Sun-ExtA}` causes typographic errors in many punctuation details
-% (including apostrophe, ellipsis), so we set the CJK main font to our latin text font:
-\setCJKmainfont{EB Garamond 12 Regular}
+% % using `\setCJKmainfont{Sun-ExtA}` causes typographic errors in many punctuation details
+% % (including apostrophe, ellipsis), so we set the CJK main font to our latin text font:
+% \setCJKmainfont{EB Garamond 12 Regular}
 
 \newcommand{\jzrSection}[1]{\section[#1]{\centering #1}}
 
@@ -62,6 +62,17 @@
 % \makeatletter
 % \patchcmd{\chapter}{\if@openright\cleardoublepage\else\clearpage\fi}{\par}{}{}
 % \makeatother
+
+\newcommand{\mktsSwelldash}{{%
+\centering%
+% ~\vspace{4\baselineskip}\\%
+\includegraphics[%
+  width=0.75\linewidth]%
+  {\mktsPathsMktsHome/french-rule-swell-dash-englische-line/swell-dash.pdf}\\%[3\baselineskip]%
+\par%
+}}
+
+
 \newcommand{\jzrChapter}[1]{%
   \newpage%
   \begingroup%
@@ -69,30 +80,10 @@
   \setlength{\parskip}{2\myLineheight}%
   \centering%
   #1%
-  \eline%
+  \mktsSwelldash%
   \endgroup%
   }
 
-
-% % \newcommand{\jzrChapter}[1]{\chapter[#1]{\centering #1}}
-% \titleformat{\chapter}[hang]
-%   {\normalfont\huge\bfseries}
-%   {}
-%   {0pt}
-%   {\filcenter}
-%   % [\eline]
-% \titlespacing*{\chapter}{0pt}{40pt}{40pt}
-% \titleformat*{\section}{\centering\Large\bfseries}
-% \titleformat*{\subsection}{\centering\large\bfseries}
-
-\newcommand{\eline}{{%
-  \centering%
-  % {\Huge \cn{中日韓文}}\\[\baselineskip]%
-  % {\Huge \cn{字形索引}}\\[\baselineskip]%
-  % ~\vspace{4\baselineskip}\\%
-  \includegraphics[width=0.75\linewidth]{/Volumes/Storage/temp/french-rule-swell-dash-englische-line/swell-dash.pdf}\\%[3\baselineskip]%
-  \par%
-  }}
 
 % ----------------------------------------------------------------------------------------------------------
 \newenvironment{blockquote}{%
@@ -140,7 +131,8 @@
 % \myFontsize=4.1667mm
 % space between lines 4.6667mm - 3.8mm = 0.8667mm
 \myFontsize=3.8mm
-\renewcommand{\adjustJzrCjkIdeograph}[1]{\prRaise{-0.125}{\makebox[1.1053\myFontsize]{#1}}} % !!!
+% now in fonts.sty:
+% \renewcommand{\adjustJzrCjkIdeograph}[1]{\prRaise{-0.125}{\makebox[1.1053\myFontsize]{#1}}} % !!!
 \myLineheight=4.6667mm
 % \myLineheight=3.8mm % reduced to fontsize
 \setlength{\baselineskip}{\myLineheight}
@@ -211,10 +203,10 @@
 \pagestyle{fancy}
 \renewcommand{\headrulewidth}{0mm}
 \renewcommand{\footrulewidth}{0mm}
-\fancyhead[OR]{\prPush{1.1}{\cn{{\jzrFontBiauKai{}萬字一覽置換索引}}}}
-\fancyhead[EL]{\cn{{\jzrFontBiauKai{}萬字一覽置換索引}}}
+\fancyhead[OR]{\prPush{1.1}{\cn{{\mktsFontfileBiaukai{}萬字一覽置換索引}}}}
+\fancyhead[EL]{\cn{{\mktsFontfileBiaukai{}萬字一覽置換索引}}}
 % \fancyhead[EL,OR]{\leftmark}
-% \fancyhead[OL,ER]{\rightmark\cn{{\jzrFontBiauKai{}字面萬字一覽}}}
+% \fancyhead[OL,ER]{\rightmark\cn{{\mktsFontfileBiaukai{}字面萬字一覽}}}
 \fancyfoot[OR]{\prPush{1.1}{\pageNr{\thepage}}}
 \fancyfoot[EL]{\pageNr{\thepage}}
 \fancyfoot[OC,EC]{}
@@ -341,7 +333,7 @@ contents={%
 
 % \centering
 % ~\vspace{5\baselineskip}\\%
-% \eline
+% \mktsSwelldash
 % ~\vspace{1\baselineskip}\\%
 
 % \scale{}{2}{Permuted Index\\}
@@ -351,7 +343,7 @@ contents={%
 % \scale{\jzrFontAdbKai}{3}{萬字一覽\\置換索引\\}
 
 % ~\vspace{1.5\baselineskip}\\%
-% \eline
+% \mktsSwelldash
 % ~\vspace{15\baselineskip}\\%
 % \cn{字面プロジェクト}\\
 % The Jizura Project\\
