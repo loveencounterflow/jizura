@@ -3,7 +3,7 @@
 
 ############################################################################################################
 njs_path                  = require 'path'
-# # njs_fs                    = require 'fs'
+njs_fs                    = require 'fs'
 join                      = njs_path.join
 #...........................................................................................................
 CND                       = require 'cnd'
@@ -36,6 +36,19 @@ HOLLERITH                 = require 'hollerith'
 KWIC                      = require 'kwic'
 ƒ                         = CND.format_number.bind CND
 
+
+
+#-----------------------------------------------------------------------------------------------------------
+@$parse_tsv = ( options ) ->
+  #.........................................................................................................
+  return $ ( record, send ) =>
+    fields  = record.split /\s+/
+    fields  = ( field.trim() for field in fields )
+    fields  = ( field for field in fields when field.length > 0 )
+    if fields.length > 0 and not fields[ 0 ].startsWith '#'
+      [ glyph, frequency_txt, _, ] = fields
+      frequency = parseInt frequency_txt, 10
+      send [ glyph, frequency, ]
 
 #-----------------------------------------------------------------------------------------------------------
 @read_sample = ( db, limit_or_list, handler ) ->
@@ -70,6 +83,22 @@ KWIC                      = require 'kwic'
     .pipe D.$on_end -> handler null, Z
 
 #-----------------------------------------------------------------------------------------------------------
+@read_chtsai_frequencies = ( handler ) ->
+  route = njs_path.join __dirname, '../../jizura-datasources/data/flat-files/usage/usage-counts-zhtw-chtsai-13000chrs-3700ranks.txt'
+  input = njs_fs.createReadStream route
+  Z     = {}
+  input
+    .pipe D.$split()
+    .pipe @$parse_tsv()
+    .pipe $ ( glyph_and_frequency, send, end ) =>
+      if glyph_and_frequency?
+        [ glyph, frequency, ] = glyph_and_frequency
+        Z[ glyph ]            = frequency
+      if end?
+        handler null, Z
+        end()
+
+#-----------------------------------------------------------------------------------------------------------
 @main = ->
   db_route        = join __dirname, '../../jizura-datasources/data/leveldb-v2'
   db              = HOLLERITH.new_db db_route, create: no
@@ -77,38 +106,188 @@ KWIC                      = require 'kwic'
   #.........................................................................................................
   step ( resume ) =>
     ranks         = {}
-    include       = Infinity
-    include       = 100
-    # include       = [ '寿', '邦', '帮', '畴', '铸', '筹', '涛', '祷', '绑', '綁',    ]
+    # include       = Infinity
+    # include       = [ '櫻', '哈', ]
+    include       = 10000
     #.......................................................................................................
-    sample        = yield @read_sample db, include, resume
-    debug '©u2o8L', ( Object.keys sample ).join ' '
+    # sample        = yield @read_sample db, include, resume
+    sample        = null
+    frequencies   = yield @read_chtsai_frequencies resume
+    if sample?
+      help "using sample of #{ƒ ( Object.keys sample ).length} glyphs"
     #.......................................................................................................
     prefix        = [ 'pos', 'guide/has/uchr', ]
-    query         = { prefix, }
+    ### TAINT use of star not correct ###
+    query         = { prefix, star: '*', }
     input         = HOLLERITH.create_phrasestream db, query
     #.......................................................................................................
     input.on 'end', -> help "ok"
     #.......................................................................................................
+    $select_glyph_and_guide = =>
+      return $ ( phrase, send ) =>
+        [ _, _, guide, glyph, _, ] = phrase
+        send [ glyph, guide, ]
+    #.......................................................................................................
+    $filter_sample = ( sample ) =>
+      return $ ( [ glyph, guide, ], send ) =>
+        event = [ 'glyph-and-guide', glyph, guide, ]
+        if sample?
+          send event if sample[ glyph ]?
+        else
+          send event
+    #.......................................................................................................
+    $filter_by_frequencies = ( frequencies ) =>
+      return $ ( [ glyph, guide, ], send ) =>
+        if ( frequency = frequencies[ glyph ] )?
+          event = [ 'glyph-guide-and-frequency', glyph, guide, frequency, ]
+          send event
+    #.......................................................................................................
+    $count_guides = =>
+      counts = {}
+      return $ ( event, send, end ) =>
+        if event?
+          [ type, glyph, guide, ] = event
+          counts[ guide ] = ( counts[ guide ] ? 0 ) + 1
+        if end?
+          send [ 'counts', counts, ]
+          end()
+    #.......................................................................................................
+    $sort_counts = =>
+      return $ ( event, send ) =>
+        [ _, counts, ]  = event
+        counts          = ( [ guide, count, ] for guide, count of counts )
+        counts.sort ( a, b ) ->
+          return +1 if a[ 1 ] < b[ 1 ]
+          return -1 if a[ 1 ] > b[ 1 ]
+          return  0
+        send [ 'counts', counts, ]
+    #.......................................................................................................
+    $rank_counts = =>
+      return $ ( event, send ) =>
+        [ _, counts, ]  = event
+        rank            = 0
+        last_count      = null
+        for [ guide, count, ], idx in counts
+          if count isnt last_count
+            rank       += +1
+            last_count  = count
+          counts[ idx ] = [ guide, count, rank, ]
+        send [ 'counts', counts, ]
+    #.......................................................................................................
+    $show_counts = =>
+      return $ ( event, send ) =>
+        [ _, counts, ]  = event
+        for [ guide, count, rank, ] in counts
+          echo "#{rank}\t#{count}\t#{guide}"
+    #.......................................................................................................
     input
       #.....................................................................................................
+      .pipe $select_glyph_and_guide()
+      # .pipe $filter_sample sample
+      .pipe $filter_by_frequencies frequencies
       .pipe D.$show()
-    #   .pipe @v1_$split_so_bkey()
-    #   .pipe @$show_progress 1e4
-    #   .pipe @$keep_small_sample()
-    #   .pipe @$throw_out_pods()
-    #   .pipe @$cast_types ds_options
-    #   .pipe @$collect_lists()
-    #   .pipe @$compact_lists()
-    #   .pipe @$add_version_to_kwic_v1()
-    #   .pipe @$add_kwic_v2()
-    #   .pipe @$add_kwic_v3 factor_infos
-    #   .pipe D.$count ( count ) -> help "kept #{ƒ count} phrases"
-    #   .pipe D.$stop_time "copy Jizura DB"
+      # .pipe $count_guides()
+      # .pipe $sort_counts()
+      # .pipe $rank_counts()
+      # .pipe $show_counts()
+    # #.......................................................................................................
+    # input
+    #   #.....................................................................................................
+    #   .pipe $select_glyph_and_guide()
+    #   # .pipe $filter_sample sample
+    #   .pipe $filter_by_frequencies frequencies
+    #   .pipe D.$show()
+    #   # .pipe $count_guides()
+    #   # .pipe $sort_counts()
+    #   # .pipe $rank_counts()
+    #   # .pipe $show_counts()
     #   .pipe output
+    #.......................................................................................................
+    return null
+
+#-----------------------------------------------------------------------------------------------------------
+@count_guides_with_frequencies = ->
+  db_route        = join __dirname, '../../jizura-datasources/data/leveldb-v2'
+  db              = HOLLERITH.new_db db_route, create: no
+  help "using DB at #{db[ '%self' ][ 'location' ]}"
+  #.........................................................................................................
+  step ( resume ) =>
+    ranks         = {}
+    frequencies   = yield @read_chtsai_frequencies resume
+    prefix        = [ 'pos', 'guide/has/uchr', ]
+    ### TAINT use of star not correct ###
+    query         = { prefix, star: '*', }
+    input         = HOLLERITH.create_phrasestream db, query
+    #.......................................................................................................
+    input.on 'end', -> help "ok"
+    #.......................................................................................................
+    $select_glyph_and_guide = =>
+      return $ ( phrase, send ) =>
+        [ _, _, guide, glyph, _, ] = phrase
+        send [ glyph, guide, ]
+    #.......................................................................................................
+    $filter_sample = ( sample ) =>
+      return $ ( [ glyph, guide, ], send ) =>
+        event = [ 'glyph-and-guide', glyph, guide, ]
+        if sample?
+          send event if sample[ glyph ]?
+        else
+          send event
+    #.......................................................................................................
+    $filter_by_frequencies = ( frequencies ) =>
+      return $ ( [ glyph, guide, ], send ) =>
+        if ( frequency = frequencies[ glyph ] )?
+          event = [ 'glyph-guide-and-frequency', glyph, guide, frequency, ]
+          send event
+    #.......................................................................................................
+    $count_guides_with_frequencies = =>
+      counts = {}
+      return $ ( event, send, end ) =>
+        if event?
+          [ type, glyph, guide, frequency, ] = event
+          counts[ guide ] = ( counts[ guide ] ? 0 ) + frequency
+        if end?
+          send [ 'counts', counts, ]
+          end()
+    #.......................................................................................................
+    $sort_counts = =>
+      return $ ( event, send ) =>
+        [ _, counts, ]  = event
+        counts          = ( [ guide, count, ] for guide, count of counts )
+        counts.sort ( a, b ) ->
+          return +1 if a[ 1 ] < b[ 1 ]
+          return -1 if a[ 1 ] > b[ 1 ]
+          return  0
+        send [ 'counts', counts, ]
+    #.......................................................................................................
+    $rank_counts = =>
+      return $ ( event, send ) =>
+        [ _, counts, ]  = event
+        rank            = 0
+        for [ guide, count, ], idx in counts
+          rank         += +1
+          counts[ idx ] = [ guide, count, rank, ]
+        send [ 'counts', counts, ]
+    #.......................................................................................................
+    $show_counts = =>
+      return $ ( event, send ) =>
+        [ _, counts, ]  = event
+        for [ guide, count, rank, ] in counts
+          echo "#{rank}\t#{count}\t#{guide}"
+    #.......................................................................................................
+    input
+      #.....................................................................................................
+      .pipe $select_glyph_and_guide()
+      .pipe $filter_by_frequencies frequencies
+      # .pipe D.$show()
+      .pipe $count_guides_with_frequencies()
+      .pipe $sort_counts()
+      .pipe $rank_counts()
+      .pipe $show_counts()
     #.......................................................................................................
     return null
 
 ############################################################################################################
 unless module.parent?
-  @main()
+  # @main()
+  @count_guides_with_frequencies()

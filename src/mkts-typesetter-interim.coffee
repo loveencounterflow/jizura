@@ -151,7 +151,7 @@ SEMVER                    = require 'semver'
     write "\\end{document}"
     #-------------------------------------------------------------------------------------------------------
     text = lines.join '\n'
-    whisper text
+    # whisper text
     njs_fs.writeFile master_locator, text, handler
 
 
@@ -194,6 +194,7 @@ SEMVER                    = require 'semver'
       # .pipe TYPO.$resolve_html_entities()
       .pipe TYPO.$fix_typography_for_tex()
       .pipe TYPO.$show_mktsmd_events()
+      .pipe @MKTX.DOCUMENT.$open          state
       .pipe @MKTX.COMMAND.$new_page       state
       # .pipe @MKTX.REGION.$single_column   state
       .pipe @MKTX.REGION.$keep_lines      state
@@ -203,6 +204,7 @@ SEMVER                    = require 'semver'
       # .pipe D.$show()
       .pipe @MKTX.INLINE.$code            state
       .pipe @MKTX.INLINE.$em_and_strong   state
+      .pipe @MKTX.DOCUMENT.$close         state
       .pipe @$filter_tex()
       .pipe tex_output
     #---------------------------------------------------------------------------------------------------------
@@ -212,6 +214,7 @@ SEMVER                    = require 'semver'
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX =
+  DOCUMENT:   {}
   COMMAND:    {}
   REGION:     {}
   BLOCK:      {}
@@ -225,10 +228,32 @@ SEMVER                    = require 'semver'
     # [ type, name, text, meta, ] = event
     send [ 'tex', "\\null\\newpage{}", ]
 
+#-----------------------------------------------------------------------------------------------------------
+@MKTX.DOCUMENT.$open = ( S ) =>
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    #.......................................................................................................
+    if TYPO.isa event, '{', 'document'
+      send [ 'tex', "\n% begin of MD document\n", ]
+    #.......................................................................................................
+    else
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
+@MKTX.DOCUMENT.$close = ( S ) =>
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    #.......................................................................................................
+    if TYPO.isa event, '}', 'document'
+      send [ 'tex', "\n% end of MD document\n", ]
+    #.......................................................................................................
+    else
+      send event
+
+### Pending ###
 # #-----------------------------------------------------------------------------------------------------------
 # @MKTX.change_column_count = ( S, send, end ) =>
 
-### Pending ###
 # #-----------------------------------------------------------------------------------------------------------
 # @MKTX.REGION.$single_column = ( S ) =>
 #   ### TAINT consider to implement command `change_column_count = ( send, n )` ###
