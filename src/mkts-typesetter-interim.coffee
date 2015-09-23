@@ -58,7 +58,14 @@ SEMVER                    = require 'semver'
     CACHE.save options
   #.........................................................................................................
   @options[ 'cache' ][ '%self' ]    = require cache_locator
-  # #.........................................................................................................
+  #.........................................................................................................
+  if ( texinputs_routes = @options[ 'texinputs' ]?[ 'routes' ] )?
+    locators = []
+    for route in texinputs_routes
+      locators.push njs_path.resolve options_home, route
+    ### TAINT duplication: tex_inputs_home, texinputs_value ###
+    ### TAINT path separator depends on OS ###
+    @options[ 'texinputs' ][ 'value' ] = locators.join ':'
   # @options[ 'locators' ] = {}
   # for key, route of @options[ 'routes' ]
   #   @options[ 'locators' ][ key ] = njs_path.resolve options_home, route
@@ -108,9 +115,19 @@ SEMVER                    = require 'semver'
     #.......................................................................................................
     write ""
     write "% PACKAGES"
-    write "\\usepackage{\\mktsPathsMktsHome/mkts2015-main}"
-    write "\\usepackage{\\mktsPathsMktsHome/mkts2015-fonts}"
-    write "\\usepackage{\\mktsPathsMktsHome/mkts2015-article}"
+    write "\\usepackage{cxltx-style-base}"
+    # write "\\usepackage{cxltx-style-trm}"
+    # write "\\usepackage{cxltx-style-accentbox}"
+    write "\\usepackage{cxltx-style-pushraise}"
+    write "\\usepackage{cxltx-style-hyphenation-tolerance}"
+    write "\\usepackage{cxltx-style-oddeven}"
+    write "\\usepackage{cxltx-style-position-absolute}"
+    write "\\usepackage{cxltx-style-pushraise}"
+    write "\\usepackage{cxltx-style-smashbox}"
+    write "\\usepackage{mkts2015-main}"
+    write "\\usepackage{mkts2015-fonts}"
+    write "\\usepackage{mkts2015-article}"
+
     #-------------------------------------------------------------------------------------------------------
     # FONTS
     #......................................................................................................

@@ -1,2 +1,4 @@
 #!/usr/bin/env bash
-xelatex -8bit -output-directory=$1 -jobname=$2 -halt-on-error --enable-write18 --recorder $3
+# echo $TEXINPUTS
+export TEXINPUTS=$TEXINPUTS:$1
+xelatex -8bit -output-directory=$2 -jobname=$3 -halt-on-error --enable-write18 --recorder $4
