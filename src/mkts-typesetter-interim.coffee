@@ -99,7 +99,10 @@ SEMVER                    = require 'semver'
     write ""
     write "% NEWCOMMANDS"
     if newcommands?
-      write "\\newcommand{\\#{name}}{#{value}%\n}" for name, value of newcommands
+      for name, value of newcommands
+        warn "implicitly converting newcommand value for #{name}"
+        value = njs_path.resolve __dirname, '..', value
+        write "\\newcommand{\\#{name}}{%\n#{value}%\n}"
     #-------------------------------------------------------------------------------------------------------
     # PACKAGES
     #.......................................................................................................

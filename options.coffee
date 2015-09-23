@@ -29,8 +29,8 @@ module.exports = options =
   #.........................................................................................................
   newcommands:
     ### TAINT use relative routes ###
-    mktsPathsMktsHome:    '/Volumes/Storage/io/jizura/tex-inputs'
-    mktsPathsFontsHome:   '/Volumes/Storage/io/jizura-fonts/fonts'
+    mktsPathsMktsHome:    './tex-inputs'
+    mktsPathsFontsHome:   '../jizura-fonts/fonts'
     # \newcommand{\permille}{{\jzrFontOptima‰}}
 
   #.........................................................................................................
