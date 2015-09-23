@@ -6,6 +6,13 @@
 module.exports = options =
 
   #.........................................................................................................
+  texinputs:
+    routes: [
+      './node_modules/cxltx-styles/styles'
+      './tex-inputs'
+      ]
+
+  #.........................................................................................................
   content:
     filename:       '.content.tex'
   #.........................................................................................................
@@ -29,6 +36,7 @@ module.exports = options =
   #.........................................................................................................
   newcommands:
     ### TAINT use relative routes ###
+    ### TAINT `mktsPathsMktsHome` is duplicate from texinputs ###
     mktsPathsMktsHome:    './tex-inputs'
     mktsPathsFontsHome:   '../jizura-fonts/fonts'
     # \newcommand{\permille}{{\jzrFontOptima‰}}

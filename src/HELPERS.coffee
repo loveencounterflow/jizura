@@ -61,12 +61,14 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
   job_name              = njs_path.basename source_home
   aux_locator           = njs_path.join source_home, "#{job_name}.aux"
   pdf_locator           = njs_path.join source_home, "#{job_name}.pdf"
-  tex_inputs_home       = njs_path.resolve __dirname, '..', 'tex-inputs'
+  # tex_inputs_home       = njs_path.resolve __dirname, '..', 'tex-inputs'
   master_name           = options[ 'master' ][ 'filename' ]
   master_ext            = njs_path.extname master_name
   master_locator        = njs_path.join source_home, master_name
   content_name          = options[ 'content' ][ 'filename' ]
   content_locator       = njs_path.join source_home, content_name
+  ### TAINT duplication: tex_inputs_home, texinputs_value ###
+  texinputs_value       = options[ 'texinputs' ][ 'value' ]
   #.........................................................................................................
   R =
     'aux-locator':                aux_locator
@@ -79,7 +81,8 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
     'source-locator':             source_locator
     'source-name':                source_name
     'source-route':               source_route
-    'tex-inputs-home':            tex_inputs_home
+    # 'tex-inputs-home':            tex_inputs_home
+    'tex-inputs-value':           texinputs_value
     'xelatex-command':            xelatex_command
     'xelatex-run-count':          0
   #.........................................................................................................
@@ -98,11 +101,10 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
   last_digest         = CND.id_from_route aux_locator if njs_fs.existsSync aux_locator
   digest              = null
   count               = 0
-  parameters          = [ source_home, job_name, master_locator, ]
+  texinputs_value     = layout_info[ 'tex-inputs-value' ]
+  parameters          = [ texinputs_value, source_home, job_name, master_locator, ]
   urge "#{xelatex_command}"
-  whisper "$1: #{parameters[ 0 ]}"
-  whisper "$2: #{parameters[ 1 ]}"
-  whisper "$3: #{parameters[ 2 ]}"
+  whisper "$#{idx + 1}: #{parameters[ idx ]}" for idx in [ 0 ... parameters.length ]
   #.........................................................................................................
   pdf_from_tex = ( next ) =>
     count += 1
