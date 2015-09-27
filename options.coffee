@@ -116,6 +116,7 @@ module.exports = options =
       { texname: 'mktsFontfileNanumgothic',                    filename: 'NanumGothic.ttc',                     }
       { texname: 'mktsFontfileNanummyeongjo',                  filename: 'NanumMyeongjo.ttc',                   }
       { texname: 'mktsFontfileJizurathreeb',                   filename: 'jizura3b.ttf',                        }
+      { texname: 'mktsFontfileJizurathreeb',                   filename: 'jizura3b-from-svg.rewritten-by-fontforge.ttf',                        }
       { texname: 'mktsFontfileBiaukai',                        filename: 'BiauKai.ttf',                         }
       ]
 

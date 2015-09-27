@@ -199,15 +199,9 @@ SEMVER                    = require 'semver'
       layout_info:          layout_info
     #---------------------------------------------------------------------------------------------------------
     tex_output.on 'close', =>
-      tasks = []
-      tasks.push ( done ) -> HELPERS.write_pdf layout_info, done
-      # ### TAINT put into HELPERS ###
-      # tasks.push ( done ) ->
-      #   html          = TYPO.get_meta input, 'html'
-      #   html_locator  = HELPERS.tmp_locator_for_extension layout_info, 'html'
-      #   help "writing HTML to #{html_locator}"
-      #   njs_fs.writeFile html_locator, html, done
-      ASYNC.parallel tasks, handler
+      HELPERS.write_pdf layout_info, ( error ) =>
+        throw error if error?
+        handler null if handler?
     #---------------------------------------------------------------------------------------------------------
     input = TYPO.create_mdreadstream text
     input
