@@ -135,6 +135,10 @@ INPUT /Volumes/Storage/io/jizura/tex-inputs/mkts2015-main.sty
 INPUT /Volumes/Storage/io/jizura/tex-inputs/mkts2015-main.sty
 INPUT /usr/local/texlive/2014/texmf-dist/tex/latex/leading/leading.sty
 INPUT /usr/local/texlive/2014/texmf-dist/tex/latex/leading/leading.sty
+INPUT /Volumes/Storage/io/jizura/node_modules/cxltx-styles/styles/cxltx-style-accentbox.sty
+INPUT /Volumes/Storage/io/jizura/node_modules/cxltx-styles/styles/cxltx-style-accentbox.sty
+INPUT /Volumes/Storage/io/jizura/node_modules/cxltx-styles/styles/accentbx/accentbx.sty
+INPUT /Volumes/Storage/io/jizura/node_modules/cxltx-styles/styles/accentbx/accentbx.sty
 INPUT /usr/local/texlive/2014/texmf-dist/tex/latex/pbox/pbox.sty
 INPUT /usr/local/texlive/2014/texmf-dist/tex/latex/pbox/pbox.sty
 INPUT /usr/local/texlive/2014/texmf-dist/tex/latex/base/ifthen.sty
@@ -167,6 +171,8 @@ INPUT /usr/local/texlive/2014/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty
 INPUT /usr/local/texlive/2014/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty
 INPUT /usr/local/texlive/2014/texmf-dist/tex/latex/fix2col/fix2col.sty
 INPUT /usr/local/texlive/2014/texmf-dist/tex/latex/fix2col/fix2col.sty
+INPUT /Volumes/Storage/downloads/picins/picins.sty
+INPUT /Volumes/Storage/downloads/picins/picins.sty
 INPUT /usr/local/texlive/2014/texmf-dist/tex/latex/background/background.sty
 INPUT /usr/local/texlive/2014/texmf-dist/tex/latex/background/background.sty
 INPUT /usr/local/texlive/2014/texmf-dist/tex/latex/pgf/frontendlayer/tikz.sty

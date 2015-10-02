@@ -27,6 +27,14 @@
 % \renewcommand\cn{\jzrFontCwMing}
 % ----------------------------------------------------------------------------------------------------------
 % \usepackage{cxltx}
+\usepackage{cxltx-style-base}
+\usepackage{cxltx-style-hyphenation-tolerance}
+\usepackage{cxltx-style-oddeven}
+\usepackage{cxltx-style-position-absolute}
+\usepackage{cxltx-style-pushraise}
+\usepackage{cxltx-style-smashbox}
+% \usepackage{cxltx-style-solarized}
+% \usepackage{cxltx-style-trm}
 % % \usepackage{picinpar}
 % \usepackage{/Volumes/Storage/downloads/picins/picins}
 % \pichskip{1mm}% horizontal distance between midashi glyph and entry text
@@ -39,6 +47,9 @@
 \setcounter{secnumdepth}{0}
 % \titleformat{\chapter}{block}{label}{sep}{before-code}[after-code]
 % \titleformat{\chapter}[shape]{format}{label}{sep}{before-code}[after-code]
+\titleformat{\section}{}{}{0pt}{\mktsStyleTitleSection}
+\titleformat{\chapter}{}{}{0pt}{\mktsStyleTitleChapter}
+% \titleformat{\section}{format}{label}{sep}{{\mktsStyleTitleSection}[}]
 
 % % using `\setCJKmainfont{Sun-ExtA}` causes typographic errors in many punctuation details
 % % (including apostrophe, ellipsis), so we set the CJK main font to our latin text font:
@@ -259,14 +270,14 @@
 \endgroup
 }
 
-% \usepackage{/Volumes/Storage/downloads/picins/picins}
-% \pichskip{1mm}% horizontal distance between midashi glyph and entry text
+\usepackage{/Volumes/Storage/downloads/picins/picins}
+\pichskip{1mm}% horizontal distance between midashi glyph and entry text
 
 
-% \newcommand{\zzwbfTableInText}[1]{
-%   \parpic(34mm,30mm)(-2.35mm,16.7mm)[l][lb]{\zzwbfTable}
-%   #1\par\picskip{0}
-%   }
+\newcommand{\zzwbfTableInText}[1]{
+  \parpic(34mm,30mm)(-2.35mm,16.7mm)[l][lb]{\zzwbfTable}
+  #1\par\picskip{0}
+  }
 
 % ----------------------------------------------------------------------------------------------------------
 % \usepackage[bottom]{footmisc}

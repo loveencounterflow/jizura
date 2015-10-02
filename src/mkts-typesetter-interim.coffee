@@ -62,7 +62,12 @@ SEMVER                    = require 'semver'
   if ( texinputs_routes = @options[ 'texinputs' ]?[ 'routes' ] )?
     locators = []
     for route in texinputs_routes
-      locators.push njs_path.resolve options_home, route
+      has_single_slash  = ( /\/$/   ).test route
+      has_double_slash  = ( /\/\/$/ ).test route
+      locator           = njs_path.resolve options_home, route
+      if      has_double_slash then locator += '//'
+      else if has_single_slash then locator += '/'
+      locators.push locator
     ### TAINT duplication: tex_inputs_home, texinputs_value ###
     ### TAINT path separator depends on OS ###
     @options[ 'texinputs' ][ 'value' ] = locators.join ':'
