@@ -116,7 +116,7 @@ SEMVER                    = require 'semver'
     write ""
     write "% PACKAGES"
     write "\\usepackage{cxltx-style-base}"
-    # write "\\usepackage{cxltx-style-trm}"
+    write "\\usepackage{cxltx-style-trm}"
     # write "\\usepackage{cxltx-style-accentbox}"
     write "\\usepackage{cxltx-style-pushraise}"
     write "\\usepackage{cxltx-style-hyphenation-tolerance}"
@@ -144,7 +144,12 @@ SEMVER                    = require 'semver'
       home ?= fonts_home
       if use_new_syntax
         ### TAINT should properly escape values ###
-        write "\\newfontface\\#{texname}{#{filename}}[Path=#{home}/]"
+        write "\\newfontface{\\#{texname}}{#{filename}}[Path=#{home}/]"
+        # write "\\newcommand{\\#{texname}}{"
+        # write "\\typeout{\\trmWhite{redefining #{texname}}}"
+        # write "\\newfontface{\\#{texname}XXX}{#{filename}}[Path=#{home}/]"
+        # write "\\renewcommand{\\#{texname}}{\\#{texname}XXX}"
+        # write "}"
       else
         write "\\newfontface\\#{texname}[Path=#{home}/]{#{filename}}"
     write ""

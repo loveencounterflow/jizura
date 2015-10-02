@@ -84,6 +84,8 @@ INPUT /usr/local/texlive/2015/texmf-dist/tex/generic/ifxetex/ifxetex.sty
 INPUT /usr/local/texlive/2015/texmf-dist/tex/latex/polyglossia/gloss-english.ldf
 INPUT /usr/local/texlive/2015/texmf-dist/tex/latex/polyglossia/gloss-english.ldf
 INPUT /usr/local/texlive/2015/texmf-dist/tex/latex/polyglossia/gloss-english.ldf
+INPUT /home/flow/io/jizura/node_modules/cxltx-styles/styles/cxltx-style-trm.sty
+INPUT /home/flow/io/jizura/node_modules/cxltx-styles/styles/cxltx-style-trm.sty
 INPUT /home/flow/io/jizura/node_modules/cxltx-styles/styles/cxltx-style-pushraise.sty
 INPUT /home/flow/io/jizura/node_modules/cxltx-styles/styles/cxltx-style-pushraise.sty
 INPUT /home/flow/io/jizura/node_modules/cxltx-styles/styles/cxltx-style-convert-to.sty
@@ -128,8 +130,6 @@ INPUT /usr/local/texlive/2015/texmf-dist/tex/latex/fp/fp-eval.sty
 INPUT /usr/local/texlive/2015/texmf-dist/tex/latex/fp/fp-eval.sty
 INPUT /home/flow/io/jizura/node_modules/cxltx-styles/styles/cxltx-style-equals.sty
 INPUT /home/flow/io/jizura/node_modules/cxltx-styles/styles/cxltx-style-equals.sty
-INPUT /home/flow/io/jizura/node_modules/cxltx-styles/styles/cxltx-style-trm.sty
-INPUT /home/flow/io/jizura/node_modules/cxltx-styles/styles/cxltx-style-trm.sty
 INPUT /home/flow/io/jizura/node_modules/cxltx-styles/styles/cxltx-style-smashbox.sty
 INPUT /home/flow/io/jizura/node_modules/cxltx-styles/styles/cxltx-style-smashbox.sty
 INPUT /home/flow/io/jizura/tex-inputs/mkts2015-main.sty
@@ -140,6 +140,13 @@ INPUT /usr/local/texlive/2015/texmf-dist/tex/latex/pbox/pbox.sty
 INPUT /usr/local/texlive/2015/texmf-dist/tex/latex/pbox/pbox.sty
 INPUT /usr/local/texlive/2015/texmf-dist/tex/latex/base/ifthen.sty
 INPUT /usr/local/texlive/2015/texmf-dist/tex/latex/base/ifthen.sty
+INPUT /usr/local/texlive/2015/texmf-dist/tex/latex/microtype/microtype.sty
+INPUT /usr/local/texlive/2015/texmf-dist/tex/latex/microtype/microtype.sty
+INPUT /usr/local/texlive/2015/texmf-dist/tex/latex/microtype/microtype-xetex.def
+INPUT /usr/local/texlive/2015/texmf-dist/tex/latex/microtype/microtype-xetex.def
+INPUT /usr/local/texlive/2015/texmf-dist/tex/latex/microtype/microtype.cfg
+INPUT /usr/local/texlive/2015/texmf-dist/tex/latex/microtype/microtype.cfg
+INPUT /usr/local/texlive/2015/texmf-dist/tex/latex/microtype/microtype.cfg
 INPUT /usr/local/texlive/2015/texmf-dist/tex/latex/polyglossia/gloss-english.ldf
 INPUT /home/flow/io/jizura/tex-inputs/mkts2015-fonts.sty
 INPUT /home/flow/io/jizura/tex-inputs/mkts2015-fonts.sty
@@ -260,6 +267,8 @@ INPUT /home/flow/io/jizura/texts/demo/demo.aux
 OUTPUT /home/flow/io/jizura/texts/demo/demo.aux
 INPUT /usr/local/texlive/2015/texmf-dist/tex/latex/tipa/t3cmr.fd
 INPUT /usr/local/texlive/2015/texmf-dist/tex/latex/tipa/t3cmr.fd
+INPUT /usr/local/texlive/2015/texmf-dist/tex/latex/microtype/mt-LatinModernRoman.cfg
+INPUT /usr/local/texlive/2015/texmf-dist/tex/latex/microtype/mt-LatinModernRoman.cfg
 INPUT /home/flow/io/jizura/texts/demo/.content.tex
 INPUT /home/flow/io/jizura/texts/demo/.content.tex
 INPUT /home/flow/io/jizura/texts/demo/demo.aux
