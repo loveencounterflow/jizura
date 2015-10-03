@@ -388,8 +388,8 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
           # blocks
           when 'heading_open'       then send [ '[', token[ 'tag' ],  null,               meta, ]
           when 'heading_close'      then send [ ']', token[ 'tag' ],  null,               meta, ]
-          when 'paragraph_open'     then send [ '[', 'p',             null,               meta, ]
-          when 'paragraph_close'    then send [ ']', 'p',             null,               meta, ]
+          when 'paragraph_open'     then null
+          when 'paragraph_close'    then send [ '.', 'p',             null,               meta, ]
           when 'list_item_open'     then send [ '[', 'li',            null,               meta, ]
           when 'list_item_close'    then send [ ']', 'li',            null,               meta, ]
           # inlines

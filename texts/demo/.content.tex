@@ -6,58 +6,59 @@
 
 \section{Keep-Lines Regions: Formulas Example
 }
-
-
 Here are some formulas:
-¶\par\begingroup\obeyalllines{}{\mktsFontfileSourcecodeproregular{}u-cjk/4e36}  \cn{丶}   \cnxJzr{}
+\begingroup\obeyalllines{}{\mktsFontfileSourcecodeproregular{}u-cjk/4e36}  \cn{丶}   \cnxJzr{}
 {\mktsFontfileSourcecodeproregular{}u-cjk/4e37}  \cn{丷}   \cnxJzr{}\cn{丶}\cnxJzr{}
 {\mktsFontfileSourcecodeproregular{}u-cjk/4e38}  \cn{丸}   \cnxJzr{}\cn{九丶}
 {\mktsFontfileSourcecodeproregular{}u-cjk/4e39}  \cn{丹}   \cnxJzr{}\cnxBabel{⺆}\cnxJzr{}\cn{丶一}
 {\mktsFontfileSourcecodeproregular{}u-cjk/4e3a}  \cn{为}   \cnxJzr{}\cn{丶}\cnxJzr{}\cn{力丶}
 {\mktsFontfileSourcecodeproregular{}u-cjk/4e3b}  \cn{主}   \cnxJzr{}\cn{丶王}
 {\mktsFontfileSourcecodeproregular{}u-cjk/4e3b}  \cn{主}   \cnxJzr{}\cn{亠土}
-{\mktsFontfileSourcecodeproregular{}u-cjk/4e3c}  \cn{丼}   \cnxJzr{}\cn{井丶}{\mktsFontfileSourcecodeproregular{}u-cjk-xb/250b7}  \cnxb{𥂷}   \cnxJzr{}\cnxJzr{}\cn{告巨皿}
-{\mktsFontfileSourcecodeproregular{}u-cjk-xb/250b8}  \cnxb{𥂸}   \cnxJzr{}\cn{楊皿}\endgroup{}
+{\mktsFontfileSourcecodeproregular{}u-cjk/4e3c}  \cn{丼}   \cnxJzr{}\cn{井丶}
+
+{\mktsFontfileSourcecodeproregular{}u-cjk-xb/250b7}  \cnxb{𥂷}   \cnxJzr{}\cnxJzr{}\cn{告巨皿}
+{\mktsFontfileSourcecodeproregular{}u-cjk-xb/250b8}  \cnxb{𥂸}   \cnxJzr{}\cn{楊皿}
+
+\endgroup{}¶\par
+
 \section{Keep-Lines Regions: All in One Paragraphs
 }
-
-
 A-before
-¶\par\begingroup\obeyalllines{}A-within
+\begingroup\obeyalllines{}A-within
 A-within
 A-within
-\endgroup{}A-after
+\endgroup{}A-after¶\par
+
 \section{Keep-Lines Regions: With separate Before, After Paragraphs
 }
-
-
 B-before¶\par
-
 \begingroup\obeyalllines{}B-within
 B-within
 B-within
-\endgroup{}
-
+\endgroup{}¶\par
 B-after¶\par
+
 \section{Keep-Lines Regions: Region Starts, Ends within Paragraph
 }
-
-
 C-before
-¶\par\begingroup\obeyalllines{}C-within
+\begingroup\obeyalllines{}
+
 C-within
-C-within\endgroup{}C-after¶\par
+C-within
+C-within
+
+\endgroup{}C-after¶\par
+
 \section{Keep-Lines Regions: Region Starts, Ends with separate Paragraph
 }
-
-
 D-before¶\par
+\begingroup\obeyalllines{}
 
-\begingroup\obeyalllines{}D-within
 D-within
-D-within\endgroup{}
+D-within
+D-within
 
+\endgroup{}¶\par
 D-after¶\par
-
 
 % end of MD document

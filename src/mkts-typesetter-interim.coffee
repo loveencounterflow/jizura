@@ -219,10 +219,11 @@ SEMVER                    = require 'semver'
       # .pipe TYPO.$resolve_html_entities()
       .pipe TYPO.$fix_typography_for_tex()
       # .pipe @MKTX.$protocoll              state
+      .pipe TYPO.$show_mktsmd_events            state
       .pipe @MKTX.DOCUMENT.$open                state
       .pipe @MKTX.COMMAND.$new_page             state
-      .pipe @MKTX.REGION.$correct_p_tags        state
-      .pipe @MKTX.REGION.$filter_empty_p_tags   state
+      # .pipe @MKTX.REGION.$correct_p_tags        state
+      # .pipe @MKTX.REGION.$filter_empty_p_tags   state
       # .pipe @MKTX.REGION.$single_column       state
       .pipe @MKTX.REGION.$keep_lines            state
       .pipe @MKTX.BLOCK.$heading                state
@@ -232,7 +233,6 @@ SEMVER                    = require 'semver'
       .pipe @MKTX.INLINE.$code                  state
       .pipe @MKTX.INLINE.$em_and_strong         state
       .pipe @MKTX.DOCUMENT.$close               state
-      .pipe TYPO.$show_mktsmd_events            state
       .pipe @$filter_tex()
       .pipe tex_output
     #---------------------------------------------------------------------------------------------------------
@@ -329,58 +329,58 @@ SEMVER                    = require 'semver'
 #     #.......................................................................................................
 #     return null
 
-#-----------------------------------------------------------------------------------------------------------
-@MKTX.REGION.$correct_p_tags = ( S ) =>
-  within_p  = no
-  # reopen_p  = no
-  #.........................................................................................................
-  return $ ( event, send ) =>
-    [ type, name, text, meta, ] = event
-    #.......................................................................................................
-    if TYPO.isa event, '[', 'p'
-      within_p = yes
-      send event
-    else if TYPO.isa event, ']', 'p'
-      within_p = no
-      send event
-    else if TYPO.isa event, [ '{', '}', ]
-      send [ ']', 'p', null, ( TYPO._copy meta ), ] if within_p
-      send event
-      send [ '[', 'p', null, ( TYPO._copy meta ), ] if within_p
-      within_p  = no
-    else
-      send event
+# #-----------------------------------------------------------------------------------------------------------
+# @MKTX.REGION.$correct_p_tags = ( S ) =>
+#   within_p  = no
+#   # reopen_p  = no
+#   #.........................................................................................................
+#   return $ ( event, send ) =>
+#     [ type, name, text, meta, ] = event
+#     #.......................................................................................................
+#     if TYPO.isa event, '[', 'p'
+#       within_p = yes
+#       send event
+#     else if TYPO.isa event, ']', 'p'
+#       within_p = no
+#       send event
+#     else if TYPO.isa event, [ '{', '}', ]
+#       send [ ']', 'p', null, ( TYPO._copy meta ), ] if within_p
+#       send event
+#       send [ '[', 'p', null, ( TYPO._copy meta ), ] if within_p
+#       within_p  = no
+#     else
+#       send event
 
-#-----------------------------------------------------------------------------------------------------------
-@MKTX.REGION.$filter_empty_p_tags = ( S ) =>
-  last_was_open_p = no
-  last_event      = null
-  _send           = null
-  #.........................................................................................................
-  send_later = ( event ) =>
-    _send last_event if last_event?
-    last_event = event
-  #.........................................................................................................
-  return $ ( event, send, end ) =>
-    _send = send
-    if event?
-      #.....................................................................................................
-      if TYPO.isa event, '[', 'p'
-        last_was_open_p = yes
-        send_later event
-      #.....................................................................................................
-      else if TYPO.isa event, ']', 'p'
-        unless last_was_open_p
-          send_later event
-        last_was_open_p = no
-      #.....................................................................................................
-      else
-        last_was_open_p = no
-        send_later event
-    #.......................................................................................................
-    if end?
-      send_later()
-      end()
+# #-----------------------------------------------------------------------------------------------------------
+# @MKTX.REGION.$filter_empty_p_tags = ( S ) =>
+#   last_was_open_p = no
+#   last_event      = null
+#   _send           = null
+#   #.........................................................................................................
+#   send_later = ( event ) =>
+#     _send last_event if last_event?
+#     last_event = event
+#   #.........................................................................................................
+#   return $ ( event, send, end ) =>
+#     _send = send
+#     if event?
+#       #.....................................................................................................
+#       if TYPO.isa event, '[', 'p'
+#         last_was_open_p = yes
+#         send_later event
+#       #.....................................................................................................
+#       else if TYPO.isa event, ']', 'p'
+#         unless last_was_open_p
+#           send_later event
+#         last_was_open_p = no
+#       #.....................................................................................................
+#       else
+#         last_was_open_p = no
+#         send_later event
+#     #.......................................................................................................
+#     if end?
+#       send_later()
+#       end()
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.REGION.$keep_lines = ( S ) =>
@@ -463,17 +463,28 @@ SEMVER                    = require 'semver'
   #.........................................................................................................
   return $ ( event, send ) =>
     #.......................................................................................................
-    if TYPO.isa event, [ '[', ']', ], 'p'
+    if TYPO.isa event, '.', 'p'
       [ type, name, text, meta, ] = event
       ### TAINT difference between S.within_pre, S.within_keeplines? ###
-      unless S.within_pre or S.within_keeplines or S.just_closed_keeplines
-        if type is '['
-          send @stamp event
-          send [ 'text', '\n\n' ]
-        else
-          send @stamp event
-          send [ 'tex', '¶\\par' ]
+      if S.within_pre or S.within_keeplines# or S.just_closed_keeplines
+        send @stamp event
+        send [ 'text', '\n\n' ]
+      else
+        send @stamp event
+        send [ 'tex', '¶\\par\n' ]
       S.just_closed_keeplines = no
+    # #.......................................................................................................
+    # if TYPO.isa event, [ '[', ']', ], 'p'
+    #   [ type, name, text, meta, ] = event
+    #   ### TAINT difference between S.within_pre, S.within_keeplines? ###
+    #   unless S.within_pre or S.within_keeplines or S.just_closed_keeplines
+    #     if type is '['
+    #       send @stamp event
+    #       send [ 'text', '\n\n' ]
+    #     else
+    #       send @stamp event
+    #       send [ 'tex', '¶\\par' ]
+    #   S.just_closed_keeplines = no
     #.......................................................................................................
     else
       send event
