@@ -1,5 +1,80 @@
 
 
+# Regions
+
+## Keep-Lines Regions: Formulas Example
+
+Here are some formulas:
+@@@keep-lines
+`u-cjk/4e36`  丶   ●
+`u-cjk/4e37`  丷   ⿰丶丿
+`u-cjk/4e38`  丸   ⿻九丶
+`u-cjk/4e39`  丹   ⿻⺆⿱丶一
+`u-cjk/4e3a`  为   ⿻丶⿵力丶
+`u-cjk/4e3b`  主   ⿱丶王
+`u-cjk/4e3b`  主   ⿱亠土
+`u-cjk/4e3c`  丼   ⿴井丶
+
+`u-cjk-xb/250b7`  𥂷   ⿱⿰告巨皿
+`u-cjk-xb/250b8`  𥂸   ⿱楊皿
+
+@@@
+
+## Keep-Lines Regions: All in One Paragraphs
+
+A-before
+@@@keep-lines
+A-within
+A-within
+A-within
+@@@
+A-after
+
+## Keep-Lines Regions: With separate Before, After Paragraphs
+
+B-before
+
+@@@keep-lines
+B-within
+B-within
+B-within
+@@@
+
+B-after
+
+
+## Keep-Lines Regions: Region Starts, Ends within Paragraph
+
+C-before
+@@@keep-lines
+
+C-within
+C-within
+C-within
+
+@@@
+C-after
+
+## Keep-Lines Regions: Region Starts, Ends with separate Paragraph
+
+D-before
+
+@@@keep-lines
+
+D-within
+D-within
+D-within
+
+@@@
+
+D-after
+
+
+∆∆∆end
+
+
+
+
 # This is a Demonstration 中國皇帝
 
 ## A Section Title 1 中國皇帝
@@ -176,63 +251,3 @@ yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
-
-
-# Regions
-
-## Keep-Lines Regions
-
---------------------------------------------------------------
-
-A-before
-@@@keep-lines
-A-within
-A-within
-A-within
-@@@
-A-after
-
-
-%∆∆∆end
-
---------------------------------------------------------------
-
-B-before
-
-@@@keep-lines
-B-within
-B-within
-B-within
-@@@
-
-B-after
-
-
---------------------------------------------------------------
-
-C-before
-@@@keep-lines
-
-C-within
-C-within
-C-within
-
-@@@
-C-after
-
---------------------------------------------------------------
-
-
-D-before
-
-@@@keep-lines
-
-D-within
-D-within
-D-within
-
-@@@
-
-D-after
-
-

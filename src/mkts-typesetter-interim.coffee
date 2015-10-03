@@ -202,6 +202,7 @@ SEMVER                    = require 'semver'
     text                    = njs_fs.readFileSync source_locator, encoding: 'utf-8'
     #---------------------------------------------------------------------------------------------------------
     state =
+      # write_protocoll:      yes
       within_multicol:      no
       within_keeplines:     no
       within_pre:           no
@@ -217,18 +218,21 @@ SEMVER                    = require 'semver'
     input
       # .pipe TYPO.$resolve_html_entities()
       .pipe TYPO.$fix_typography_for_tex()
-      .pipe TYPO.$show_mktsmd_events()
-      .pipe @MKTX.DOCUMENT.$open          state
-      .pipe @MKTX.COMMAND.$new_page       state
-      # .pipe @MKTX.REGION.$single_column   state
-      .pipe @MKTX.REGION.$keep_lines      state
-      .pipe @MKTX.BLOCK.$heading          state
-      .pipe @MKTX.BLOCK.$paragraph        state
-      .pipe @MKTX.BLOCK.$hr               state
+      # .pipe @MKTX.$protocoll              state
+      .pipe @MKTX.DOCUMENT.$open                state
+      .pipe @MKTX.COMMAND.$new_page             state
+      .pipe @MKTX.REGION.$correct_p_tags        state
+      .pipe @MKTX.REGION.$filter_empty_p_tags   state
+      # .pipe @MKTX.REGION.$single_column       state
+      .pipe @MKTX.REGION.$keep_lines            state
+      .pipe @MKTX.BLOCK.$heading                state
+      .pipe @MKTX.BLOCK.$paragraph              state
+      .pipe @MKTX.BLOCK.$hr                     state
       # .pipe D.$show()
-      .pipe @MKTX.INLINE.$code            state
-      .pipe @MKTX.INLINE.$em_and_strong   state
-      .pipe @MKTX.DOCUMENT.$close         state
+      .pipe @MKTX.INLINE.$code                  state
+      .pipe @MKTX.INLINE.$em_and_strong         state
+      .pipe @MKTX.DOCUMENT.$close               state
+      .pipe TYPO.$show_mktsmd_events            state
       .pipe @$filter_tex()
       .pipe tex_output
     #---------------------------------------------------------------------------------------------------------
@@ -244,6 +248,16 @@ SEMVER                    = require 'semver'
   BLOCK:      {}
   INLINE:     {}
 
+# #-----------------------------------------------------------------------------------------------------------
+# @MKTX.$protocoll = ( S ) =>
+#   #.........................................................................................................
+#   return $ ( event, send ) =>
+#     if S.write_protocoll
+#       [ type, name, text, meta, ] = event
+#       line_nr = meta[ 'map' ]?[ 0 ] ? '?'
+#       send [ 'text', "% #{line_nr} #{type}#{name}" ]
+#     send event
+
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.COMMAND.$new_page = ( S ) =>
   #.........................................................................................................
@@ -258,6 +272,7 @@ SEMVER                    = require 'semver'
   return $ ( event, send ) =>
     #.......................................................................................................
     if TYPO.isa event, '{', 'document'
+      send @stamp event
       send [ 'tex', "\n% begin of MD document\n", ]
     #.......................................................................................................
     else
@@ -269,6 +284,7 @@ SEMVER                    = require 'semver'
   return $ ( event, send ) =>
     #.......................................................................................................
     if TYPO.isa event, '}', 'document'
+      send @stamp event
       send [ 'tex', "\n% end of MD document\n", ]
     #.......................................................................................................
     else
@@ -314,6 +330,59 @@ SEMVER                    = require 'semver'
 #     return null
 
 #-----------------------------------------------------------------------------------------------------------
+@MKTX.REGION.$correct_p_tags = ( S ) =>
+  within_p  = no
+  # reopen_p  = no
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    [ type, name, text, meta, ] = event
+    #.......................................................................................................
+    if TYPO.isa event, '[', 'p'
+      within_p = yes
+      send event
+    else if TYPO.isa event, ']', 'p'
+      within_p = no
+      send event
+    else if TYPO.isa event, [ '{', '}', ]
+      send [ ']', 'p', null, ( TYPO._copy meta ), ] if within_p
+      send event
+      send [ '[', 'p', null, ( TYPO._copy meta ), ] if within_p
+      within_p  = no
+    else
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
+@MKTX.REGION.$filter_empty_p_tags = ( S ) =>
+  last_was_open_p = no
+  last_event      = null
+  _send           = null
+  #.........................................................................................................
+  send_later = ( event ) =>
+    _send last_event if last_event?
+    last_event = event
+  #.........................................................................................................
+  return $ ( event, send, end ) =>
+    _send = send
+    if event?
+      #.....................................................................................................
+      if TYPO.isa event, '[', 'p'
+        last_was_open_p = yes
+        send_later event
+      #.....................................................................................................
+      else if TYPO.isa event, ']', 'p'
+        unless last_was_open_p
+          send_later event
+        last_was_open_p = no
+      #.....................................................................................................
+      else
+        last_was_open_p = no
+        send_later event
+    #.......................................................................................................
+    if end?
+      send_later()
+      end()
+
+#-----------------------------------------------------------------------------------------------------------
 @MKTX.REGION.$keep_lines = ( S ) =>
   #.........................................................................................................
   return $ ( event, send ) =>
@@ -328,6 +397,7 @@ SEMVER                    = require 'semver'
       send [ type, name, text, meta, ]
     #.......................................................................................................
     else if TYPO.isa event, [ '{', '}', ], 'keep-lines'
+      send @stamp event
       [ type, name, text, meta, ] = event
       #.....................................................................................................
       if type is '{'
@@ -337,8 +407,9 @@ SEMVER                    = require 'semver'
         send [ 'tex', "\\begingroup\\obeyalllines{}", ]
       else
         send [ 'tex', "\\endgroup{}", ]
-        S.within_keeplines    = no
-        S.within_pre          = no
+        S.within_keeplines      = no
+        S.within_pre            = no
+        S.just_closed_keeplines = yes
     #.......................................................................................................
     else
       send event
@@ -350,6 +421,7 @@ SEMVER                    = require 'semver'
   return $ ( event, send ) =>
     #.......................................................................................................
     if TYPO.isa event, [ '[', ']', ], [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', ]
+      send @stamp event
       [ type, name, text, meta, ] = event
       #.....................................................................................................
       # OPEN
@@ -393,10 +465,15 @@ SEMVER                    = require 'semver'
     #.......................................................................................................
     if TYPO.isa event, [ '[', ']', ], 'p'
       [ type, name, text, meta, ] = event
-      if type is '['
-        send [ 'text', '\n\n' ]
-      else
-        send [ 'tex', '\\par' ]
+      ### TAINT difference between S.within_pre, S.within_keeplines? ###
+      unless S.within_pre or S.within_keeplines or S.just_closed_keeplines
+        if type is '['
+          send @stamp event
+          send [ 'text', '\n\n' ]
+        else
+          send @stamp event
+          send [ 'tex', '¶\\par' ]
+      S.just_closed_keeplines = no
     #.......................................................................................................
     else
       send event
@@ -407,6 +484,7 @@ SEMVER                    = require 'semver'
   return $ ( event, send ) =>
     #.......................................................................................................
     if TYPO.isa event, '.', 'hr'
+      send @stamp event
       [ type, name, text, meta, ] = event
       switch chr = text[ 0 ]
         when '-' then send [ 'text', '\n--------------\n' ]
@@ -422,6 +500,7 @@ SEMVER                    = require 'semver'
   return $ ( event, send ) =>
     #.......................................................................................................
     if TYPO.isa event, [ '(', ')', ], 'code'
+      send @stamp event
       [ type, name, text, meta, ] = event
       ### TAINT should use proper command ###
       if type is '(' then send [ 'tex', "{\\mktsFontfileSourcecodeproregular{}", ]
@@ -436,6 +515,7 @@ SEMVER                    = require 'semver'
   return $ ( event, send ) =>
     #.......................................................................................................
     if TYPO.isa event, [ '(', ')', ], [ 'em', 'strong', ]
+      send @stamp event
       [ type, name, text, meta, ] = event
       if type is '('
         if name is 'em'
@@ -456,7 +536,13 @@ SEMVER                    = require 'semver'
     else if TYPO.isa event, '.', 'text'
       send event[ 2 ]
     else
-      warn "unhandled event: #{JSON.stringify event}"
+      warn "unhandled event: #{JSON.stringify event}" unless event[ 3 ][ 'processed' ]
+
+#-----------------------------------------------------------------------------------------------------------
+@stamp = ( event ) =>
+  # event[ 'meta' ] ?= {}
+  event[ 3 ][ 'processed' ] = yes
+  return event
 
 
 

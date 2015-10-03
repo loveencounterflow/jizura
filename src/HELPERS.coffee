@@ -106,6 +106,7 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
   error_lines         = []
   urge "#{xelatex_command}"
   whisper "$#{idx + 1}: #{parameters[ idx ]}" for idx in [ 0 ... parameters.length ]
+  log "#{xelatex_command} #{parameters.join ' '}"
   #.........................................................................................................
   pdf_from_tex = ( next ) =>
     count += 1
@@ -459,67 +460,6 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
     return null
 
 #-----------------------------------------------------------------------------------------------------------
-@TYPO.$preprocess_keeplines_regions = ( S ) ->
-  within_keep_lines   = no
-  within_p            = no
-  ignore_next_close_p = no
-  next_text_starts_p  = no
-  #.........................................................................................................
-  return $ ( event, send ) =>
-    #.......................................................................................................
-    [ type, name, text, meta, ] = event
-    #.......................................................................................................
-    if @isa event, '.', 'text'
-      if next_text_starts_p
-        next_text_starts_p = no
-        debug '©1WSav', "inserting [p"
-        send [ '[', 'p', null, meta, ]
-      send event
-    #.......................................................................................................
-    else if @isa event, '[', 'p'
-      next_text_starts_p = no
-      if within_keep_lines
-        null
-        debug '©eeTZJ', "ignoring [p"
-      else
-        within_p = yes
-        send event
-    #.......................................................................................................
-    else if @isa event, ']', 'p'
-      if within_keep_lines
-        debug '©eeTZJ', "ignoring ]p"
-        null
-      else
-        within_p = no
-        if ignore_next_close_p
-          next_text_starts_p  = yes
-        else
-          send event
-        ignore_next_close_p = no
-    #.......................................................................................................
-    else if @isa event, '{', 'keep-lines'
-      within_keep_lines = yes
-      if within_p
-        debug '©VEgBx', "inserting ]p"
-        within_p = no
-        send [ ']', 'p', null, meta, ]
-      send event
-    #.......................................................................................................
-    else if @isa event, '}', 'keep-lines'
-      within_keep_lines   = no
-      next_text_starts_p  = yes
-      # if within_p
-      ignore_next_close_p = yes
-      send event
-    #.......................................................................................................
-    else
-      next_text_starts_p  = no
-      ignore_next_close_p = no
-      send event
-    #.......................................................................................................
-    return null
-
-#-----------------------------------------------------------------------------------------------------------
 @TYPO.$preprocess_commands = ( S ) ->
   pattern   = /^∆∆∆(\S.+)(\n|$)/
   collector = []
@@ -625,9 +565,8 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
 #-----------------------------------------------------------------------------------------------------------
 @TYPO.$show_mktsmd_events = ( S ) ->
   unknown_events    = []
-  level             = 0
   indentation       = ''
-  next_indentation  = indentation
+  tag_stack         = []
   return D.$observe ( event, has_ended ) ->
     if event?
       [ type, name, text, meta, ] = event
@@ -638,34 +577,44 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
         color = CND.blue
         #...................................................................................................
         switch type
-          #.................................................................................................
-          when '{', '[', '(', ')', ']', '}'
-            switch type
-              when '{', '[', '(' then level += +1
-              when ')', ']', '}' then level += -1
-            if level < 0
-              warn "level below zero"
-              level = 0
-            next_indentation = ( new Array level ).join '  '
-          #.................................................................................................
+          when '{', '∆'
+            color         = CND.red
+          when ')', ']', '}'
+            color         = CND.grey
           when '.'
             switch name
               when 'text' then color = CND.green
               when 'code' then color = CND.orange
         #...................................................................................................
-        switch type
-          when '{'
-            color         = CND.red
-          when '∆'
-            color         = CND.red
-          when ')', ']', '}'
-            color         = CND.grey
-        #...................................................................................................
         text = if text? then ( color rpr text ) else ''
-        log indentation + ( CND.grey type ) + ( color name ) + ' ' + text
-        indentation = next_indentation
+        switch type
+          when 'text'
+            log indentation + ( color type ) + ' ' + rpr name
+          when 'tex'
+            if S.show_tex_events ? no
+              log indentation + ( CND.grey type ) + ( color name ) + ' ' + text
+          else
+            log indentation + ( CND.grey type ) + ( color name ) + ' ' + text
+        #...................................................................................................
+        switch type
+          #.................................................................................................
+          when '{', '[', '(', ')', ']', '}'
+            switch type
+              when '{', '[', '('
+                tag_stack.push [ type, name, ]
+              when ')', ']', '}'
+                if tag_stack.length > 0
+                  [ topmost_type, topmost_name, ] = tag_stack.pop()
+                  unless topmost_name is name
+                    topmost_type = { '{': '}', '[': ']', '(', ')', }[ topmost_type ]
+                    warn "encountered #{type}#{name} when #{topmost_type}#{topmost_name} was expected"
+                else
+                  warn "level below zero"
+            indentation = ( new Array tag_stack.length ).join '  '
     #.......................................................................................................
     if has_ended
+      if tag_stack.length > 0
+        warn "unclosed tags: #{tag_stack.join ', '}"
       if unknown_events.length > 0
         warn "unknown events: #{unknown_events.sort().join ', '}"
     return null
@@ -687,7 +636,7 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
     .pipe @$process_end_command             state
     .pipe @$preprocess_regions              state
     .pipe @$close_dangling_open_tags        state
-    # .pipe @$preprocess_keeplines_regions  state
+    # .pipe @$preprocess_keeplines_regions    state
     .pipe R
   #.........................................................................................................
   R.on 'resume', =>
