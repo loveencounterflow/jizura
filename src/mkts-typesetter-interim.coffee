@@ -121,7 +121,7 @@ SEMVER                    = require 'semver'
     write ""
     write "% PACKAGES"
     write "\\usepackage{cxltx-style-base}"
-    # write "\\usepackage{cxltx-style-trm}"
+    write "\\usepackage{cxltx-style-trm}"
     # write "\\usepackage{cxltx-style-accentbox}"
     write "\\usepackage{cxltx-style-pushraise}"
     write "\\usepackage{cxltx-style-hyphenation-tolerance}"
@@ -149,7 +149,12 @@ SEMVER                    = require 'semver'
       home ?= fonts_home
       if use_new_syntax
         ### TAINT should properly escape values ###
-        write "\\newfontface\\#{texname}{#{filename}}[Path=#{home}/]"
+        write "\\newfontface{\\#{texname}}{#{filename}}[Path=#{home}/]"
+        # write "\\newcommand{\\#{texname}}{"
+        # write "\\typeout{\\trmWhite{redefining #{texname}}}"
+        # write "\\newfontface{\\#{texname}XXX}{#{filename}}[Path=#{home}/]"
+        # write "\\renewcommand{\\#{texname}}{\\#{texname}XXX}"
+        # write "}"
       else
         write "\\newfontface\\#{texname}[Path=#{home}/]{#{filename}}"
     write ""
@@ -204,15 +209,9 @@ SEMVER                    = require 'semver'
       layout_info:          layout_info
     #---------------------------------------------------------------------------------------------------------
     tex_output.on 'close', =>
-      tasks = []
-      tasks.push ( done ) -> HELPERS.write_pdf layout_info, done
-      # ### TAINT put into HELPERS ###
-      # tasks.push ( done ) ->
-      #   html          = TYPO.get_meta input, 'html'
-      #   html_locator  = HELPERS.tmp_locator_for_extension layout_info, 'html'
-      #   help "writing HTML to #{html_locator}"
-      #   njs_fs.writeFile html_locator, html, done
-      ASYNC.parallel tasks, handler
+      HELPERS.write_pdf layout_info, ( error ) =>
+        throw error if error?
+        handler null if handler?
     #---------------------------------------------------------------------------------------------------------
     input = TYPO.create_mdreadstream text
     input

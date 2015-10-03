@@ -103,17 +103,38 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
   count               = 0
   texinputs_value     = layout_info[ 'tex-inputs-value' ]
   parameters          = [ texinputs_value, source_home, job_name, master_locator, ]
+  error_lines         = []
   urge "#{xelatex_command}"
   whisper "$#{idx + 1}: #{parameters[ idx ]}" for idx in [ 0 ... parameters.length ]
   #.........................................................................................................
   pdf_from_tex = ( next ) =>
     count += 1
     urge "run ##{count}"
-    CND.spawn xelatex_command, parameters, ( error, data ) =>
+    # CND.spawn xelatex_command, parameters, ( error, data ) =>
+    cp = ( require 'child_process' ).spawn xelatex_command, parameters
+    #.......................................................................................................
+    cp.stdout
+      .pipe D.$split()
+      .pipe D.$observe ( line ) =>
+        echo CND.grey line
+    #.......................................................................................................
+    cp.stderr
+      .pipe D.$split()
+      .pipe D.$observe ( line ) =>
+        error_lines.push line
+        echo CND.red line
+    #.......................................................................................................
+    cp.on 'close', ( error ) =>
       error = undefined if error is 0
       if error?
         alert error
         return handler error
+      if error_lines.length > 0
+        ### TAINT looks like we're getting empty lines on stderr? ###
+        message = ( line for line in error_lines when line.length > 0 ).join '\n'
+        if message.length > 0
+          alert message
+          return handler message
       digest = CND.id_from_route aux_locator
       if digest is last_digest
         echo ( CND.grey badge ), CND.lime "done."
