@@ -2,7 +2,26 @@
 
 # Regions
 
+Regions are started and ended using `@@@` (triple at-signs); the opener
+must be followed by a key word indicating the region's type.
+
+
+## Code
+
+
+```
+This is a code
+region; lines are kept, the font is monospaced
+```
+
+
 ## Keep-Lines Regions: Formulas Example
+
+To preserve line breaks in the PDF the way they were entered in
+the MD manuscript, use `@@@keep-lines` regions. Currently, the
+best idea is to position the sentinels in a 'tight' way, without
+intervening blank lines between the sentinels and the surrounding
+paragraph.
 
 Here are some formulas:
 @@@keep-lines
@@ -20,8 +39,7 @@ Here are some formulas:
 @@@
 These formulas may be recursively resolved by way of substitution to their
 ultimate constituent parts—strokes. Somewhere along that process of
-deconstruction, we meet with fairly recurrent figures or shapes. 
-
+deconstruction, we meet with fairly recurrent figures or shapes.
 
 ## Keep-Lines Regions: All in One Paragraphs
 
@@ -73,7 +91,7 @@ D-within
 D-after
 
 
-∆∆∆end
+<!-- ∆∆∆end -->
 
 
 

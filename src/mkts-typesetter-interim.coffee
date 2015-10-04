@@ -219,11 +219,9 @@ SEMVER                    = require 'semver'
       # .pipe TYPO.$resolve_html_entities()
       .pipe TYPO.$fix_typography_for_tex()
       # .pipe @MKTX.$protocoll              state
-      .pipe TYPO.$show_mktsmd_events            state
       .pipe @MKTX.DOCUMENT.$begin               state
       .pipe @MKTX.COMMAND.$new_page             state
       .pipe @MKTX.REGION.$correct_p_tags        state
-      # .pipe @MKTX.REGION.$filter_empty_p_tags   state
       # .pipe @MKTX.REGION.$single_column       state
       .pipe @MKTX.REGION.$keep_lines            state
       .pipe @MKTX.BLOCK.$heading                state
@@ -233,6 +231,8 @@ SEMVER                    = require 'semver'
       .pipe @MKTX.INLINE.$code                  state
       .pipe @MKTX.INLINE.$em_and_strong         state
       .pipe @MKTX.DOCUMENT.$end                 state
+      .pipe TYPO.$show_mktsmd_events            state
+      .pipe @$show_unhandled_tags               state
       .pipe @$filter_tex()
       .pipe tex_output
     #---------------------------------------------------------------------------------------------------------
@@ -346,48 +346,17 @@ SEMVER                    = require 'semver'
         send [ '.', 'p', null, ( TYPO._copy meta ), ]
       send event
       last_was_p  = no
-    #.......................................................................................................
-    else if TYPO.isa event, '}'
-      send event
-      unless last_was_p
-        [ ..., meta, ] = event
-        send [ '.', 'p', null, ( TYPO._copy meta ), ]
-      last_was_p  = no
+    # #.......................................................................................................
+    # else if TYPO.isa event, '}'
+    #   send event
+    #   unless last_was_p
+    #     [ ..., meta, ] = event
+    #     send [ '.', 'p', null, ( TYPO._copy meta ), ]
+    #   last_was_p  = no
     #.......................................................................................................
     else
       last_was_p = no
       send event
-
-# #-----------------------------------------------------------------------------------------------------------
-# @MKTX.REGION.$filter_empty_p_tags = ( S ) =>
-#   last_was_open_p = no
-#   last_event      = null
-#   _send           = null
-#   #.........................................................................................................
-#   send_later = ( event ) =>
-#     _send last_event if last_event?
-#     last_event = event
-#   #.........................................................................................................
-#   return $ ( event, send, end ) =>
-#     _send = send
-#     if event?
-#       #.....................................................................................................
-#       if TYPO.isa event, '[', 'p'
-#         last_was_open_p = yes
-#         send_later event
-#       #.....................................................................................................
-#       else if TYPO.isa event, ']', 'p'
-#         unless last_was_open_p
-#           send_later event
-#         last_was_open_p = no
-#       #.....................................................................................................
-#       else
-#         last_was_open_p = no
-#         send_later event
-#     #.......................................................................................................
-#     if end?
-#       send_later()
-#       end()
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.REGION.$keep_lines = ( S ) =>
@@ -543,6 +512,22 @@ SEMVER                    = require 'semver'
       else
         send [ 'tex', "}", ]
     #.......................................................................................................
+    else
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
+@$show_unhandled_tags = ( S ) ->
+  return $ ( event, send ) =>
+    ### TAINT selection could be simpler, less repetitive ###
+    if event[ 0 ] in [ 'tex', 'text', ]
+      send event
+    else if TYPO.isa event, '.', 'text'
+      send event
+    else unless event[ 3 ][ 'processed' ]
+      event_tex = TYPO.fix_typography_for_tex rpr event
+      # send [ 'tex', "{\\color{magenta}unhandled event: #{event_tex}}" ]
+      # send [ 'tex', "\\colorbox{red}{\\color{yellow}unhandled event: #{event_tex}}" ]
+      send [ 'tex', "\\mktsErrorbox{unhandled event: #{event_tex}}" ]
     else
       send event
 

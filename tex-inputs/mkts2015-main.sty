@@ -484,6 +484,7 @@
     #3}}%
 
 
-
-
-
+% thx to http://tex.stackexchange.com/a/32821/88579
+\usepackage{varwidth}
+\newcommand\mktsErrorbox[1]{%
+  \colorbox{red!60}{\begin{varwidth}{\dimexpr\linewidth-2\fboxsep}#1\end{varwidth}}}
