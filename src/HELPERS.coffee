@@ -371,7 +371,7 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
     if token?
       if is_first
         is_first = no
-        send [ '{', 'document', null, {}, ]
+        send [ '<', 'document', null, {}, ]
       if S.has_ended
         null
       else
@@ -415,7 +415,7 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
       if unknown_tokens.length > 0
         warn "unknown tokens: #{unknown_tokens.sort().join ', '}"
       ### TAINT could send end document earlier in case of `∆∆∆end` ###
-      send [ '}', 'document', null, {}, ]
+      send [ '>', 'document', null, {}, ]
       end()
     return null
 
@@ -577,6 +577,8 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
         color = CND.blue
         #...................................................................................................
         switch type
+          when '<', '>'
+            color         = CND.yellow
           when '{', '∆'
             color         = CND.red
           when ')', ']', '}'

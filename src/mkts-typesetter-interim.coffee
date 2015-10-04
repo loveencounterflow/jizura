@@ -220,9 +220,9 @@ SEMVER                    = require 'semver'
       .pipe TYPO.$fix_typography_for_tex()
       # .pipe @MKTX.$protocoll              state
       .pipe TYPO.$show_mktsmd_events            state
-      .pipe @MKTX.DOCUMENT.$open                state
+      .pipe @MKTX.DOCUMENT.$begin               state
       .pipe @MKTX.COMMAND.$new_page             state
-      # .pipe @MKTX.REGION.$correct_p_tags        state
+      .pipe @MKTX.REGION.$correct_p_tags        state
       # .pipe @MKTX.REGION.$filter_empty_p_tags   state
       # .pipe @MKTX.REGION.$single_column       state
       .pipe @MKTX.REGION.$keep_lines            state
@@ -232,7 +232,7 @@ SEMVER                    = require 'semver'
       # .pipe D.$show()
       .pipe @MKTX.INLINE.$code                  state
       .pipe @MKTX.INLINE.$em_and_strong         state
-      .pipe @MKTX.DOCUMENT.$close               state
+      .pipe @MKTX.DOCUMENT.$end                 state
       .pipe @$filter_tex()
       .pipe tex_output
     #---------------------------------------------------------------------------------------------------------
@@ -267,11 +267,11 @@ SEMVER                    = require 'semver'
     send [ 'tex', "\\null\\newpage{}", ]
 
 #-----------------------------------------------------------------------------------------------------------
-@MKTX.DOCUMENT.$open = ( S ) =>
+@MKTX.DOCUMENT.$begin= ( S ) =>
   #.........................................................................................................
   return $ ( event, send ) =>
     #.......................................................................................................
-    if TYPO.isa event, '{', 'document'
+    if TYPO.isa event, '<', 'document'
       send @stamp event
       send [ 'tex', "\n% begin of MD document\n", ]
     #.......................................................................................................
@@ -279,11 +279,11 @@ SEMVER                    = require 'semver'
       send event
 
 #-----------------------------------------------------------------------------------------------------------
-@MKTX.DOCUMENT.$close = ( S ) =>
+@MKTX.DOCUMENT.$end = ( S ) =>
   #.........................................................................................................
   return $ ( event, send ) =>
     #.......................................................................................................
-    if TYPO.isa event, '}', 'document'
+    if TYPO.isa event, '>', 'document'
       send @stamp event
       send [ 'tex', "\n% end of MD document\n", ]
     #.......................................................................................................
@@ -329,27 +329,34 @@ SEMVER                    = require 'semver'
 #     #.......................................................................................................
 #     return null
 
-# #-----------------------------------------------------------------------------------------------------------
-# @MKTX.REGION.$correct_p_tags = ( S ) =>
-#   within_p  = no
-#   # reopen_p  = no
-#   #.........................................................................................................
-#   return $ ( event, send ) =>
-#     [ type, name, text, meta, ] = event
-#     #.......................................................................................................
-#     if TYPO.isa event, '[', 'p'
-#       within_p = yes
-#       send event
-#     else if TYPO.isa event, ']', 'p'
-#       within_p = no
-#       send event
-#     else if TYPO.isa event, [ '{', '}', ]
-#       send [ ']', 'p', null, ( TYPO._copy meta ), ] if within_p
-#       send event
-#       send [ '[', 'p', null, ( TYPO._copy meta ), ] if within_p
-#       within_p  = no
-#     else
-#       send event
+#-----------------------------------------------------------------------------------------------------------
+@MKTX.REGION.$correct_p_tags = ( S ) =>
+  last_was_p = no
+  # reopen_p  = no
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    #.......................................................................................................
+    if TYPO.isa event, '.', 'p'
+      last_was_p = yes
+      send event
+    #.......................................................................................................
+    else if TYPO.isa event, '{'
+      unless last_was_p
+        [ ..., meta, ] = event
+        send [ '.', 'p', null, ( TYPO._copy meta ), ]
+      send event
+      last_was_p  = no
+    #.......................................................................................................
+    else if TYPO.isa event, '}'
+      send event
+      unless last_was_p
+        [ ..., meta, ] = event
+        send [ '.', 'p', null, ( TYPO._copy meta ), ]
+      last_was_p  = no
+    #.......................................................................................................
+    else
+      last_was_p = no
+      send event
 
 # #-----------------------------------------------------------------------------------------------------------
 # @MKTX.REGION.$filter_empty_p_tags = ( S ) =>
@@ -551,7 +558,6 @@ SEMVER                    = require 'semver'
 
 #-----------------------------------------------------------------------------------------------------------
 @stamp = ( event ) =>
-  # event[ 'meta' ] ?= {}
   event[ 3 ][ 'processed' ] = yes
   return event
 

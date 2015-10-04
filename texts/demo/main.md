@@ -17,8 +17,11 @@ Here are some formulas:
 
 `u-cjk-xb/250b7`  𥂷   ⿱⿰告巨皿
 `u-cjk-xb/250b8`  𥂸   ⿱楊皿
-
 @@@
+These formulas may be recursively resolved by way of substitution to their
+ultimate constituent parts—strokes. Somewhere along that process of
+deconstruction, we meet with fairly recurrent figures or shapes. 
+
 
 ## Keep-Lines Regions: All in One Paragraphs
 
