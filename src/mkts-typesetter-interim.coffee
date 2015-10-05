@@ -219,21 +219,22 @@ SEMVER                    = require 'semver'
       # .pipe TYPO.$resolve_html_entities()
       .pipe TYPO.$fix_typography_for_tex()
       # .pipe @MKTX.$protocoll              state
-      .pipe @MKTX.DOCUMENT.$begin               state
-      .pipe @MKTX.COMMAND.$new_page             state
-      .pipe @MKTX.REGION.$correct_p_tags        state
-      # .pipe @MKTX.REGION.$single_column       state
-      .pipe @MKTX.REGION.$keep_lines            state
-      .pipe @MKTX.BLOCK.$heading                state
-      .pipe @MKTX.BLOCK.$paragraph              state
-      .pipe @MKTX.BLOCK.$hr                     state
+      .pipe @MKTX.DOCUMENT.$begin                           state
+      .pipe @MKTX.COMMAND.$new_page                         state
+      .pipe @MKTX.REGION.$correct_p_tags_before_regions     state
+      # .pipe @MKTX.REGION.$single_column                   state
+      .pipe @MKTX.REGION.$keep_lines                        state
+      .pipe @MKTX.BLOCK.$remove_empty_p_tags                state
+      .pipe @MKTX.BLOCK.$heading                            state
+      .pipe @MKTX.BLOCK.$paragraph                          state
+      .pipe @MKTX.BLOCK.$hr                                 state
       # .pipe D.$show()
-      .pipe @MKTX.INLINE.$code                  state
-      .pipe @MKTX.INLINE.$translate_i_and_b     state
-      .pipe @MKTX.INLINE.$em_and_strong         state
-      .pipe @MKTX.DOCUMENT.$end                 state
-      .pipe TYPO.$show_mktsmd_events            state
-      .pipe @$show_unhandled_tags               state
+      .pipe @MKTX.INLINE.$code                              state
+      .pipe @MKTX.INLINE.$translate_i_and_b                 state
+      .pipe @MKTX.INLINE.$em_and_strong                     state
+      .pipe @MKTX.DOCUMENT.$end                             state
+      .pipe TYPO.$show_mktsmd_events                        state
+      .pipe @$show_unhandled_tags                           state
       .pipe @$filter_tex()
       .pipe tex_output
     #---------------------------------------------------------------------------------------------------------
@@ -331,9 +332,8 @@ SEMVER                    = require 'semver'
 #     return null
 
 #-----------------------------------------------------------------------------------------------------------
-@MKTX.REGION.$correct_p_tags = ( S ) =>
+@MKTX.REGION.$correct_p_tags_before_regions = ( S ) =>
   last_was_p = no
-  # reopen_p  = no
   #.........................................................................................................
   return $ ( event, send ) =>
     #.......................................................................................................
@@ -347,13 +347,6 @@ SEMVER                    = require 'semver'
         send [ '.', 'p', null, ( TYPO._copy meta ), ]
       send event
       last_was_p  = no
-    # #.......................................................................................................
-    # else if TYPO.isa event, '}'
-    #   send event
-    #   unless last_was_p
-    #     [ ..., meta, ] = event
-    #     send [ '.', 'p', null, ( TYPO._copy meta ), ]
-    #   last_was_p  = no
     #.......................................................................................................
     else
       last_was_p = no
@@ -389,6 +382,23 @@ SEMVER                    = require 'semver'
         S.just_closed_keeplines = yes
     #.......................................................................................................
     else
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
+@MKTX.BLOCK.$remove_empty_p_tags = ( S ) =>
+  last_was_p = no
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    #.......................................................................................................
+    if TYPO.isa event, '.', 'p'
+      if last_was_p
+        whisper "ignoring empty `p` tag"
+      else
+        last_was_p = yes
+        send event
+    #.......................................................................................................
+    else
+      last_was_p = no
       send event
 
 #-----------------------------------------------------------------------------------------------------------

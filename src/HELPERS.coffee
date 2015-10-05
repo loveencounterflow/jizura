@@ -448,8 +448,12 @@ parse_methods = get_parse_html_methods()
             [ position, name, extra, ] = @_parse_html_tag token[ 'content' ]
             switch position
               when 'comment'  then whisper "ignoring comment: #{rpr extra}"
-              when 'begin'    then send [ '(', name, extra, meta, ]
-              when 'end'      then send [ ')', name, null,      meta, ]
+              when 'begin'
+                unless name is 'p'
+                  send [ '(', name, extra, meta, ]
+              when 'end'
+                if name is 'p' then send [ '.', name, null, meta, ]
+                else                send [ ')', name, null, meta, ]
               else throw new Error "unknown HTML tag position #{rpr position}"
           else
             debug '@8876', token
@@ -681,12 +685,12 @@ parse_methods = get_parse_html_methods()
     .pipe @$flatten_tokens                  state
     #.......................................................................................................
     .pipe do =>
+      ### re-inject HTML blocks ###
       md_parser   = @_new_markdown_parser()
       return $ ( token, send ) =>
         { type, map, } = token
         if type is 'html_block'
           ### TAINT `map` location data is borked with this method ###
-          debug '@2222', token[ 'content' ]
           ### add extraneous text content; this causes the parser to parse the HTML block as a paragraph
           with some inline HTML: ###
           XXX_source  = "XXX" + token[ 'content' ]
@@ -694,7 +698,6 @@ parse_methods = get_parse_html_methods()
           tokens      = md_parser.parse XXX_source, environment
           ### remove extraneous text content: ###
           removed     = tokens[ 1 ]?[ 'children' ]?.splice 0, 1
-          debug '@776', removed
           unless removed[ 0 ]?[ 'content' ] is "XXX"
             throw new Error "should never happen"
           confluence.write token for token in tokens

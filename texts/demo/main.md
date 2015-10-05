@@ -1,8 +1,10 @@
 
 ## HTML Blocks
 
+This section tests HTML that occurs as 'blocks' (i.e. as typographical blocks
+that start with an HTML tag) and 'inline' (i.e. inside of MD blocks).
 
-<div>helo <i>world</i> and **everyone**</div>
+<p>helo <i>world</i> and **everyone**</p>
 
 1xxx
 
@@ -18,7 +20,7 @@ Here's MD with *single* and **double** stars.
 
 4xxx
 
-∆∆∆end
+<!-- ∆∆∆end -->
 
 
 # Regions
