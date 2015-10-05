@@ -500,9 +500,10 @@ SEMVER                    = require 'semver'
     if TYPO.isa event, [ '(', ')', ], 'code'
       send @stamp event
       [ type, name, text, meta, ] = event
-      ### TAINT should use proper command ###
-      if type is '(' then send [ 'tex', "{\\mktsFontfileSourcecodeproregular{}", ]
-      else                send [ 'tex', "}", ]
+      if type is '('
+        send [ 'tex', '\\mktsCode{', ]
+      else
+        send [ 'tex', "}", ]
     #.......................................................................................................
     else
       send event

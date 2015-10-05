@@ -12,3 +12,16 @@ A paragraph with \mktsItalic{\mktsBold{some}} HTML in it.¶\par
 Here’s MD with \mktsItalic{single} and \mktsBold{double} stars.¶\par
 3xxx¶\par
 4xxx¶\par
+
+\chapter{Regions
+}
+Regions are started and ended using \mktsCode{@@@} (triple at-signs); the opener
+must be followed by a key word indicating the region’s type.¶\par
+
+\section{Code
+}
+Here’s \mktsCode{some code} within a fenced block:¶\par
+\mktsErrorbox{unhandled event: [ '?',
+  'code',
+  'This is a code\textbackslash\{\}nregion; lines are kept, the font is monospaced\textbackslash\{\}n',
+  \{ within\_text\_literal: false, map: [ 33, 37 ] \} ]}And this is the text following the fence.¶\par
