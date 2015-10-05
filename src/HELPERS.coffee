@@ -27,7 +27,7 @@ $                         = D.remit.bind D
 $async                    = D.remit_async.bind D
 #...........................................................................................................
 Markdown_parser           = require 'markdown-it'
-Html_parser               = ( require 'htmlparser2' ).Parser
+# Html_parser               = ( require 'htmlparser2' ).Parser
 new_md_inline_plugin      = require 'markdown-it-regexp'
 
 
@@ -363,6 +363,29 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
       else send token
 
 #-----------------------------------------------------------------------------------------------------------
+get_parse_open_tag_method = ->
+  Parser      = ( require 'parse5' ).Parser
+  parser      = new Parser()
+  get_message = ( source ) -> "expected single openening node, got #{rpr source}"
+  #.........................................................................................................
+  return ( source ) ->
+    tree    = parser.parseFragment source
+    throw new Error get_message source unless ( cns = tree[ 'childNodes' ] ).length is 1
+    cn = cns[ 0 ]
+    throw new Error get_message source unless cn[ 'childNodes' ].length is 0
+    return [ 'begin', cn[ 'tagName' ], cn[ 'attrs' ][ 0 ] ? {}, ]
+#...........................................................................................................
+@TYPO._parse_html_open_tag = get_parse_open_tag_method()
+
+#-----------------------------------------------------------------------------------------------------------
+@TYPO._parse_html_tag = ( source ) ->
+  if ( match = source.match @_parse_html_tag.close_tag_pattern )?
+    return [ 'end', match[ 1 ], ]
+  return @_parse_html_open_tag source
+@TYPO._parse_html_tag.close_tag_pattern = /^<\/([^>]+)>$/
+
+
+#-----------------------------------------------------------------------------------------------------------
 @TYPO.$rewrite_markdownit_tokens = ( S ) ->
   unknown_tokens  = []
   is_first        = yes
@@ -405,7 +428,17 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
             send [ '(', 'code', null,               ( @_copy meta ), ]
             send [ '.', 'text', token[ 'content' ], ( @_copy meta, within_text_literal: yes, ), ]
             send [ ')', 'code', null,               ( @_copy meta ), ]
+          when 'html_block'
+            debug '@8876', token
+            # debug '@8873', @_parse_html_tag token[ 'content' ]
+          when 'html_inline'
+            [ position, name, atributes, ] = @_parse_html_tag token[ 'content' ]
+            switch position
+              when 'begin'  then send [ '(', name, atributes, meta, ]
+              when 'end'    then send [ ')', name, null,      meta, ]
+              else throw new Error "unknown HTML tag position #{rpr position}"
           else
+            debug '@8876', token
             send [ '?', token[ 'tag' ], token[ 'content' ], meta, ]
             unknown_tokens.push type unless type in unknown_tokens
         #...................................................................................................

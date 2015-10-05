@@ -1,4 +1,24 @@
 
+## HTML Blocks
+
+
+<div>helo <i>world</i> and **everyone**</div>
+
+xxx
+
+xxx
+
+A paragraph with <i foo=bar><b>some</b></i> HTML in it.
+
+Here's MD with *single* and **double** stars.
+
+xxx
+
+<!-- ∆∆∆end -->
+
+
+∆∆∆end
+
 
 # Regions
 
@@ -89,10 +109,6 @@ D-within
 @@@
 
 D-after
-
-
-<!-- ∆∆∆end -->
-
 
 
 

@@ -229,6 +229,7 @@ SEMVER                    = require 'semver'
       .pipe @MKTX.BLOCK.$hr                     state
       # .pipe D.$show()
       .pipe @MKTX.INLINE.$code                  state
+      .pipe @MKTX.INLINE.$translate_i_and_b     state
       .pipe @MKTX.INLINE.$em_and_strong         state
       .pipe @MKTX.DOCUMENT.$end                 state
       .pipe TYPO.$show_mktsmd_events            state
@@ -497,6 +498,19 @@ SEMVER                    = require 'semver'
       send event
 
 #-----------------------------------------------------------------------------------------------------------
+@MKTX.INLINE.$translate_i_and_b = ( S ) =>
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    #.......................................................................................................
+    if TYPO.isa event, [ '(', ')', ], [ 'i', 'b', ]
+      [ type, name, text, meta, ] = event
+      new_name = if name is 'i' then 'em' else 'strong'
+      send [ type, new_name, text, meta, ]
+    #.......................................................................................................
+    else
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
 @MKTX.INLINE.$em_and_strong = ( S ) =>
   #.........................................................................................................
   return $ ( event, send ) =>
@@ -506,9 +520,9 @@ SEMVER                    = require 'semver'
       [ type, name, text, meta, ] = event
       if type is '('
         if name is 'em'
-          send [ 'tex', '\\textit{', ]
+          send [ 'tex', '\\mktsItalic{', ]
         else
-          send [ 'tex', '\\bold{', ]
+          send [ 'tex', '\\mktsBold{', ]
       else
         send [ 'tex', "}", ]
     #.......................................................................................................
@@ -528,6 +542,7 @@ SEMVER                    = require 'semver'
       # send [ 'tex', "{\\color{magenta}unhandled event: #{event_tex}}" ]
       # send [ 'tex', "\\colorbox{red}{\\color{yellow}unhandled event: #{event_tex}}" ]
       send [ 'tex', "\\mktsErrorbox{unhandled event: #{event_tex}}" ]
+      send event
     else
       send event
 
