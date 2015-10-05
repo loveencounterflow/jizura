@@ -685,11 +685,18 @@ parse_methods = get_parse_html_methods()
       return $ ( token, send ) =>
         { type, map, } = token
         if type is 'html_block'
+          ### TAINT `map` location data is borked with this method ###
           debug '@2222', token[ 'content' ]
+          ### add extraneous text content; this causes the parser to parse the HTML block as a paragraph
+          with some inline HTML: ###
           XXX_source  = "XXX" + token[ 'content' ]
-          # debug '@3332', XXX_source
           environment = {}
           tokens      = md_parser.parse XXX_source, environment
+          ### remove extraneous text content: ###
+          removed     = tokens[ 1 ]?[ 'children' ]?.splice 0, 1
+          debug '@776', removed
+          unless removed[ 0 ]?[ 'content' ] is "XXX"
+            throw new Error "should never happen"
           confluence.write token for token in tokens
         else
           send token
