@@ -1,8 +1,53 @@
 
+## HTML Blocks
+
+This section tests HTML that occurs as 'blocks' (i.e. as typographical blocks
+that start with an HTML tag) and 'inline' (i.e. inside of MD blocks).
+
+<p>helo <i>world</i> and **everyone**</p>
+
+1xxx
+
+2xxx
+
+A paragraph with <i foo=bar><b>some</b></i> HTML in it.
+
+Here's MD with *single* and **double** stars.
+
+3xxx
+
+<!-- ∆∆∆end -->
+
+4xxx
+
+
 
 # Regions
 
+Regions are started and ended using `@@@` (triple at-signs); the opener
+must be followed by a key word indicating the region's type.
+
+
+## Code
+
+Here's `some code` within a fenced block:
+```somelanguage
+This is a code
+region; lines are kept, the font is monospaced
+```
+And this is the text following the fence.
+
+∆∆∆end
+
+
+
 ## Keep-Lines Regions: Formulas Example
+
+To preserve line breaks in the PDF the way they were entered in
+the MD manuscript, use `@@@keep-lines` regions. Currently, the
+best idea is to position the sentinels in a 'tight' way, without
+intervening blank lines between the sentinels and the surrounding
+paragraph.
 
 Here are some formulas:
 @@@keep-lines
@@ -20,8 +65,7 @@ Here are some formulas:
 @@@
 These formulas may be recursively resolved by way of substitution to their
 ultimate constituent parts—strokes. Somewhere along that process of
-deconstruction, we meet with fairly recurrent figures or shapes. 
-
+deconstruction, we meet with fairly recurrent figures or shapes.
 
 ## Keep-Lines Regions: All in One Paragraphs
 
@@ -71,10 +115,6 @@ D-within
 @@@
 
 D-after
-
-
-∆∆∆end
-
 
 
 

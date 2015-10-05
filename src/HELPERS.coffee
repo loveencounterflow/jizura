@@ -27,7 +27,7 @@ $                         = D.remit.bind D
 $async                    = D.remit_async.bind D
 #...........................................................................................................
 Markdown_parser           = require 'markdown-it'
-Html_parser               = ( require 'htmlparser2' ).Parser
+# Html_parser               = ( require 'htmlparser2' ).Parser
 new_md_inline_plugin      = require 'markdown-it-regexp'
 
 
@@ -363,6 +363,42 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
       else send token
 
 #-----------------------------------------------------------------------------------------------------------
+get_parse_html_methods = ->
+  Parser      = ( require 'parse5' ).Parser
+  parser      = new Parser()
+  get_message = ( source ) -> "expected single openening node, got #{rpr source}"
+  R           = {}
+  #.........................................................................................................
+  R[ '_parse_html_open_tag' ] = ( source ) ->
+    tree    = parser.parseFragment source
+    throw new Error get_message source unless ( cns = tree[ 'childNodes' ] ).length is 1
+    cn = cns[ 0 ]
+    throw new Error get_message source unless cn[ 'childNodes' ]?.length is 0
+    return [ 'begin', cn[ 'tagName' ], cn[ 'attrs' ][ 0 ] ? {}, ]
+  #.........................................................................................................
+  R[ '_parse_html_block' ] = ( source ) ->
+    tree    = parser.parseFragment source
+    debug '@88817', tree
+    return null
+  #.........................................................................................................
+  return R
+#...........................................................................................................
+parse_methods = get_parse_html_methods()
+@TYPO._parse_html_open_tag = parse_methods[ '_parse_html_open_tag' ]
+@TYPO._parse_html_block    = parse_methods[ '_parse_html_block'    ]
+
+#-----------------------------------------------------------------------------------------------------------
+@TYPO._parse_html_tag = ( source ) ->
+  if ( match = source.match @_parse_html_tag.close_tag_pattern )?
+    return [ 'end', match[ 1 ], ]
+  if ( match = source.match @_parse_html_tag.comment_pattern )?
+    return [ 'comment', 'comment', match[ 1 ], ]
+  return @_parse_html_open_tag source
+@TYPO._parse_html_tag.close_tag_pattern   = /^<\/([^>]+)>$/
+@TYPO._parse_html_tag.comment_pattern     = /^<!--([\s\S]*)-->$/
+
+
+#-----------------------------------------------------------------------------------------------------------
 @TYPO.$rewrite_markdownit_tokens = ( S ) ->
   unknown_tokens  = []
   is_first        = yes
@@ -405,7 +441,22 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
             send [ '(', 'code', null,               ( @_copy meta ), ]
             send [ '.', 'text', token[ 'content' ], ( @_copy meta, within_text_literal: yes, ), ]
             send [ ')', 'code', null,               ( @_copy meta ), ]
+          when 'html_block'
+            # @_parse_html_block token[ 'content' ].trim()
+            debug '@8873', @_parse_html_tag token[ 'content' ]
+          when 'html_inline'
+            [ position, name, extra, ] = @_parse_html_tag token[ 'content' ]
+            switch position
+              when 'comment'  then whisper "ignoring comment: #{rpr extra}"
+              when 'begin'
+                unless name is 'p'
+                  send [ '(', name, extra, meta, ]
+              when 'end'
+                if name is 'p' then send [ '.', name, null, meta, ]
+                else                send [ ')', name, null, meta, ]
+              else throw new Error "unknown HTML tag position #{rpr position}"
           else
+            debug '@8876', token
             send [ '?', token[ 'tag' ], token[ 'content' ], meta, ]
             unknown_tokens.push type unless type in unknown_tokens
         #...................................................................................................
@@ -632,6 +683,27 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
   #.........................................................................................................
   confluence
     .pipe @$flatten_tokens                  state
+    #.......................................................................................................
+    .pipe do =>
+      ### re-inject HTML blocks ###
+      md_parser   = @_new_markdown_parser()
+      return $ ( token, send ) =>
+        { type, map, } = token
+        if type is 'html_block'
+          ### TAINT `map` location data is borked with this method ###
+          ### add extraneous text content; this causes the parser to parse the HTML block as a paragraph
+          with some inline HTML: ###
+          XXX_source  = "XXX" + token[ 'content' ]
+          environment = {}
+          tokens      = md_parser.parse XXX_source, environment
+          ### remove extraneous text content: ###
+          removed     = tokens[ 1 ]?[ 'children' ]?.splice 0, 1
+          unless removed[ 0 ]?[ 'content' ] is "XXX"
+            throw new Error "should never happen"
+          confluence.write token for token in tokens
+        else
+          send token
+    #.......................................................................................................
     .pipe @$rewrite_markdownit_tokens       state
     # .pipe D.$show()
     .pipe @$preprocess_commands             state

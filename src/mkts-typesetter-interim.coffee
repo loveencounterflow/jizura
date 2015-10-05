@@ -219,20 +219,22 @@ SEMVER                    = require 'semver'
       # .pipe TYPO.$resolve_html_entities()
       .pipe TYPO.$fix_typography_for_tex()
       # .pipe @MKTX.$protocoll              state
-      .pipe TYPO.$show_mktsmd_events            state
-      .pipe @MKTX.DOCUMENT.$begin               state
-      .pipe @MKTX.COMMAND.$new_page             state
-      .pipe @MKTX.REGION.$correct_p_tags        state
-      # .pipe @MKTX.REGION.$filter_empty_p_tags   state
-      # .pipe @MKTX.REGION.$single_column       state
-      .pipe @MKTX.REGION.$keep_lines            state
-      .pipe @MKTX.BLOCK.$heading                state
-      .pipe @MKTX.BLOCK.$paragraph              state
-      .pipe @MKTX.BLOCK.$hr                     state
+      .pipe @MKTX.DOCUMENT.$begin                           state
+      .pipe @MKTX.COMMAND.$new_page                         state
+      .pipe @MKTX.REGION.$correct_p_tags_before_regions     state
+      # .pipe @MKTX.REGION.$single_column                   state
+      .pipe @MKTX.REGION.$keep_lines                        state
+      .pipe @MKTX.BLOCK.$remove_empty_p_tags                state
+      .pipe @MKTX.BLOCK.$heading                            state
+      .pipe @MKTX.BLOCK.$paragraph                          state
+      .pipe @MKTX.BLOCK.$hr                                 state
       # .pipe D.$show()
-      .pipe @MKTX.INLINE.$code                  state
-      .pipe @MKTX.INLINE.$em_and_strong         state
-      .pipe @MKTX.DOCUMENT.$end                 state
+      .pipe @MKTX.INLINE.$code                              state
+      .pipe @MKTX.INLINE.$translate_i_and_b                 state
+      .pipe @MKTX.INLINE.$em_and_strong                     state
+      .pipe @MKTX.DOCUMENT.$end                             state
+      .pipe TYPO.$show_mktsmd_events                        state
+      .pipe @$show_unhandled_tags                           state
       .pipe @$filter_tex()
       .pipe tex_output
     #---------------------------------------------------------------------------------------------------------
@@ -330,9 +332,8 @@ SEMVER                    = require 'semver'
 #     return null
 
 #-----------------------------------------------------------------------------------------------------------
-@MKTX.REGION.$correct_p_tags = ( S ) =>
+@MKTX.REGION.$correct_p_tags_before_regions = ( S ) =>
   last_was_p = no
-  # reopen_p  = no
   #.........................................................................................................
   return $ ( event, send ) =>
     #.......................................................................................................
@@ -347,47 +348,9 @@ SEMVER                    = require 'semver'
       send event
       last_was_p  = no
     #.......................................................................................................
-    else if TYPO.isa event, '}'
-      send event
-      unless last_was_p
-        [ ..., meta, ] = event
-        send [ '.', 'p', null, ( TYPO._copy meta ), ]
-      last_was_p  = no
-    #.......................................................................................................
     else
       last_was_p = no
       send event
-
-# #-----------------------------------------------------------------------------------------------------------
-# @MKTX.REGION.$filter_empty_p_tags = ( S ) =>
-#   last_was_open_p = no
-#   last_event      = null
-#   _send           = null
-#   #.........................................................................................................
-#   send_later = ( event ) =>
-#     _send last_event if last_event?
-#     last_event = event
-#   #.........................................................................................................
-#   return $ ( event, send, end ) =>
-#     _send = send
-#     if event?
-#       #.....................................................................................................
-#       if TYPO.isa event, '[', 'p'
-#         last_was_open_p = yes
-#         send_later event
-#       #.....................................................................................................
-#       else if TYPO.isa event, ']', 'p'
-#         unless last_was_open_p
-#           send_later event
-#         last_was_open_p = no
-#       #.....................................................................................................
-#       else
-#         last_was_open_p = no
-#         send_later event
-#     #.......................................................................................................
-#     if end?
-#       send_later()
-#       end()
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.REGION.$keep_lines = ( S ) =>
@@ -419,6 +382,23 @@ SEMVER                    = require 'semver'
         S.just_closed_keeplines = yes
     #.......................................................................................................
     else
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
+@MKTX.BLOCK.$remove_empty_p_tags = ( S ) =>
+  last_was_p = no
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    #.......................................................................................................
+    if TYPO.isa event, '.', 'p'
+      if last_was_p
+        whisper "ignoring empty `p` tag"
+      else
+        last_was_p = yes
+        send event
+    #.......................................................................................................
+    else
+      last_was_p = no
       send event
 
 #-----------------------------------------------------------------------------------------------------------
@@ -520,9 +500,23 @@ SEMVER                    = require 'semver'
     if TYPO.isa event, [ '(', ')', ], 'code'
       send @stamp event
       [ type, name, text, meta, ] = event
-      ### TAINT should use proper command ###
-      if type is '(' then send [ 'tex', "{\\mktsFontfileSourcecodeproregular{}", ]
-      else                send [ 'tex', "}", ]
+      if type is '('
+        send [ 'tex', '\\mktsCode{', ]
+      else
+        send [ 'tex', "}", ]
+    #.......................................................................................................
+    else
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
+@MKTX.INLINE.$translate_i_and_b = ( S ) =>
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    #.......................................................................................................
+    if TYPO.isa event, [ '(', ')', ], [ 'i', 'b', ]
+      [ type, name, text, meta, ] = event
+      new_name = if name is 'i' then 'em' else 'strong'
+      send [ type, new_name, text, meta, ]
     #.......................................................................................................
     else
       send event
@@ -537,12 +531,29 @@ SEMVER                    = require 'semver'
       [ type, name, text, meta, ] = event
       if type is '('
         if name is 'em'
-          send [ 'tex', '\\textit{', ]
+          send [ 'tex', '\\mktsItalic{', ]
         else
-          send [ 'tex', '\\bold{', ]
+          send [ 'tex', '\\mktsBold{', ]
       else
         send [ 'tex', "}", ]
     #.......................................................................................................
+    else
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
+@$show_unhandled_tags = ( S ) ->
+  return $ ( event, send ) =>
+    ### TAINT selection could be simpler, less repetitive ###
+    if event[ 0 ] in [ 'tex', 'text', ]
+      send event
+    else if TYPO.isa event, '.', 'text'
+      send event
+    else unless event[ 3 ][ 'processed' ]
+      event_tex = TYPO.fix_typography_for_tex rpr event
+      # send [ 'tex', "{\\color{magenta}unhandled event: #{event_tex}}" ]
+      # send [ 'tex', "\\colorbox{red}{\\color{yellow}unhandled event: #{event_tex}}" ]
+      send [ 'tex', "\\mktsErrorbox{unhandled event: #{event_tex}}" ]
+      send event
     else
       send event
 
