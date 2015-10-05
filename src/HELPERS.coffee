@@ -363,26 +363,39 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
       else send token
 
 #-----------------------------------------------------------------------------------------------------------
-get_parse_open_tag_method = ->
+get_parse_html_methods = ->
   Parser      = ( require 'parse5' ).Parser
   parser      = new Parser()
   get_message = ( source ) -> "expected single openening node, got #{rpr source}"
+  R           = {}
   #.........................................................................................................
-  return ( source ) ->
+  R[ '_parse_html_open_tag' ] = ( source ) ->
     tree    = parser.parseFragment source
     throw new Error get_message source unless ( cns = tree[ 'childNodes' ] ).length is 1
     cn = cns[ 0 ]
-    throw new Error get_message source unless cn[ 'childNodes' ].length is 0
+    throw new Error get_message source unless cn[ 'childNodes' ]?.length is 0
     return [ 'begin', cn[ 'tagName' ], cn[ 'attrs' ][ 0 ] ? {}, ]
+  #.........................................................................................................
+  R[ '_parse_html_block' ] = ( source ) ->
+    tree    = parser.parseFragment source
+    debug '@88817', tree
+    return null
+  #.........................................................................................................
+  return R
 #...........................................................................................................
-@TYPO._parse_html_open_tag = get_parse_open_tag_method()
+parse_methods = get_parse_html_methods()
+@TYPO._parse_html_open_tag = parse_methods[ '_parse_html_open_tag' ]
+@TYPO._parse_html_block    = parse_methods[ '_parse_html_block'    ]
 
 #-----------------------------------------------------------------------------------------------------------
 @TYPO._parse_html_tag = ( source ) ->
   if ( match = source.match @_parse_html_tag.close_tag_pattern )?
     return [ 'end', match[ 1 ], ]
+  if ( match = source.match @_parse_html_tag.comment_pattern )?
+    return [ 'comment', 'comment', match[ 1 ], ]
   return @_parse_html_open_tag source
-@TYPO._parse_html_tag.close_tag_pattern = /^<\/([^>]+)>$/
+@TYPO._parse_html_tag.close_tag_pattern   = /^<\/([^>]+)>$/
+@TYPO._parse_html_tag.comment_pattern     = /^<!--([\s\S]*)-->$/
 
 
 #-----------------------------------------------------------------------------------------------------------
@@ -429,13 +442,14 @@ get_parse_open_tag_method = ->
             send [ '.', 'text', token[ 'content' ], ( @_copy meta, within_text_literal: yes, ), ]
             send [ ')', 'code', null,               ( @_copy meta ), ]
           when 'html_block'
-            debug '@8876', token
-            # debug '@8873', @_parse_html_tag token[ 'content' ]
+            # @_parse_html_block token[ 'content' ].trim()
+            debug '@8873', @_parse_html_tag token[ 'content' ]
           when 'html_inline'
-            [ position, name, atributes, ] = @_parse_html_tag token[ 'content' ]
+            [ position, name, extra, ] = @_parse_html_tag token[ 'content' ]
             switch position
-              when 'begin'  then send [ '(', name, atributes, meta, ]
-              when 'end'    then send [ ')', name, null,      meta, ]
+              when 'comment'  then whisper "ignoring comment: #{rpr extra}"
+              when 'begin'    then send [ '(', name, extra, meta, ]
+              when 'end'      then send [ ')', name, null,      meta, ]
               else throw new Error "unknown HTML tag position #{rpr position}"
           else
             debug '@8876', token
@@ -665,6 +679,21 @@ get_parse_open_tag_method = ->
   #.........................................................................................................
   confluence
     .pipe @$flatten_tokens                  state
+    #.......................................................................................................
+    .pipe do =>
+      md_parser   = @_new_markdown_parser()
+      return $ ( token, send ) =>
+        { type, map, } = token
+        if type is 'html_block'
+          debug '@2222', token[ 'content' ]
+          XXX_source  = "XXX" + token[ 'content' ]
+          # debug '@3332', XXX_source
+          environment = {}
+          tokens      = md_parser.parse XXX_source, environment
+          confluence.write token for token in tokens
+        else
+          send token
+    #.......................................................................................................
     .pipe @$rewrite_markdownit_tokens       state
     # .pipe D.$show()
     .pipe @$preprocess_commands             state

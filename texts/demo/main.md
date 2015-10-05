@@ -4,18 +4,19 @@
 
 <div>helo <i>world</i> and **everyone**</div>
 
-xxx
+1xxx
 
-xxx
+2xxx
 
 A paragraph with <i foo=bar><b>some</b></i> HTML in it.
 
 Here's MD with *single* and **double** stars.
 
-xxx
+3xxx
 
 <!-- ∆∆∆end -->
 
+4xxx
 
 ∆∆∆end
 

@@ -277,4 +277,6 @@ INPUT /usr/local/texlive/2015/texmf-dist/tex/latex/microtype/mt-LatinModernRoman
 INPUT /usr/local/texlive/2015/texmf-dist/tex/latex/microtype/mt-LatinModernRoman.cfg
 INPUT /home/flow/io/jizura/texts/demo/.content.tex
 INPUT /home/flow/io/jizura/texts/demo/.content.tex
+INPUT /usr/local/texlive/2015/texmf-dist/tex/latex/microtype/mt-cmr.cfg
+INPUT /usr/local/texlive/2015/texmf-dist/tex/latex/microtype/mt-cmr.cfg
 INPUT /home/flow/io/jizura/texts/demo/demo.aux
