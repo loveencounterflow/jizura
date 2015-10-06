@@ -44,6 +44,7 @@ SEMVER                    = require 'semver'
 #
 #-----------------------------------------------------------------------------------------------------------
 @compile_options = ->
+  ### TAINT this method should go to OPTIONS ###
   options_locator                   = require.resolve njs_path.resolve __dirname, options_route
   # debug '©zNzKn', options_locator
   options_home                      = njs_path.dirname options_locator
@@ -218,13 +219,14 @@ SEMVER                    = require 'semver'
     input = TYPO.create_mdreadstream text
     input
       # .pipe TYPO.$resolve_html_entities()
-      .pipe TYPO.$fix_typography_for_tex()
+      .pipe TYPO.$fix_typography_for_tex                    @options
       # .pipe @MKTX.$protocoll              state
       .pipe @MKTX.DOCUMENT.$begin                           state
       .pipe @MKTX.COMMAND.$new_page                         state
       .pipe @MKTX.REGION.$correct_p_tags_before_regions     state
       # .pipe @MKTX.REGION.$single_column                   state
       .pipe @MKTX.REGION.$keep_lines                        state
+      .pipe @MKTX.REGION.$code                              state
       .pipe @MKTX.BLOCK.$remove_empty_p_tags                state
       .pipe @MKTX.BLOCK.$heading                            state
       .pipe @MKTX.BLOCK.$paragraph                          state
@@ -378,6 +380,39 @@ SEMVER                    = require 'semver'
         send [ 'tex', "\\begingroup\\obeyalllines{}", ]
       else
         send [ 'tex', "\\endgroup{}", ]
+        S.within_keeplines      = no
+        S.within_pre            = no
+        S.just_closed_keeplines = yes
+    #.......................................................................................................
+    else
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
+@MKTX.REGION.$code = ( S ) =>
+  ### TAINT code duplication with `REGION.$keep_lines` possible ###
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    #.......................................................................................................
+    if TYPO.isa event, '.', 'text'
+      ### TAINT differences between pre and keep-lines? ###
+      [ type, name, text, meta, ] = event
+      # if S.within_keeplines
+      #   text = text.replace /\n\n/g, '~\\\\\n'
+      if S.within_pre
+        text = text.replace /\u0020/g, '\u00a0'
+      send [ type, name, text, meta, ]
+    #.......................................................................................................
+    else if TYPO.isa event, [ '{', '}', ], 'code'
+      send @stamp event
+      [ type, name, text, meta, ] = event
+      #.....................................................................................................
+      if type is '{'
+        # send [ 'tex', '% ### MKTS @@@keep-lines ###\n', ]
+        S.within_pre        = yes
+        S.within_keeplines  = yes
+        send [ 'tex', "\\begingroup\\obeyalllines{}\\mktsCode{", ]
+      else
+        send [ 'tex', "}\\endgroup{}", ]
         S.within_keeplines      = no
         S.within_pre            = no
         S.just_closed_keeplines = yes
@@ -550,7 +585,7 @@ SEMVER                    = require 'semver'
     else if TYPO.isa event, '.', 'text'
       send event
     else unless event[ 3 ][ 'processed' ]
-      event_tex = TYPO.fix_typography_for_tex rpr event
+      event_tex = TYPO.fix_typography_for_tex ( rpr event ), @options
       # send [ 'tex', "{\\color{magenta}unhandled event: #{event_tex}}" ]
       # send [ 'tex', "\\colorbox{red}{\\color{yellow}unhandled event: #{event_tex}}" ]
       send [ 'tex', "\\mktsErrorbox{unhandled event: #{event_tex}}" ]

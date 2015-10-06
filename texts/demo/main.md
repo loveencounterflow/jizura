@@ -31,9 +31,11 @@ must be followed by a key word indicating the region's type.
 ## Code
 
 Here's `some code` within a fenced block:
-```somelanguage
-This is a code
-region; lines are kept, the font is monospaced
+```
+This is a code region;
+lines are kept as they appear in the MD manuscript,
+but in addition,
+the font is monospaced
 ```
 And this is the text following the fence.
 

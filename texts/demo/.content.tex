@@ -21,7 +21,8 @@ must be followed by a key word indicating the region’s type.¶\par
 \section{Code
 }
 Here’s \mktsCode{some code} within a fenced block:¶\par
-\mktsErrorbox{unhandled event: [ '?',
-  'code',
-  'This is a code\textbackslash\{\}nregion; lines are kept, the font is monospaced\textbackslash\{\}n',
-  \{ within\_text\_literal: false, map: [ 33, 37 ] \} ]}And this is the text following the fence.¶\par
+\begingroup\obeyalllines{}\mktsCode{This is a code region;
+lines are kept as they appear in the MD manuscript,
+but in addition,
+the font is monospaced
+}\endgroup{}And this is the text following the fence.¶\par

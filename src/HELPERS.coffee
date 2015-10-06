@@ -206,11 +206,11 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
 #       send event
 
 #-----------------------------------------------------------------------------------------------------------
-@TYPO.$fix_typography_for_tex = ->
+@TYPO.$fix_typography_for_tex = ( options ) ->
   return $ ( event, send ) =>
     if @isa event, '.', 'text'
       [ type, name, text, meta, ] = event
-      text = @fix_typography_for_tex text
+      text = @fix_typography_for_tex text, options
       send [ type, name, text, meta, ]
     else
       send event
@@ -228,11 +228,11 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
   return R
 
 #-----------------------------------------------------------------------------------------------------------
-@TYPO.fix_typography_for_tex = ( text, settings ) ->
+@TYPO.fix_typography_for_tex = ( text, options ) ->
   ### An improved version of `XELATEX.tag_from_chr` ###
-  settings             ?= options
-  glyph_styles          = settings[ 'tex' ]?[ 'glyph-styles'             ] ? {}
-  tex_command_by_rsgs   = settings[ 'tex' ]?[ 'tex-command-by-rsgs'      ]
+  ### TAINT should accept settings, fall back to `require`d `options.coffee` ###
+  glyph_styles          = options[ 'tex' ]?[ 'glyph-styles'             ] ? {}
+  tex_command_by_rsgs   = options[ 'tex' ]?[ 'tex-command-by-rsgs'      ]
   last_command          = null
   R                     = []
   stretch               = []
@@ -458,7 +458,11 @@ parse_methods = get_parse_html_methods()
           when 'fence'
             switch token[ 'tag' ]
               when 'code'
-                debug "code", token
+                language_name = token[ 'info' ]
+                language_name = 'text' if language_name.length is 0
+                send [ '{', 'code', language_name,               meta,    ]
+                send [ '.', 'text', token[ 'content' ], ( @_copy meta ),  ]
+                send [ '}', 'code', language_name,      ( @_copy meta ),  ]
               else send_unknown token
           #.................................................................................................
           when 'html_inline'
