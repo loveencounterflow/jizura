@@ -112,8 +112,6 @@ CS                        = require 'coffee-script'
 
 #-----------------------------------------------------------------------------------------------------------
 @OPTIONS.from_locator = ( options_locator ) ->
-  debug Object.keys @_eval_coffee_file options_locator
-  debug Object.keys @_require_coffee_file options_locator
   return @_require_coffee_file options_locator
   # return @_eval_coffee_file options_locator
 

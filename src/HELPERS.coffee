@@ -403,7 +403,15 @@ parse_methods = get_parse_html_methods()
   unknown_tokens  = []
   is_first        = yes
   last_map        = [ 0, 0, ]
+  _send           = null
+  #.........................................................................................................
+  send_unknown = ( token ) =>
+    debug '@8876', token
+    send [ '?', token[ 'tag' ], token[ 'content' ], meta, ]
+    unknown_tokens.push type unless type in unknown_tokens
+  #.........................................................................................................
   return $ ( token, send, end ) =>
+    _send = send
     if token?
       if is_first
         is_first = no
@@ -436,14 +444,23 @@ parse_methods = get_parse_html_methods()
           # singles
           when 'text'               then send [ '.', 'text',          token[ 'content' ], meta, ]
           when 'hr'                 then send [ '.', 'hr',            token[ 'markup' ],  meta, ]
+          #.................................................................................................
           # specials
           when 'code_inline'
             send [ '(', 'code', null,               ( @_copy meta ), ]
             send [ '.', 'text', token[ 'content' ], ( @_copy meta, within_text_literal: yes, ), ]
             send [ ')', 'code', null,               ( @_copy meta ), ]
+          #.................................................................................................
           when 'html_block'
             # @_parse_html_block token[ 'content' ].trim()
             debug '@8873', @_parse_html_tag token[ 'content' ]
+          #.................................................................................................
+          when 'fence'
+            switch token[ 'tag' ]
+              when 'code'
+                debug "code", token
+              else send_unknown token
+          #.................................................................................................
           when 'html_inline'
             [ position, name, extra, ] = @_parse_html_tag token[ 'content' ]
             switch position
@@ -455,10 +472,7 @@ parse_methods = get_parse_html_methods()
                 if name is 'p' then send [ '.', name, null, meta, ]
                 else                send [ ')', name, null, meta, ]
               else throw new Error "unknown HTML tag position #{rpr position}"
-          else
-            debug '@8876', token
-            send [ '?', token[ 'tag' ], token[ 'content' ], meta, ]
-            unknown_tokens.push type unless type in unknown_tokens
+          else send_unknown token
         #...................................................................................................
         last_map = map
     #.......................................................................................................
