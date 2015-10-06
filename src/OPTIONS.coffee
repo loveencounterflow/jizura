@@ -96,6 +96,15 @@ CS                        = require 'coffee-script'
 @OPTIONS = {}
 
 #-----------------------------------------------------------------------------------------------------------
+@OPTIONS._require_coffee_file = ( route ) ->
+  extensions = Object.keys require[ 'extensions' ]
+  require 'coffee-script/register'
+  R = require route
+  for name in require[ 'extensions' ]
+    delete require[ 'extensions' ][ name ] unless name in extensions
+  return R
+
+#-----------------------------------------------------------------------------------------------------------
 @OPTIONS._eval_coffee_file = ( route ) ->
   rqr_route = require.resolve route
   source    = njs_fs.readFileSync rqr_route, encoding: 'utf-8'
@@ -103,8 +112,10 @@ CS                        = require 'coffee-script'
 
 #-----------------------------------------------------------------------------------------------------------
 @OPTIONS.from_locator = ( options_locator ) ->
-  return @_eval_coffee_file options_locator
-
+  debug Object.keys @_eval_coffee_file options_locator
+  debug Object.keys @_require_coffee_file options_locator
+  return @_require_coffee_file options_locator
+  # return @_eval_coffee_file options_locator
 
 
 
