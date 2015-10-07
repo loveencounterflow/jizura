@@ -224,7 +224,7 @@ SEMVER                    = require 'semver'
       .pipe @MKTX.DOCUMENT.$begin                           state
       .pipe @MKTX.COMMAND.$new_page                         state
       .pipe @MKTX.REGION.$correct_p_tags_before_regions     state
-      # .pipe @MKTX.REGION.$single_column                   state
+      .pipe @MKTX.REGION.$single_column                     state
       .pipe @MKTX.REGION.$keep_lines                        state
       .pipe @MKTX.REGION.$code                              state
       .pipe @MKTX.BLOCK.$remove_empty_p_tags                state
@@ -296,44 +296,43 @@ SEMVER                    = require 'semver'
     else
       send event
 
-### Pending ###
 # #-----------------------------------------------------------------------------------------------------------
 # @MKTX.change_column_count = ( S, send, end ) =>
 
-# #-----------------------------------------------------------------------------------------------------------
-# @MKTX.REGION.$single_column = ( S ) =>
-#   ### TAINT consider to implement command `change_column_count = ( send, n )` ###
-#   #.........................................................................................................
-#   return $ ( event, send, end ) =>
-#     if event?
-#       if TYPO.isa event, [ '{', '}', ], 'single-column'
-#         [ type, name, text, meta, ] = event
-#         #...................................................................................................
-#         if type is '{'
-#           send [ 'tex', '% ### MKTS @@@single-column ###\n', ]
-#           debug '©x1ESw', '---------------------------single-column('
-#           S.within_single_column = yes
-#           if S.within_multicol
-#             send [ 'tex', '\\end{multicols}' ]
-#             S.within_multicol = no
-#           send [ 'tex', '\n\n', ]
-#         #...................................................................................................
-#         else
-#           debug '©x1ESw', ')single-column---------------------------'
-#           send [ 'tex', '\\begin{multicols}{2}\n' ]
-#           S.within_multicol       = yes
-#           S.within_single_column  = no
-#       #.....................................................................................................
-#       else
-#         send event
-#     #.......................................................................................................
-#     if end?
-#       if S.within_multicol
-#         send [ 'tex', '\\end{multicols}' ]
-#         S.within_multicol = no
-#       end()
-#     #.......................................................................................................
-#     return null
+#-----------------------------------------------------------------------------------------------------------
+@MKTX.REGION.$single_column = ( S ) =>
+  ### TAINT consider to implement command `change_column_count = ( send, n )` ###
+  #.........................................................................................................
+  return $ ( event, send, end ) =>
+    if event?
+      if TYPO.isa event, [ '{', '}', ], 'single-column'
+        [ type, name, text, meta, ] = event
+        #...................................................................................................
+        if type is '{'
+          send [ 'tex', '% ### MKTS @@@single-column ###\n', ]
+          debug '©x1ESw', '---------------------------single-column('
+          S.within_single_column = yes
+          if S.within_multicol
+            send [ 'tex', '\\end{multicols}' ]
+            S.within_multicol = no
+          send [ 'tex', '\n\n', ]
+        #...................................................................................................
+        else
+          debug '©x1ESw', ')single-column---------------------------'
+          send [ 'tex', '\\begin{multicols}{2}\n' ]
+          S.within_multicol       = yes
+          S.within_single_column  = no
+      #.....................................................................................................
+      else
+        send event
+    #.......................................................................................................
+    if end?
+      if S.within_multicol
+        send [ 'tex', '\\end{multicols}' ]
+        S.within_multicol = no
+      end()
+    #.......................................................................................................
+    return null
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.REGION.$correct_p_tags_before_regions = ( S ) =>

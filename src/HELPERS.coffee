@@ -425,7 +425,6 @@ parse_methods = get_parse_html_methods()
         map           ?= last_map
         #...................................................................................................
         meta =
-          within_text_literal:    no
           map:                    map
           # within_keep_lines:      no
           # within_single_column:   no
@@ -449,9 +448,11 @@ parse_methods = get_parse_html_methods()
           #.................................................................................................
           # specials
           when 'code_inline'
-            send [ '(', 'code', null,               ( @_copy meta ), ]
-            send [ '.', 'text', token[ 'content' ], ( @_copy meta, within_text_literal: yes, ), ]
-            send [ ')', 'code', null,               ( @_copy meta ), ]
+            S.within_text_literal = yes
+            send [ '(', 'code', null,                        meta,    ]
+            send [ '.', 'text', token[ 'content' ], ( @_copy meta ),  ]
+            send [ ')', 'code', null,               ( @_copy meta ),  ]
+            S.within_text_literal = no
           #.................................................................................................
           when 'html_block'
             # @_parse_html_block token[ 'content' ].trim()
@@ -500,7 +501,9 @@ parse_methods = get_parse_html_methods()
   return $ ( event, send ) =>
     #.......................................................................................................
     [ type, name, text, meta, ] = event
-    if ( not meta.within_text_literal ) and ( @isa event, '.', 'text' )
+    # debug '©p09E6', S
+    # debug '©p09E6', event
+    if ( not S.within_text_literal ) and ( @isa event, '.', 'text' )
       lines = @_split_lines_with_nl text
       #...................................................................................................
       for line in lines
@@ -520,7 +523,7 @@ parse_methods = get_parse_html_methods()
       #...................................................................................................
       @_flush_text_collector send, collector, ( @_copy meta )
     #.....................................................................................................
-    else if ( region_stack.length > 0 ) and ( @isa event, '}', 'document' )
+    else if ( region_stack.length > 0 ) and ( @isa event, '>', 'document' )
       warn "auto-closing regions: #{rpr region_stack.join ', '}"
       send [ '}', region_stack.pop(), null, ( @_copy meta, block: true ), ] while region_stack.length > 0
       send event
@@ -741,7 +744,8 @@ parse_methods = get_parse_html_methods()
 @TYPO.create_mdreadstream = ( md_source, settings ) ->
   throw new Error "settings currently unsupported" if settings?
   #.........................................................................................................
-  state       = {}
+  state       =
+    within_text_literal:  no
   confluence  = D.create_throughstream()
   R           = D.create_throughstream()
   R.pause()
