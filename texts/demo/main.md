@@ -32,7 +32,7 @@ the font is monospaced
 ```
 And this is the text following the fence.
 
-∆∆∆end
+<!-- ∆∆∆end -->
 
 
 

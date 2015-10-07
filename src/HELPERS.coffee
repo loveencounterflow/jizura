@@ -655,7 +655,7 @@ parse_methods = get_parse_html_methods()
           when '.'
             switch name
               when 'text' then color = CND.green
-              when 'code' then color = CND.orange
+              # when 'code' then color = CND.orange
         #...................................................................................................
         text = if text? then ( color rpr text ) else ''
         switch type
@@ -688,6 +688,44 @@ parse_methods = get_parse_html_methods()
         warn "unclosed tags: #{tag_stack.join ', '}"
       if unknown_events.length > 0
         warn "unknown events: #{unknown_events.sort().join ', '}"
+    return null
+
+#-----------------------------------------------------------------------------------------------------------
+@TYPO.$exp_echo_mktscript = ( S ) ->
+  indentation       = ''
+  tag_stack         = []
+  write             = process.stdout.write.bind process.stdout
+  return D.$observe ( event, has_ended ) ->
+    if event?
+      [ type, name, text, meta, ] = event
+      #...................................................................................................
+      switch type
+        when 'tex', 'text'
+          null
+        when '?'
+          write "\n#{type}#{name}\n"
+        when '<', '{', '['
+          write "#{type}#{name}"
+        when '>', '}', ']', '∆'
+          write "#{type}\n"
+        when '('
+          write "#{type}#{name}"
+        when ')'
+          write "#{type}"
+        when '.'
+          switch name
+            when 'hr'
+              write "\n#{type}#{name}\n"
+            when 'p'
+              write "¶\n"
+            when 'text'
+              ### TAINT doesn't recognizr escaped backslash ###
+              text_rpr = ( rpr text ).replace /\\n/g, '\n'
+              write text_rpr
+            else
+              write "\nIGNORED: #{rpr event}"
+        else
+          write "\nIGNORED: #{rpr event}"
     return null
 
 #-----------------------------------------------------------------------------------------------------------
