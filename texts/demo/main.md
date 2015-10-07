@@ -1,4 +1,6 @@
 
+@@@multi-column
+
 
 <!-- ∆∆∆new-page -->
 
@@ -28,16 +30,19 @@ Here are some formulas:
 `u-cjk-xb/250b8`  𥂸   ⿱楊皿
 
 @@@
-
 At this point, a line consisting of a triple at-sign `@@@`
 indicates the end of the `keep-lines` region; since the
 `single-column` region is still active, however, *this
 paragraph runs across the entire width* of the documents text
 area.
-
-xxxx
+@@@
+Now a `}single-column` MKTS/MD event has been encountered
+that was triggered by a triple-at command in the manuscript;
+accordingly, typesetting is reverted back to multi-column mode,
+which is why you can see this paragraph set in two columns. 
 
 @@@
+
 
 ∆∆∆end
 

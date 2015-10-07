@@ -205,10 +205,12 @@ SEMVER                    = require 'semver'
     #---------------------------------------------------------------------------------------------------------
     state =
       # write_protocoll:      yes
-      within_multicol:      no
+      ### TAINT `within_multi_column` and `within_single_column` should be implemented
+      as a single or two stacks since column-changing regions may be nested ###
+      within_multi_column:  no
+      within_single_column: no
       within_keeplines:     no
       within_pre:           no
-      within_single_column: no
       layout_info:          layout_info
     #---------------------------------------------------------------------------------------------------------
     tex_output.on 'close', =>
@@ -224,6 +226,7 @@ SEMVER                    = require 'semver'
       .pipe @MKTX.DOCUMENT.$begin                           state
       .pipe @MKTX.COMMAND.$new_page                         state
       .pipe @MKTX.REGION.$correct_p_tags_before_regions     state
+      .pipe @MKTX.REGION.$multi_column                      state
       .pipe @MKTX.REGION.$single_column                     state
       .pipe @MKTX.REGION.$keep_lines                        state
       .pipe @MKTX.REGION.$code                              state
@@ -296,41 +299,63 @@ SEMVER                    = require 'semver'
     else
       send event
 
-# #-----------------------------------------------------------------------------------------------------------
-# @MKTX.change_column_count = ( S, send, end ) =>
+#-----------------------------------------------------------------------------------------------------------
+@MKTX.REGION._begin_multi_column  = ( S ) => [ 'tex', '\\begin{multicols}{2}' ]
+@MKTX.REGION._end_multi_column    = ( S ) => [ 'tex', '\\end{multicols}' ]
+
+#-----------------------------------------------------------------------------------------------------------
+@MKTX.REGION.$multi_column = ( S ) =>
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    if TYPO.isa event, [ '{', '}', ], 'multi-column'
+      send @stamp event
+      [ type, name, text, meta, ] = event
+      #...................................................................................................
+      if type is '{'
+        unless S.within_multi_column
+          ### TAINT Column count must come from layout / options / MKTS-MD command ###
+          send @MKTX.REGION._begin_multi_column()
+          S.within_multi_column = yes
+        else
+          whisper "ignored #{type}#{name}"
+      #...................................................................................................
+      else
+        if S.within_multi_column
+          send @MKTX.REGION._end_multi_column()
+          S.within_multi_column = no
+        else
+          whisper "ignored #{type}#{name}"
+    #.....................................................................................................
+    else
+      send event
+    #.......................................................................................................
+    return null
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.REGION.$single_column = ( S ) =>
   ### TAINT consider to implement command `change_column_count = ( send, n )` ###
   #.........................................................................................................
-  return $ ( event, send, end ) =>
-    if event?
-      if TYPO.isa event, [ '{', '}', ], 'single-column'
-        [ type, name, text, meta, ] = event
-        #...................................................................................................
-        if type is '{'
-          send [ 'tex', '% ### MKTS @@@single-column ###\n', ]
-          debug '©x1ESw', '---------------------------single-column('
+  return $ ( event, send ) =>
+    if TYPO.isa event, [ '{', '}', ], 'single-column'
+      send @stamp event
+      [ type, name, text, meta, ] = event
+      #...................................................................................................
+      if type is '{'
+        if ( not S.within_single_column ) and S.within_multi_column
+          send @MKTX.REGION._end_multi_column()
           S.within_single_column = yes
-          if S.within_multicol
-            send [ 'tex', '\\end{multicols}' ]
-            S.within_multicol = no
-          send [ 'tex', '\n\n', ]
-        #...................................................................................................
         else
-          debug '©x1ESw', ')single-column---------------------------'
-          send [ 'tex', '\\begin{multicols}{2}\n' ]
-          S.within_multicol       = yes
-          S.within_single_column  = no
-      #.....................................................................................................
+          whisper "ignored #{type}#{name}"
+      #...................................................................................................
       else
-        send event
-    #.......................................................................................................
-    if end?
-      if S.within_multicol
-        send [ 'tex', '\\end{multicols}' ]
-        S.within_multicol = no
-      end()
+        if S.within_single_column and S.within_multi_column
+          ### TAINT Column count must come from layout / options / MKTS-MD command ###
+          send @MKTX.REGION._begin_multi_column()
+        else
+          whisper "ignored #{type}#{name}"
+    #.....................................................................................................
+    else
+      send event
     #.......................................................................................................
     return null
 
@@ -451,12 +476,10 @@ SEMVER                    = require 'semver'
       #.....................................................................................................
       if type is '['
         #...................................................................................................
-        ### TAINT Pending
-        if S.within_multicol and name in [ 'h1', 'h2', ]
-          send [ 'tex', '\\end{multicols}' ]
-          S.within_multicol = no
-          restart_multicols = yes
-        ###
+        if S.within_multi_column and name in [ 'h1', 'h2', ]
+          send @MKTX.REGION._end_multi_column()
+          S.within_multi_column = no
+          restart_multicols     = yes
         #...................................................................................................
         send [ 'tex', "\n", ]
         #...................................................................................................
@@ -472,11 +495,10 @@ SEMVER                    = require 'semver'
         send [ 'tex', "\n", ]
         send [ 'tex', "}", ]
         send [ 'tex', "\n", ]
-        ### TAINT Pending
         if restart_multicols
-          send [ 'tex', '\\begin{multicols}{2}\n' ]
-          S.within_multicol = yes
-        ###
+          send @MKTX.REGION._begin_multi_column()
+          S.within_multi_column = yes
+          restart_multicols     = no
     #.......................................................................................................
     else
       send event
@@ -494,7 +516,9 @@ SEMVER                    = require 'semver'
         send [ 'text', '\n\n' ]
       else
         send @stamp event
-        send [ 'tex', '¶\\par\n' ]
+        ### TAINT use command from sty ###
+        ### TAINT make configurable ###
+        send [ 'tex', '\\mktsShowpar\\par\n' ]
       S.just_closed_keeplines = no
     # #.......................................................................................................
     # if TYPO.isa event, [ '[', ']', ], 'p'
