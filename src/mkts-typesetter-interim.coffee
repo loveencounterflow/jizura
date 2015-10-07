@@ -410,9 +410,9 @@ SEMVER                    = require 'semver'
         # send [ 'tex', '% ### MKTS @@@keep-lines ###\n', ]
         S.within_pre        = yes
         S.within_keeplines  = yes
-        send [ 'tex', "\\begingroup\\obeyalllines{}\\mktsStyleCode{", ]
+        send [ 'tex', "\\begingroup\\obeyalllines{}\\mktsStyleCode", ]
       else
-        send [ 'tex', "}\\endgroup{}", ]
+        send [ 'tex', "\\endgroup{}", ]
         S.within_keeplines      = no
         S.within_pre            = no
         S.just_closed_keeplines = yes
