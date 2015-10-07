@@ -1,7 +1,15 @@
 
 % begin of MD document
-\mktsShowpar\par
 \begin{multicols}{2}\mktsShowpar\par
+\end{multicols}
+\section{MKTS Regions \cn{中國皇帝}
+}
+\begin{multicols}{2}To indicate the start of an MKTS-MD Region, place a triple at-sign {\mktsStyleCode{}@@@}
+at the start of a line, immediately followed by a command name such as
+{\mktsStyleCode{}keep-lines} or {\mktsStyleCode{}single-column}. The end of a region is indicated by a
+triple at-sign without a command name. Nested regions are possible; for example,
+you can put a {\mktsStyleCode{}@@@keep-lines} region inside a {\mktsStyleCode{}@@@single-column} region as
+done here:\mktsShowpar\par
 \end{multicols}
 \section{MKTS Regions \cn{中國皇帝}
 }
@@ -24,7 +32,6 @@ done here:\mktsShowpar\par
 
 {\mktsStyleCode{}u-cjk-xb/250b7}  \cnxb{𥂷}   \cnxJzr{}\cnxJzr{}\cn{告巨皿}
 {\mktsStyleCode{}u-cjk-xb/250b8}  \cnxb{𥂸}   \cnxJzr{}\cn{楊皿}
-
 \endgroup{}At this point, a line consisting of a triple at-sign {\mktsStyleCode{}@@@}
 indicates the end of the {\mktsStyleCode{}keep-lines} region; since the
 {\mktsStyleCode{}single-column} region is still active, however, {\mktsStyleItalic{}this

@@ -2,7 +2,15 @@
 @@@multi-column
 
 
-<!-- ∆∆∆new-page -->
+
+## MKTS Regions 中國皇帝
+
+To indicate the start of an MKTS-MD Region, place a triple at-sign `@@@`
+at the start of a line, immediately followed by a command name such as
+`keep-lines` or `single-column`. The end of a region is indicated by a
+triple at-sign without a command name. Nested regions are possible; for example,
+you can put a `@@@keep-lines` region inside a `@@@single-column` region as
+done here:
 
 ## MKTS Regions 中國皇帝
 
@@ -28,7 +36,6 @@ Here are some formulas:
 
 `u-cjk-xb/250b7`  𥂷   ⿱⿰告巨皿
 `u-cjk-xb/250b8`  𥂸   ⿱楊皿
-
 @@@
 At this point, a line consisting of a triple at-sign `@@@`
 indicates the end of the `keep-lines` region; since the
@@ -39,12 +46,13 @@ area.
 Now a `}single-column` MKTS/MD event has been encountered
 that was triggered by a triple-at command in the manuscript;
 accordingly, typesetting is reverted back to multi-column mode,
-which is why you can see this paragraph set in two columns. 
+which is why you can see this paragraph set in two columns.
 
 @@@
 
 
 ∆∆∆end
+<!-- ∆∆∆new-page -->
 
 ## Using HTML
 

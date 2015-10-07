@@ -361,23 +361,42 @@ SEMVER                    = require 'semver'
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.REGION.$correct_p_tags_before_regions = ( S ) =>
-  last_was_p = no
+  last_was_p              = no
+  last_was_begin_document = no
   #.........................................................................................................
   return $ ( event, send ) =>
+    debug '©MwBAv', event
     #.......................................................................................................
-    if TYPO.isa event, '.', 'p'
-      last_was_p = yes
+    if TYPO.isa event, 'tex'
       send event
     #.......................................................................................................
-    else if TYPO.isa event, '{'
-      unless last_was_p
+    else if TYPO.isa event, '<', 'document'
+      debug '©---1', last_was_begin_document
+      debug '©---2', last_was_p
+      last_was_p              = no
+      last_was_begin_document = yes
+      send event
+    #.......................................................................................................
+    else if TYPO.isa event, '.', 'p'
+      debug '©---3', last_was_begin_document
+      debug '©---4', last_was_p
+      last_was_p              = yes
+      last_was_begin_document = no
+      send event
+    #.......................................................................................................
+    else if TYPO.isa event, [ '{', '[', ]
+      debug '©---5', last_was_begin_document
+      debug '©---6', last_was_p
+      if ( not last_was_begin_document ) and ( not last_was_p )
         [ ..., meta, ] = event
         send [ '.', 'p', null, ( TYPO._copy meta ), ]
       send event
-      last_was_p  = no
+      last_was_p              = no
+      last_was_begin_document = no
     #.......................................................................................................
     else
-      last_was_p = no
+      last_was_p              = no
+      last_was_begin_document = no
       send event
 
 #-----------------------------------------------------------------------------------------------------------
