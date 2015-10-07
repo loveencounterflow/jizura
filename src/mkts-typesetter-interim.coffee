@@ -212,8 +212,8 @@ SEMVER                    = require 'semver'
       layout_info:          layout_info
     #---------------------------------------------------------------------------------------------------------
     tex_output.on 'close', =>
-      # HELPERS.write_pdf layout_info, ( error ) =>
-      #   throw error if error?
+      HELPERS.write_pdf layout_info, ( error ) =>
+        throw error if error?
         handler null if handler?
     #---------------------------------------------------------------------------------------------------------
     input = TYPO.create_mdreadstream text
@@ -237,7 +237,7 @@ SEMVER                    = require 'semver'
       .pipe @MKTX.INLINE.$em_and_strong                     state
       .pipe @MKTX.DOCUMENT.$end                             state
       .pipe TYPO.$show_mktsmd_events                        state
-      .pipe TYPO.$exp_echo_mktscript                        state
+      .pipe TYPO.$write_mktscript                           state
       .pipe @$show_unhandled_tags                           state
       .pipe @$filter_tex()
       .pipe tex_output

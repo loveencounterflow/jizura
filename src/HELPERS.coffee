@@ -61,6 +61,7 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
   job_name              = njs_path.basename source_home
   aux_locator           = njs_path.join source_home, "#{job_name}.aux"
   pdf_locator           = njs_path.join source_home, "#{job_name}.pdf"
+  mkscript_locator           = njs_path.join source_home, "#{job_name}.mkscript"
   # tex_inputs_home       = njs_path.resolve __dirname, '..', 'tex-inputs'
   master_name           = options[ 'master' ][ 'filename' ]
   master_ext            = njs_path.extname master_name
@@ -77,6 +78,7 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
     'master-locator':             master_locator
     'master-name':                master_name
     'pdf-locator':                pdf_locator
+    'mkscript-locator':           mkscript_locator
     'source-home':                source_home
     'source-locator':             source_locator
     'source-name':                source_name
@@ -691,14 +693,19 @@ parse_methods = get_parse_html_methods()
     return null
 
 #-----------------------------------------------------------------------------------------------------------
-@TYPO.$exp_echo_mktscript = ( S ) ->
+@TYPO.$write_mktscript = ( S ) ->
   indentation       = ''
   tag_stack         = []
-  write             = process.stdout.write.bind process.stdout
+  mkscript_locator  = S.layout_info[ 'mkscript-locator' ]
+  output            = njs_fs.createWriteStream mkscript_locator
+  confluence        = D.create_throughstream()
+  write             = confluence.write.bind confluence
+  confluence.pipe output
+  #.........................................................................................................
   return D.$observe ( event, has_ended ) ->
     if event?
       [ type, name, text, meta, ] = event
-      #...................................................................................................
+      #.....................................................................................................
       switch type
         when 'tex', 'text'
           null
@@ -719,13 +726,15 @@ parse_methods = get_parse_html_methods()
             when 'p'
               write "¶\n"
             when 'text'
-              ### TAINT doesn't recognizr escaped backslash ###
+              ### TAINT doesn't recognize escaped backslash ###
               text_rpr = ( rpr text ).replace /\\n/g, '\n'
               write text_rpr
             else
               write "\nIGNORED: #{rpr event}"
         else
           write "\nIGNORED: #{rpr event}"
+    if has_ended
+      output.close()
     return null
 
 #-----------------------------------------------------------------------------------------------------------
