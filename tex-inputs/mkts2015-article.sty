@@ -145,12 +145,22 @@
 \lineskiplimit=-10pt%
 \lineskip=0pt%
 \topskip=\baselineskip%
-\newcommand{\mktsStyleBold}[1]{{\fontsize{0.8\myFontsize}{0.8\myFontsize}\mktsFontfileUbuntub#1}}
-\newcommand{\mktsStyleItalic}[1]{{\mktsFontfileEbgaramondtwelveitalic#1}}
+
+
+\newcommand{\mktsStyleBold}{%
+  \renewcommand{\cn}[1]{{\adjustCjkIdeograph{\mktsFontfileCwtexqheibold##1}}}%
+  \renewcommand{\ka}[1]{\adjustKatakana{\mktsFontfileCwtexqheibold##1}}%
+  \renewcommand{\hi}[1]{\adjustHiragana{\mktsFontfileCwtexqheibold##1}}%
+  \renewcommand{\hg}[1]{\adjustHangeul{\mktsFontfileCwtexqheibold##1}}%
+  \fontsize{0.8\myFontsize}{0.8\myFontsize}\mktsFontfileUbuntub}
+
+\newcommand{\mktsStyleItalic}{%
+  \mktsFontfileEbgaramondtwelveitalic}
+
 % ### TAINT need to add space before and after code ###
-\newcommand{\mktsStyleCode}{{%
+\newcommand{\mktsStyleCode}{%
   \fontsize{0.8\myFontsize}{0.8\myFontsize}%%
-  \mktsFontfileSourcecodeproregular}}
+  \mktsFontfileSourcecodeproregular}
 
 
 % ----------------------------------------------------------------------------------------------------------

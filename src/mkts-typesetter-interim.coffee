@@ -410,7 +410,7 @@ SEMVER                    = require 'semver'
         # send [ 'tex', '% ### MKTS @@@keep-lines ###\n', ]
         S.within_pre        = yes
         S.within_keeplines  = yes
-        send [ 'tex', "\\begingroup\\obeyalllines{}\\mktsStyleCode", ]
+        send [ 'tex', "\\begingroup\\obeyalllines\\mktsStyleCode{}", ]
       else
         send [ 'tex', "\\endgroup{}", ]
         S.within_keeplines      = no
@@ -537,7 +537,7 @@ SEMVER                    = require 'semver'
       send @stamp event
       [ type, name, text, meta, ] = event
       if type is '('
-        send [ 'tex', '\\mktsStyleCode{', ]
+        send [ 'tex', '{\\mktsStyleCode{}', ]
       else
         send [ 'tex', "}", ]
     #.......................................................................................................
@@ -567,9 +567,9 @@ SEMVER                    = require 'semver'
       [ type, name, text, meta, ] = event
       if type is '('
         if name is 'em'
-          send [ 'tex', '\\mktsStyleItalic{', ]
+          send [ 'tex', '{\\mktsStyleItalic{}', ]
         else
-          send [ 'tex', '\\mktsStyleBold{', ]
+          send [ 'tex', '{\\mktsStyleBold{}', ]
       else
         send [ 'tex', "}", ]
     #.......................................................................................................

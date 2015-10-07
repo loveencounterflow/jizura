@@ -1,26 +1,19 @@
 
-## HTML Blocks
+
+
+
+## Using HTML
 
 This section tests HTML that occurs as 'blocks' (i.e. as typographical blocks
 that start with an HTML tag) and 'inline' (i.e. inside of MD blocks).
 
 <p>helo <i>world</i> and **everyone**</p>
 
-1xxx
-
-2xxx
-
 A paragraph with <i foo=bar><b>some</b></i> HTML in it.
 
 Here's MD with *single* and **double** stars.
 
-3xxx
-
-<!-- ∆∆∆end -->
-
-4xxx
-
-
+Testing *italics with Chinese: 義大利體* and **bold with Chinese: 黑體, ゴシック体**
 
 # Regions
 

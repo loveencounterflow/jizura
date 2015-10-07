@@ -1,28 +1,25 @@
 
 % begin of MD document
 
-\section{HTML Blocks
+\section{Using HTML
 }
 This section tests HTML that occurs as ‘blocks’ (i.e. as typographical blocks
 that start with an HTML tag) and ‘inline’ (i.e. inside of MD blocks).¶\par
-helo \mktsStyleItalic{world} and \mktsStyleBold{everyone}¶\par
-1xxx¶\par
-2xxx¶\par
-A paragraph with \mktsStyleItalic{\mktsStyleBold{some}} HTML in it.¶\par
-Here’s MD with \mktsStyleItalic{single} and \mktsStyleBold{double} stars.¶\par
-3xxx¶\par
-4xxx¶\par
+helo {\mktsStyleItalic{}world} and {\mktsStyleBold{}everyone}¶\par
+A paragraph with {\mktsStyleItalic{}{\mktsStyleBold{}some}} HTML in it.¶\par
+Here’s MD with {\mktsStyleItalic{}single} and {\mktsStyleBold{}double} stars.¶\par
+Testing {\mktsStyleItalic{}italics with Chinese: \cn{義大利體}} and {\mktsStyleBold{}bold with Chinese: \cn{黑體}, \ka{ゴシック}\cn{体}}¶\par
 
 \chapter{Regions
 }
-Regions are started and ended using \mktsStyleCode{@@@} (triple at-signs); the opener
+Regions are started and ended using {\mktsStyleCode{}@@@} (triple at-signs); the opener
 must be followed by a key word indicating the region’s type.¶\par
 
 \section{Code
 }
-Here’s \mktsStyleCode{some code} within a fenced block:¶\par
-\begingroup\obeyalllines{}\mktsStyleCode{This is a code region;
+Here’s {\mktsStyleCode{}some code} within a fenced block:¶\par
+\begingroup\obeyalllines\mktsStyleCode{}This is a code region;
 lines are kept as they appear in the MD manuscript,
 but in addition,
 the font is monospaced
-}\endgroup{}And this is the text following the fence.¶\par
+\endgroup{}And this is the text following the fence.¶\par
