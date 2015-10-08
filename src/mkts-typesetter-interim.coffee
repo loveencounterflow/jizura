@@ -207,6 +207,7 @@ SEMVER                    = require 'semver'
       # write_protocoll:      yes
       ### TAINT `within_multi_column` and `within_single_column` should be implemented
       as a single or two stacks since column-changing regions may be nested ###
+      options:              @options
       within_multi_column:  no
       within_single_column: no
       within_keeplines:     no
@@ -240,6 +241,7 @@ SEMVER                    = require 'semver'
       .pipe @MKTX.INLINE.$em_and_strong                     state
       .pipe @MKTX.DOCUMENT.$end                             state
       .pipe TYPO.$show_mktsmd_events                        state
+      .pipe TYPO.$show_meta                                 state
       .pipe TYPO.$write_mktscript                           state
       .pipe @$show_unhandled_tags                           state
       .pipe @$filter_tex()
@@ -300,8 +302,13 @@ SEMVER                    = require 'semver'
       send event
 
 #-----------------------------------------------------------------------------------------------------------
-@MKTX.REGION._begin_multi_column  = ( S ) => [ 'tex', '\\begin{multicols}{2}' ]
-@MKTX.REGION._end_multi_column    = ( S ) => [ 'tex', '\\end{multicols}' ]
+### TAINT Column count must come from layout / options / MKTS-MD command ###
+@MKTX.REGION._begin_multi_column  = ( meta ) =>
+  return [ 'tex', '\\begin{multicols}{2}' ]
+
+#-----------------------------------------------------------------------------------------------------------
+@MKTX.REGION._end_multi_column    = ( meta ) =>
+  return [ 'tex', '\\end{multicols}' ]
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.REGION.$multi_column = ( S ) =>
@@ -313,7 +320,6 @@ SEMVER                    = require 'semver'
       #...................................................................................................
       if type is '{'
         unless S.within_multi_column
-          ### TAINT Column count must come from layout / options / MKTS-MD command ###
           send @MKTX.REGION._begin_multi_column()
           S.within_multi_column = yes
         else
@@ -349,7 +355,6 @@ SEMVER                    = require 'semver'
       #...................................................................................................
       else
         if S.within_single_column and S.within_multi_column
-          ### TAINT Column count must come from layout / options / MKTS-MD command ###
           send @MKTX.REGION._begin_multi_column()
         else
           whisper "ignored #{type}#{name}"
@@ -496,7 +501,7 @@ SEMVER                    = require 'semver'
       if type is '['
         #...................................................................................................
         if S.within_multi_column and name in [ 'h1', 'h2', ]
-          send @MKTX.REGION._end_multi_column()
+          send @MKTX.REGION._end_multi_column meta
           S.within_multi_column = no
           restart_multicols     = yes
         #...................................................................................................
@@ -515,7 +520,7 @@ SEMVER                    = require 'semver'
         send [ 'tex', "}", ]
         send [ 'tex', "\n", ]
         if restart_multicols
-          send @MKTX.REGION._begin_multi_column()
+          send @MKTX.REGION._begin_multi_column meta
           S.within_multi_column = yes
           restart_multicols     = no
     #.......................................................................................................

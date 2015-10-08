@@ -399,6 +399,19 @@ parse_methods = get_parse_html_methods()
 @TYPO._parse_html_tag.close_tag_pattern   = /^<\/([^>]+)>$/
 @TYPO._parse_html_tag.comment_pattern     = /^<!--([\s\S]*)-->$/
 
+#-----------------------------------------------------------------------------------------------------------
+@TYPO._fence_pairs =
+  '{':  '}'
+  '[':  ']'
+  '(':  ')'
+  '}':  '{'
+  ']':  '['
+  ')':  '('
+
+#-----------------------------------------------------------------------------------------------------------
+@TYPO._get_opposite_fence = ( fence ) ->
+  throw new Error "unknown fence: #{rpr fence}" unless ( R = @_fence_pairs[ fence ] )?
+  return R
 
 #-----------------------------------------------------------------------------------------------------------
 @TYPO.$rewrite_markdownit_tokens = ( S ) ->
@@ -420,10 +433,12 @@ parse_methods = get_parse_html_methods()
       line_nr        = ( map[ 0 ] ? 0 ) + 1
       col_nr         = ( map[ 1 ] ? 0 ) + 1
       #.....................................................................................................
-      meta =
-        map:                    map
+      meta = {
+        line_nr
+        col_nr
         # within_keep_lines:      no
         # within_single_column:   no
+        }
       if is_first
         is_first = no
         send [ '<', 'document', null, meta, ]
@@ -565,7 +580,7 @@ parse_methods = get_parse_html_methods()
     # [ type, name, text, meta, ] = event
     if @isa event, '∆', 'end'
       [ _, _, _, meta, ]    = event
-      [ line_nr, _, ]       = meta[ 'map' ]
+      { line_nr, }          = meta
       warn "encountered `∆∆∆end` on line ##{line_nr}, ignoring further material"
       S.has_ended = yes
     else if @isa event, '>', 'document'
@@ -583,11 +598,10 @@ parse_methods = get_parse_html_methods()
     [ type, name, text, meta, ] = event
     # debug '©nLnB5', event
     if @isa event, [ '{', '[', '(', ]
-      unless @isa event, '{', 'document'
-        tag_stack.push [ type, name, null, meta, ]
+      tag_stack.push [ type, name, null, meta, ]
       send event
     else if @isa event, [ '}', ']', ')', ]
-      if @isa event, '}', 'document'
+      if @isa event, '>', 'document'
         while tag_stack.length > 0
           sub_event                         = tag_stack.pop()
           [ sub_type, sub_name, sub_meta, ] = sub_event
@@ -621,6 +635,7 @@ parse_methods = get_parse_html_methods()
 
 #-----------------------------------------------------------------------------------------------------------
 @TYPO._copy = ( meta, overwrites ) ->
+  ### TAINT use `Object.assign` or similar ###
   R = {}
   R[ name ] = value for name, value of meta
   R[ name ] = value for name, value of overwrites if overwrites?
@@ -635,6 +650,46 @@ parse_methods = get_parse_html_methods()
     send [ '.', 'text', ( collector.join '' ), meta, ]
     collector.length = 0
   return null
+
+#-----------------------------------------------------------------------------------------------------------
+@TYPO.$update_meta = ( S ) ->
+  tag_stack         = []
+  last_meta         = null
+  return D.$observe ( event ) =>
+    [ type, name, text, meta, ] = event
+    if last_meta?
+      for key, value of last_meta
+        meta[ key ] = last_meta[ key ] if meta[ key ] is undefined
+    last_meta = meta
+    if @isa event, [ '{', '[', '(', ]
+      key         = type + name + ( @_get_opposite_fence type )
+      meta[ key ] = true
+    else if @isa event, [ '}', ']', ')', ]
+      key         = ( @_get_opposite_fence type ) + name + type
+      meta[ key ] = false
+
+#-----------------------------------------------------------------------------------------------------------
+@TYPO.$show_meta = ( S ) ->
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    #.......................................................................................................
+    unless @isa event, [ '.', 'text', 'tex', ]
+      [ _, _, _, meta, ] = event
+      # debug '©Lz9qy', meta
+      signals = []
+      keys    = Object.keys meta
+      keys.sort()
+      for key in keys
+        continue unless key[ 0 ] in [ '{', '[', '(', ]
+        signals.push key if meta[ key ]
+      signals.push './.' if signals.length is 0
+      signals_rpr = signals.join ' '
+      info signals_rpr
+      signals_rpr = @fix_typography_for_tex signals_rpr, S.options
+      send event
+      send [ 'tex', "\\mktsComment{#{signals_rpr}}", ]
+    else
+      send event
 
 #-----------------------------------------------------------------------------------------------------------
 @TYPO.$show_mktsmd_events = ( S ) ->
@@ -708,36 +763,35 @@ parse_methods = get_parse_html_methods()
   return D.$observe ( event, has_ended ) ->
     if event?
       [ type, name, text, meta, ] = event
-      line_nr                     = ( meta?[ 'map' ]?[ 0 ] ? -1 ) + 1
-      anchor                      = "█ #{line_nr} █ "
-      #.....................................................................................................
-      switch type
-        when 'tex', 'text'
-          null
-        when '?'
-          write "\n#{anchor}#{type}#{name}\n"
-        when '<', '{', '['
-          write "#{anchor}#{type}#{name}"
-        when '>', '}', ']', '∆'
-          write "#{type}\n"
-        when '('
-          write "#{type}#{name}"
-        when ')'
-          write "#{type}"
-        when '.'
-          switch name
-            when 'hr'
-              write "\n#{anchor}#{type}#{name}\n"
-            when 'p'
-              write "¶\n"
-            when 'text'
-              ### TAINT doesn't recognize escaped backslash ###
-              text_rpr = ( rpr text ).replace /\\n/g, '\n'
-              write text_rpr
-            else
-              write "\n#{anchor}IGNORED: #{rpr event}"
-        else
-          write "\n#{anchor}IGNORED: #{rpr event}"
+      unless type in [ 'tex', 'text', ]
+        { line_nr, }                = meta
+        anchor                      = "█ #{line_nr} █ "
+        #.....................................................................................................
+        switch type
+          when '?'
+            write "\n#{anchor}#{type}#{name}\n"
+          when '<', '{', '['
+            write "#{anchor}#{type}#{name}"
+          when '>', '}', ']', '∆'
+            write "#{type}\n"
+          when '('
+            write "#{type}#{name}"
+          when ')'
+            write "#{type}"
+          when '.'
+            switch name
+              when 'hr'
+                write "\n#{anchor}#{type}#{name}\n"
+              when 'p'
+                write "¶\n"
+              when 'text'
+                ### TAINT doesn't recognize escaped backslash ###
+                text_rpr = ( rpr text ).replace /\\n/g, '\n'
+                write text_rpr
+              else
+                write "\n#{anchor}IGNORED: #{rpr event}"
+          else
+            write "\n#{anchor}IGNORED: #{rpr event}"
     if has_ended
       output.end()
     return null
@@ -781,6 +835,7 @@ parse_methods = get_parse_html_methods()
     .pipe @$process_end_command             state
     .pipe @$preprocess_regions              state
     .pipe @$close_dangling_open_tags        state
+    .pipe @$update_meta                     state
     # .pipe @$preprocess_keeplines_regions    state
     .pipe R
   #.........................................................................................................
