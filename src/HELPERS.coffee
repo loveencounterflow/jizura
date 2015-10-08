@@ -415,20 +415,20 @@ parse_methods = get_parse_html_methods()
   return $ ( token, send, end ) =>
     _send = send
     if token?
+      { type, map, } = token
+      map           ?= last_map
+      line_nr        = ( map[ 0 ] ? 0 ) + 1
+      col_nr         = ( map[ 1 ] ? 0 ) + 1
+      #.....................................................................................................
+      meta =
+        map:                    map
+        # within_keep_lines:      no
+        # within_single_column:   no
       if is_first
         is_first = no
-        send [ '<', 'document', null, {}, ]
-      if S.has_ended
-        null
-      else
-        { type, map, } = token
-        map           ?= last_map
-        #...................................................................................................
-        meta =
-          map:                    map
-          # within_keep_lines:      no
-          # within_single_column:   no
-        #...................................................................................................
+        send [ '<', 'document', null, meta, ]
+      #.....................................................................................................
+      unless S.has_ended
         switch type
           # blocks
           when 'heading_open'       then send [ '[', token[ 'tag' ],  null,               meta, ]
@@ -568,7 +568,7 @@ parse_methods = get_parse_html_methods()
       [ line_nr, _, ]       = meta[ 'map' ]
       warn "encountered `∆∆∆end` on line ##{line_nr}, ignoring further material"
       S.has_ended = yes
-    else if @isa event, '}', 'document'
+    else if @isa event, '>', 'document'
       send event
     else
       send event unless S.has_ended
@@ -708,14 +708,16 @@ parse_methods = get_parse_html_methods()
   return D.$observe ( event, has_ended ) ->
     if event?
       [ type, name, text, meta, ] = event
+      line_nr                     = ( meta?[ 'map' ]?[ 0 ] ? -1 ) + 1
+      anchor                      = "█ #{line_nr} █ "
       #.....................................................................................................
       switch type
         when 'tex', 'text'
           null
         when '?'
-          write "\n#{type}#{name}\n"
+          write "\n#{anchor}#{type}#{name}\n"
         when '<', '{', '['
-          write "#{type}#{name}"
+          write "#{anchor}#{type}#{name}"
         when '>', '}', ']', '∆'
           write "#{type}\n"
         when '('
@@ -725,7 +727,7 @@ parse_methods = get_parse_html_methods()
         when '.'
           switch name
             when 'hr'
-              write "\n#{type}#{name}\n"
+              write "\n#{anchor}#{type}#{name}\n"
             when 'p'
               write "¶\n"
             when 'text'
@@ -733,9 +735,9 @@ parse_methods = get_parse_html_methods()
               text_rpr = ( rpr text ).replace /\\n/g, '\n'
               write text_rpr
             else
-              write "\nIGNORED: #{rpr event}"
+              write "\n#{anchor}IGNORED: #{rpr event}"
         else
-          write "\nIGNORED: #{rpr event}"
+          write "\n#{anchor}IGNORED: #{rpr event}"
     if has_ended
       output.end()
     return null

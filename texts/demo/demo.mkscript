@@ -1,21 +1,21 @@
-<document{multi-column¶
-[h2'MKTS Regions \\cn{中國皇帝}']
+█ 2 █ <document█ 2 █ {multi-column¶
+█ 6 █ [h2'MKTS Regions \\cn{中國皇帝}']
 'To indicate the start of an MKTS-MD Region, place a triple at-sign '(code'@@@')'
 at the start of a line, immediately followed by a command name such as
 '(code'keep-lines')' or '(code'single-column')'. The end of a region is indicated by a
 triple at-sign without a command name. Nested regions are possible; for example,
 you can put a '(code'@@@keep-lines')' region inside a '(code'@@@single-column')' region as
 done here:'¶
-[h2'MKTS Regions \\cn{中國皇帝}']
+█ 15 █ [h2'MKTS Regions \\cn{中國皇帝}']
 'To indicate the start of an MKTS-MD Region, place a triple at-sign '(code'@@@')'
 at the start of a line, immediately followed by a command name such as
 '(code'keep-lines')' or '(code'single-column')'. The end of a region is indicated by a
 triple at-sign without a command name. Nested regions are possible; for example,
 you can put a '(code'@@@keep-lines')' region inside a '(code'@@@single-column')' region as
 done here:'¶
-{single-column'Here are some formulas:
+█ 25 █ {single-column'Here are some formulas:
 '¶
-{keep-lines(code'u-cjk/4e36')'  \\cn{丶}   \\cnxJzr{}
+█ 25 █ {keep-lines(code'u-cjk/4e36')'  \\cn{丶}   \\cnxJzr{}
 '(code'u-cjk/4e37')'  \\cn{丷}   \\cnxJzr{}\\cn{丶}\\cnxJzr{}
 '(code'u-cjk/4e38')'  \\cn{丸}   \\cnxJzr{}\\cn{九丶}
 '(code'u-cjk/4e39')'  \\cn{丹}   \\cnxJzr{}\\cnxBabel{⺆}\\cnxJzr{}\\cn{丶一}
@@ -38,3 +38,4 @@ accordingly, typesetting is reverted back to multi-column mode,
 which is why you can see this paragraph set in two columns.'¶
 }
 ¶
+>

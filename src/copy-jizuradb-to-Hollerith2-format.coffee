@@ -3,7 +3,7 @@
 
 ############################################################################################################
 njs_path                  = require 'path'
-# # njs_fs                    = require 'fs'
+njs_fs                    = require 'fs'
 join                      = njs_path.join
 #...........................................................................................................
 CND                       = require 'cnd'
@@ -34,13 +34,15 @@ $async                    = D.remit_async.bind D
 HOLLERITH                 = require 'hollerith'
 # DEMO                      = require './demo'
 KWIC                      = require 'kwic'
+XNCHR                     = require './XNCHR'
 ƒ                         = CND.format_number.bind CND
 
 #-----------------------------------------------------------------------------------------------------------
 options =
-  # sample:         null
+  sample:         null
   # sample:         [ '疈', '國', '𠵓', ]
   # sample:         [ '𡬜', '國', '𠵓', ]
+  # sample:         [ '𡬜', '國', '𠵓', '后', '花', '醒', ]
 
 # #-----------------------------------------------------------------------------------------------------------
 # @$show_progress = ( size ) ->
@@ -263,6 +265,92 @@ options =
     send [ glyph, 'guide/kwic/v3/sortcode', permutations, ]
 
 #-----------------------------------------------------------------------------------------------------------
+@$add_guide_pairs = ( factor_infos ) ->
+  sortcode_by_factors = {}
+  sortcode_by_factors[ guide_uchr ] = sortcode for sortcode, guide_uchr of factor_infos
+  #.........................................................................................................
+  ### TAINT code duplication ###
+  ### TAIN make configurable / store in options ###
+  home              = njs_path.resolve __dirname, '../../jizura-datasources'
+  derivatives_home  = njs_path.resolve home, 'data/5-derivatives'
+  derivatives_route = njs_path.resolve derivatives_home, 'guide-pairs.txt'
+  derivatives       = njs_fs.createWriteStream derivatives_route, { encoding: 'utf-8', }
+  collector         = []
+  excludes          = [ '一', ]
+  help "writing results of `add_guide_pairs` to #{derivatives_route}"
+  derivatives.write """
+    # generated on #{new Date()}
+    # by #{__filename}
+    \n\n"""
+  #.........................................................................................................
+  get_pairs = ( glyph, guides ) ->
+    ### TAINT allow or eliminate duplicates? use pairs and reversed pairs? ###
+    length      = guides.length
+    chrs        = []
+    sortcodes   = []
+    entries     = []
+    seen        = {}
+    R           = { chrs, entries, }
+    #.......................................................................................................
+    return R if length < 2
+    #.......................................................................................................
+    for i in [ 0 ... length - 1 ]
+      for j in [ i + 1 ... length ]
+        guide_0     = guides[ i ]
+        guide_1     = guides[ j ]
+        continue if guide_0 in excludes or guide_1 in excludes
+        sortcode_0  = sortcode_by_factors[ guide_0 ]
+        sortcode_1  = sortcode_by_factors[ guide_1 ]
+        sortcode_0 ?= 'zzzzzzzz'
+        sortcode_1 ?= 'zzzzzzzz'
+        # return send.error new Error "unknown guide: #{guide_0}" unless sortcode_0?
+        # return send.error new Error "unknown guide: #{guide_1}" unless sortcode_1?
+        #...................................................................................................
+        key         = guide_0 + guide_1
+        unless key of seen
+          chrs.push key
+          entries.push "#{sortcode_0} #{sortcode_1}\t#{key}\t#{glyph}"
+          seen[ key ] = 1
+        #...................................................................................................
+        key         = guide_1 + guide_0
+        unless key of seen
+          chrs.push key
+          entries.push "#{sortcode_1} #{sortcode_0}\t#{key}\t#{glyph}"
+          seen[ key ] = 1
+    #.......................................................................................................
+    return R
+  #.........................................................................................................
+  return $ ( phrase, send, end ) =>
+    #.......................................................................................................
+    if phrase?
+      send phrase
+      [ sbj, prd, obj, ] = phrase
+      #.....................................................................................................
+      if prd is 'guide/has/uchr'
+        [ glyph, _, guides, ] = [ sbj, prd, obj, ]
+        if XNCHR.is_inner_glyph glyph
+          { chrs, entries, }    = get_pairs glyph, guides
+          # debug '©VrqrO', glyph, chrs
+          # debug '©VrqrO', glyph, entries
+          collector.push entry for entry in entries
+          send [ glyph, 'guide/pair/uchr',    chrs, ]
+          send [ glyph, 'guide/pair/entry',   entries, ]
+    #.......................................................................................................
+    if end?
+      debug '©70RRX', new Date()
+      whisper "sorting guide pairs..."
+      collector.sort()
+      whisper "done"
+      debug '©70RRX', new Date()
+      whisper "writing guide pairs..."
+      for entry in collector
+        derivatives.write entry + '\n'
+      derivatives.end()
+      whisper "done"
+      debug '©70RRX', new Date()
+      end()
+
+#-----------------------------------------------------------------------------------------------------------
 @v1_split_so_bkey = ( bkey ) ->
   R       = bkey.toString 'utf-8'
   R       = R.split '|'
@@ -299,7 +387,6 @@ options =
   gte         = 'os|factor/sortcode'
   lte         = @v1_lte_from_gte gte
   input       = db[ '%self' ].createKeyStream { gte, lte, }
-  XNCHR       = require '../../jizura-datasources/lib/XNCHR'
   #.......................................................................................................
   input
     .pipe @v1_$split_so_bkey()
@@ -309,12 +396,16 @@ options =
 
 #-----------------------------------------------------------------------------------------------------------
 @copy_jizura_db = ->
-  home            = join __dirname, '../../jizura-datasources'
-  source_route    = join home, 'data/leveldb'
-  target_route    = join home, 'data/leveldb-v2'
+  home            = njs_path.resolve __dirname, '../../jizura-datasources'
+  source_route    = njs_path.resolve home, 'data/leveldb'
+  target_route    = njs_path.resolve home, 'data/leveldb-v2'
+  # ### # # # # # # # # # # # # # # # # # # # # # ###
+  # target_route    = njs_path.resolve home, '/tmp/leveldb-v2'
+  # alert "using temp DB"
+  # ### # # # # # # # # # # # # # # # # # # # # # ###
   # target_route    = '/tmp/leveldb-v2'
   target_db_size  = 1e6
-  ds_options      = require join home, 'options'
+  ds_options      = require njs_path.resolve home, 'options'
   source_db       = HOLLERITH.new_db source_route
   target_db       = HOLLERITH.new_db target_route, size: target_db_size, create: yes
   #.........................................................................................................
@@ -355,7 +446,8 @@ options =
       .pipe @$compact_lists()
       .pipe @$add_version_to_kwic_v1()
       .pipe @$add_kwic_v2()
-      .pipe @$add_kwic_v3 factor_infos
+      .pipe @$add_kwic_v3     factor_infos
+      .pipe @$add_guide_pairs factor_infos
       # .pipe D.$show()
       .pipe D.$count ( count ) -> help "kept #{ƒ count} phrases"
       .pipe D.$stop_time "copy Jizura DB"
