@@ -737,7 +737,7 @@ parse_methods = get_parse_html_methods()
         else
           write "\nIGNORED: #{rpr event}"
     if has_ended
-      output.close()
+      output.end()
     return null
 
 #-----------------------------------------------------------------------------------------------------------

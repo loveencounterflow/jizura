@@ -365,28 +365,28 @@ SEMVER                    = require 'semver'
   last_was_begin_document = no
   #.........................................................................................................
   return $ ( event, send ) =>
-    debug '©MwBAv', event
+    # debug '©MwBAv', event
     #.......................................................................................................
     if TYPO.isa event, 'tex'
       send event
     #.......................................................................................................
     else if TYPO.isa event, '<', 'document'
-      debug '©---1', last_was_begin_document
-      debug '©---2', last_was_p
+      # debug '©---1', last_was_begin_document
+      # debug '©---2', last_was_p
       last_was_p              = no
       last_was_begin_document = yes
       send event
     #.......................................................................................................
     else if TYPO.isa event, '.', 'p'
-      debug '©---3', last_was_begin_document
-      debug '©---4', last_was_p
+      # debug '©---3', last_was_begin_document
+      # debug '©---4', last_was_p
       last_was_p              = yes
       last_was_begin_document = no
       send event
     #.......................................................................................................
     else if TYPO.isa event, [ '{', '[', ]
-      debug '©---5', last_was_begin_document
-      debug '©---6', last_was_p
+      # debug '©---5', last_was_begin_document
+      # debug '©---6', last_was_p
       if ( not last_was_begin_document ) and ( not last_was_p )
         [ ..., meta, ] = event
         send [ '.', 'p', null, ( TYPO._copy meta ), ]

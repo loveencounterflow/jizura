@@ -1,1 +1,40 @@
-<document
+<document{multi-column¶
+[h2'MKTS Regions \\cn{中國皇帝}']
+'To indicate the start of an MKTS-MD Region, place a triple at-sign '(code'@@@')'
+at the start of a line, immediately followed by a command name such as
+'(code'keep-lines')' or '(code'single-column')'. The end of a region is indicated by a
+triple at-sign without a command name. Nested regions are possible; for example,
+you can put a '(code'@@@keep-lines')' region inside a '(code'@@@single-column')' region as
+done here:'¶
+[h2'MKTS Regions \\cn{中國皇帝}']
+'To indicate the start of an MKTS-MD Region, place a triple at-sign '(code'@@@')'
+at the start of a line, immediately followed by a command name such as
+'(code'keep-lines')' or '(code'single-column')'. The end of a region is indicated by a
+triple at-sign without a command name. Nested regions are possible; for example,
+you can put a '(code'@@@keep-lines')' region inside a '(code'@@@single-column')' region as
+done here:'¶
+{single-column'Here are some formulas:
+'¶
+{keep-lines(code'u-cjk/4e36')'  \\cn{丶}   \\cnxJzr{}
+'(code'u-cjk/4e37')'  \\cn{丷}   \\cnxJzr{}\\cn{丶}\\cnxJzr{}
+'(code'u-cjk/4e38')'  \\cn{丸}   \\cnxJzr{}\\cn{九丶}
+'(code'u-cjk/4e39')'  \\cn{丹}   \\cnxJzr{}\\cnxBabel{⺆}\\cnxJzr{}\\cn{丶一}
+'(code'u-cjk/4e3a')'  \\cn{为}   \\cnxJzr{}\\cn{丶}\\cnxJzr{}\\cn{力丶}
+'(code'u-cjk/4e3b')'  \\cn{主}   \\cnxJzr{}\\cn{丶王}
+'(code'u-cjk/4e3b')'  \\cn{主}   \\cnxJzr{}\\cn{亠土}
+'(code'u-cjk/4e3c')'  \\cn{丼}   \\cnxJzr{}\\cn{井丶}'¶
+(code'u-cjk-xb/250b7')'  \\cnxb{𥂷}   \\cnxJzr{}\\cnxJzr{}\\cn{告巨皿}
+'(code'u-cjk-xb/250b8')'  \\cnxb{𥂸}   \\cnxJzr{}\\cn{楊皿}
+'}
+'At this point, a line consisting of a triple at-sign '(code'@@@')'
+indicates the end of the '(code'keep-lines')' region; since the
+'(code'single-column')' region is still active, however, '(em'this
+paragraph runs across the entire width')' of the documents text
+area.
+'}
+'Now a '(code'\\}single-column')' MKTS/MD event has been encountered
+that was triggered by a triple-at command in the manuscript;
+accordingly, typesetting is reverted back to multi-column mode,
+which is why you can see this paragraph set in two columns.'¶
+}
+¶
