@@ -29,7 +29,8 @@ $async                    = D.remit_async.bind D
 Markdown_parser           = require 'markdown-it'
 # Html_parser               = ( require 'htmlparser2' ).Parser
 new_md_inline_plugin      = require 'markdown-it-regexp'
-
+#...........................................................................................................
+misfit                    = Symbol 'misfit'
 
 # #-----------------------------------------------------------------------------------------------------------
 # @provide_tmp_folder = ( options ) ->
@@ -368,7 +369,7 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
 get_parse_html_methods = ->
   Parser      = ( require 'parse5' ).Parser
   parser      = new Parser()
-  get_message = ( source ) -> "expected single openening node, got #{rpr source}"
+  get_message = ( source ) -> "expected single opening node, got #{rpr source}"
   R           = {}
   #.........................................................................................................
   R[ '_parse_html_open_tag' ] = ( source ) ->
@@ -661,19 +662,43 @@ parse_methods = get_parse_html_methods()
   #.........................................................................................................
   for area_name in area_names
     throw new Error "repeated area_name #{rpr area_name}" if state[ area_name ]?
-    state[ area_name ] = false
+    area_key      = null
+    opening_fence = area_name[ 0 ]
+    closing_fence = area_name[ area_name.length - 1 ]
+    ### TAINT matches '{xxx}' as well as '}xxx{' ###
+    if ( regular_closing_fence = @_get_opposite_fence opening_fence, null )?
+      throw new Error "unmatched fences in #{rpr area_name}" if closing_fence isnt regular_closing_fence
+      unless area_names.length is 1
+        throw new Error "matching more than a single area name with fences not yet implemented"
+      area_key          = area_name
+      area_name         = area_name[ 1 ... area_name.length - 1 ]
+      fence_matcher     = [ opening_fence, closing_fence, ]
+      state[ area_key ] = false
+    else
+      opening_fence       = closing_fence = null
+      state[ area_name ]  = false
   #.........................................................................................................
-  track = ( event ) =>
-    if event?
-      [ type, area_name, text, meta, ] = event
-      if area_name of state
-        if      type in [ '<', '{', '[', '(', ] then state[ area_name ] = true
-        else if type in [ '>', '}', ']', ')', ] then state[ area_name ] = false
-    return event
+  if opening_fence?
+    track = ( event ) =>
+      if event?
+        if @isa event, fence_matcher, area_name
+          [ type, area_name, text, meta, ] = event
+          if type is opening_fence then state[ area_key ] = true
+          else                          state[ area_key ] = false
+      return event
+  else
+    track = ( event ) =>
+      if event?
+        [ type, area_name, text, meta, ] = event
+        if area_name of state
+          if      type in [ '<', '{', '[', '(', ] then state[ area_name ] = true
+          else if type in [ '>', '}', ']', ')', ] then state[ area_name ] = false
+      return event
   #.........................................................................................................
-  within = ( pattern ) =>
+  within = ( pattern, value = misfit ) =>
     throw new Error "untracked pattern #{rpr pattern}" unless ( R = state[ pattern ] )?
-    return R
+    return R if value is misfit
+    return state[ pattern ] = value
   #.........................................................................................................
   return [ track, within, ]
 

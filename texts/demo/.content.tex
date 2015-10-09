@@ -11,6 +11,50 @@ triple at-sign without a command name. Nested regions are possible; for example,
 you can put a {\mktsStyleCode{}@@@keep-lines} region inside a {\mktsStyleCode{}@@@single-column} region as
 done here:\mktsShowpar\par
 \end{multicols}
+\section{Code Regions
+}
+\begin{multicols}{2}x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x\mktsShowpar\par
+\begingroup\obeyalllines\mktsStyleCode{}this is
+a code block \cnjzr{}
+with three lines \& an XNCR
+\endgroup{}x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x\mktsShowpar\par
+It’s possible to switch on {\mktsStyleCode{}inline code}. It’s also possible
+to have a block of code with lines rendered as in the source:
+\mktsShowpar\par
+\end{multicols}\mktsShowpar\par
+\begingroup\obeyalllines\mktsStyleCode{}\#-------------------------------------------------------------------------------------
+@\_shuffle = ( list, ratio, rnd, random\_integer ) ->
+  \#...................................................................................
+  return list if ( this\_idx = list.length ) < 2
+  \#...................................................................................
+  loop
+    this\_idx += -1
+    return list if this\_idx < 1
+    if ratio >= 1 or rnd() <= ratio
+      \# return list if this\_idx < 1
+      that\_idx = random\_integer 0, this\_idx
+      [ list[ that\_idx ], list[ this\_idx ] ] = [ list[ this\_idx ], list[ that\_idx ] ]
+  \#...................................................................................
+  return list
+\endgroup{}\begin{multicols}{2}x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x\mktsShowpar\par
+Code sample, keeping indentations:\mktsShowpar\par
+\begingroup\obeyalllines\mktsStyleCode{}x
+  x
+    x
+\endgroup{}x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x\mktsShowpar\par
+\end{multicols}
 \section{MKTS Regions \cn{中國皇帝}
 }
 \begin{multicols}{2}To indicate the start of an MKTS-MD Region, place a triple at-sign {\mktsStyleCode{}@@@}

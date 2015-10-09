@@ -12,6 +12,60 @@ triple at-sign without a command name. Nested regions are possible; for example,
 you can put a `@@@keep-lines` region inside a `@@@single-column` region as
 done here:
 
+## Code Regions
+
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+```
+this is
+a code block &jzr#xe202;
+with three lines & an XNCR
+```
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+
+
+It's possible to switch on `inline code`. It's also possible
+to have a block of code with lines rendered as in the source:
+@@@single-column
+```
+#-------------------------------------------------------------------------------------
+@_shuffle = ( list, ratio, rnd, random_integer ) ->
+  #...................................................................................
+  return list if ( this_idx = list.length ) < 2
+  #...................................................................................
+  loop
+    this_idx += -1
+    return list if this_idx < 1
+    if ratio >= 1 or rnd() <= ratio
+      # return list if this_idx < 1
+      that_idx = random_integer 0, this_idx
+      [ list[ that_idx ], list[ this_idx ] ] = [ list[ this_idx ], list[ that_idx ] ]
+  #...................................................................................
+  return list
+```
+@@@
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+
+Code sample, keeping indentations:
+
+```
+x
+  x
+    x
+```
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+
 ## MKTS Regions 中國皇帝
 
 To indicate the start of an MKTS-MD Region, place a triple at-sign `@@@`

@@ -206,8 +206,6 @@ SEMVER                    = require 'semver'
     state =
       # write_protocoll:      yes
       options:              @options
-      within_keeplines:     no
-      within_pre:           no
       layout_info:          layout_info
     #---------------------------------------------------------------------------------------------------------
     tex_output.on 'close', =>
@@ -406,16 +404,17 @@ SEMVER                    = require 'semver'
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.REGION.$keep_lines = ( S ) =>
+  [ track, within, ]  = TYPO.new_area_observer 'keep-lines'
   #.........................................................................................................
   return $ ( event, send ) =>
+    within_keep_lines = within 'keep-lines'
+    track event
     #.......................................................................................................
     if TYPO.isa event, '.', 'text'
-      ### TAINT differences between pre and keep-lines? ###
       [ type, name, text, meta, ] = event
-      # if S.within_keeplines
-      #   text = text.replace /\n\n/g, '~\\\\\n'
-      if S.within_pre
-        text = text.replace /\u0020/g, '\u00a0'
+      ### TAINT other replacements possible; use API ###
+      ### TAINT U+00A0 (nbsp) might be too wide ###
+      text = text.replace /\u0020/g, '\u00a0' if within_keep_lines
       send [ type, name, text, meta, ]
     #.......................................................................................................
     else if TYPO.isa event, [ '{', '}', ], 'keep-lines'
@@ -423,15 +422,11 @@ SEMVER                    = require 'semver'
       [ type, name, text, meta, ] = event
       #.....................................................................................................
       if type is '{'
-        # send [ 'tex', '% ### MKTS @@@keep-lines ###\n', ]
-        S.within_pre        = yes
-        S.within_keeplines  = yes
+        within 'keep-lines', yes
         send [ 'tex', "\\begingroup\\obeyalllines{}", ]
       else
         send [ 'tex', "\\endgroup{}", ]
-        S.within_keeplines      = no
-        S.within_pre            = no
-        S.just_closed_keeplines = yes
+        within 'keep-lines', no
     #.......................................................................................................
     else
       send event
@@ -439,15 +434,15 @@ SEMVER                    = require 'semver'
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.REGION.$code = ( S ) =>
   ### TAINT code duplication with `REGION.$keep_lines` possible ###
+  [ track, within, ]  = TYPO.new_area_observer '{code}'
   #.........................................................................................................
   return $ ( event, send ) =>
+    within_code = within '{code}'
+    track event
     #.......................................................................................................
     if TYPO.isa event, '.', 'text'
-      ### TAINT differences between pre and keep-lines? ###
       [ type, name, text, meta, ] = event
-      # if S.within_keeplines
-      #   text = text.replace /\n\n/g, '~\\\\\n'
-      if S.within_pre
+      if within_code
         text = text.replace /\u0020/g, '\u00a0'
       send [ type, name, text, meta, ]
     #.......................................................................................................
@@ -456,15 +451,9 @@ SEMVER                    = require 'semver'
       [ type, name, text, meta, ] = event
       #.....................................................................................................
       if type is '{'
-        # send [ 'tex', '% ### MKTS @@@keep-lines ###\n', ]
-        S.within_pre        = yes
-        S.within_keeplines  = yes
         send [ 'tex', "\\begingroup\\obeyalllines\\mktsStyleCode{}", ]
       else
         send [ 'tex', "\\endgroup{}", ]
-        S.within_keeplines      = no
-        S.within_pre            = no
-        S.just_closed_keeplines = yes
     #.......................................................................................................
     else
       send event
@@ -530,13 +519,19 @@ SEMVER                    = require 'semver'
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.BLOCK.$paragraph = ( S ) =>
+  ### TAINT should unify the two observers ###
+  [ track_1, within_1, ]  = TYPO.new_area_observer '{code}'
+  [ track_2, within_2, ]  = TYPO.new_area_observer 'keep-lines'
   #.........................................................................................................
   return $ ( event, send ) =>
+    within_code = within_1 '{code}'
+    within_keep_lines = within_2 'keep-lines'
+    track_1 event
+    track_2 event
     #.......................................................................................................
     if TYPO.isa event, '.', 'p'
       [ type, name, text, meta, ] = event
-      ### TAINT difference between S.within_pre, S.within_keeplines? ###
-      if S.within_pre or S.within_keeplines# or S.just_closed_keeplines
+      if within_code or within_keep_lines
         send @stamp event
         send [ 'text', '\n\n' ]
       else
@@ -544,19 +539,6 @@ SEMVER                    = require 'semver'
         ### TAINT use command from sty ###
         ### TAINT make configurable ###
         send [ 'tex', '\\mktsShowpar\\par\n' ]
-      S.just_closed_keeplines = no
-    # #.......................................................................................................
-    # if TYPO.isa event, [ '[', ']', ], 'p'
-    #   [ type, name, text, meta, ] = event
-    #   ### TAINT difference between S.within_pre, S.within_keeplines? ###
-    #   unless S.within_pre or S.within_keeplines or S.just_closed_keeplines
-    #     if type is '['
-    #       send @stamp event
-    #       send [ 'text', '\n\n' ]
-    #     else
-    #       send @stamp event
-    #       send [ 'tex', '¶\\par' ]
-    #   S.just_closed_keeplines = no
     #.......................................................................................................
     else
       send event

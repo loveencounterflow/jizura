@@ -6,16 +6,62 @@ at the start of a line, immediately followed by a command name such as
 triple at-sign without a command name. Nested regions are possible; for example,
 you can put a '(code'@@@keep-lines')' region inside a '(code'@@@single-column')' region as
 done here:'¶
-█ 15 █ [h2'MKTS Regions \\cn{中國皇帝}']
+█ 15 █ [h2'Code Regions']
+'x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x'¶
+█ 20 █ {code'this is
+a code block \\cnjzr{}
+with three lines \\& an XNCR
+'}
+'x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x'¶
+'It’s possible to switch on '(code'inline code')'. It’s also possible
+to have a block of code with lines rendered as in the source:
+'¶
+█ 34 █ {single-column¶
+█ 37 █ {code'\\#-------------------------------------------------------------------------------------
+@\\_shuffle = ( list, ratio, rnd, random\\_integer ) ->
+  \\#...................................................................................
+  return list if ( this\\_idx = list.length ) < 2
+  \\#...................................................................................
+  loop
+    this\\_idx += -1
+    return list if this\\_idx < 1
+    if ratio >= 1 or rnd() <= ratio
+      \\# return list if this\\_idx < 1
+      that\\_idx = random\\_integer 0, this\\_idx
+      [ list[ that\\_idx ], list[ this\\_idx ] ] = [ list[ this\\_idx ], list[ that\\_idx ] ]
+  \\#...................................................................................
+  return list
+'}
+}
+'x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x'¶
+'Code sample, keeping indentations:'¶
+█ 60 █ {code'x
+  x
+    x
+'}
+'x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x
+x x x x x x x x x x x x x x x x x x x x x x x x x x'¶
+█ 69 █ [h2'MKTS Regions \\cn{中國皇帝}']
 'To indicate the start of an MKTS-MD Region, place a triple at-sign '(code'@@@')'
 at the start of a line, immediately followed by a command name such as
 '(code'keep-lines')' or '(code'single-column')'. The end of a region is indicated by a
 triple at-sign without a command name. Nested regions are possible; for example,
 you can put a '(code'@@@keep-lines')' region inside a '(code'@@@single-column')' region as
 done here:'¶
-█ 25 █ {single-column'Here are some formulas:
+█ 79 █ {single-column'Here are some formulas:
 '¶
-█ 25 █ {keep-lines(code'u-cjk/4e36')'  \\cn{丶}   \\cnxJzr{}
+█ 79 █ {keep-lines(code'u-cjk/4e36')'  \\cn{丶}   \\cnxJzr{}
 '(code'u-cjk/4e37')'  \\cn{丷}   \\cnxJzr{}\\cn{丶}\\cnxJzr{}
 '(code'u-cjk/4e38')'  \\cn{丸}   \\cnxJzr{}\\cn{九丶}
 '(code'u-cjk/4e39')'  \\cn{丹}   \\cnxJzr{}\\cnxBabel{⺆}\\cnxJzr{}\\cn{丶一}
