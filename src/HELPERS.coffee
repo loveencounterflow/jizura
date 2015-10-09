@@ -401,9 +401,11 @@ parse_methods = get_parse_html_methods()
 
 #-----------------------------------------------------------------------------------------------------------
 @TYPO._fence_pairs =
+  '<':  '>'
   '{':  '}'
   '[':  ']'
   '(':  ')'
+  '>':  '<'
   '}':  '{'
   ']':  '['
   ')':  '('
@@ -654,68 +656,26 @@ parse_methods = get_parse_html_methods()
   return null
 
 #-----------------------------------------------------------------------------------------------------------
-@TYPO.new_area_observer = ( pattern ) ->
-  if match is '*'
-    throw new Error "area observer pattern `*` (star) not yet implemented"
-  else
-    match = pattern.match /^(.)(.+)(.)$/
-    throw new Error "illegal area observer pattern #{rpr pattern}" unless match
-    [ _, opening_fence, area_name, closing_fence, ] = match
-    unless closing_fence is @_get_opposite_fence opening_fence, null
-      throw new Error """
-        illegal fences in area observer pattern #{rpr pattern}:
-        #{rpr opening_fence}, #{rpr closing_fence}"""
-    toggle = false
-    #.......................................................................................................
-    return ( event ) =>
-      if event?
-        [ type, name, text, meta, ] = event
-        if @isa event, [ opening_fence, closing_fence, ], area_name
-          if type is opening_fence
-            toggle = true
-          else
-            toggle = false
-      return toggle
-
-# #-----------------------------------------------------------------------------------------------------------
-# @TYPO.$update_meta = ( S ) ->
-#   tag_stack         = []
-#   last_meta         = null
-#   return D.$observe ( event ) =>
-#     [ type, name, text, meta, ] = event
-#     if last_meta?
-#       for key, value of last_meta
-#         meta[ key ] = last_meta[ key ] if meta[ key ] is undefined
-#     last_meta = meta
-#     if @isa event, [ '{', '[', '(', ]
-#       key         = type + name + ( @_get_opposite_fence type )
-#       meta[ key ] = true
-#     else if @isa event, [ '}', ']', ')', ]
-#       key         = ( @_get_opposite_fence type ) + name + type
-#       meta[ key ] = false
-
-# #-----------------------------------------------------------------------------------------------------------
-# @TYPO.$show_meta = ( S ) ->
-#   #.........................................................................................................
-#   return $ ( event, send ) =>
-#     #.......................................................................................................
-#     unless @isa event, [ '.', 'text', 'tex', ]
-#       [ _, _, _, meta, ] = event
-#       # debug '©Lz9qy', meta
-#       signals = []
-#       keys    = Object.keys meta
-#       keys.sort()
-#       for key in keys
-#         continue unless key[ 0 ] in [ '{', '[', '(', ]
-#         signals.push key if meta[ key ]
-#       signals.push './.' if signals.length is 0
-#       signals_rpr = signals.join ' '
-#       info signals_rpr
-#       signals_rpr = @fix_typography_for_tex signals_rpr, S.options
-#       send event
-#       send [ 'tex', "\\mktsComment{#{signals_rpr}}", ]
-#     else
-#       send event
+@TYPO.new_area_observer = ( area_names... ) ->
+  state               = {}
+  #.........................................................................................................
+  for area_name in area_names
+    throw new Error "repeated area_name #{rpr area_name}" if state[ area_name ]?
+    state[ area_name ] = false
+  #.........................................................................................................
+  track = ( event ) =>
+    if event?
+      [ type, area_name, text, meta, ] = event
+      if area_name of state
+        if      type in [ '<', '{', '[', '(', ] then state[ area_name ] = true
+        else if type in [ '>', '}', ']', ')', ] then state[ area_name ] = false
+    return event
+  #.........................................................................................................
+  within = ( pattern ) =>
+    throw new Error "untracked pattern #{rpr pattern}" unless ( R = state[ pattern ] )?
+    return R
+  #.........................................................................................................
+  return [ track, within, ]
 
 #-----------------------------------------------------------------------------------------------------------
 @TYPO.$show_mktsmd_events = ( S ) ->
