@@ -409,8 +409,10 @@ parse_methods = get_parse_html_methods()
   ')':  '('
 
 #-----------------------------------------------------------------------------------------------------------
-@TYPO._get_opposite_fence = ( fence ) ->
-  throw new Error "unknown fence: #{rpr fence}" unless ( R = @_fence_pairs[ fence ] )?
+@TYPO._get_opposite_fence = ( fence, fallback ) ->
+  unless ( R = @_fence_pairs[ fence ] )?
+    return fallback unless fallback is undefined
+    throw new Error "unknown fence: #{rpr fence}"
   return R
 
 #-----------------------------------------------------------------------------------------------------------
@@ -652,44 +654,68 @@ parse_methods = get_parse_html_methods()
   return null
 
 #-----------------------------------------------------------------------------------------------------------
-@TYPO.$update_meta = ( S ) ->
-  tag_stack         = []
-  last_meta         = null
-  return D.$observe ( event ) =>
-    [ type, name, text, meta, ] = event
-    if last_meta?
-      for key, value of last_meta
-        meta[ key ] = last_meta[ key ] if meta[ key ] is undefined
-    last_meta = meta
-    if @isa event, [ '{', '[', '(', ]
-      key         = type + name + ( @_get_opposite_fence type )
-      meta[ key ] = true
-    else if @isa event, [ '}', ']', ')', ]
-      key         = ( @_get_opposite_fence type ) + name + type
-      meta[ key ] = false
-
-#-----------------------------------------------------------------------------------------------------------
-@TYPO.$show_meta = ( S ) ->
-  #.........................................................................................................
-  return $ ( event, send ) =>
+@TYPO.new_area_observer = ( pattern ) ->
+  if match is '*'
+    throw new Error "area observer pattern `*` (star) not yet implemented"
+  else
+    match = pattern.match /^(.)(.+)(.)$/
+    throw new Error "illegal area observer pattern #{rpr pattern}" unless match
+    [ _, opening_fence, area_name, closing_fence, ] = match
+    unless closing_fence is @_get_opposite_fence opening_fence, null
+      throw new Error """
+        illegal fences in area observer pattern #{rpr pattern}:
+        #{rpr opening_fence}, #{rpr closing_fence}"""
+    toggle = false
     #.......................................................................................................
-    unless @isa event, [ '.', 'text', 'tex', ]
-      [ _, _, _, meta, ] = event
-      # debug '©Lz9qy', meta
-      signals = []
-      keys    = Object.keys meta
-      keys.sort()
-      for key in keys
-        continue unless key[ 0 ] in [ '{', '[', '(', ]
-        signals.push key if meta[ key ]
-      signals.push './.' if signals.length is 0
-      signals_rpr = signals.join ' '
-      info signals_rpr
-      signals_rpr = @fix_typography_for_tex signals_rpr, S.options
-      send event
-      send [ 'tex', "\\mktsComment{#{signals_rpr}}", ]
-    else
-      send event
+    return ( event ) =>
+      if event?
+        [ type, name, text, meta, ] = event
+        if @isa event, [ opening_fence, closing_fence, ], area_name
+          if type is opening_fence
+            toggle = true
+          else
+            toggle = false
+      return toggle
+
+# #-----------------------------------------------------------------------------------------------------------
+# @TYPO.$update_meta = ( S ) ->
+#   tag_stack         = []
+#   last_meta         = null
+#   return D.$observe ( event ) =>
+#     [ type, name, text, meta, ] = event
+#     if last_meta?
+#       for key, value of last_meta
+#         meta[ key ] = last_meta[ key ] if meta[ key ] is undefined
+#     last_meta = meta
+#     if @isa event, [ '{', '[', '(', ]
+#       key         = type + name + ( @_get_opposite_fence type )
+#       meta[ key ] = true
+#     else if @isa event, [ '}', ']', ')', ]
+#       key         = ( @_get_opposite_fence type ) + name + type
+#       meta[ key ] = false
+
+# #-----------------------------------------------------------------------------------------------------------
+# @TYPO.$show_meta = ( S ) ->
+#   #.........................................................................................................
+#   return $ ( event, send ) =>
+#     #.......................................................................................................
+#     unless @isa event, [ '.', 'text', 'tex', ]
+#       [ _, _, _, meta, ] = event
+#       # debug '©Lz9qy', meta
+#       signals = []
+#       keys    = Object.keys meta
+#       keys.sort()
+#       for key in keys
+#         continue unless key[ 0 ] in [ '{', '[', '(', ]
+#         signals.push key if meta[ key ]
+#       signals.push './.' if signals.length is 0
+#       signals_rpr = signals.join ' '
+#       info signals_rpr
+#       signals_rpr = @fix_typography_for_tex signals_rpr, S.options
+#       send event
+#       send [ 'tex', "\\mktsComment{#{signals_rpr}}", ]
+#     else
+#       send event
 
 #-----------------------------------------------------------------------------------------------------------
 @TYPO.$show_mktsmd_events = ( S ) ->
@@ -835,7 +861,7 @@ parse_methods = get_parse_html_methods()
     .pipe @$process_end_command             state
     .pipe @$preprocess_regions              state
     .pipe @$close_dangling_open_tags        state
-    .pipe @$update_meta                     state
+    # .pipe @$update_meta                     state
     # .pipe @$preprocess_keeplines_regions    state
     .pipe R
   #.........................................................................................................

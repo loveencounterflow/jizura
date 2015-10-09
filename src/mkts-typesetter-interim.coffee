@@ -241,7 +241,7 @@ SEMVER                    = require 'semver'
       .pipe @MKTX.INLINE.$em_and_strong                     state
       .pipe @MKTX.DOCUMENT.$end                             state
       .pipe TYPO.$show_mktsmd_events                        state
-      .pipe TYPO.$show_meta                                 state
+      # .pipe TYPO.$show_meta                                 state
       .pipe TYPO.$write_mktscript                           state
       .pipe @$show_unhandled_tags                           state
       .pipe @$filter_tex()
@@ -312,26 +312,28 @@ SEMVER                    = require 'semver'
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.REGION.$multi_column = ( S ) =>
+  track_multi_column  = TYPO.new_area_observer '{multi-column}'
   #.........................................................................................................
   return $ ( event, send ) =>
+    within_multi_column = track_multi_column event
     if TYPO.isa event, [ '{', '}', ], 'multi-column'
       send @stamp event
       [ type, name, text, meta, ] = event
-      #...................................................................................................
+      #.....................................................................................................
       if type is '{'
-        unless S.within_multi_column
+        unless within_multi_column
           send @MKTX.REGION._begin_multi_column()
           S.within_multi_column = yes
         else
           whisper "ignored #{type}#{name}"
-      #...................................................................................................
+      #.....................................................................................................
       else
-        if S.within_multi_column
+        if within_multi_column
           send @MKTX.REGION._end_multi_column()
           S.within_multi_column = no
         else
           whisper "ignored #{type}#{name}"
-    #.....................................................................................................
+    #.......................................................................................................
     else
       send event
     #.......................................................................................................
@@ -340,25 +342,32 @@ SEMVER                    = require 'semver'
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.REGION.$single_column = ( S ) =>
   ### TAINT consider to implement command `change_column_count = ( send, n )` ###
+  track_multi_column  = TYPO.new_area_observer '{multi-column}'
+  track_single_column = TYPO.new_area_observer '{single-column}'
   #.........................................................................................................
   return $ ( event, send ) =>
+    within_multi_column   = track_multi_column  event
+    within_single_column  = track_single_column event
+    #.......................................................................................................
     if TYPO.isa event, [ '{', '}', ], 'single-column'
       send @stamp event
       [ type, name, text, meta, ] = event
-      #...................................................................................................
+      #.....................................................................................................
       if type is '{'
-        if ( not S.within_single_column ) and S.within_multi_column
+        if ( not within_single_column ) and within_multi_column
           send @MKTX.REGION._end_multi_column()
           S.within_single_column = yes
         else
           whisper "ignored #{type}#{name}"
-      #...................................................................................................
+      #.....................................................................................................
       else
-        if S.within_single_column and S.within_multi_column
+        debug '@893', within_single_column is S.within_single_column
+        debug '@893', within_multi_column is S.within_multi_column
+        if within_single_column and within_multi_column
           send @MKTX.REGION._begin_multi_column()
         else
           whisper "ignored #{type}#{name}"
-    #.....................................................................................................
+    #.......................................................................................................
     else
       send event
     #.......................................................................................................
@@ -488,9 +497,11 @@ SEMVER                    = require 'semver'
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.BLOCK.$heading = ( S ) =>
-  restart_multicols = no
+  restart_multicols   = no
+  track_multi_column  = TYPO.new_area_observer '{multi-column}'
   #.........................................................................................................
   return $ ( event, send ) =>
+    within_multi_column = track_multi_column event
     #.......................................................................................................
     if TYPO.isa event, [ '[', ']', ], [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', ]
       send @stamp event
@@ -500,7 +511,7 @@ SEMVER                    = require 'semver'
       #.....................................................................................................
       if type is '['
         #...................................................................................................
-        if S.within_multi_column and name in [ 'h1', 'h2', ]
+        if within_multi_column and name in [ 'h1', 'h2', ]
           send @MKTX.REGION._end_multi_column meta
           S.within_multi_column = no
           restart_multicols     = yes
