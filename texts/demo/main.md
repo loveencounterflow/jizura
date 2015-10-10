@@ -12,6 +12,8 @@ triple at-sign without a command name. Nested regions are possible; for example,
 you can put a `@@@keep-lines` region inside a `@@@single-column` region as
 done here:
 
+<!-- ∆∆∆end -->
+
 ## Code Regions
 
 x x x x x x x x x x x x x x x x x x x x x x x x x x
@@ -105,7 +107,6 @@ which is why you can see this paragraph set in two columns.
 @@@
 
 
-∆∆∆end
 <!-- ∆∆∆new-page -->
 
 ## Using HTML

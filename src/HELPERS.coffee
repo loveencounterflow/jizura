@@ -366,6 +366,27 @@ misfit                    = Symbol 'misfit'
       else send token
 
 #-----------------------------------------------------------------------------------------------------------
+@TYPO.$reinject_html_blocks = ( S ) ->
+  ### re-inject HTML blocks ###
+  md_parser   = @_new_markdown_parser()
+  return $ ( token, send ) =>
+    { type, map, } = token
+    if type is 'html_block'
+      ### TAINT `map` location data is borked with this method ###
+      ### add extraneous text content; this causes the parser to parse the HTML block as a paragraph
+      with some inline HTML: ###
+      XXX_source  = "XXX" + token[ 'content' ]
+      environment = {}
+      tokens      = md_parser.parse XXX_source, environment
+      ### remove extraneous text content: ###
+      removed     = tokens[ 1 ]?[ 'children' ]?.splice 0, 1
+      unless removed[ 0 ]?[ 'content' ] is "XXX"
+        throw new Error "should never happen"
+      S.confluence.write token for token in tokens
+    else
+      send token
+
+#-----------------------------------------------------------------------------------------------------------
 get_parse_html_methods = ->
   Parser      = ( require 'parse5' ).Parser
   parser      = new Parser()
@@ -468,11 +489,9 @@ parse_methods = get_parse_html_methods()
           #.................................................................................................
           # specials
           when 'code_inline'
-            S.within_text_literal = yes
             send [ '(', 'code', null,                        meta,    ]
             send [ '.', 'text', token[ 'content' ], ( @_copy meta ),  ]
             send [ ')', 'code', null,               ( @_copy meta ),  ]
-            S.within_text_literal = no
           #.................................................................................................
           when 'html_block'
             # @_parse_html_block token[ 'content' ].trim()
@@ -513,41 +532,46 @@ parse_methods = get_parse_html_methods()
 
 #-----------------------------------------------------------------------------------------------------------
 @TYPO.$preprocess_regions = ( S ) ->
-  opening_pattern   = /^@@@(\S.+)(\n|$)/
-  closing_pattern   = /^@@@\s*(\n|$)/
-  collector         = []
-  region_stack      = []
+  opening_pattern     = /^@@@(\S.+)(\n|$)/
+  closing_pattern     = /^@@@\s*(\n|$)/
+  collector           = []
+  region_stack        = []
+  [ track, within, ]  = @new_area_observer '(code)'
   #.........................................................................................................
   return $ ( event, send ) =>
     #.......................................................................................................
+    within_code = within '(code)'
+    track event
     [ type, name, text, meta, ] = event
-    # debug '©p09E6', S
-    # debug '©p09E6', event
-    if ( not S.within_text_literal ) and ( @isa event, '.', 'text' )
+    #.......................................................................................................
+    if ( not within_code ) and ( @isa event, '.', 'text' )
       lines = @_split_lines_with_nl text
-      #...................................................................................................
+      #.....................................................................................................
       for line in lines
+        #...................................................................................................
         if ( match = line.match opening_pattern )?
           @_flush_text_collector send, collector, ( @_copy meta )
           region_name = match[ 1 ]
           region_stack.push region_name
           send [ '{', region_name, null, ( @_copy meta ), ]
+        #...................................................................................................
         else if ( match = line.match closing_pattern )?
           @_flush_text_collector send, collector, ( @_copy meta )
           if region_stack.length > 0
             send [ '}', region_stack.pop(), null, ( @_copy meta ), ]
           else
             warn "ignoring end-region"
+        #...................................................................................................
         else
           collector.push line
-      #...................................................................................................
+      #.....................................................................................................
       @_flush_text_collector send, collector, ( @_copy meta )
-    #.....................................................................................................
+    #.......................................................................................................
     else if ( region_stack.length > 0 ) and ( @isa event, '>', 'document' )
       warn "auto-closing regions: #{rpr region_stack.join ', '}"
       send [ '}', region_stack.pop(), null, ( @_copy meta, block: true ), ] while region_stack.length > 0
       send event
-    #.....................................................................................................
+    #.......................................................................................................
     else
       send event
     #.......................................................................................................
@@ -555,12 +579,15 @@ parse_methods = get_parse_html_methods()
 
 #-----------------------------------------------------------------------------------------------------------
 @TYPO.$preprocess_commands = ( S ) ->
-  pattern   = /^∆∆∆(\S.+)(\n|$)/
-  collector = []
+  pattern             = /^∆∆∆(\S.+)(\n|$)/
+  collector           = []
+  [ track, within, ]  = @new_area_observer '(code)'
   #.........................................................................................................
   return $ ( event, send ) =>
+    within_code = within '(code)'
+    track event
     [ type, name, text, meta, ] = event
-    if @isa event, '.', 'text'
+    if ( not within_code ) and @isa event, '.', 'text'
       lines = @_split_lines_with_nl text
       #.......................................................................................................
       for line in lines
@@ -811,43 +838,21 @@ parse_methods = get_parse_html_methods()
 @TYPO.create_mdreadstream = ( md_source, settings ) ->
   throw new Error "settings currently unsupported" if settings?
   #.........................................................................................................
-  state       =
-    within_text_literal:  no
   confluence  = D.create_throughstream()
   R           = D.create_throughstream()
   R.pause()
   #.........................................................................................................
+  state       =
+    confluence:           confluence
+  #.........................................................................................................
   confluence
     .pipe @$flatten_tokens                  state
-    #.......................................................................................................
-    .pipe do =>
-      ### re-inject HTML blocks ###
-      md_parser   = @_new_markdown_parser()
-      return $ ( token, send ) =>
-        { type, map, } = token
-        if type is 'html_block'
-          ### TAINT `map` location data is borked with this method ###
-          ### add extraneous text content; this causes the parser to parse the HTML block as a paragraph
-          with some inline HTML: ###
-          XXX_source  = "XXX" + token[ 'content' ]
-          environment = {}
-          tokens      = md_parser.parse XXX_source, environment
-          ### remove extraneous text content: ###
-          removed     = tokens[ 1 ]?[ 'children' ]?.splice 0, 1
-          unless removed[ 0 ]?[ 'content' ] is "XXX"
-            throw new Error "should never happen"
-          confluence.write token for token in tokens
-        else
-          send token
-    #.......................................................................................................
+    .pipe @$reinject_html_blocks            state
     .pipe @$rewrite_markdownit_tokens       state
-    # .pipe D.$show()
     .pipe @$preprocess_commands             state
     .pipe @$process_end_command             state
     .pipe @$preprocess_regions              state
     .pipe @$close_dangling_open_tags        state
-    # .pipe @$update_meta                     state
-    # .pipe @$preprocess_keeplines_regions    state
     .pipe R
   #.........................................................................................................
   R.on 'resume', =>
