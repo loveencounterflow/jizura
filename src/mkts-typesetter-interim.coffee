@@ -31,7 +31,7 @@ ASYNC                     = require 'async'
 #...........................................................................................................
 ƒ                         = CND.format_number.bind CND
 HELPERS                   = require './HELPERS'
-TYPO                      = HELPERS[ 'TYPO' ]
+MKTS                      = require './MKTS'
 # options                   = require './options'
 TEXLIVEPACKAGEINFO        = require './TEXLIVEPACKAGEINFO'
 options_route             = '../options.coffee'
@@ -190,62 +190,6 @@ SEMVER                    = require 'semver'
 #===========================================================================================================
 #
 #-----------------------------------------------------------------------------------------------------------
-@pdf_from_md = ( source_route, handler ) ->
-  step ( resume ) =>
-    handler                ?= ->
-    layout_info             = HELPERS.new_layout_info @options, source_route
-    yield @write_mkts_master layout_info, resume
-    source_locator          = layout_info[ 'source-locator'  ]
-    content_locator         = layout_info[ 'content-locator' ]
-    tex_output              = njs_fs.createWriteStream content_locator
-    # debug '©y9meI', layout_info
-    # process.exit()
-    ### TAINT should read MD source stream ###
-    text                    = njs_fs.readFileSync source_locator, encoding: 'utf-8'
-    #---------------------------------------------------------------------------------------------------------
-    state =
-      # write_protocoll:      yes
-      options:              @options
-      layout_info:          layout_info
-    #---------------------------------------------------------------------------------------------------------
-    tex_output.on 'close', =>
-      HELPERS.write_pdf layout_info, ( error ) =>
-        throw error if error?
-        handler null if handler?
-    #---------------------------------------------------------------------------------------------------------
-    input = TYPO.create_mdreadstream text
-    input
-      # .pipe TYPO.$resolve_html_entities()
-      .pipe TYPO.$fix_typography_for_tex                    @options
-      # .pipe @MKTX.$protocoll              state
-      .pipe @MKTX.DOCUMENT.$begin                           state
-      .pipe @MKTX.COMMAND.$new_page                         state
-      .pipe @MKTX.REGION.$correct_p_tags_before_regions     state
-      .pipe @MKTX.REGION.$multi_column                      state
-      .pipe @MKTX.REGION.$single_column                     state
-      .pipe @MKTX.REGION.$keep_lines                        state
-      .pipe @MKTX.REGION.$code                              state
-      .pipe @MKTX.BLOCK.$remove_empty_p_tags                state
-      .pipe @MKTX.BLOCK.$heading                            state
-      .pipe @MKTX.BLOCK.$paragraph                          state
-      .pipe @MKTX.BLOCK.$hr                                 state
-      # .pipe D.$show()
-      .pipe @MKTX.INLINE.$code                              state
-      .pipe @MKTX.INLINE.$translate_i_and_b                 state
-      .pipe @MKTX.INLINE.$em_and_strong                     state
-      .pipe @MKTX.DOCUMENT.$end                             state
-      .pipe TYPO.$show_mktsmd_events                        state
-      # .pipe TYPO.$show_meta                                 state
-      .pipe TYPO.$write_mktscript                           state
-      .pipe @$show_unhandled_tags                           state
-      .pipe @$filter_tex()
-      .pipe tex_output
-    #---------------------------------------------------------------------------------------------------------
-    # D.resume input
-    input.resume()
-    # debug '©Fad1u', TYPO.get_meta input
-
-#-----------------------------------------------------------------------------------------------------------
 @MKTX =
   DOCUMENT:   {}
   COMMAND:    {}
@@ -267,7 +211,7 @@ SEMVER                    = require 'semver'
 @MKTX.COMMAND.$new_page = ( S ) =>
   #.........................................................................................................
   return $ ( event, send ) =>
-    return send event unless TYPO.isa event, '∆', 'new-page'
+    return send event unless MKTS.isa event, '∆', 'new-page'
     # [ type, name, text, meta, ] = event
     send [ 'tex', "\\null\\newpage{}", ]
 
@@ -276,7 +220,7 @@ SEMVER                    = require 'semver'
   #.........................................................................................................
   return $ ( event, send ) =>
     #.......................................................................................................
-    if TYPO.isa event, '<', 'document'
+    if MKTS.isa event, '<', 'document'
       send @stamp event
       send [ 'tex', "\n% begin of MD document\n", ]
     #.......................................................................................................
@@ -288,7 +232,7 @@ SEMVER                    = require 'semver'
   #.........................................................................................................
   return $ ( event, send ) =>
     #.......................................................................................................
-    if TYPO.isa event, '>', 'document'
+    if MKTS.isa event, '>', 'document'
       send @stamp event
       send [ 'tex', "\n% end of MD document\n", ]
     #.......................................................................................................
@@ -306,12 +250,12 @@ SEMVER                    = require 'semver'
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.REGION.$multi_column = ( S ) =>
-  [ track, within, ]  = TYPO.new_area_observer 'multi-column'
+  [ track, within, ]  = MKTS.new_area_observer 'multi-column'
   #.........................................................................................................
   return $ ( event, send ) =>
     within_multi_column = within 'multi-column'
     track event
-    if TYPO.isa event, [ '{', '}', ], 'multi-column'
+    if MKTS.isa event, [ '{', '}', ], 'multi-column'
       send @stamp event
       [ type, name, text, meta, ] = event
       #.....................................................................................................
@@ -335,13 +279,13 @@ SEMVER                    = require 'semver'
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.REGION.$single_column = ( S ) =>
   ### TAINT consider to implement command `change_column_count = ( send, n )` ###
-  [ track, within, ]  = TYPO.new_area_observer 'multi-column'
+  [ track, within, ]  = MKTS.new_area_observer 'multi-column'
   #.........................................................................................................
   return $ ( event, send ) =>
     within_multi_column   = within 'multi-column'
     track event
     #.......................................................................................................
-    if TYPO.isa event, [ '{', '}', ], 'single-column'
+    if MKTS.isa event, [ '{', '}', ], 'single-column'
       send @stamp event
       [ type, name, text, meta, ] = event
       #.....................................................................................................
@@ -370,29 +314,29 @@ SEMVER                    = require 'semver'
   return $ ( event, send ) =>
     # debug '©MwBAv', event
     #.......................................................................................................
-    if TYPO.isa event, 'tex'
+    if MKTS.isa event, 'tex'
       send event
     #.......................................................................................................
-    else if TYPO.isa event, '<', 'document'
+    else if MKTS.isa event, '<', 'document'
       # debug '©---1', last_was_begin_document
       # debug '©---2', last_was_p
       last_was_p              = no
       last_was_begin_document = yes
       send event
     #.......................................................................................................
-    else if TYPO.isa event, '.', 'p'
+    else if MKTS.isa event, '.', 'p'
       # debug '©---3', last_was_begin_document
       # debug '©---4', last_was_p
       last_was_p              = yes
       last_was_begin_document = no
       send event
     #.......................................................................................................
-    else if TYPO.isa event, [ '{', '[', ]
+    else if MKTS.isa event, [ '{', '[', ]
       # debug '©---5', last_was_begin_document
       # debug '©---6', last_was_p
       if ( not last_was_begin_document ) and ( not last_was_p )
         [ ..., meta, ] = event
-        send [ '.', 'p', null, ( TYPO._copy meta ), ]
+        send [ '.', 'p', null, ( MKTS._copy meta ), ]
       send event
       last_was_p              = no
       last_was_begin_document = no
@@ -404,20 +348,20 @@ SEMVER                    = require 'semver'
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.REGION.$keep_lines = ( S ) =>
-  [ track, within, ]  = TYPO.new_area_observer 'keep-lines'
+  [ track, within, ]  = MKTS.new_area_observer 'keep-lines'
   #.........................................................................................................
   return $ ( event, send ) =>
     within_keep_lines = within 'keep-lines'
     track event
     #.......................................................................................................
-    if TYPO.isa event, '.', 'text'
+    if MKTS.isa event, '.', 'text'
       [ type, name, text, meta, ] = event
       ### TAINT other replacements possible; use API ###
       ### TAINT U+00A0 (nbsp) might be too wide ###
       text = text.replace /\u0020/g, '\u00a0' if within_keep_lines
       send [ type, name, text, meta, ]
     #.......................................................................................................
-    else if TYPO.isa event, [ '{', '}', ], 'keep-lines'
+    else if MKTS.isa event, [ '{', '}', ], 'keep-lines'
       send @stamp event
       [ type, name, text, meta, ] = event
       #.....................................................................................................
@@ -434,19 +378,19 @@ SEMVER                    = require 'semver'
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.REGION.$code = ( S ) =>
   ### TAINT code duplication with `REGION.$keep_lines` possible ###
-  [ track, within, ]  = TYPO.new_area_observer '{code}'
+  [ track, within, ]  = MKTS.new_area_observer '{code}'
   #.........................................................................................................
   return $ ( event, send ) =>
     within_code = within '{code}'
     track event
     #.......................................................................................................
-    if TYPO.isa event, '.', 'text'
+    if MKTS.isa event, '.', 'text'
       [ type, name, text, meta, ] = event
       if within_code
         text = text.replace /\u0020/g, '\u00a0'
       send [ type, name, text, meta, ]
     #.......................................................................................................
-    else if TYPO.isa event, [ '{', '}', ], 'code'
+    else if MKTS.isa event, [ '{', '}', ], 'code'
       send @stamp event
       [ type, name, text, meta, ] = event
       #.....................................................................................................
@@ -464,11 +408,11 @@ SEMVER                    = require 'semver'
   #.........................................................................................................
   return $ ( event, send ) =>
     #.......................................................................................................
-    if TYPO.isa event, '.', 'text'
+    if MKTS.isa event, '.', 'text'
       last_was_text = yes
       send event
     #.......................................................................................................
-    else if TYPO.isa event, '.', 'p'
+    else if MKTS.isa event, '.', 'p'
       if last_was_text then send event
       else whisper "ignoring empty `p` tag"
       last_was_text = no
@@ -480,13 +424,13 @@ SEMVER                    = require 'semver'
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.BLOCK.$heading = ( S ) =>
   restart_multicols   = no
-  [ track, within, ]  = TYPO.new_area_observer 'multi-column'
+  [ track, within, ]  = MKTS.new_area_observer 'multi-column'
   #.........................................................................................................
   return $ ( event, send ) =>
     within_multi_column = within 'multi-column'
     track event
     #.......................................................................................................
-    if TYPO.isa event, [ '[', ']', ], [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', ]
+    if MKTS.isa event, [ '[', ']', ], [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', ]
       send @stamp event
       [ type, name, text, meta, ] = event
       #.....................................................................................................
@@ -522,8 +466,8 @@ SEMVER                    = require 'semver'
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.BLOCK.$paragraph = ( S ) =>
   ### TAINT should unify the two observers ###
-  [ track_1, within_1, ]  = TYPO.new_area_observer '{code}'
-  [ track_2, within_2, ]  = TYPO.new_area_observer 'keep-lines'
+  [ track_1, within_1, ]  = MKTS.new_area_observer '{code}'
+  [ track_2, within_2, ]  = MKTS.new_area_observer 'keep-lines'
   #.........................................................................................................
   return $ ( event, send ) =>
     within_code = within_1 '{code}'
@@ -531,7 +475,7 @@ SEMVER                    = require 'semver'
     track_1 event
     track_2 event
     #.......................................................................................................
-    if TYPO.isa event, '.', 'p'
+    if MKTS.isa event, '.', 'p'
       [ type, name, text, meta, ] = event
       if within_code or within_keep_lines
         send @stamp event
@@ -550,7 +494,7 @@ SEMVER                    = require 'semver'
   #.........................................................................................................
   return $ ( event, send ) =>
     #.......................................................................................................
-    if TYPO.isa event, '.', 'hr'
+    if MKTS.isa event, '.', 'hr'
       send @stamp event
       [ type, name, text, meta, ] = event
       switch chr = text[ 0 ]
@@ -566,7 +510,7 @@ SEMVER                    = require 'semver'
   #.........................................................................................................
   return $ ( event, send ) =>
     #.......................................................................................................
-    if TYPO.isa event, [ '(', ')', ], 'code'
+    if MKTS.isa event, [ '(', ')', ], 'code'
       send @stamp event
       [ type, name, text, meta, ] = event
       if type is '('
@@ -582,7 +526,7 @@ SEMVER                    = require 'semver'
   #.........................................................................................................
   return $ ( event, send ) =>
     #.......................................................................................................
-    if TYPO.isa event, [ '(', ')', ], [ 'i', 'b', ]
+    if MKTS.isa event, [ '(', ')', ], [ 'i', 'b', ]
       [ type, name, text, meta, ] = event
       new_name = if name is 'i' then 'em' else 'strong'
       send [ type, new_name, text, meta, ]
@@ -595,7 +539,7 @@ SEMVER                    = require 'semver'
   #.........................................................................................................
   return $ ( event, send ) =>
     #.......................................................................................................
-    if TYPO.isa event, [ '(', ')', ], [ 'em', 'strong', ]
+    if MKTS.isa event, [ '(', ')', ], [ 'em', 'strong', ]
       send @stamp event
       [ type, name, text, meta, ] = event
       if type is '('
@@ -609,16 +553,19 @@ SEMVER                    = require 'semver'
     else
       send event
 
+
+#===========================================================================================================
+#
 #-----------------------------------------------------------------------------------------------------------
 @$show_unhandled_tags = ( S ) ->
   return $ ( event, send ) =>
     ### TAINT selection could be simpler, less repetitive ###
     if event[ 0 ] in [ 'tex', 'text', ]
       send event
-    else if TYPO.isa event, '.', 'text'
+    else if MKTS.isa event, '.', 'text'
       send event
     else unless event[ 3 ][ 'processed' ]
-      event_tex = TYPO.fix_typography_for_tex ( rpr event ), @options
+      event_tex = MKTS.fix_typography_for_tex ( rpr event ), @options
       # send [ 'tex', "{\\color{magenta}unhandled event: #{event_tex}}" ]
       # send [ 'tex', "\\colorbox{red}{\\color{yellow}unhandled event: #{event_tex}}" ]
       send [ 'tex', "\\mktsErrorbox{unhandled event: #{event_tex}}" ]
@@ -631,7 +578,7 @@ SEMVER                    = require 'semver'
   return $ ( event, send ) =>
     if event[ 0 ] in [ 'tex', 'text', ]
       send event[ 1 ]
-    else if TYPO.isa event, '.', 'text'
+    else if MKTS.isa event, '.', 'text'
       send event[ 2 ]
     else
       warn "unhandled event: #{JSON.stringify event}" unless event[ 3 ][ 'processed' ]
@@ -641,6 +588,64 @@ SEMVER                    = require 'semver'
   event[ 3 ][ 'processed' ] = yes
   return event
 
+#===========================================================================================================
+# PDF FROM MD
+#-----------------------------------------------------------------------------------------------------------
+@pdf_from_md = ( source_route, handler ) ->
+  step ( resume ) =>
+    handler                ?= ->
+    layout_info             = HELPERS.new_layout_info @options, source_route
+    yield @write_mkts_master layout_info, resume
+    source_locator          = layout_info[ 'source-locator'  ]
+    content_locator         = layout_info[ 'content-locator' ]
+    tex_output              = njs_fs.createWriteStream content_locator
+    # debug '©y9meI', layout_info
+    # process.exit()
+    ### TAINT should read MD source stream ###
+    text                    = njs_fs.readFileSync source_locator, encoding: 'utf-8'
+    #---------------------------------------------------------------------------------------------------------
+    state =
+      # write_protocoll:      yes
+      options:              @options
+      layout_info:          layout_info
+    #---------------------------------------------------------------------------------------------------------
+    tex_output.on 'close', =>
+      HELPERS.write_pdf layout_info, ( error ) =>
+        throw error if error?
+        handler null if handler?
+    #---------------------------------------------------------------------------------------------------------
+    input = MKTS.create_mdreadstream text
+    input
+      # .pipe MKTS.$resolve_html_entities()
+      .pipe MKTS.$fix_typography_for_tex                    @options
+      # .pipe @MKTX.$protocoll              state
+      .pipe @MKTX.DOCUMENT.$begin                           state
+      .pipe @MKTX.COMMAND.$new_page                         state
+      .pipe @MKTX.REGION.$correct_p_tags_before_regions     state
+      .pipe @MKTX.REGION.$multi_column                      state
+      .pipe @MKTX.REGION.$single_column                     state
+      .pipe @MKTX.REGION.$keep_lines                        state
+      .pipe @MKTX.REGION.$code                              state
+      .pipe @MKTX.BLOCK.$remove_empty_p_tags                state
+      .pipe @MKTX.BLOCK.$heading                            state
+      .pipe @MKTX.BLOCK.$paragraph                          state
+      .pipe @MKTX.BLOCK.$hr                                 state
+      # .pipe D.$show()
+      .pipe @MKTX.INLINE.$code                              state
+      .pipe @MKTX.INLINE.$translate_i_and_b                 state
+      .pipe @MKTX.INLINE.$em_and_strong                     state
+      .pipe @MKTX.DOCUMENT.$end                             state
+      .pipe MKTS.$show_mktsmd_events                        state
+      # .pipe MKTS.$show_meta                                 state
+      .pipe MKTS.$write_mktscript                           state
+      .pipe @$show_unhandled_tags                           state
+      .pipe @$filter_tex()
+      .pipe tex_output
+    #---------------------------------------------------------------------------------------------------------
+    # D.resume input
+    input.resume()
+    # debug '©Fad1u', MKTS.get_meta input
+
 
 
 
@@ -649,10 +654,10 @@ unless module.parent?
   # @pdf_from_md 'texts/A-Permuted-Index-of-Chinese-Characters/index.md'
   @pdf_from_md 'texts/demo'
 
-  # debug '©nL12s', TYPO.as_tex_text '亻龵helo さしすサシス 臺灣國語Ⓒ, Ⓙ, Ⓣ𠀤𠁥&jzr#e202;'
-  # debug '©nL12s', TYPO.as_tex_text 'helo さし'
+  # debug '©nL12s', MKTS.as_tex_text '亻龵helo さしすサシス 臺灣國語Ⓒ, Ⓙ, Ⓣ𠀤𠁥&jzr#e202;'
+  # debug '©nL12s', MKTS.as_tex_text 'helo さし'
   # event = [ '{', 'single-column', ]
   # event = [ '}', 'single-column', ]
   # event = [ '{', 'new-page', ]
-  # debug '©Gpn1J', TYPO.isa event, [ '{', '}'], [ 'single-column', 'new-page', ]
+  # debug '©Gpn1J', MKTS.isa event, [ '{', '}'], [ 'single-column', 'new-page', ]
 
