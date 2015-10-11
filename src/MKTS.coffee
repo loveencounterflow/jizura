@@ -366,6 +366,51 @@ tracker_pattern = /// ^
   return [ left_fence, name, right_fence, ]
 
 #-----------------------------------------------------------------------------------------------------------
+@TRACKER.new_tracker = ( patterns... ) =>
+  _MKTS = @
+  #.........................................................................................................
+  self = ( event ) ->
+    # CND.dir self
+    # debug '@763', "tracking event #{rpr event}"
+    for pattern, state of self._states
+      { parts } = state
+      continue unless _MKTS.isa event, parts...
+      [ [ left_fence, right_fence, ], pattern_name, ] = parts
+      [ type, event_name, ]                           = event
+      if type is left_fence
+        # debug '@1', pattern, yes
+        self._enter state
+      else
+        # debug '@2', pattern, no
+        self._leave state
+        throw new Error "too many right fences: #{rpr event}" if state[ 'count' ] < 0
+    return null
+  #.........................................................................................................
+  self._states = {}
+  #.........................................................................................................
+  self._get_state = ( pattern ) ->
+    throw new Error "untracked pattern #{rpr pattern}" unless ( R = self._states[ pattern ] )?
+    return R
+  #.........................................................................................................
+  self.within = ( pattern ) -> ( self._get_state pattern )[ 'count' ] > 0
+  #.........................................................................................................
+  self.enter  = ( pattern ) -> self._enter self._get_state pattern
+  self.leave  = ( pattern ) -> self._leave self._get_state pattern
+  self._enter = ( state   ) -> state[ 'count' ] += +1
+  ### TAINT should validate count when leaving ###
+  self._leave = ( state   ) -> state[ 'count' ] += -1
+  #.........................................................................................................
+  do ->
+    for pattern in patterns
+      [ left_fence, pattern_name, right_fence, ]  = _MKTS.TRACKER.parse pattern
+      state =
+        parts:    [ [ left_fence, right_fence, ], pattern_name, ]
+        count:    0
+      self._states[ pattern ] = state
+  #.........................................................................................................
+  return self
+
+#-----------------------------------------------------------------------------------------------------------
 @new_area_observer = ( area_names... ) ->
   state               = {}
   #.........................................................................................................

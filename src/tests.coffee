@@ -120,6 +120,28 @@ MKTS                      = require './MKTS'
     T.throws matcher, ( -> MKTS.TRACKER.parse probe )
   done()
 
+#-----------------------------------------------------------------------------------------------------------
+@[ "MKTS.TRACKER.new_tracker (short comprehensive test)" ] = ( T, done ) ->
+  track = MKTS.TRACKER.new_tracker '(code)', '{multi-column}'
+  probes_and_matchers = [
+    [ [ '<', 'document',     ], [  no,  no, ], ]
+    [ [ '{', 'multi-column', ], [  no, yes, ], ]
+    [ [ '(', 'code',         ], [ yes, yes, ], ]
+    [ [ '{', 'multi-column', ], [ yes, yes, ], ]
+    [ [ '.', 'text',         ], [ yes, yes, ], ]
+    [ [ '}', 'multi-column', ], [ yes, yes, ], ]
+    [ [ ')', 'code',         ], [  no, yes, ], ]
+    [ [ '}', 'multi-column', ], [  no,  no, ], ]
+    [ [ '>', 'document',     ], [  no,  no, ], ]
+    ]
+  for [ probe, matcher, ] in probes_and_matchers
+    track probe
+    whisper probe
+    help '(code):', ( track.within '(code)' ), '{multi-column}:', ( track.within '{multi-column}' )
+    T.eq ( track.within '(code)'          ), matcher[ 0 ]
+    T.eq ( track.within '{multi-column}'  ), matcher[ 1 ]
+  done()
+
 #===========================================================================================================
 # MAIN
 #-----------------------------------------------------------------------------------------------------------
