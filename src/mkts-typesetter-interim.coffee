@@ -279,10 +279,10 @@ SEMVER                    = require 'semver'
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.REGION.$single_column = ( S ) =>
   ### TAINT consider to implement command `change_column_count = ( send, n )` ###
-  [ track, within, ]  = MKTS.new_area_observer 'multi-column'
+  track = MKTS.TRACKER.new_tracker '{multi-column}'
   #.........................................................................................................
   return $ ( event, send ) =>
-    within_multi_column   = within 'multi-column'
+    within_multi_column = track.within '{multi-column}'
     track event
     #.......................................................................................................
     if MKTS.isa event, [ '{', '}', ], 'single-column'
@@ -348,10 +348,10 @@ SEMVER                    = require 'semver'
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.REGION.$keep_lines = ( S ) =>
-  [ track, within, ]  = MKTS.new_area_observer 'keep-lines'
+  track = MKTS.TRACKER.new_tracker '{keep-lines}'
   #.........................................................................................................
   return $ ( event, send ) =>
-    within_keep_lines = within 'keep-lines'
+    within_keep_lines = track.within '{keep-lines}'
     track event
     #.......................................................................................................
     if MKTS.isa event, '.', 'text'
@@ -366,11 +366,11 @@ SEMVER                    = require 'semver'
       [ type, name, text, meta, ] = event
       #.....................................................................................................
       if type is '{'
-        within 'keep-lines', yes
+        track.enter '{keep-lines}'
         send [ 'tex', "\\begingroup\\obeyalllines{}", ]
       else
         send [ 'tex', "\\endgroup{}", ]
-        within 'keep-lines', no
+        track.leave '{keep-lines}'
     #.......................................................................................................
     else
       send event
@@ -378,10 +378,10 @@ SEMVER                    = require 'semver'
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.REGION.$code = ( S ) =>
   ### TAINT code duplication with `REGION.$keep_lines` possible ###
-  [ track, within, ]  = MKTS.new_area_observer '{code}'
+  track = MKTS.TRACKER.new_tracker '{code}'
   #.........................................................................................................
   return $ ( event, send ) =>
-    within_code = within '{code}'
+    within_code = track.within '{code}'
     track event
     #.......................................................................................................
     if MKTS.isa event, '.', 'text'
@@ -423,11 +423,11 @@ SEMVER                    = require 'semver'
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.BLOCK.$heading = ( S ) =>
-  restart_multicols   = no
-  [ track, within, ]  = MKTS.new_area_observer 'multi-column'
+  restart_multicols = no
+  track             = MKTS.TRACKER.new_tracker '{multi-column}'
   #.........................................................................................................
   return $ ( event, send ) =>
-    within_multi_column = within 'multi-column'
+    within_multi_column = track.within '{multi-column}'
     track event
     #.......................................................................................................
     if MKTS.isa event, [ '[', ']', ], [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', ]

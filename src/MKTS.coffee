@@ -407,52 +407,6 @@ tracker_pattern = /// ^
   #.........................................................................................................
   return self
 
-#-----------------------------------------------------------------------------------------------------------
-@new_area_observer = ( area_names... ) ->
-  state               = {}
-  #.........................................................................................................
-  for area_name in area_names
-    throw new Error "repeated area_name #{rpr area_name}" if state[ area_name ]?
-    area_key      = null
-    opening_fence = area_name[ 0 ]
-    closing_fence = area_name[ area_name.length - 1 ]
-    ### TAINT matches '{xxx}' as well as '}xxx{' ###
-    if ( regular_closing_fence = @FENCES._get_opposite opening_fence, null )?
-      throw new Error "unmatched fences in #{rpr area_name}" if closing_fence isnt regular_closing_fence
-      unless area_names.length is 1
-        throw new Error "matching more than a single area name with fences not yet implemented"
-      area_key          = area_name
-      area_name         = area_name[ 1 ... area_name.length - 1 ]
-      fence_matcher     = [ opening_fence, closing_fence, ]
-      state[ area_key ] = false
-    else
-      opening_fence       = closing_fence = null
-      state[ area_name ]  = false
-  #.........................................................................................................
-  if opening_fence?
-    track = ( event ) =>
-      if event?
-        if @isa event, fence_matcher, area_name
-          [ type, area_name, text, meta, ] = event
-          if type is opening_fence then state[ area_key ] = true
-          else                          state[ area_key ] = false
-      return event
-  else
-    track = ( event ) =>
-      if event?
-        [ type, area_name, text, meta, ] = event
-        if area_name of state
-          if      type in [ '<', '{', '[', '(', ] then state[ area_name ] = true
-          else if type in [ '>', '}', ']', ')', ] then state[ area_name ] = false
-      return event
-  #.........................................................................................................
-  within = ( pattern, value = misfit ) =>
-    throw new Error "untracked pattern #{rpr pattern}" unless ( R = state[ pattern ] )?
-    return R if value is misfit
-    return state[ pattern ] = value
-  #.........................................................................................................
-  return [ track, within, ]
-
 
 #===========================================================================================================
 #
@@ -553,11 +507,11 @@ tracker_pattern = /// ^
   closing_pattern     = /^@@@\s*(\n|$)/
   collector           = []
   region_stack        = []
-  [ track, within, ]  = @new_area_observer '(code)'
+  track               = @TRACKER.new_tracker '(code)'
   #.........................................................................................................
   return $ ( event, send ) =>
     #.......................................................................................................
-    within_code = within '(code)'
+    within_code = track.within '(code)'
     track event
     [ type, name, text, meta, ] = event
     #.......................................................................................................
@@ -598,10 +552,10 @@ tracker_pattern = /// ^
 @$_preprocess_commands = ( S ) ->
   pattern             = /^∆∆∆(\S.+)(\n|$)/
   collector           = []
-  [ track, within, ]  = @new_area_observer '(code)'
+  track               = @TRACKER.new_tracker '(code)'
   #.........................................................................................................
   return $ ( event, send ) =>
-    within_code = within '(code)'
+    within_code = track.within '(code)'
     track event
     [ type, name, text, meta, ] = event
     if ( not within_code ) and @isa event, '.', 'text'
