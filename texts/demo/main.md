@@ -1,6 +1,6 @@
 
-@@@multi-column
 
+@@@multi-column
 
 
 ## MKTS Regions 中國皇帝
@@ -11,8 +11,6 @@ at the start of a line, immediately followed by a command name such as
 triple at-sign without a command name. Nested regions are possible; for example,
 you can put a `@@@keep-lines` region inside a `@@@single-column` region as
 done here:
-
-<!-- ∆∆∆end -->
 
 ## Code Regions
 
@@ -32,9 +30,8 @@ x x x x x x x x x x x x x x x x x x x x x x x x x x
 x x x x x x x x x x x x x x x x x x x x x x x x x x
 x x x x x x x x x x x x x x x x x x x x x x x x x x
 
-
 It's possible to switch on `inline code`. It's also possible
-to have a block of code with lines rendered as in the source:
+to have a region of code with lines rendered as in the source:
 @@@single-column
 ```
 #-------------------------------------------------------------------------------------
@@ -104,10 +101,6 @@ that was triggered by a triple-at command in the manuscript;
 accordingly, typesetting is reverted back to multi-column mode,
 which is why you can see this paragraph set in two columns.
 
-@@@
-
-
-<!-- ∆∆∆new-page -->
 
 ## Using HTML
 
@@ -133,15 +126,12 @@ must be followed by a key word indicating the region's type.
 Here's `some code` within a fenced block:
 ```
 This is a code region;
-lines are kept as they appear in the MD manuscript,
+lines are kept as they appear
+in the MD manuscript,
 but in addition,
 the font is monospaced
 ```
 And this is the text following the fence.
-
-<!-- ∆∆∆end -->
-
-
 
 ## Keep-Lines Regions: Formulas Example
 
@@ -169,8 +159,10 @@ These formulas may be recursively resolved by way of substitution to their
 ultimate constituent parts—strokes. Somewhere along that process of
 deconstruction, we meet with fairly recurrent figures or shapes.
 
+
 ## Keep-Lines Regions: All in One Paragraphs
 
+@@@single-column
 A-before
 @@@keep-lines
 A-within
@@ -178,9 +170,11 @@ A-within
 A-within
 @@@
 A-after
+@@@
 
 ## Keep-Lines Regions: With separate Before, After Paragraphs
 
+@@@single-column
 B-before
 
 @@@keep-lines
@@ -191,9 +185,11 @@ B-within
 
 B-after
 
+@@@
 
 ## Keep-Lines Regions: Region Starts, Ends within Paragraph
 
+@@@single-column
 C-before
 @@@keep-lines
 
@@ -203,9 +199,11 @@ C-within
 
 @@@
 C-after
+@@@
 
 ## Keep-Lines Regions: Region Starts, Ends with separate Paragraph
 
+@@@single-column
 D-before
 
 @@@keep-lines
@@ -217,8 +215,9 @@ D-within
 @@@
 
 D-after
+@@@
 
-
+<!-- ∆∆∆end -->
 
 # This is a Demonstration 中國皇帝
 
@@ -226,8 +225,9 @@ D-after
 
 
 
-14‰, A, able, about, account, acid, across, act, addition, adjustment,
-advertisement, after, again, against, agreement, air, all, almost, among,
+14‰, A, able, about, account, acid, across, act, addition as done in mathematics, adjustment,
+advertisement, after, again, against, agreement, air, all, almost a full sentence here
+to show the effects of microtypography, among,
 amount, amusement, and, angle, angry, animal, answer, ant, any, apparatus,
 apple, approval, arch, argument, arm, army, art, as, at, attack, attempt,
 attention, attraction, authority, automatic, awake, baby, back, bad, bag,
@@ -235,7 +235,7 @@ balance, ball, band, base, basin, basket, bath, be, beautiful, because, bed,
 bee, before, behaviour, belief, bell, bent, berry, between, bird, birth, bit,
 bite, bitter, black, blade, blood, blow, blue, board, boat, body, boiling,
 bone, book, boot, bottle, box, boy, brain, brake, branch, brass, bread,
-breath, brick, bridge, bright, broken, brother, brown, brush, bucket,
+breath, brick, a bridge to span the chasm, bright, broken, brother, brown, brush, bucket,
 building, bulb, burn, burst, business, but, butter, button, by, cake, camera,
 canvas, card, care, carriage, cart, cat, cause, certain, chain, chalk, chance,
 change, cheap, cheese, chemical, chest, chief, chin, church, circle, clean,

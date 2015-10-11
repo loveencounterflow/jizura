@@ -250,10 +250,10 @@ SEMVER                    = require 'semver'
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.REGION.$multi_column = ( S ) =>
-  [ track, within, ]  = MKTS.new_area_observer 'multi-column'
+  track = MKTS.TRACKER.new_tracker '{multi-column}'
   #.........................................................................................................
   return $ ( event, send ) =>
-    within_multi_column = within 'multi-column'
+    within_multi_column = track.within '{multi-column}'
     track event
     if MKTS.isa event, [ '{', '}', ], 'multi-column'
       send @stamp event
@@ -466,14 +466,12 @@ SEMVER                    = require 'semver'
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.BLOCK.$paragraph = ( S ) =>
   ### TAINT should unify the two observers ###
-  [ track_1, within_1, ]  = MKTS.new_area_observer '{code}'
-  [ track_2, within_2, ]  = MKTS.new_area_observer 'keep-lines'
+  track = MKTS.TRACKER.new_tracker '{code}', '{keep-lines}'
   #.........................................................................................................
   return $ ( event, send ) =>
-    within_code = within_1 '{code}'
-    within_keep_lines = within_2 'keep-lines'
-    track_1 event
-    track_2 event
+    within_code       = track.within '{code}'
+    within_keep_lines = track.within '{keep-lines}'
+    track event
     #.......................................................................................................
     if MKTS.isa event, '.', 'p'
       [ type, name, text, meta, ] = event

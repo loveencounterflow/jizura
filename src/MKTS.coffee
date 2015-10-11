@@ -323,9 +323,6 @@ tracker_pattern = /// ^
 @TRACKER._tracker_pattern = tracker_pattern
 
 #-----------------------------------------------------------------------------------------------------------
-@TRACKER.new_tracker = ( patterns ) =>
-
-#-----------------------------------------------------------------------------------------------------------
 @TRACKER.parse = ( pattern ) =>
   left_fence  = null
   name        = null
@@ -384,7 +381,7 @@ tracker_pattern = /// ^
         # debug '@2', pattern, no
         self._leave state
         throw new Error "too many right fences: #{rpr event}" if state[ 'count' ] < 0
-    return null
+    return event
   #.........................................................................................................
   self._states = {}
   #.........................................................................................................

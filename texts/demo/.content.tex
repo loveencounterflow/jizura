@@ -26,7 +26,7 @@ x x x x x x x x x x x x x x x x x x x x x x x x x x
 x x x x x x x x x x x x x x x x x x x x x x x x x x
 x x x x x x x x x x x x x x x x x x x x x x x x x x\mktsShowpar\par
 It’s possible to switch on {\mktsStyleCode{}inline code}. It’s also possible
-to have a block of code with lines rendered as in the source:
+to have a region of code with lines rendered as in the source:
 \mktsShowpar\par
 \end{multicols}\begingroup\obeyalllines\mktsStyleCode{}\#-------------------------------------------------------------------------------------
 @\_shuffle = ( list, ratio, rnd, random\_integer ) ->
@@ -86,28 +86,29 @@ which is why you can see this paragraph set in two columns.\mktsShowpar\par
 \end{multicols}
 \section{Using HTML
 }
-This section tests HTML that occurs as ‘blocks’ (i.e. as typographical blocks
+\begin{multicols}{2}This section tests HTML that occurs as ‘blocks’ (i.e. as typographical blocks
 that start with an HTML tag) and ‘inline’ (i.e. inside of MD blocks).\mktsShowpar\par
 helo {\mktsStyleItalic{}world} and {\mktsStyleBold{}everyone}A paragraph with {\mktsStyleItalic{}{\mktsStyleBold{}some}} HTML in it.\mktsShowpar\par
 Here’s MD with {\mktsStyleItalic{}single} and {\mktsStyleBold{}double} stars.\mktsShowpar\par
-Testing {\mktsStyleItalic{}italics with Chinese: \cn{義大利體}} and {\mktsStyleBold{}bold with Chinese: \cn{黑體}, \ka{ゴシック}\cn{体}}
+Testing {\mktsStyleItalic{}italics with Chinese: \cn{義大利體}} and {\mktsStyleBold{}bold with Chinese: \cn{黑體}, \ka{ゴシック}\cn{体}}\end{multicols}
 \chapter{Regions
 }
-Regions are started and ended using {\mktsStyleCode{}@@@} (triple at-signs); the opener
+\begin{multicols}{2}Regions are started and ended using {\mktsStyleCode{}@@@} (triple at-signs); the opener
 must be followed by a key word indicating the region’s type.\mktsShowpar\par
-
+\end{multicols}
 \section{Code
 }
-Here’s {\mktsStyleCode{}some code} within a fenced block:\mktsShowpar\par
+\begin{multicols}{2}Here’s {\mktsStyleCode{}some code} within a fenced block:\mktsShowpar\par
 \begingroup\obeyalllines\mktsStyleCode{}This is a code region;
-lines are kept as they appear in the MD manuscript,
+lines are kept as they appear
+in the MD manuscript,
 but in addition,
 the font is monospaced
 \endgroup{}And this is the text following the fence.\mktsShowpar\par
-
+\end{multicols}
 \section{Keep-Lines Regions: Formulas Example
 }
-To preserve line breaks in the PDF the way they were entered in
+\begin{multicols}{2}To preserve line breaks in the PDF the way they were entered in
 the MD manuscript, use {\mktsStyleCode{}@@@keep-lines} regions. Currently, the
 best idea is to position the sentinels in a ‘tight’ way, without
 intervening blank lines between the sentinels and the surrounding
@@ -128,50 +129,51 @@ Here are some formulas:
 \endgroup{}These formulas may be recursively resolved by way of substitution to their
 ultimate constituent parts—strokes. Somewhere along that process of
 deconstruction, we meet with fairly recurrent figures or shapes.\mktsShowpar\par
-
+\end{multicols}
 \section{Keep-Lines Regions: All in One Paragraphs
 }
-A-before
+\begin{multicols}{2}\end{multicols}A-before
 \mktsShowpar\par
 \begingroup\obeyalllines{}A-within
 A-within
 A-within
-\endgroup{}A-after\mktsShowpar\par
-
+\endgroup{}A-after
+\begin{multicols}{2}\end{multicols}
 \section{Keep-Lines Regions: With separate Before, After Paragraphs
 }
-B-before\mktsShowpar\par
+\begin{multicols}{2}\end{multicols}B-before\mktsShowpar\par
 \begingroup\obeyalllines{}B-within
 B-within
 B-within
 \endgroup{}B-after\mktsShowpar\par
-
+\begin{multicols}{2}\end{multicols}
 \section{Keep-Lines Regions: Region Starts, Ends within Paragraph
 }
-C-before
+\begin{multicols}{2}\end{multicols}C-before
 \mktsShowpar\par
 \begingroup\obeyalllines{}C-within
 C-within
 C-within
 
-\endgroup{}C-after\mktsShowpar\par
-
+\endgroup{}C-after
+\begin{multicols}{2}\end{multicols}
 \section{Keep-Lines Regions: Region Starts, Ends with separate Paragraph
 }
-D-before\mktsShowpar\par
+\begin{multicols}{2}\end{multicols}D-before\mktsShowpar\par
 \begingroup\obeyalllines{}D-within
 D-within
 D-within
 
-\endgroup{}D-after\mktsShowpar\par
-
+\endgroup{}D-after
+\begin{multicols}{2}\end{multicols}
 \chapter{This is a Demonstration \cn{中國皇帝}
 }
-
+\begin{multicols}{2}\end{multicols}
 \section{A Section Title 1 \cn{中國皇帝}
 }
-14{\mktsFontfileOptima‰}, A, able, about, account, acid, across, act, addition, adjustment,
-advertisement, after, again, against, agreement, air, all, almost, among,
+\begin{multicols}{2}14{\mktsFontfileOptima‰}, A, able, about, account, acid, across, act, addition as done in mathematics, adjustment,
+advertisement, after, again, against, agreement, air, all, almost a full sentence here
+to show the effects of microtypography, among,
 amount, amusement, and, angle, angry, animal, answer, ant, any, apparatus,
 apple, approval, arch, argument, arm, army, art, as, at, attack, attempt,
 attention, attraction, authority, automatic, awake, baby, back, bad, bag,
@@ -179,7 +181,7 @@ balance, ball, band, base, basin, basket, bath, be, beautiful, because, bed,
 bee, before, behaviour, belief, bell, bent, berry, between, bird, birth, bit,
 bite, bitter, black, blade, blood, blow, blue, board, boat, body, boiling,
 bone, book, boot, bottle, box, boy, brain, brake, branch, brass, bread,
-breath, brick, bridge, bright, broken, brother, brown, brush, bucket,
+breath, brick, a bridge to span the chasm, bright, broken, brother, brown, brush, bucket,
 building, bulb, burn, burst, business, but, butter, button, by, cake, camera,
 canvas, card, care, carriage, cart, cat, cause, certain, chain, chalk, chance,
 change, cheap, cheese, chemical, chest, chief, chin, church, circle, clean,
@@ -256,24 +258,24 @@ yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda\mktsShowpar\par
-
+\end{multicols}
 \section{A Section Title 2 \cn{中國皇帝}
 }
-yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
+\begin{multicols}{2}yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda\mktsShowpar\par
-
+\end{multicols}
 \section{A Section Title 3 \cn{中國皇帝}
 }
-yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
+\begin{multicols}{2}yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda\mktsShowpar\par
-
+\end{multicols}
 \chapter{Another Demonstration
 }
-yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
+\begin{multicols}{2}yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
@@ -298,5 +300,5 @@ yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda\mktsShowpar\par
-
+\end{multicols}
 % end of MD document
