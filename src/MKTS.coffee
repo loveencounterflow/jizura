@@ -417,9 +417,9 @@ tracker_pattern = /// ^
   last_map        = [ 0, 0, ]
   _send           = null
   #.........................................................................................................
-  send_unknown = ( token ) =>
-    debug '@8876', token
-    send [ '?', token[ 'tag' ], token[ 'content' ], meta, ]
+  send_unknown = ( token, meta ) =>
+    { type, } = token
+    _send [ '?', type, token[ 'content' ], meta, ]
     unknown_tokens.push type unless type in unknown_tokens
   #.........................................................................................................
   return $ ( token, send, end ) =>
@@ -475,7 +475,7 @@ tracker_pattern = /// ^
                 send [ '{', 'code', language_name,               meta,    ]
                 send [ '.', 'text', token[ 'content' ], ( @_copy meta ),  ]
                 send [ '}', 'code', language_name,      ( @_copy meta ),  ]
-              else send_unknown token
+              else send_unknown token, meta
           #.................................................................................................
           when 'html_inline'
             [ position, name, extra, ] = @_parse_html_tag token[ 'content' ]
@@ -488,14 +488,13 @@ tracker_pattern = /// ^
                 if name is 'p' then send [ '.', name, null, meta, ]
                 else                send [ ')', name, null, meta, ]
               else throw new Error "unknown HTML tag position #{rpr position}"
-          else send_unknown token
+          else send_unknown token, meta
         #...................................................................................................
         last_map = map
     #.......................................................................................................
     if end?
       if unknown_tokens.length > 0
         warn "unknown tokens: #{unknown_tokens.sort().join ', '}"
-      ### TAINT could send end document earlier in case of `∆∆∆end` ###
       send [ '>', 'document', null, {}, ]
       end()
     return null

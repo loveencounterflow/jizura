@@ -1,15 +1,37 @@
-█ 3 █ <document█ 3 █ {multi-column█ 6 █ [h2'MKTS Regions \\cn{中國皇帝}']
+█ 1 █ <document'°\\{latex
+AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA
+AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA
+AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA
+AAAAAA AAAAAA AAAAAA AAAAAA\\textbackslash\\{\\}begin\\{multicols\\}\\{2\\}\\textbackslash\\{\\}end\\{multicols\\}BBBBB BBBBB BBBBB BBBBB
+BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB
+BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB
+BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB
+BBBBB\\textbackslash\\{\\}begin\\{multicols\\}\\{2\\}XXXXXXXXXX\\textbackslash\\{\\}end\\{multicols\\}CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC
+CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC
+CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC
+CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC
+CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC
+°\\}latex'¶
+'<<\\{latex>>to insert LaTeX commands
+<<latex\\}>>
+<<\\{multi-column>>
+<<multi-column\\}>>'¶
+'Helo <<(code>>world<<code)>>!'¶
+█ 25 █ {multi-column
+█ 27 █ ?footnote_ref
+'h2\\textasciicircum{}'¶
+█ 30 █ [h2'MKTS Regions \\cn{中國皇帝}']
 'To indicate the start of an MKTS-MD Region, place a triple at-sign '(code'@@@')'
 at the start of a line, immediately followed by a command name such as
 '(code'keep-lines')' or '(code'single-column')'. The end of a region is indicated by a
 triple at-sign without a command name. Nested regions are possible; for example,
 you can put a '(code'@@@keep-lines')' region inside a '(code'@@@single-column')' region as
 done here:'¶
-█ 15 █ [h2'Code Regions']
+█ 39 █ [h2'Code Regions']
 'x x x x x x x x x x x x x x x x x x x x x x x x x x
 x x x x x x x x x x x x x x x x x x x x x x x x x x
 x x x x x x x x x x x x x x x x x x x x x x x x x x'¶
-█ 20 █ {code'this is
+█ 44 █ {code'this is
 a code block \\cnjzr{}
 with three lines \\& an XNCR
 '}
@@ -23,7 +45,7 @@ x x x x x x x x x x x x x x x x x x x x x x x x x x'¶
 'It’s possible to switch on '(code'inline code')'. It’s also possible
 to have a region of code with lines rendered as in the source:
 '¶
-█ 33 █ {single-column█ 36 █ {code'\\#-------------------------------------------------------------------------------------
+█ 57 █ {single-column█ 60 █ {code'\\#-------------------------------------------------------------------------------------
 @\\_shuffle = ( list, ratio, rnd, random\\_integer ) ->
   \\#...................................................................................
   return list if ( this\\_idx = list.length ) < 2
@@ -43,23 +65,23 @@ to have a region of code with lines rendered as in the source:
 x x x x x x x x x x x x x x x x x x x x x x x x x x
 x x x x x x x x x x x x x x x x x x x x x x x x x x'¶
 'Code sample, keeping indentations:'¶
-█ 59 █ {code'x
+█ 83 █ {code'x
   x
     x
 '}
 'x x x x x x x x x x x x x x x x x x x x x x x x x x
 x x x x x x x x x x x x x x x x x x x x x x x x x x
 x x x x x x x x x x x x x x x x x x x x x x x x x x'¶
-█ 68 █ [h2'MKTS Regions \\cn{中國皇帝}']
+█ 92 █ [h2'MKTS Regions \\cn{中國皇帝}']
 'To indicate the start of an MKTS-MD Region, place a triple at-sign '(code'@@@')'
 at the start of a line, immediately followed by a command name such as
 '(code'keep-lines')' or '(code'single-column')'. The end of a region is indicated by a
 triple at-sign without a command name. Nested regions are possible; for example,
 you can put a '(code'@@@keep-lines')' region inside a '(code'@@@single-column')' region as
 done here:'¶
-█ 78 █ {single-column'Here are some formulas:
+█ 102 █ {single-column'Here are some formulas:
 '¶
-█ 78 █ {keep-lines(code'u-cjk/4e36')'  \\cn{丶}   \\cnxJzr{}
+█ 102 █ {keep-lines(code'u-cjk/4e36')'  \\cn{丶}   \\cnxJzr{}
 '(code'u-cjk/4e37')'  \\cn{丷}   \\cnxJzr{}\\cn{丶}\\cnxJzr{}
 '(code'u-cjk/4e38')'  \\cn{丸}   \\cnxJzr{}\\cn{九丶}
 '(code'u-cjk/4e39')'  \\cn{丹}   \\cnxJzr{}\\cnxBabel{⺆}\\cnxJzr{}\\cn{丶一}
@@ -80,24 +102,24 @@ area.
 that was triggered by a triple-at command in the manuscript;
 accordingly, typesetting is reverted back to multi-column mode,
 which is why you can see this paragraph set in two columns.'¶
-█ 105 █ [h2'Using HTML']
+█ 129 █ [h2'Using HTML']
 'This section tests HTML that occurs as ‘blocks’ (i.e. as typographical blocks
 that start with an HTML tag) and ‘inline’ (i.e. inside of MD blocks).'¶
 'helo '(em'world')' and '(strong'everyone')'A paragraph with '(em(strong'some'))' HTML in it.'¶
 'Here’s MD with '(em'single')' and '(strong'double')' stars.'¶
-'Testing '(em'italics with Chinese: \\cn{義大利體}')' and '(strong'bold with Chinese: \\cn{黑體}, \\ka{ゴシック}\\cn{体}')█ 118 █ [h1'Regions']
+'Testing '(em'italics with Chinese: \\cn{義大利體}')' and '(strong'bold with Chinese: \\cn{黑體}, \\ka{ゴシック}\\cn{体}')█ 142 █ [h1'Regions']
 'Regions are started and ended using '(code'@@@')' (triple at-signs); the opener
 must be followed by a key word indicating the region’s type.'¶
-█ 124 █ [h2'Code']
+█ 148 █ [h2'Code']
 'Here’s '(code'some code')' within a fenced block:'¶
-█ 127 █ {code'This is a code region;
+█ 151 █ {code'This is a code region;
 lines are kept as they appear
 in the MD manuscript,
 but in addition,
 the font is monospaced
 '}
 'And this is the text following the fence.'¶
-█ 136 █ [h2'Keep-Lines Regions: Formulas Example']
+█ 160 █ [h2'Keep-Lines Regions: Formulas Example']
 'To preserve line breaks in the PDF the way they were entered in
 the MD manuscript, use '(code'@@@keep-lines')' regions. Currently, the
 best idea is to position the sentinels in a ‘tight’ way, without
@@ -105,7 +127,7 @@ intervening blank lines between the sentinels and the surrounding
 paragraph.'¶
 'Here are some formulas:
 '¶
-█ 144 █ {keep-lines(code'u-cjk/4e36')'  \\cn{丶}   \\cnxJzr{}
+█ 168 █ {keep-lines(code'u-cjk/4e36')'  \\cn{丶}   \\cnxJzr{}
 '(code'u-cjk/4e37')'  \\cn{丷}   \\cnxJzr{}\\cn{丶}\\cnxJzr{}
 '(code'u-cjk/4e38')'  \\cn{丸}   \\cnxJzr{}\\cn{九丶}
 '(code'u-cjk/4e39')'  \\cn{丹}   \\cnxJzr{}\\cnxBabel{⺆}\\cnxJzr{}\\cn{丶一}
@@ -119,42 +141,42 @@ paragraph.'¶
 'These formulas may be recursively resolved by way of substitution to their
 ultimate constituent parts—strokes. Somewhere along that process of
 deconstruction, we meet with fairly recurrent figures or shapes.'¶
-█ 163 █ [h2'Keep-Lines Regions: All in One Paragraphs']
-█ 165 █ {single-column'A-before
+█ 187 █ [h2'Keep-Lines Regions: All in One Paragraph']
+█ 189 █ {single-column'A-before
 '¶
-█ 165 █ {keep-lines'A-within
+█ 189 █ {keep-lines'A-within
 A-within
 A-within
 '}
 'A-after
 '}
-█ 175 █ [h2'Keep-Lines Regions: With separate Before, After Paragraphs']
-█ 177 █ {single-column'B-before'¶
-█ 180 █ {keep-lines'B-within
+█ 199 █ [h2'Keep-Lines Regions: With separate Before, After Paragraphs']
+█ 201 █ {single-column'B-before'¶
+█ 204 █ {keep-lines'B-within
 B-within
 B-within
 '}
 'B-after'¶
 }
-█ 190 █ [h2'Keep-Lines Regions: Region Starts, Ends within Paragraph']
-█ 192 █ {single-column'C-before
+█ 214 █ [h2'Keep-Lines Regions: Region Starts, Ends within Paragraph']
+█ 216 █ {single-column'C-before
 '¶
-█ 192 █ {keep-lines'C-within
+█ 216 █ {keep-lines'C-within
 C-within
 C-within'¶
 }
 'C-after
 '}
-█ 204 █ [h2'Keep-Lines Regions: Region Starts, Ends with separate Paragraph']
-█ 206 █ {single-column'D-before'¶
-█ 209 █ {keep-lines'D-within
+█ 228 █ [h2'Keep-Lines Regions: Region Starts, Ends with separate Paragraph']
+█ 230 █ {single-column'D-before'¶
+█ 233 █ {keep-lines'D-within
 D-within
 D-within'¶
 }
 'D-after
 '}
-█ 222 █ [h1'This is a Demonstration \\cn{中國皇帝}']
-█ 224 █ [h2'A Section Title 1 \\cn{中國皇帝}']
+█ 246 █ [h1'This is a Demonstration \\cn{中國皇帝}']
+█ 248 █ [h2'A Section Title 1 \\cn{中國皇帝}']
 '14{\\mktsFontfileOptima‰}, A, able, about, account, acid, across, act, addition as done in mathematics, adjustment,
 advertisement, after, again, against, agreement, air, all, almost a full sentence here
 to show the effects of microtypography, among,
@@ -242,41 +264,21 @@ worm, wound, writing, wrong, year, yellow, yes, yesterday, you, young.'¶
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda'¶
-█ 318 █ [h2'A Section Title 2 \\cn{中國皇帝}']
+█ 342 █ [h2'A Section Title 2 \\cn{中國皇帝}']
 'yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda'¶
-█ 325 █ [h2'A Section Title 3 \\cn{中國皇帝}']
+█ 349 █ [h2'A Section Title 3 \\cn{中國皇帝}']
 'yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda'¶
-█ 332 █ [h1'Another Demonstration']
-'yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
-yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
-yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
-yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
-yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
-yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
-yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda'¶
-
-█ 342 █ .hr
+█ 356 █ [h1'Another Demonstration']
 'yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
 yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
-yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda'¶
-
-█ 352 █ .hr
-'yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
-yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
-yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
-yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
-yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
-yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda
-yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda'¶
-}
->
+yadda yadda yadda yadda yadda yadda yadda yadda yadda yadda'
