@@ -160,7 +160,7 @@ ultimate constituent parts—strokes. Somewhere along that process of
 deconstruction, we meet with fairly recurrent figures or shapes.
 
 
-## Keep-Lines Regions: All in One Paragraphs
+## Keep-Lines Regions: All in One Paragraph
 
 @@@single-column
 A-before

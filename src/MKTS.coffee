@@ -433,8 +433,6 @@ tracker_pattern = /// ^
       meta = {
         line_nr
         col_nr
-        # within_keep_lines:      no
-        # within_single_column:   no
         }
       if is_first
         is_first = no
@@ -467,6 +465,7 @@ tracker_pattern = /// ^
           when 'html_block'
             # @_parse_html_block token[ 'content' ].trim()
             debug '@8873', @_parse_html_tag token[ 'content' ]
+            throw new Error "should never happen"
           #.................................................................................................
           when 'fence'
             switch token[ 'tag' ]
