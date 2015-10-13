@@ -43,7 +43,7 @@ misfit                    = Symbol 'misfit'
   [ ///  _          ///g,  '\\_',                   ]
   [ ///  \^         ///g,  '\\textasciicircum{}',   ]
   [ ///  ~          ///g,  '\\textasciitilde{}',    ]
-  [ ///  ‰          ///g, '\\permille{}',           ]
+  # [ ///  ‰          ///g, '\\permille{}',           ]
   [ ///  &amp;      ///g, '\\&',                    ]
   [ ///  &quot;     ///g, '"',                      ]
   [ ///  '([^\s]+)’ ///g, '‘$1’',                   ]
