@@ -320,10 +320,7 @@ tracker_pattern = /// ^
     $ ///
 
 #-----------------------------------------------------------------------------------------------------------
-@TRACKER._tracker_pattern = tracker_pattern
-
-#-----------------------------------------------------------------------------------------------------------
-@TRACKER.parse = ( pattern, settings ) =>
+@FENCES.parse = ( pattern, settings ) =>
   left_fence  = null
   name        = null
   right_fence = null
@@ -355,14 +352,19 @@ tracker_pattern = /// ^
     ### Complain about unknown left fences ###
     unless left_fence in @FENCES.xleft
       throw new Error "illegal left_fence in pattern #{rpr pattern}"
+    if right_fence?
+      ### Complain about non-matching fences ###
+      unless ( @FENCES._get_opposite left_fence, null ) is right_fence
+        throw new Error "fences don't match in pattern #{rpr pattern}"
+  if right_fence?
     ### Complain about unknown right fences ###
     unless right_fence in @FENCES.xright
       throw new Error "illegal right_fence in pattern #{rpr pattern}"
-    ### Complain about non-matching fences ###
-    unless ( @FENCES._get_opposite left_fence, null ) is right_fence
-      throw new Error "fences don't match in pattern #{rpr pattern}"
   #.........................................................................................................
   return [ left_fence, name, right_fence, ]
+
+#-----------------------------------------------------------------------------------------------------------
+@TRACKER._tracker_pattern = tracker_pattern
 
 #-----------------------------------------------------------------------------------------------------------
 @TRACKER.new_tracker = ( patterns... ) =>
@@ -405,7 +407,7 @@ tracker_pattern = /// ^
   #.........................................................................................................
   do ->
     for pattern in patterns
-      [ left_fence, pattern_name, right_fence, ]  = _MKTS.TRACKER.parse pattern
+      [ left_fence, pattern_name, right_fence, ]  = _MKTS.FENCES.parse pattern
       state =
         parts:    [ [ left_fence, right_fence, ], pattern_name, ]
         count:    0

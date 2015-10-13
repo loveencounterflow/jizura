@@ -46,19 +46,19 @@ MKTS                      = require './MKTS'
 #===========================================================================================================
 # TESTS
 #-----------------------------------------------------------------------------------------------------------
-@[ "MKTS.TRACKER.parse accepts dot patterns" ] = ( T, done ) ->
+@[ "MKTS.FENCES.parse accepts dot patterns" ] = ( T, done ) ->
   probes_and_matchers = [
     [ '.',     [ '.', null,   null, ], ]
     [ '.p',    [ '.', 'p',    null, ], ]
     [ '.text', [ '.', 'text', null, ], ]
     ]
   for [ probe, matcher, ] in probes_and_matchers
-    # help ( rpr probe ), MKTS.TRACKER.parse probe
-    T.eq ( MKTS.TRACKER.parse probe ), matcher
+    # help ( rpr probe ), MKTS.FENCES.parse probe
+    T.eq ( MKTS.FENCES.parse probe ), matcher
   done()
 
 #-----------------------------------------------------------------------------------------------------------
-@[ "MKTS.TRACKER.parse accepts empty fenced patterns" ] = ( T, done ) ->
+@[ "MKTS.FENCES.parse accepts empty fenced patterns" ] = ( T, done ) ->
   probes_and_matchers = [
     [ '<>', [ '<', null, '>', ], ]
     [ '{}', [ '{', null, '}', ], ]
@@ -66,12 +66,12 @@ MKTS                      = require './MKTS'
     [ '()', [ '(', null, ')', ], ]
     ]
   for [ probe, matcher, ] in probes_and_matchers
-    # help ( rpr probe ), MKTS.TRACKER.parse probe
-    T.eq ( MKTS.TRACKER.parse probe ), matcher
+    # help ( rpr probe ), MKTS.FENCES.parse probe
+    T.eq ( MKTS.FENCES.parse probe ), matcher
   done()
 
 #-----------------------------------------------------------------------------------------------------------
-@[ "MKTS.TRACKER.parse accepts unfenced named patterns" ] = ( T, done ) ->
+@[ "MKTS.FENCES.parse accepts unfenced named patterns" ] = ( T, done ) ->
   probes_and_matchers = [
     [ 'document',       [ null, 'document',     null, ], ]
     [ 'singlecolumn',   [ null, 'singlecolumn', null, ], ]
@@ -81,12 +81,12 @@ MKTS                      = require './MKTS'
     [ 'xxx',            [ null, 'xxx',          null, ], ]
     ]
   for [ probe, matcher, ] in probes_and_matchers
-    # help ( rpr probe ), MKTS.TRACKER.parse probe
-    T.eq ( MKTS.TRACKER.parse probe ), matcher
+    # help ( rpr probe ), MKTS.FENCES.parse probe
+    T.eq ( MKTS.FENCES.parse probe ), matcher
   done()
 
 #-----------------------------------------------------------------------------------------------------------
-@[ "MKTS.TRACKER.parse accepts fenced named patterns" ] = ( T, done ) ->
+@[ "MKTS.FENCES.parse accepts fenced named patterns" ] = ( T, done ) ->
   probes_and_matchers = [
     [ '<document>',     [ '<', 'document',     '>', ], ]
     [ '{singlecolumn}', [ '{', 'singlecolumn', '}', ], ]
@@ -95,17 +95,17 @@ MKTS                      = require './MKTS'
     [ '(em)',           [ '(', 'em',           ')', ], ]
     ]
   for [ probe, matcher, ] in probes_and_matchers
-    # help ( rpr probe ), MKTS.TRACKER.parse probe
-    T.eq ( MKTS.TRACKER.parse probe ), matcher
+    # help ( rpr probe ), MKTS.FENCES.parse probe
+    T.eq ( MKTS.FENCES.parse probe ), matcher
   done()
 
 #-----------------------------------------------------------------------------------------------------------
-@[ "MKTS.TRACKER.parse rejects empty string" ] = ( T, done ) ->
-  T.throws "pattern must be non-empty, got ''", ( -> MKTS.TRACKER.parse '' )
+@[ "MKTS.FENCES.parse rejects empty string" ] = ( T, done ) ->
+  T.throws "pattern must be non-empty, got ''", ( -> MKTS.FENCES.parse '' )
   done()
 
 #-----------------------------------------------------------------------------------------------------------
-@[ "MKTS.TRACKER.parse rejects non-matching fences etc" ] = ( T, done ) ->
+@[ "MKTS.FENCES.parse rejects non-matching fences etc" ] = ( T, done ) ->
   probes_and_matchers = [
     [ '(xxx}',  'fences don\'t match in pattern \'(xxx}\'',          ]
     [ '.)',     'fence \'.\' can not have right fence, got \'.)\'',  ]
@@ -117,7 +117,31 @@ MKTS                      = require './MKTS'
     [ '(',      'unmatched fence in \'(\'',                          ]
     ]
   for [ probe, matcher, ] in probes_and_matchers
-    T.throws matcher, ( -> MKTS.TRACKER.parse probe )
+    T.throws matcher, ( -> MKTS.FENCES.parse probe )
+  done()
+
+#-----------------------------------------------------------------------------------------------------------
+@[ "MKTS.FENCES.parse accepts non-matching fences when so configured" ] = ( T, done ) ->
+  probes_and_matchers = [
+    [ '<document>',     [ '<', 'document',     '>', ], ]
+    [ '{singlecolumn}', [ '{', 'singlecolumn', '}', ], ]
+    [ '{code}',         [ '{', 'code',         '}', ], ]
+    [ '[blockquote]',   [ '[', 'blockquote',   ']', ], ]
+    [ '(em)',           [ '(', 'em',           ')', ], ]
+    [ 'document>',      [ null, 'document',     '>', ], ]
+    [ 'singlecolumn}',  [ null, 'singlecolumn', '}', ], ]
+    [ 'code}',          [ null, 'code',         '}', ], ]
+    [ 'blockquote]',    [ null, 'blockquote',   ']', ], ]
+    [ 'em)',            [ null, 'em',           ')', ], ]
+    [ '<document',      [ '<', 'document',     null, ], ]
+    [ '{singlecolumn',  [ '{', 'singlecolumn', null, ], ]
+    [ '{code',          [ '{', 'code',         null, ], ]
+    [ '[blockquote',    [ '[', 'blockquote',   null, ], ]
+    [ '(em',            [ '(', 'em',           null, ], ]
+    ]
+  for [ probe, matcher, ] in probes_and_matchers
+    # help ( rpr probe ), MKTS.FENCES.parse probe
+    T.eq ( MKTS.FENCES.parse probe, symmetric: no ), matcher
   done()
 
 #-----------------------------------------------------------------------------------------------------------
