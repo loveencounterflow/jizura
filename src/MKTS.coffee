@@ -323,10 +323,11 @@ tracker_pattern = /// ^
 @TRACKER._tracker_pattern = tracker_pattern
 
 #-----------------------------------------------------------------------------------------------------------
-@TRACKER.parse = ( pattern ) =>
+@TRACKER.parse = ( pattern, settings ) =>
   left_fence  = null
   name        = null
   right_fence = null
+  symmetric   = settings?[ 'symmetric' ] ? yes
   #.........................................................................................................
   if ( not pattern? ) or pattern.length is 0
     throw new Error "pattern must be non-empty, got #{rpr pattern}"
@@ -345,9 +346,10 @@ tracker_pattern = /// ^
       throw new Error "fence '.' can not have right fence, got #{rpr pattern}"
   #.........................................................................................................
   else
-    ### Except for dot fence, must always have no fence or both fences ###
-    if ( left_fence? and not right_fence? ) or ( right_fence? and not left_fence? )
-      throw new Error "unmatched fence in #{rpr pattern}"
+    ### Except for dot fence, must always have no fence or both fences in case `symmetric` is set ###
+    if symmetric
+      if ( left_fence? and not right_fence? ) or ( right_fence? and not left_fence? )
+        throw new Error "unmatched fence in #{rpr pattern}"
   #.........................................................................................................
   if left_fence? and left_fence isnt '.'
     ### Complain about unknown left fences ###
