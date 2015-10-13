@@ -675,6 +675,11 @@ tracker_pattern = /// ^
 
 #-----------------------------------------------------------------------------------------------------------
 @isa = ( event, type, name ) ->
+  ### TAINT should use the same syntax as accepted by `FENCES.parse` ###
+  ### check for arity as it's easy to write `isa event, '(', ')', 'latex'` when what you meant
+  was `isa event, [ '(', ')', ], 'latex'` ###
+  if ( arity = arguments.length ) > 3
+    throw new Error "expected at most 3 arguments, got #{arity}"
   if type?
     switch type_of_type = CND.type_of type
       when 'text' then return false unless event[ 0 ] is type
