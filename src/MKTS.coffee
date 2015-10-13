@@ -66,7 +66,8 @@ misfit                    = Symbol 'misfit'
   return $ ( event, send ) =>
     if @isa event, '.', 'text'
       [ type, name, text, meta, ] = event
-      text = @fix_typography_for_tex text, options
+      meta[ 'raw' ] = text
+      text          = @fix_typography_for_tex text, options
       send [ type, name, text, meta, ]
     else
       send event
