@@ -1,15 +1,26 @@
 
+^^^^4e00^^^^007b^^^^007d
+
 % begin of MD document
 \begin{multicols}{2}
-You can use {\mktsStyleCode{}<<\{latex>>...<<latex\}>>} or {\mktsStyleCode{}<<(latex>>...<<latex)>>} to directly insert LaTeX
+You can use {\mktsStyleCode{}<<\textbackslash{}{latex>>...<<latex\textbackslash{}}>>} or {\mktsStyleCode{}<<(latex>>...<<latex)>>} to directly insert LaTeX
 code into your script; for example, you could
-use {\mktsStyleCode{}<<(latex>>\textbackslash\{\}LaTeX<<latex)>>}
+use {\mktsStyleCode{}<<(latex>>\textbackslash{}LaTeX<<latex)>>}
 to obtain the \LaTeX{} logogram.
-Another potential use is to {\color{red}{}COLORIZE!}{}
-your text, here done by inserting\mktsShowpar\par
-\begingroup\obeyalllines\mktsStyleCode{}<<(latex>>\{\textbackslash\{\}color\{red\}<<latex)>>
+Observe we wrote {\mktsStyleCode{}<<(latex>>\textbackslash{}LaTeX\textbackslash{}{\textbackslash{}}<<latex)>>} here
+(instead of {\mktsStyleCode{}<<(latex>>\textbackslash{}LaTeX<<latex)>>}){}
+in order to preserve the space between the logogram itself and
+the word ‘logogram’—MKTS will not intervene to make that happen
+automatically, as a careful, scientific study has demonstrated
+that this problem—preserving spaces following commands in a
+general way that does not rely on parsing {\mktsStyleCode{}<<(latex>>\textbackslash{}LaTeX\textbackslash{}{\textbackslash{}}<<latex)>>}
+source and is not going to muck with very deep
+{\mktsStyleCode{}<<(latex>>\textbackslash{}TeX\textbackslash{}{\textbackslash{}}<<latex)>>}
+internals—is NP-complete.\mktsShowpar\par
+Another potential use is to {\color{red}COLORIZE!} your text, here done by inserting\mktsShowpar\par
+\begingroup\obeyalllines\mktsStyleCode{}<<(latex>>\textbackslash{}{\textbackslash{}color\textbackslash{}{red\textbackslash{}}<<latex)>>
 COLORIZE!
-<<(latex>>\}<<latex)>>
+<<(latex>>\textbackslash{}}<<latex)>>
 \endgroup{}(with or without the line breaks) into the script.
 \end{multicols}xxx\mktsShowpar\par
 

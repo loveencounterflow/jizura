@@ -4,9 +4,19 @@
 You can use `<<{latex>>...<<latex}>>` or `<<(latex>>...<<latex)>>` to directly insert LaTeX
 code into your script; for example, you could
 use `<<(latex>>\LaTeX<<latex)>>`
-to obtain the <<(latex>>\LaTeX<<latex)>> logogram.
-Another potential use is to <<(latex>>{\color{red}<<latex)>>COLORIZE!<<(latex>>}<<latex)>>
-your text, here done by inserting
+to obtain the <<(latex>>\LaTeX{}<<latex)>> logogram.
+Observe we wrote `<<(latex>>\LaTeX{}<<latex)>>` here
+(instead of `<<(latex>>\LaTeX<<latex)>>`)<<(latex>>{}<<latex)>>
+in order to preserve the space between the logogram itself and
+the word 'logogram'—MKTS will not intervene to make that happen
+automatically, as a careful, scientific study has demonstrated
+that this problem—preserving spaces following commands in a
+general way that does not rely on parsing `<<(latex>>\LaTeX{}<<latex)>>`
+source and is not going to muck with very deep
+`<<(latex>>\TeX{}<<latex)>>`
+internals—is NP-complete.
+
+Another potential use is to <<(latex>>{\color{red}<<latex)>>COLORIZE!<<(latex>>}<<latex)>> your text, here done by inserting
 ```latex
 <<(latex>>{\color{red}<<latex)>>
 COLORIZE!

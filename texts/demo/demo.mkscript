@@ -1,25 +1,38 @@
 █ 3 █ <document█ 3 █ {multi-column'
-You can use '(code'<<\\{latex>>...<<latex\\}>>')' or '(code'<<(latex>>...<<latex)>>')' to directly insert LaTeX
+You can use '(code'<<\\textbackslash{}{latex>>...<<latex\\textbackslash{}}>>')' or '(code'<<(latex>>...<<latex)>>')' to directly insert LaTeX
 code into your script; for example, you could
-use '(code'<<(latex>>\\textbackslash\\{\\}LaTeX<<latex)>>')'
+use '(code'<<(latex>>\\textbackslash{}LaTeX<<latex)>>')'
 to obtain the '(latex
 █ 3 █ IGNORED: [ '.',
   'latex',
   '\\LaTeX{}',
-  { line_nr: 3, col_nr: 10, raw: '\\LaTeX', processed: true } ])' logogram.
-Another potential use is to '(latex
+  { line_nr: 3, col_nr: 18, raw: '\\LaTeX{}', processed: true } ])' logogram.
+Observe we wrote '(code'<<(latex>>\\textbackslash{}LaTeX\\textbackslash{}{\\textbackslash{}}<<latex)>>')' here
+(instead of '(code'<<(latex>>\\textbackslash{}LaTeX<<latex)>>')')'(latex
 █ 3 █ IGNORED: [ '.',
   'latex',
-  '{\\color{red}{}',
-  { line_nr: 3, col_nr: 10, raw: '{\\color{red}', processed: true } ])'COLORIZE!'(latex
-█ 3 █ IGNORED: [ '.',
+  '{}',
+  { line_nr: 3, col_nr: 18, raw: '{}', processed: true } ])'
+in order to preserve the space between the logogram itself and
+the word ‘logogram’—MKTS will not intervene to make that happen
+automatically, as a careful, scientific study has demonstrated
+that this problem—preserving spaces following commands in a
+general way that does not rely on parsing '(code'<<(latex>>\\textbackslash{}LaTeX\\textbackslash{}{\\textbackslash{}}<<latex)>>')'
+source and is not going to muck with very deep
+'(code'<<(latex>>\\textbackslash{}TeX\\textbackslash{}{\\textbackslash{}}<<latex)>>')'
+internals—is NP-complete.'¶
+'Another potential use is to '(latex
+█ 19 █ IGNORED: [ '.',
   'latex',
-  '}{}',
-  { line_nr: 3, col_nr: 10, raw: '}', processed: true } ])'
-your text, here done by inserting'¶
-█ 10 █ {code'<<(latex>>\\{\\textbackslash\\{\\}color\\{red\\}<<latex)>>
+  '{\\color{red}',
+  { line_nr: 19, col_nr: 20, raw: '{\\color{red}', processed: true } ])'COLORIZE!'(latex
+█ 19 █ IGNORED: [ '.',
+  'latex',
+  '}',
+  { line_nr: 19, col_nr: 20, raw: '}', processed: true } ])' your text, here done by inserting'¶
+█ 20 █ {code'<<(latex>>\\textbackslash{}{\\textbackslash{}color\\textbackslash{}{red\\textbackslash{}}<<latex)>>
 COLORIZE!
-<<(latex>>\\}<<latex)>>
+<<(latex>>\\textbackslash{}}<<latex)>>
 '}
 '(with or without the line breaks) into the script.
 '}

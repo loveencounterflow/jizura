@@ -529,7 +529,7 @@ SEMVER                    = require 'semver'
     #.......................................................................................................
     if within_latex and MKTS.isa event, '.', 'text'
       [ type, name, text, meta, ] = event
-      raw_text = meta[ 'raw' ] + '{}'
+      raw_text = meta[ 'raw' ]
       ### TAINT could the added `{}` conflict with some (La)TeX commands? ###
       send @stamp [ '.', 'latex', raw_text, meta, ]
     #.......................................................................................................
