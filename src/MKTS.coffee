@@ -389,13 +389,17 @@ tracker_pattern = /// ^
     throw new Error "untracked pattern #{rpr pattern}" unless ( R = self._states[ pattern ] )?
     return R
   #.........................................................................................................
-  self.within = ( pattern ) -> ( self._get_state pattern )[ 'count' ] > 0
+  self.within = ( patterns... ) ->
+    for pattern in patterns
+      return true if self._within pattern
+    return false
+  self._within  = ( pattern ) -> ( self._get_state pattern )[ 'count' ] > 0
   #.........................................................................................................
-  self.enter  = ( pattern ) -> self._enter self._get_state pattern
-  self.leave  = ( pattern ) -> self._leave self._get_state pattern
-  self._enter = ( state   ) -> state[ 'count' ] += +1
+  self.enter    = ( pattern ) -> self._enter self._get_state pattern
+  self.leave    = ( pattern ) -> self._leave self._get_state pattern
+  self._enter   = ( state   ) -> state[ 'count' ] += +1
   ### TAINT should validate count when leaving ###
-  self._leave = ( state   ) -> state[ 'count' ] += -1
+  self._leave   = ( state   ) -> state[ 'count' ] += -1
   #.........................................................................................................
   do ->
     for pattern in patterns
