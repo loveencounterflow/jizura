@@ -305,7 +305,7 @@ parse_methods = get_parse_html_methods()
   return R
 
 #===========================================================================================================
-# TRACCKER
+# TRACKER
 #-----------------------------------------------------------------------------------------------------------
 @TRACKER    = {}
 
@@ -551,6 +551,51 @@ tracker_pattern = /// ^
     return null
 
 #-----------------------------------------------------------------------------------------------------------
+@$_preprocess_XXXX = ( S ) ->
+  left_meta_fence     = '<'
+  right_meta_fence    = '>'
+  repetitions         = 2
+  pattern             = ///
+    #{left_meta_fence}{#{repetitions}}
+    (
+      (?:
+        \\#{right_meta_fence}       |
+        [^ #{right_meta_fence} ]    |
+        #{right_meta_fence}{ #{repetitions - 1} } (?! #{right_meta_fence} )
+        )*
+      )
+    #{right_meta_fence}{#{repetitions}}
+    ///
+  # pattern             = /<<((?:\\>|[^>]|>(?!>))+)>>/
+  collector           = []
+  track               = @TRACKER.new_tracker '{code}', '(code)', '(latex)', '(latex)'
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    within_literal = track.within '{code}', '(code)', '(latex)', '(latex)'
+    debug '©em2PQ', 'LITERAL' if within_literal
+    track event
+    [ type, name, text, meta, ] = event
+    if ( not within_literal ) and @isa event, '.', 'text'
+      is_command = yes
+      for part in text.split pattern
+        is_command  = not is_command
+        left_fence  = null
+        right_fence = null
+        if is_command
+          last_idx    = part.length - 1
+          left_fence  = part[        0 ] if part[        0 ] in @FENCES.xleft
+          right_fence = part[ last_idx ] if part[ last_idx ] in @FENCES.xright
+          if left_fence? and right_fence?
+            send [ xxxx part[ 1 ... last_idx ], ( @_copy meta ), ]
+        else
+          send [ type, name, part, ( @_copy meta ), ]
+    #.......................................................................................................
+    else
+      send event
+    #.......................................................................................................
+    return null
+
+#-----------------------------------------------------------------------------------------------------------
 @$_preprocess_commands = ( S ) ->
   pattern             = /^∆∆∆(\S.+)(\n|$)/
   collector           = []
@@ -776,6 +821,7 @@ tracker_pattern = /// ^
     .pipe @$_flatten_tokens                 state
     .pipe @$_reinject_html_blocks           state
     .pipe @$_rewrite_markdownit_tokens      state
+    .pipe @$_preprocess_XXXX                state
     .pipe @$_preprocess_commands            state
     .pipe @$_process_end_command            state
     .pipe @$_preprocess_regions             state
