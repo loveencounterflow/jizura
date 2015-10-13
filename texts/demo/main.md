@@ -1,9 +1,21 @@
 
 
+<<{multi-column>>
 You can use `<<{latex>>...<<latex}>>` or `<<(latex>>...<<latex)>>` to directly insert LaTeX
 code into your script; for example, you could
 use `<<(latex>>\LaTeX<<latex)>>`
 to obtain the <<(latex>>\LaTeX<<latex)>> logogram.
+Another potential use is to <<(latex>>{\color{red}<<latex)>>COLORIZE!<<(latex>>}<<latex)>>
+your text, here done by inserting
+```latex
+<<(latex>>{\color{red}<<latex)>>
+COLORIZE!
+<<(latex>>}<<latex)>>
+```
+(with or without the line breaks) into the script.
+<<multi-column}>>
+
+xxx
 
 ∆∆∆end
 

@@ -571,13 +571,11 @@ tracker_pattern = /// ^
       )
     #{right_meta_fence}{#{repetitions}}
     ///
-  # pattern             = /<<((?:\\>|[^>]|>(?!>))+)>>/
   collector           = []
   track               = @TRACKER.new_tracker '{code}', '(code)', '(latex)', '(latex)'
   #.........................................................................................................
   return $ ( event, send ) =>
     within_literal = track.within '{code}', '(code)', '(latex)', '(latex)'
-    debug '©em2PQ', 'LITERAL' if within_literal
     track event
     [ type, name, text, meta, ] = event
     if ( not within_literal ) and @isa event, '.', 'text'
@@ -591,7 +589,18 @@ tracker_pattern = /// ^
           left_fence  = part[        0 ] if part[        0 ] in @FENCES.xleft
           right_fence = part[ last_idx ] if part[ last_idx ] in @FENCES.xright
           if left_fence? and right_fence?
-            send [ xxxx part[ 1 ... last_idx ], ( @_copy meta ), ]
+            command_name = part[ 1 ... last_idx ]
+            send [ left_fence,  command_name, null, ( @_copy meta ), ]
+            send [ right_fence, command_name, null, ( @_copy meta ), ]
+          else if left_fence?
+            command_name = part[ 1 ... ]
+            send [ left_fence, command_name, null, ( @_copy meta ), ]
+          else if right_fence?
+            command_name = part[ ... last_idx ]
+            send [ right_fence, command_name, null, ( @_copy meta ), ]
+          else
+            command_name = part
+            send [ '∆', command_name, null, ( @_copy meta ), ]
         else
           send [ type, name, part, ( @_copy meta ), ]
     #.......................................................................................................

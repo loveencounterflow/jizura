@@ -1,5 +1,27 @@
-█ 3 █ <document'You can use '(code'<<\\{latex>>...<<latex\\}>>')' or '(code'<<(latex>>...<<latex)>>')' to directly insert LaTeX
-code into your script, for example to type out
-the LaTeX-Logogramm use '(code'<<(latex>>\\textbackslash\\{\\}LaTeX<<latex)>>')'
-to type out <<(latex>>\\textbackslash\\{\\}LaTeX<<latex)>>.'¶
+█ 3 █ <document█ 3 █ {multi-column'
+You can use '(code'<<\\{latex>>...<<latex\\}>>')' or '(code'<<(latex>>...<<latex)>>')' to directly insert LaTeX
+code into your script; for example, you could
+use '(code'<<(latex>>\\textbackslash\\{\\}LaTeX<<latex)>>')'
+to obtain the '(latex
+█ 3 █ IGNORED: [ '.',
+  'latex',
+  '\\LaTeX{}',
+  { line_nr: 3, col_nr: 10, raw: '\\LaTeX', processed: true } ])' logogram.
+Another potential use is to '(latex
+█ 3 █ IGNORED: [ '.',
+  'latex',
+  '{\\color{red}{}',
+  { line_nr: 3, col_nr: 10, raw: '{\\color{red}', processed: true } ])'COLORIZE!'(latex
+█ 3 █ IGNORED: [ '.',
+  'latex',
+  '}{}',
+  { line_nr: 3, col_nr: 10, raw: '}', processed: true } ])'
+your text, here done by inserting'¶
+█ 10 █ {code'<<(latex>>\\{\\textbackslash\\{\\}color\\{red\\}<<latex)>>
+COLORIZE!
+<<(latex>>\\}<<latex)>>
+'}
+'(with or without the line breaks) into the script.
+'}
+'xxx'¶
 >

@@ -520,6 +520,26 @@ SEMVER                    = require 'semver'
       send event
 
 #-----------------------------------------------------------------------------------------------------------
+@MKTX.INLINE.$latex = ( S ) =>
+  track = MKTS.TRACKER.new_tracker '(latex)'
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    within_latex = track.within '(latex)'
+    track event
+    #.......................................................................................................
+    if within_latex and MKTS.isa event, '.', 'text'
+      [ type, name, text, meta, ] = event
+      raw_text = meta[ 'raw' ] + '{}'
+      ### TAINT could the added `{}` conflict with some (La)TeX commands? ###
+      send @stamp [ '.', 'latex', raw_text, meta, ]
+    #.......................................................................................................
+    else if MKTS.isa event, [ '(', ')', ], 'latex'
+      send @stamp event
+    #.......................................................................................................
+    else
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
 @MKTX.INLINE.$translate_i_and_b = ( S ) =>
   #.........................................................................................................
   return $ ( event, send ) =>
@@ -576,7 +596,7 @@ SEMVER                    = require 'semver'
   return $ ( event, send ) =>
     if event[ 0 ] in [ 'tex', 'text', ]
       send event[ 1 ]
-    else if MKTS.isa event, '.', 'text'
+    else if MKTS.isa event, '.', [ 'text', 'latex', ]
       send event[ 2 ]
     else
       warn "unhandled event: #{JSON.stringify event}" unless event[ 3 ][ 'processed' ]
@@ -630,6 +650,7 @@ SEMVER                    = require 'semver'
       .pipe @MKTX.BLOCK.$hr                                 state
       # .pipe D.$show()
       .pipe @MKTX.INLINE.$code                              state
+      .pipe @MKTX.INLINE.$latex                             state
       .pipe @MKTX.INLINE.$translate_i_and_b                 state
       .pipe @MKTX.INLINE.$em_and_strong                     state
       .pipe @MKTX.DOCUMENT.$end                             state

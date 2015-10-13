@@ -1,8 +1,16 @@
 
 % begin of MD document
+\begin{multicols}{2}
 You can use {\mktsStyleCode{}<<\{latex>>...<<latex\}>>} or {\mktsStyleCode{}<<(latex>>...<<latex)>>} to directly insert LaTeX
-code into your script, for example to type out
-the LaTeX-Logogramm use {\mktsStyleCode{}<<(latex>>\textbackslash\{\}LaTeX<<latex)>>}
-to type out <<(latex>>\textbackslash\{\}LaTeX<<latex)>>.\mktsShowpar\par
+code into your script; for example, you could
+use {\mktsStyleCode{}<<(latex>>\textbackslash\{\}LaTeX<<latex)>>}
+to obtain the \LaTeX{} logogram.
+Another potential use is to {\color{red}{}COLORIZE!}{}
+your text, here done by inserting\mktsShowpar\par
+\begingroup\obeyalllines\mktsStyleCode{}<<(latex>>\{\textbackslash\{\}color\{red\}<<latex)>>
+COLORIZE!
+<<(latex>>\}<<latex)>>
+\endgroup{}(with or without the line breaks) into the script.
+\end{multicols}xxx\mktsShowpar\par
 
 % end of MD document
