@@ -1,22 +1,24 @@
 
+xxx `\foo` bar
+
+xxx `\foo`
+bar
 
 <<{multi-column>>
 You can use `<<{latex>>...<<latex}>>` or `<<(latex>>...<<latex)>>` to directly insert LaTeX
 code into your script; for example, you could
 use `<<(latex>>\LaTeX<<latex)>>`
 to obtain the <<(latex>>\LaTeX{}<<latex)>> logogram.
-Observe we wrote `<<(latex>>\LaTeX{}<<latex)>>` here
-(instead of `<<(latex>>\LaTeX<<latex)>>`)<<(latex>>{}<<latex)>>
-in order to preserve the space between the logogram itself and
+Observe that we had to write `\LaTeX{}` here instead of `\LaTeX` to preserve the space between the logogram itself and
 the word 'logogram'—MKTS will not intervene to make that happen
 automatically, as a careful, scientific study has demonstrated
 that this problem—preserving spaces following commands in a
-general way that does not rely on parsing `<<(latex>>\LaTeX{}<<latex)>>`
+general way that does not rely on parsing <<(latex>>\LaTeX{}<<latex)>>
 source and is not going to muck with very deep
-`<<(latex>>\TeX{}<<latex)>>`
+<<(latex>>\TeX{}<<latex)>>
 internals—is NP-complete.
 
-Another potential use is to <<(latex>>{\color{red}<<latex)>>COLORIZE!<<(latex>>}<<latex)>> your text, here done by inserting
+Another potential use of  is to <<(latex>>{\color{red}<<latex)>>COLORIZE!<<(latex>>}<<latex)>> your text, here done by inserting
 ```latex
 <<(latex>>{\color{red}<<latex)>>
 COLORIZE!
@@ -60,6 +62,16 @@ Helo <<(code>>world<<code)>>! = Helo `world`!
 
 ^[h2^MKTS Regions 中國皇帝^]h2^
 
+## Footnotes
+
+ere is a footnote reference,[^1] and another.[^longnote]
+
+[^1]: Here is the footnote.
+
+[^longnote]: Here's one with multiple blocks.
+
+    Subsequent paragraphs are indented to show that they
+belong to the previous footnote.
 
 ## MKTS Regions 中國皇帝
 
