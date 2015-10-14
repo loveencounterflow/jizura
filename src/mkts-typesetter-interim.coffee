@@ -210,9 +210,10 @@ SEMVER                    = require 'semver'
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.COMMAND.$definition = ( S ) =>
   ### TAINT reject nested definitions ###
-  ### Must start `<literal>` (?) section on command definition ###
+  # ### Must start `<literal>` (?) section on command definition ###
   track       = MKTS.TRACKER.new_tracker '(:)', '[:]'
   identifier  = null
+  values      = {}
   #.........................................................................................................
   return $ ( event, send ) =>
     within_definition = track.within '(:)', '[:]'
@@ -230,10 +231,22 @@ SEMVER                    = require 'semver'
     else if within_definition
       urge '©S63sG', identifier
       urge '©S63sG', event
-      [ type, name, text, meta, ] = event
-      send [ '?', name, text, meta, ]
+      ( values[ identifier ]?= [] ).push event
+      # xxxx
+      ### TAINT `MKTS.isa` must not match stamped events ###
+      # send @stamp event
+      # [ type, name, text, meta, ] = event
+      # send [ '?', name, text, meta, ]
+    #.......................................................................................................
+    else if MKTS.isa event, '∆'
+      if ( definition = values[ identifier ] )?
+        send @stamp event
+        send sub_event for sub_event in definition
+      else
+        send event
     #.......................................................................................................
     else
+      debug '©YLxXy', event
       send event
 
 #-----------------------------------------------------------------------------------------------------------

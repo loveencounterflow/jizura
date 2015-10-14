@@ -1,12 +1,15 @@
 
 
-A definition: <<(:theanswer>>42<<:)>> to print `42`.
+A definition: <<(:theanswer>>**42**<<:)>> to print `42`.
+
+Use of definition: The answer is <<!answer>>.
 
 Definition of the LaTeX Logo:
 <<(:latexlogo>><<(latex>>\LaTeX{}<<latex)>><<:)>>.
 
-<<!end>>
+Use of the logo: <<!latexlogo>>.
 
+<<!end>>
 
 xxx <<[:latexlogo>>
 <<:]>>
