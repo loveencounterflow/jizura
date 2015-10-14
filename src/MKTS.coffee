@@ -32,10 +32,11 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
 misfit                    = Symbol 'misfit'
 
 
+
 #-----------------------------------------------------------------------------------------------------------
 @_tex_escape_replacements = [
-  [ ///  \\         ///g,  '\\\\',     ]
-  # [ ///  \\         ///g,  '\\textbackslash^^^^007b^^^^007d',     ]
+  [ /// \x01        ///g,  '\x01\x02',              ]
+  [ /// \x5c        ///g,  '\x01\x01',              ]
   [ ///  \{         ///g,  '\\{',                   ]
   [ ///  \}         ///g,  '\\}',                   ]
   [ ///  \$         ///g,  '\\$',                   ]
@@ -44,22 +45,18 @@ misfit                    = Symbol 'misfit'
   [ ///  _          ///g,  '\\_',                   ]
   [ ///  \^         ///g,  '\\textasciicircum{}',   ]
   [ ///  ~          ///g,  '\\textasciitilde{}',    ]
-  # [ ///  ‰          ///g, '\\permille{}',           ]
-  [ ///  &amp;      ///g, '\\&',                    ]
-  [ ///  &quot;     ///g, '"',                      ]
-  [ ///  '([^\s]+)’ ///g, '‘$1’',                   ]
-  [ ///  &   ///g,  '\\&',                  ]
-  # [ ///  (^|[^\\])& ///g, '$1\\&',                    ]
-  # [ ///  ([^\\])&   ///g,  '$1\\&',                  ]
-  # '`'   # these two are very hard to catch when TeX's character handling is switched on
-  # "'"   #
-  # [ ///  \\\\         ///g,  '\\',     ]
+  [ ///  &amp;      ///g,  '\\&',                   ]
+  [ ///  &quot;     ///g,  '"',                     ]
+  [ ///  '([^\s]+)’ ///g,  '‘$1’',                  ]
+  [ ///  &          ///g,  '\\&',                   ]
+  [ /// \x01\x01    ///g,  '\\textbackslash{}',     ]
+  [ /// \x01\x02    ///g,  '\x01',                  ]
   ]
 
 #-----------------------------------------------------------------------------------------------------------
 @escape_for_tex = ( text ) ->
   R = text
-  for [ pattern, replacement, ] in @_tex_escape_replacements
+  for [ pattern, replacement, ], idx in @_tex_escape_replacements
     R = R.replace pattern, replacement
   return R
 

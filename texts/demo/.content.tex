@@ -1,14 +1,17 @@
 
 % begin of MD document
-xxx {\mktsStyleCode{}\\foo} bar\mktsShowpar\par
-xxx {\mktsStyleCode{}\\foo}
-bar\mktsShowpar\par
+X\textbackslash{}fooX\mktsShowpar\par
+X\textbackslash{}eekX\mktsShowpar\par
+X\textbackslash{}effX\mktsShowpar\par
+X\textbackslash{}yyyX\mktsShowpar\par
+\textbackslash{}effing\mktsShowpar\par
+x\textbackslash{}234y\mktsShowpar\par
 \begin{multicols}{2}
 You can use {\mktsStyleCode{}<<\{latex>>...<<latex\}>>} or {\mktsStyleCode{}<<(latex>>...<<latex)>>} to directly insert LaTeX
 code into your script; for example, you could
-use {\mktsStyleCode{}<<(latex>>\\LaTeX<<latex)>>}
+use {\mktsStyleCode{}<<(latex>>\textbackslash{}LaTeX<<latex)>>}
 to obtain the \LaTeX{} logogram.
-Observe that we had to write {\mktsStyleCode{}\\LaTeX\{\}} here instead of {\mktsStyleCode{}\\LaTeX} to preserve the space between the logogram itself and
+Observe that we had to write {\mktsStyleCode{}\textbackslash{}LaTeX\{\}} here instead of {\mktsStyleCode{}\textbackslash{}LaTeX} to preserve the space between the logogram itself and
 the word ‘logogram’—MKTS will not intervene to make that happen
 automatically, as a careful, scientific study has demonstrated
 that this problem—preserving spaces following commands in a
@@ -17,7 +20,7 @@ source and is not going to muck with very deep
 \TeX{}
 internals—is NP-complete.\mktsShowpar\par
 Another potential use of  is to {\color{red}COLORIZE!} your text, here done by inserting\mktsShowpar\par
-\begingroup\obeyalllines\mktsStyleCode{}<<(latex>>\{\\color\{red\}<<latex)>>
+\begingroup\obeyalllines\mktsStyleCode{}<<(latex>>\{\textbackslash{}color\{red\}<<latex)>>
 COLORIZE!
 <<(latex>>\}<<latex)>>
 \endgroup{}(with or without the line breaks) into the script.

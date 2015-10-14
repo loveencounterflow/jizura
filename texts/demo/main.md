@@ -1,8 +1,16 @@
 
-xxx `\foo` bar
+X\fooX
 
-xxx `\foo`
-bar
+X\eekX
+
+X\effX
+
+X\yyyX
+
+\effing
+
+x\234y
+
 
 <<{multi-column>>
 You can use `<<{latex>>...<<latex}>>` or `<<(latex>>...<<latex)>>` to directly insert LaTeX

@@ -1,41 +1,44 @@
-█ 2 █ <document'xxx '(code'\\\\foo')' bar'¶
-'xxx '(code'\\\\foo')'
-bar'¶
-█ 7 █ {multi-column'
+█ 2 █ <document'X\\textbackslash{}fooX'¶
+'X\\textbackslash{}eekX'¶
+'X\\textbackslash{}effX'¶
+'X\\textbackslash{}yyyX'¶
+'\\textbackslash{}effing'¶
+'x\\textbackslash{}234y'¶
+█ 15 █ {multi-column'
 You can use '(code'<<\\{latex>>...<<latex\\}>>')' or '(code'<<(latex>>...<<latex)>>')' to directly insert LaTeX
 code into your script; for example, you could
-use '(code'<<(latex>>\\\\LaTeX<<latex)>>')'
+use '(code'<<(latex>>\\textbackslash{}LaTeX<<latex)>>')'
 to obtain the '(latex
-█ 7 █ IGNORED: [ '.',
+█ 15 █ IGNORED: [ '.',
   'latex',
   '\\LaTeX{}',
-  { line_nr: 7, col_nr: 20, raw: '\\LaTeX{}', processed: true } ])' logogram.
-Observe that we had to write '(code'\\\\LaTeX\\{\\}')' here instead of '(code'\\\\LaTeX')' to preserve the space between the logogram itself and
+  { line_nr: 15, col_nr: 28, raw: '\\LaTeX{}', processed: true } ])' logogram.
+Observe that we had to write '(code'\\textbackslash{}LaTeX\\{\\}')' here instead of '(code'\\textbackslash{}LaTeX')' to preserve the space between the logogram itself and
 the word ‘logogram’—MKTS will not intervene to make that happen
 automatically, as a careful, scientific study has demonstrated
 that this problem—preserving spaces following commands in a
 general way that does not rely on parsing '(latex
-█ 7 █ IGNORED: [ '.',
+█ 15 █ IGNORED: [ '.',
   'latex',
   '\\LaTeX{}',
-  { line_nr: 7, col_nr: 20, raw: '\\LaTeX{}', processed: true } ])'
+  { line_nr: 15, col_nr: 28, raw: '\\LaTeX{}', processed: true } ])'
 source and is not going to muck with very deep
 '(latex
-█ 7 █ IGNORED: [ '.',
+█ 15 █ IGNORED: [ '.',
   'latex',
   '\\TeX{}',
-  { line_nr: 7, col_nr: 20, raw: '\\TeX{}', processed: true } ])'
+  { line_nr: 15, col_nr: 28, raw: '\\TeX{}', processed: true } ])'
 internals—is NP-complete.'¶
 'Another potential use of  is to '(latex
-█ 21 █ IGNORED: [ '.',
+█ 29 █ IGNORED: [ '.',
   'latex',
   '{\\color{red}',
-  { line_nr: 21, col_nr: 22, raw: '{\\color{red}', processed: true } ])'COLORIZE!'(latex
-█ 21 █ IGNORED: [ '.',
+  { line_nr: 29, col_nr: 30, raw: '{\\color{red}', processed: true } ])'COLORIZE!'(latex
+█ 29 █ IGNORED: [ '.',
   'latex',
   '}',
-  { line_nr: 21, col_nr: 22, raw: '}', processed: true } ])' your text, here done by inserting'¶
-█ 22 █ {code'<<(latex>>\\{\\\\color\\{red\\}<<latex)>>
+  { line_nr: 29, col_nr: 30, raw: '}', processed: true } ])' your text, here done by inserting'¶
+█ 30 █ {code'<<(latex>>\\{\\textbackslash{}color\\{red\\}<<latex)>>
 COLORIZE!
 <<(latex>>\\}<<latex)>>
 '}
