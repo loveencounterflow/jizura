@@ -45,7 +45,6 @@ misfit                    = Symbol 'misfit'
   [ ///  _          ///g,  '\\_',                   ]
   [ ///  \^         ///g,  '\\textasciicircum{}',   ]
   [ ///  ~          ///g,  '\\textasciitilde{}',    ]
-  [ ///  '([^\s]+)’ ///g,  '‘$1’',                  ]
   [ ///  &          ///g,  '\\&',                   ]
   [ /// \x01\x01    ///g,  '\\textbackslash{}',     ]
   [ /// \x01\x02    ///g,  '\x01',                  ]

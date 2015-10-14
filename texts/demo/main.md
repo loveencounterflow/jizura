@@ -1,19 +1,6 @@
 
-X\fooX
 
-X\eekX
-
-X\effX
-
-X\yyyX
-
-\effing
-
-x\234y
-
-xx&xx
-
-xx&amp;xx&quot;xx&#xc6;xx
+foo 'bar' baz.
 
 ∆∆∆end
 
