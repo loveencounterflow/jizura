@@ -1,5 +1,6 @@
 
 
+<<{multi-column>>
 
 ## Math Mode
 
@@ -9,19 +10,18 @@ you can now effortlessly have formulas like
 
 <<(latex>>$\lim_{x \to \infty} \exp(-x) = 0$<<latex)>>
 
-in your documents (and of course, inline math
-<<(latex>>$\lim_{x \to \infty}$<<latex)>>) works as well).
+in your documents (and of course, inline math *à la*
+<<(latex>>$\lim_{x \to \infty}$<<latex)>> works as well).
 
+<<multi-column}>>
 
-∆∆∆end
+<<end>>
 
 Some math: `<<(latex>>$\lim_{x \to \infty} \exp(-x) = 0$<<latex)>>`
 
 Some math: <<(latex>>$\lim_{x \to \infty} \exp(-x) = 0$<<latex)>>
 
 xxx
-<<{multi-column>>
-<<multi-column}>>
 
 ## Quotes, Character Entities, TeX Special Characters
 

@@ -1,11 +1,59 @@
 
 % begin of MD document
-
+\begin{multicols}{2}\end{multicols}
 \section{Math Mode
 }
-{\mktsStyleItalic{}foo}\mktsShowpar\par
-{\mktsStyleCode{}foo}\mktsShowpar\par
+\begin{multicols}{2}It’s perfectly possible to take advantage of
+\LaTeX{}'s famous Math Mode; for example,
+you can now effortlessly have formulas like\mktsShowpar\par
 $\lim_{x \to \infty} \exp(-x) = 0$\mktsShowpar\par
-bar\mktsShowpar\par
+in your documents (and of course, inline math {\mktsStyleItalic{}à la}
+$\lim_{x \to \infty}$ works as well).\mktsShowpar\par
+\end{multicols}<\mktsErrorbox{unhandled event: [ '(', 'end', \{\}, \{ line\_nr: 18, col\_nr: 19 \} ]}>\mktsShowpar\par
+Some math: {\mktsStyleCode{}<<(latex>>\$\textbackslash{}lim\_\{x \textbackslash{}to \textbackslash{}infty\} \textbackslash{}exp(-x) = 0\$<<latex)>>}\mktsShowpar\par
+Some math: $\lim_{x \to \infty} \exp(-x) = 0$\mktsShowpar\par
+xxx\mktsShowpar\par
+
+\section{Quotes, Character Entities, TeX Special Characters
+}
+foo ‘bar’ baz. \cnjzr{} beautiful!\mktsShowpar\par
+\begin{multicols}{2}
+You can use {\mktsStyleCode{}<<\{latex>>...<<latex\}>>} or {\mktsStyleCode{}<<(latex>>...<<latex)>>} to directly insert LaTeX
+code into your script; for example, you could
+use {\mktsStyleCode{}<<(latex>>\textbackslash{}LaTeX<<latex)>>}
+to obtain the \LaTeX{} logogram.
+Observe that we had to write {\mktsStyleCode{}\textbackslash{}LaTeX\{\}} here instead of {\mktsStyleCode{}\textbackslash{}LaTeX} to preserve the space between the logogram itself and
+the word ‘logogram’—MKTS will not intervene to make that happen
+automatically, as a careful, scientific study has demonstrated
+that this problem—preserving spaces following commands in a
+general way that does not rely on parsing \LaTeX{}
+source and is not going to muck with very deep
+\TeX{}
+internals—is NP-complete.\mktsShowpar\par
+Another potential use of  is to {\color{red}COLORIZE!} your text, here done by inserting\mktsShowpar\par
+\begingroup\obeyalllines\mktsStyleCode{}<<(latex>>\{\textbackslash{}color\{red\}<<latex)>>
+COLORIZE!
+<<(latex>>\}<<latex)>>
+\endgroup{}(with or without the line breaks) into the script.
+\end{multicols}xxx\mktsShowpar\par
+<<\mktsErrorbox{unhandled event: [ '(', 'document', \{\}, \{ line\_nr: 56, col\_nr: 57 \} ]}>…<\mktsErrorbox{unhandled event: [ '(', 'document', \{\}, \{ line\_nr: 56, col\_nr: 57 \} ]}>>\mktsShowpar\par
+\mktsErrorbox{unhandled event: [ '\{', 'latex', null, \{ line\_nr: 59, col\_nr: 73 \} ]}
+AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA
+AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA
+AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA
+AAAAAA AAAAAA AAAAAA AAAAAA\textbackslash{}begin\{multicols\}\{2\}\textbackslash{}end\{multicols\}BBBBB BBBBB BBBBB BBBBB
+BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB
+BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB
+BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB
+BBBBB\textbackslash{}begin\{multicols\}\{2\}XXXXXXXXXX\textbackslash{}end\{multicols\}CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC
+CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC
+CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC
+CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC
+CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC
+\mktsErrorbox{unhandled event: [ '\}', 'latex', null, \{ line\_nr: 59, col\_nr: 73 \} ]}\mktsErrorbox{unhandled event: [ '\{', 'latex', null, \{ line\_nr: 74, col\_nr: 78 \} ]}to insert LaTeX commands
+\mktsErrorbox{unhandled event: [ '\}', 'latex', null, \{ line\_nr: 74, col\_nr: 78 \} ]}
+\mktsShowpar\par
+\begin{multicols}{2}
+\end{multicols}Helo {\mktsStyleCode{}world}! = Helo {\mktsStyleCode{}world}!\mktsShowpar\par
 
 % end of MD document
