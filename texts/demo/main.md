@@ -11,6 +11,11 @@ X\yyyX
 
 x\234y
 
+xx&xx
+
+xx&amp;xx&quot;xx&#xc6;xx
+
+∆∆∆end
 
 <<{multi-column>>
 You can use `<<{latex>>...<<latex}>>` or `<<(latex>>...<<latex)>>` to directly insert LaTeX
@@ -37,7 +42,6 @@ COLORIZE!
 
 xxx
 
-∆∆∆end
 
 <<<document>>...<<document>>>
 
