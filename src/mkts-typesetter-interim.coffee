@@ -424,25 +424,6 @@ SEMVER                    = require 'semver'
     else
       send event
 
-# #-----------------------------------------------------------------------------------------------------------
-# @MKTX.BLOCK.$remove_empty_p_tags = ( S ) =>
-#   last_was_text = no
-#   #.........................................................................................................
-#   return $ ( event, send ) =>
-#     #.......................................................................................................
-#     if MKTS.isa event, '.', 'text'
-#       last_was_text = yes
-#       send event
-#     #.......................................................................................................
-#     else if MKTS.isa event, '.', 'p'
-#       if last_was_text then send event
-#       else whisper "ignoring empty `p` tag"
-#       last_was_text = no
-#     #.......................................................................................................
-#     else
-#       last_was_text = no
-#       send event
-
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.BLOCK.$heading = ( S ) =>
   restart_multicols = no
@@ -656,9 +637,7 @@ SEMVER                    = require 'semver'
     #---------------------------------------------------------------------------------------------------------
     input = MKTS.create_mdreadstream text
     input
-      # .pipe MKTS.$resolve_html_entities()
       .pipe MKTS.$fix_typography_for_tex                    @options
-      # .pipe @MKTX.$protocoll              state
       .pipe @MKTX.DOCUMENT.$begin                           state
       .pipe @MKTX.COMMAND.$new_page                         state
       .pipe @MKTX.REGION.$correct_p_tags_before_regions     state
@@ -677,7 +656,6 @@ SEMVER                    = require 'semver'
       .pipe @MKTX.INLINE.$em_and_strong                     state
       .pipe @MKTX.DOCUMENT.$end                             state
       .pipe MKTS.$show_mktsmd_events                        state
-      # .pipe MKTS.$show_meta                                 state
       .pipe MKTS.$write_mktscript                           state
       .pipe @$show_unhandled_tags                           state
       .pipe @$filter_tex()

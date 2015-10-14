@@ -1,8 +1,30 @@
 
 
-foo 'bar' baz. &jzr#xe170; beautiful!
+
+## Math Mode
+
+*foo*
+
+`foo`
+
+<<(latex>>$\lim_{x \to \infty} \exp(-x) = 0$<<latex)>>
+
+bar
+
 
 ∆∆∆end
+
+Some math: `<<(latex>>$\lim_{x \to \infty} \exp(-x) = 0$<<latex)>>`
+
+Some math: <<(latex>>$\lim_{x \to \infty} \exp(-x) = 0$<<latex)>>
+
+xxx
+<<{multi-column>>
+<<multi-column}>>
+
+## Quotes, Character Entities, TeX Special Characters
+
+foo 'bar' baz. &jzr#xe170; beautiful!
 
 <<{multi-column>>
 You can use `<<{latex>>...<<latex}>>` or `<<(latex>>...<<latex)>>` to directly insert LaTeX

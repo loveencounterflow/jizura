@@ -1,2 +1,13 @@
-█ 3 █ <document'foo ‘bar’ baz. \\cnjzr{} beautiful!'¶
+█ 4 █ <document█ 4 █ [h2'Math Mode']
+(em'foo')¶
+(code'foo')¶
+(latex
+█ 10 █ IGNORED: [ '.',
+  'latex',
+  '$\\lim_{x \\to \\infty} \\exp(-x) = 0$',
+  { line_nr: 10,
+    col_nr: 11,
+    raw: '$\\lim_{x \\to \\infty} \\exp(-x) = 0$',
+    processed: true } ])¶
+'bar'¶
 >
