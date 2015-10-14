@@ -3,13 +3,14 @@
 
 ## Math Mode
 
-*foo*
-
-`foo`
+It's perfectly possible to take advantage of
+<<(latex>>\LaTeX{}<<latex)>>'s famous Math Mode; for example,
+you can now effortlessly have formulas like
 
 <<(latex>>$\lim_{x \to \infty} \exp(-x) = 0$<<latex)>>
 
-bar
+in your documents (and of course, inline math
+<<(latex>>$\lim_{x \to \infty}$<<latex)>>) works as well).
 
 
 ∆∆∆end
