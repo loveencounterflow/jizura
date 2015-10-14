@@ -586,10 +586,18 @@ SEMVER                    = require 'semver'
     else if MKTS.isa event, '.', 'text'
       send event
     else unless event[ 3 ][ 'processed' ]
-      event_tex = MKTS.fix_typography_for_tex ( rpr event ), @options
-      # send [ 'tex', "{\\color{magenta}unhandled event: #{event_tex}}" ]
-      # send [ 'tex', "\\colorbox{red}{\\color{yellow}unhandled event: #{event_tex}}" ]
-      send [ 'tex', "\\mktsErrorbox{unhandled event: #{event_tex}}" ]
+      [ type, name, text, meta, ] = event
+      if text?
+        if ( CND.isa_pod text )
+          if ( Object.keys text ).length is 0
+            text = ''
+          else
+            text = rpr text
+      else
+        text = ''
+      event_txt = type + name + text
+      event_tex = MKTS.fix_typography_for_tex event_txt, @options
+      send [ 'tex', "{\\mktsStyleBold\\color{violet}{\\mktsStyleSymbol█}#{event_tex}{\\mktsStyleSymbol█}}" ]
       send event
     else
       send event
