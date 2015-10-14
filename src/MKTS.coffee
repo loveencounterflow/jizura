@@ -69,18 +69,6 @@ misfit                    = Symbol 'misfit'
       send event
 
 #-----------------------------------------------------------------------------------------------------------
-@resolve_html_entities = ( text ) ->
-  R = text
-  R = R.replace /&lt;/g,    '<'
-  R = R.replace /&gt;/g,    '>'
-  R = R.replace /&quot;/g,  '"'
-  R = R.replace /&amp;/g,   '&'
-  R = R.replace /&[^a-z0-9]+;/g, ( match ) ->
-    warn "unable to resolve HTML entity #{match}"
-    return match
-  return R
-
-#-----------------------------------------------------------------------------------------------------------
 @fix_typography_for_tex = ( text, options ) ->
   ### An improved version of `XELATEX.tag_from_chr` ###
   ### TAINT should accept settings, fall back to `require`d `options.coffee` ###

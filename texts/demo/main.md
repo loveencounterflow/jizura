@@ -1,6 +1,6 @@
 
 
-foo 'bar' baz.
+foo 'bar' baz. &jzr#xe170; beautiful!
 
 ∆∆∆end
 
