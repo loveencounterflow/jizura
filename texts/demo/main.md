@@ -1,5 +1,34 @@
 
 
+A definition: <<(:theanswer>>42<<:)>> to print `42`.
+
+Definition of the LaTeX Logo:
+<<(:latexlogo>><<(latex>>\LaTeX{}<<latex)>><<:)>>.
+
+<<!end>>
+
+
+xxx <<[:latexlogo>>
+<<:]>>
+xxx
+
+xxx <<:latexlogo>>
+
+xxx <<(latexlogo>>xxx<<latexlogo)>>xxx
+
+
+
+## Generalized Command Syntax
+
+foo <<bar>> baz
+
+Here we inserted '<<!latexlogo>>' using `<<!latexlogo>>`.
+
+`<<!end>>`
+
+
+
+
 <<{multi-column>>
 
 ## Math Mode
@@ -15,7 +44,6 @@ in your documents (and of course, inline math *à la*
 
 <<multi-column}>>
 
-<<end>>
 
 Some math: `<<(latex>>$\lim_{x \to \infty} \exp(-x) = 0$<<latex)>>`
 

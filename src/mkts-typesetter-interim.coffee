@@ -208,11 +208,39 @@ SEMVER                    = require 'semver'
 #     send event
 
 #-----------------------------------------------------------------------------------------------------------
+@MKTX.COMMAND.$definition = ( S ) =>
+  ### TAINT reject nested definitions ###
+  ### Must start `<literal>` (?) section on command definition ###
+  track       = MKTS.TRACKER.new_tracker '(:)', '[:]'
+  identifier  = null
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    within_definition = track.within '(:)', '[:]'
+    track event
+    #.......................................................................................................
+    if MKTS.isa event, [ '(', '[', ], ':'
+      [ type, _, identifier, meta, ] = event
+      send @stamp event
+      urge '©Rnsg0', event
+    else if MKTS.isa event, [ ')', ']', ], ':'
+      # [ type, _, identifier, meta, ] = event
+      send @stamp event
+      urge '©YON2b', event
+    #.......................................................................................................
+    else if within_definition
+      urge '©S63sG', identifier
+      urge '©S63sG', event
+      [ type, name, text, meta, ] = event
+      send [ '?', name, text, meta, ]
+    #.......................................................................................................
+    else
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
 @MKTX.COMMAND.$new_page = ( S ) =>
   #.........................................................................................................
   return $ ( event, send ) =>
     return send event unless MKTS.isa event, '∆', 'new-page'
-    # [ type, name, text, meta, ] = event
     send [ 'tex', "\\null\\newpage{}", ]
 
 #-----------------------------------------------------------------------------------------------------------
@@ -595,9 +623,18 @@ SEMVER                    = require 'semver'
             text = rpr text
       else
         text = ''
-      event_txt = type + name + text
-      event_tex = MKTS.fix_typography_for_tex event_txt, @options
-      send [ 'tex', "{\\mktsStyleBold\\color{violet}{\\mktsStyleSymbol█}#{event_tex}{\\mktsStyleSymbol█}}" ]
+      if type in MKTS.FENCES.xleft
+        [ first, last, ]  = [ type, name, ]
+        pre               = '█'
+        post              = ''
+      else
+        [ first, last, ]  = [ name, type, ]
+        pre               = ''
+        post              = '█'
+      event_txt         = first + last + text
+      event_tex         = MKTS.fix_typography_for_tex event_txt, @options
+      ### TAINT use mkts command ###
+      send [ 'tex', "{\\mktsStyleBold\\color{violet}{\\mktsStyleSymbol#{pre}}#{event_tex}{\\mktsStyleSymbol#{post}}}" ]
       send event
     else
       send event
@@ -647,6 +684,7 @@ SEMVER                    = require 'semver'
     input
       .pipe MKTS.$fix_typography_for_tex                    @options
       .pipe @MKTX.DOCUMENT.$begin                           state
+      .pipe @MKTX.COMMAND.$definition                       state
       .pipe @MKTX.COMMAND.$new_page                         state
       .pipe @MKTX.REGION.$correct_p_tags_before_regions     state
       .pipe @MKTX.REGION.$multi_column                      state

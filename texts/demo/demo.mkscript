@@ -1,103 +1,12 @@
-█ 3 █ <document█ 3 █ {multi-column█ 5 █ [h2'Math Mode']
-'It’s perfectly possible to take advantage of
-'(latex
-█ 7 █ IGNORED: [ '.',
-  'latex',
-  '\\LaTeX{}',
-  { line_nr: 7, col_nr: 10, raw: '\\LaTeX{}', processed: true } ])'\'s famous Math Mode; for example,
-you can now effortlessly have formulas like'¶
-(latex
-█ 11 █ IGNORED: [ '.',
-  'latex',
-  '$\\lim_{x \\to \\infty} \\exp(-x) = 0$',
-  { line_nr: 11,
-    col_nr: 12,
-    raw: '$\\lim_{x \\to \\infty} \\exp(-x) = 0$',
-    processed: true } ])¶
-'in your documents (and of course, inline math '(em'à la')'
-'(latex
-█ 13 █ IGNORED: [ '.',
-  'latex',
-  '$\\lim_{x \\to \\infty}$',
-  { line_nr: 13,
-    col_nr: 15,
-    raw: '$\\lim_{x \\to \\infty}$',
-    processed: true } ])' works as well).'¶
-}
-'<'(end'>'¶
-'Some math: '(code'<<(latex>>\\$\\textbackslash{}lim\\_\\{x \\textbackslash{}to \\textbackslash{}infty\\} \\textbackslash{}exp(-x) = 0\\$<<latex)>>')¶
-'Some math: '(latex
-█ 22 █ IGNORED: [ '.',
-  'latex',
-  '$\\lim_{x \\to \\infty} \\exp(-x) = 0$',
-  { line_nr: 22,
-    col_nr: 23,
-    raw: '$\\lim_{x \\to \\infty} \\exp(-x) = 0$',
-    processed: true } ])¶
-'xxx'¶
-█ 26 █ [h2'Quotes, Character Entities, TeX Special Characters']
-'foo ‘bar’ baz. \\cnjzr{} beautiful!'¶
-█ 30 █ {multi-column'
-You can use '(code'<<\\{latex>>...<<latex\\}>>')' or '(code'<<(latex>>...<<latex)>>')' to directly insert LaTeX
-code into your script; for example, you could
-use '(code'<<(latex>>\\textbackslash{}LaTeX<<latex)>>')'
-to obtain the '(latex
-█ 30 █ IGNORED: [ '.',
-  'latex',
-  '\\LaTeX{}',
-  { line_nr: 30, col_nr: 43, raw: '\\LaTeX{}', processed: true } ])' logogram.
-Observe that we had to write '(code'\\textbackslash{}LaTeX\\{\\}')' here instead of '(code'\\textbackslash{}LaTeX')' to preserve the space between the logogram itself and
-the word ‘logogram’—MKTS will not intervene to make that happen
-automatically, as a careful, scientific study has demonstrated
-that this problem—preserving spaces following commands in a
-general way that does not rely on parsing '(latex
-█ 30 █ IGNORED: [ '.',
-  'latex',
-  '\\LaTeX{}',
-  { line_nr: 30, col_nr: 43, raw: '\\LaTeX{}', processed: true } ])'
-source and is not going to muck with very deep
-'(latex
-█ 30 █ IGNORED: [ '.',
-  'latex',
-  '\\TeX{}',
-  { line_nr: 30, col_nr: 43, raw: '\\TeX{}', processed: true } ])'
-internals—is NP-complete.'¶
-'Another potential use of  is to '(latex
-█ 44 █ IGNORED: [ '.',
-  'latex',
-  '{\\color{red}',
-  { line_nr: 44, col_nr: 45, raw: '{\\color{red}', processed: true } ])'COLORIZE!'(latex
-█ 44 █ IGNORED: [ '.',
-  'latex',
-  '}',
-  { line_nr: 44, col_nr: 45, raw: '}', processed: true } ])' your text, here done by inserting'¶
-█ 45 █ {code'<<(latex>>\\{\\textbackslash{}color\\{red\\}<<latex)>>
-COLORIZE!
-<<(latex>>\\}<<latex)>>
-'}
-'(with or without the line breaks) into the script.
-'}
-'xxx'¶
-'<<'(document'>…<'(document'>>'¶
-█ 59 █ {latex'
-AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA
-AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA
-AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA
-AAAAAA AAAAAA AAAAAA AAAAAA\\textbackslash{}begin\\{multicols\\}\\{2\\}\\textbackslash{}end\\{multicols\\}BBBBB BBBBB BBBBB BBBBB
-BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB
-BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB
-BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB BBBBB
-BBBBB\\textbackslash{}begin\\{multicols\\}\\{2\\}XXXXXXXXXX\\textbackslash{}end\\{multicols\\}CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC
-CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC
-CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC
-CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC
-CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC
-'}
-█ 74 █ {latex'to insert LaTeX commands
-'}
-'
-'¶
-█ 74 █ {multi-column'
-'}
-'Helo '(code'world')'! = Helo '(code'world')'!'¶
+█ 3 █ <document'A definition: '(:
+█ 3 █ ?text
+)' to print '(code'42')'.'¶
+'Definition of the LaTeX Logo:
+'(:
+█ 5 █ ?latex
+
+█ 5 █ ?text
+
+█ 5 █ ?latex
+)'.'¶
 >

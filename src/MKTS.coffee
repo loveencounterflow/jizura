@@ -541,10 +541,12 @@ tracker_pattern = /// ^
 
 #-----------------------------------------------------------------------------------------------------------
 @$_preprocess_XXXX = ( S ) ->
+  ### TAINT `<xxx>` translates as `(xxx`, which is generally correct, but it should translate
+  to `(xxx)` when `xxx` is a known HTML5 'lone' tag. ###
   left_meta_fence     = '<'
   right_meta_fence    = '>'
   repetitions         = 2
-  pattern             = ///
+  fence_pattern       = ///
     #{left_meta_fence}{#{repetitions}}
     (
       (?:
@@ -555,6 +557,7 @@ tracker_pattern = /// ^
       )
     #{right_meta_fence}{#{repetitions}}
     ///
+  prefix_pattern      = ///^ ( [ !: ] ) ( .* ) ///
   collector           = []
   track               = @TRACKER.new_tracker '{code}', '(code)', '(latex)', '(latex)'
   #.........................................................................................................
@@ -564,7 +567,7 @@ tracker_pattern = /// ^
     [ type, name, text, meta, ] = event
     if ( not within_literal ) and @isa event, '.', 'text'
       is_command = yes
-      for part in text.split pattern
+      for part in text.split fence_pattern
         is_command  = not is_command
         left_fence  = null
         right_fence = null
@@ -574,17 +577,51 @@ tracker_pattern = /// ^
           right_fence = part[ last_idx ] if part[ last_idx ] in @FENCES.xright
           if left_fence? and right_fence?
             command_name = part[ 1 ... last_idx ]
-            send [ left_fence,  command_name, null, ( @_copy meta ), ]
-            send [ right_fence, command_name, null, ( @_copy meta ), ]
+            if prefix_pattern.test command_name
+              warn "prefix not supported in #{rpr part}"
+              send [ '?', part, null, ( @_copy meta ), ]
+            else
+              send [ left_fence,  command_name, null, ( @_copy meta ), ]
+              send [ right_fence, command_name, null, ( @_copy meta ), ]
           else if left_fence?
-            command_name = part[ 1 ... ]
-            send [ left_fence, command_name, null, ( @_copy meta ), ]
+            command_name  = part[ 1 ... ]
+            if ( match = command_name.match prefix_pattern )?
+              [ _, prefix, suffix, ] = match
+              switch prefix
+                when ':'
+                  send [ left_fence, prefix, suffix, ( @_copy meta ), ]
+                else
+                  warn "prefix #{rpr prefix} not supported in #{rpr part}"
+                  send [ '?', part, null, ( @_copy meta ), ]
+            else
+              send [ left_fence, command_name, null, ( @_copy meta ), ]
           else if right_fence?
+            ### TAINT code duplication ###
             command_name = part[ ... last_idx ]
-            send [ right_fence, command_name, null, ( @_copy meta ), ]
+            if ( match = command_name.match prefix_pattern )?
+              [ _, prefix, suffix, ] = match
+              debug '©9nGvB', ( rpr command_name ), ( rpr prefix ), ( rpr suffix )
+              switch prefix
+                when ':'
+                  send [ right_fence, prefix, suffix, ( @_copy meta ), ]
+                else
+                  warn "prefix #{rpr prefix} not supported in #{rpr part}"
+                  send [ '?', part, null, ( @_copy meta ), ]
+            else
+              send [ right_fence, command_name, null, ( @_copy meta ), ]
           else
-            command_name = part
-            send [ '∆', command_name, null, ( @_copy meta ), ]
+            match = part.match prefix_pattern
+            unless match?
+              warn "not a legal command: #{rpr part}"
+              send [ '?', part, null, ( @_copy meta ), ]
+            else
+              [ _, prefix, suffix, ] = match
+              switch prefix
+                when '!'
+                  send [ '∆', suffix, null, ( @_copy meta ), ]
+                else
+                  warn "prefix #{rpr prefix} not supported in #{rpr part}"
+                  send [ '?', part, null, ( @_copy meta ), ]
         else
           send [ type, name, part, ( @_copy meta ), ]
     #.......................................................................................................
