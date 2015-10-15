@@ -205,34 +205,29 @@ select                    = MKTS.select.bind MKTS
 @MKTX.COMMAND.$definition = ( S ) =>
   ### TAINT reject nested definitions ###
   # ### Must start `<literal>` (?) section on command definition ###
-  track       = MKTS.TRACKER.new_tracker '(:)', '[:]'
-  identifier  = null
-  values      = {}
+  track           = MKTS.TRACKER.new_tracker '(:)', '[:]'
+  last_identifier = null
+  values          = {}
   #.........................................................................................................
   return $ ( event, send ) =>
     within_definition = track.within '(:)', '[:]'
     track event
     #.......................................................................................................
     if select event, [ '(', '[', ], ':'
-      [ type, _, identifier, meta, ] = event
+      [ type, _, last_identifier, meta, ] = event
       send stamp event
       # urge '©Rnsg0', event
     else if select event, [ ')', ']', ], ':'
-      # [ type, _, identifier, meta, ] = event
+      # [ type, _, last_identifier, meta, ] = event
       send stamp event
       # urge '©YON2b', event
     #.......................................................................................................
     else if within_definition
-      # urge '©S63sG', identifier
-      # urge '©S63sG', event
-      ( values[ identifier ]?= [] ).push event
-      # xxxx
-      ### TAINT `select` must not match stamped events ###
+      ( values[ last_identifier ]?= [] ).push event
       send stamp hide copy event
-      # [ type, name, text, meta, ] = event
-      # send [ '?', name, text, meta, ]
     #.......................................................................................................
     else if select event, '∆'
+      [ _, identifier, _, _, ] = event
       if ( definition = values[ identifier ] )?
         send stamp event
         send copy sub_event for sub_event in definition
@@ -630,15 +625,17 @@ select                    = MKTS.select.bind MKTS
             text = rpr text
       else
         text = ''
-      if type in MKTS.FENCES.xleft
-        [ first, last, ]  = [ type, name, ]
+      if type in [ '.', '∆', ] or type in MKTS.FENCES.xleft
+        first             = type
+        last              = name
         pre               = '█'
         post              = ''
       else
-        [ first, last, ]  = [ name, type, ]
+        first             = name
+        last              = type
         pre               = ''
         post              = '█'
-      event_txt         = first + last + text
+      event_txt         = first + last + ' ' + text
       event_tex         = MKTS.fix_typography_for_tex event_txt, @options
       ### TAINT use mkts command ###
       send [ 'tex', "{\\mktsStyleBold\\color{violet}{\\mktsStyleSymbol#{pre}}#{event_tex}{\\mktsStyleSymbol#{post}}}" ]
