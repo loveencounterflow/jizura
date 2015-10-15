@@ -705,11 +705,10 @@ tracker_pattern = /// ^
     return null
 
 #-----------------------------------------------------------------------------------------------------------
-@isa = ( event, type, name, settings ) ->
+@isa = ( event, type, name ) ->
   ### TAINT should use the same syntax as accepted by `FENCES.parse` ###
   ### check for arity as it's easy to write `isa event, '(', ')', 'latex'` when what you meant
   was `isa event, [ '(', ')', ], 'latex'` ###
-  # return false unless settings?[ 'processed' ]
   if ( arity = arguments.length ) > 3
     throw new Error "expected at most 3 arguments, got #{arity}"
   if type?
@@ -733,7 +732,8 @@ tracker_pattern = /// ^
   return event
 
 #-----------------------------------------------------------------------------------------------------------
-@is_stamped = ( event ) -> event[ 3 ][ 'stamped' ] is true
+@is_stamped   = ( event ) -> event[ 3 ]?[ 'stamped' ] is true
+@is_unstamped = ( event ) -> not @is_stamped event
 
 #-----------------------------------------------------------------------------------------------------------
 @_copy = ( meta, overwrites ) ->
