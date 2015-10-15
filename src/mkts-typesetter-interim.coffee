@@ -224,7 +224,7 @@ SEMVER                    = require 'semver'
       ( values[ identifier ]?= [] ).push event
       # xxxx
       ### TAINT `MKTS.isa` must not match stamped events ###
-      send MKTS.stamp event
+      send MKTS.hide event
       # [ type, name, text, meta, ] = event
       # send [ '?', name, text, meta, ]
     #.......................................................................................................
@@ -367,7 +367,7 @@ SEMVER                    = require 'semver'
       # debug '©---6', last_was_p
       if ( not last_was_begin_document ) and ( not last_was_p )
         [ ..., meta, ] = event
-        send [ '.', 'p', null, ( MKTS._copy meta ), ]
+        send [ '.', 'p', null, ( MKTS.copy meta ), ]
       send event
       last_was_p              = no
       last_was_begin_document = no

@@ -452,8 +452,8 @@ tracker_pattern = /// ^
           # specials
           when 'code_inline'
             send [ '(', 'code', null,                        meta,    ]
-            send [ '.', 'text', token[ 'content' ], ( @_copy meta ),  ]
-            send [ ')', 'code', null,               ( @_copy meta ),  ]
+            send [ '.', 'text', token[ 'content' ], ( @copy meta ),  ]
+            send [ ')', 'code', null,               ( @copy meta ),  ]
           #.................................................................................................
           when 'html_block'
             # @_parse_html_block token[ 'content' ].trim()
@@ -466,8 +466,8 @@ tracker_pattern = /// ^
                 language_name = token[ 'info' ]
                 language_name = 'text' if language_name.length is 0
                 send [ '{', 'code', language_name,               meta,    ]
-                send [ '.', 'text', token[ 'content' ], ( @_copy meta ),  ]
-                send [ '}', 'code', language_name,      ( @_copy meta ),  ]
+                send [ '.', 'text', token[ 'content' ], ( @copy meta ),  ]
+                send [ '}', 'code', language_name,      ( @copy meta ),  ]
               else send_unknown token, meta
           #.................................................................................................
           when 'html_inline'
@@ -512,26 +512,26 @@ tracker_pattern = /// ^
       for line in lines
         #...................................................................................................
         if ( match = line.match opening_pattern )?
-          @_flush_text_collector send, collector, ( @_copy meta )
+          @_flush_text_collector send, collector, ( @copy meta )
           region_name = match[ 1 ]
           region_stack.push region_name
-          send [ '{', region_name, null, ( @_copy meta ), ]
+          send [ '{', region_name, null, ( @copy meta ), ]
         #...................................................................................................
         else if ( match = line.match closing_pattern )?
-          @_flush_text_collector send, collector, ( @_copy meta )
+          @_flush_text_collector send, collector, ( @copy meta )
           if region_stack.length > 0
-            send [ '}', region_stack.pop(), null, ( @_copy meta ), ]
+            send [ '}', region_stack.pop(), null, ( @copy meta ), ]
           else
             warn "ignoring end-region"
         #...................................................................................................
         else
           collector.push line
       #.....................................................................................................
-      @_flush_text_collector send, collector, ( @_copy meta )
+      @_flush_text_collector send, collector, ( @copy meta )
     #.......................................................................................................
     else if ( region_stack.length > 0 ) and ( @isa event, '>', 'document' )
       warn "auto-closing regions: #{rpr region_stack.join ', '}"
-      send [ '}', region_stack.pop(), null, ( @_copy meta ), ] while region_stack.length > 0
+      send [ '}', region_stack.pop(), null, ( @copy meta ), ] while region_stack.length > 0
       send event
     #.......................................................................................................
     else
@@ -579,22 +579,22 @@ tracker_pattern = /// ^
             command_name = part[ 1 ... last_idx ]
             if prefix_pattern.test command_name
               warn "prefix not supported in #{rpr part}"
-              send [ '?', part, null, ( @_copy meta ), ]
+              send [ '?', part, null, ( @copy meta ), ]
             else
-              send [ left_fence,  command_name, null, ( @_copy meta ), ]
-              send [ right_fence, command_name, null, ( @_copy meta ), ]
+              send [ left_fence,  command_name, null, ( @copy meta ), ]
+              send [ right_fence, command_name, null, ( @copy meta ), ]
           else if left_fence?
             command_name  = part[ 1 ... ]
             if ( match = command_name.match prefix_pattern )?
               [ _, prefix, suffix, ] = match
               switch prefix
                 when ':'
-                  send [ left_fence, prefix, suffix, ( @_copy meta ), ]
+                  send [ left_fence, prefix, suffix, ( @copy meta ), ]
                 else
                   warn "prefix #{rpr prefix} not supported in #{rpr part}"
-                  send [ '?', part, null, ( @_copy meta ), ]
+                  send [ '?', part, null, ( @copy meta ), ]
             else
-              send [ left_fence, command_name, null, ( @_copy meta ), ]
+              send [ left_fence, command_name, null, ( @copy meta ), ]
           else if right_fence?
             ### TAINT code duplication ###
             command_name = part[ ... last_idx ]
@@ -603,27 +603,27 @@ tracker_pattern = /// ^
               debug '©9nGvB', ( rpr command_name ), ( rpr prefix ), ( rpr suffix )
               switch prefix
                 when ':'
-                  send [ right_fence, prefix, suffix, ( @_copy meta ), ]
+                  send [ right_fence, prefix, suffix, ( @copy meta ), ]
                 else
                   warn "prefix #{rpr prefix} not supported in #{rpr part}"
-                  send [ '?', part, null, ( @_copy meta ), ]
+                  send [ '?', part, null, ( @copy meta ), ]
             else
-              send [ right_fence, command_name, null, ( @_copy meta ), ]
+              send [ right_fence, command_name, null, ( @copy meta ), ]
           else
             match = part.match prefix_pattern
             unless match?
               warn "not a legal command: #{rpr part}"
-              send [ '?', part, null, ( @_copy meta ), ]
+              send [ '?', part, null, ( @copy meta ), ]
             else
               [ _, prefix, suffix, ] = match
               switch prefix
                 when '!'
-                  send [ '∆', suffix, null, ( @_copy meta ), ]
+                  send [ '∆', suffix, null, ( @copy meta ), ]
                 else
                   warn "prefix #{rpr prefix} not supported in #{rpr part}"
-                  send [ '?', part, null, ( @_copy meta ), ]
+                  send [ '?', part, null, ( @copy meta ), ]
         else
-          send [ type, name, part, ( @_copy meta ), ]
+          send [ type, name, part, ( @copy meta ), ]
     #.......................................................................................................
     else
       send event
@@ -645,12 +645,12 @@ tracker_pattern = /// ^
       #.......................................................................................................
       for line in lines
         if ( match = line.match pattern )?
-          @_flush_text_collector send, collector, ( @_copy meta )
-          send [ '∆', match[ 1 ], null, ( @_copy meta ), ]
+          @_flush_text_collector send, collector, ( @copy meta )
+          send [ '∆', match[ 1 ], null, ( @copy meta ), ]
         else
           collector.push line
       #.......................................................................................................
-      @_flush_text_collector send, collector, ( @_copy meta )
+      @_flush_text_collector send, collector, ( @copy meta )
     #.......................................................................................................
     else
       send event
@@ -694,7 +694,7 @@ tracker_pattern = /// ^
             when '{' then sub_type = '}'
             when '[' then sub_type = ']'
             when '(' then sub_type = ')'
-          send [ sub_type, sub_name, null, ( @_copy sub_meta ), ]
+          send [ sub_type, sub_name, null, ( @copy sub_meta ), ]
         send event
       else
         tag_stack.pop()
@@ -709,6 +709,7 @@ tracker_pattern = /// ^
   ### TAINT should use the same syntax as accepted by `FENCES.parse` ###
   ### check for arity as it's easy to write `isa event, '(', ')', 'latex'` when what you meant
   was `isa event, [ '(', ')', ], 'latex'` ###
+  return false if @is_hidden event
   if ( arity = arguments.length ) > 3
     throw new Error "expected at most 3 arguments, got #{arity}"
   if type?
@@ -723,6 +724,9 @@ tracker_pattern = /// ^
       else throw new Error "expected text or list, got a #{type_of_name}"
   return true
 
+
+#===========================================================================================================
+# STAMPING & HIDING
 #-----------------------------------------------------------------------------------------------------------
 @stamp = ( event ) ->
   ### 'Stamping' an event means to mark it as 'processed'; hence, downstream transformers can choose to
@@ -736,11 +740,29 @@ tracker_pattern = /// ^
 @is_unstamped = ( event ) -> not @is_stamped event
 
 #-----------------------------------------------------------------------------------------------------------
-@_copy = ( meta, overwrites ) ->
-  ### TAINT use `Object.assign` or similar ###
-  R = {}
-  R[ name ] = value for name, value of meta
-  R[ name ] = value for name, value of overwrites if overwrites?
+@hide = ( event ) ->
+  ### 'Stamping' an event means to mark it as 'processed'; hence, downstream transformers can choose to
+  ignore events that have already been marked upstream, or, inversely choose to look out for events
+  that have not yet found a representation in the target document. ###
+  event[ 3 ][ 'hidden' ] = yes
+  return event
+
+#-----------------------------------------------------------------------------------------------------------
+@is_hidden = ( event ) -> event[ 3 ]?[ 'hidden' ] is true
+
+#-----------------------------------------------------------------------------------------------------------
+@copy = ( x, updates... ) ->
+  ### (Hopefully) fast semi-deep copying for events (i.e. lists with a possible `meta` object on
+  index 3) and plain objects. The value returned will be a shallow copy in the case of objects and
+  lists, but if a list has a value at index 3, that object will also be copied. Not guaranteed to
+  work for general values. ###
+  R = if ( isa_list = CND.isa_list x )
+    []
+  else if CND.isa_pod x
+    {}
+  else throw new Error "unable to cpy a #{CND.type_of x}"
+  R       = Object.assign R, x, updates...
+  R[ 3 ]  = Object.assign [], meta if isa_list and ( meta = R[ 3 ] )?
   return R
 
 #-----------------------------------------------------------------------------------------------------------
