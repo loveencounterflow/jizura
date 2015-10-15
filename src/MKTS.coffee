@@ -531,7 +531,7 @@ tracker_pattern = /// ^
     #.......................................................................................................
     else if ( region_stack.length > 0 ) and ( @isa event, '>', 'document' )
       warn "auto-closing regions: #{rpr region_stack.join ', '}"
-      send [ '}', region_stack.pop(), null, ( @_copy meta, block: true ), ] while region_stack.length > 0
+      send [ '}', region_stack.pop(), null, ( @_copy meta ), ] while region_stack.length > 0
       send event
     #.......................................................................................................
     else
