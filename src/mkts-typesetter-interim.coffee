@@ -626,7 +626,7 @@ SEMVER                    = require 'semver'
       send event
     else if MKTS.isa event, '.', 'text'
       send event
-    else unless event[ 3 ][ 'stamped' ]
+    else unless @is_stamped event
       [ type, name, text, meta, ] = event
       if text?
         if ( CND.isa_pod text )
@@ -660,12 +660,15 @@ SEMVER                    = require 'semver'
     else if MKTS.isa event, '.', [ 'text', 'latex', ]
       send event[ 2 ]
     else
-      warn "unhandled event: #{JSON.stringify event}" unless event[ 3 ][ 'stamped' ]
+      warn "unhandled event: #{JSON.stringify event}" unless @is_stamped event
 
 #-----------------------------------------------------------------------------------------------------------
-@stamp = ( event ) =>
+@stamp = ( event ) ->
   event[ 3 ][ 'stamped' ] = yes
   return event
+
+#-----------------------------------------------------------------------------------------------------------
+@is_stamped = ( event ) -> event[ 3 ][ 'stamped' ] is true
 
 #===========================================================================================================
 # PDF FROM MD
