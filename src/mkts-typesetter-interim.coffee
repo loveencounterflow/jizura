@@ -31,13 +31,16 @@ ASYNC                     = require 'async'
 #...........................................................................................................
 ƒ                         = CND.format_number.bind CND
 HELPERS                   = require './HELPERS'
-MKTS                      = require './MKTS'
 # options                   = require './options'
 TEXLIVEPACKAGEINFO        = require './TEXLIVEPACKAGEINFO'
 options_route             = '../options.coffee'
 { CACHE, OPTIONS, }       = require './OPTIONS'
 SEMVER                    = require 'semver'
-
+#...........................................................................................................
+MKTS                      = require './MKTS'
+hide                      = MKTS.hide.bind  hide
+copy                      = MKTS.copy.bind  copy
+stamp                     = MKTS.stamp.bind stamp
 
 
 #===========================================================================================================
@@ -211,32 +214,32 @@ SEMVER                    = require 'semver'
     #.......................................................................................................
     if MKTS.isa event, [ '(', '[', ], ':'
       [ type, _, identifier, meta, ] = event
-      send MKTS.stamp event
-      urge '©Rnsg0', event
+      send stamp event
+      # urge '©Rnsg0', event
     else if MKTS.isa event, [ ')', ']', ], ':'
       # [ type, _, identifier, meta, ] = event
-      send MKTS.stamp event
-      urge '©YON2b', event
+      send stamp event
+      # urge '©YON2b', event
     #.......................................................................................................
     else if within_definition
-      urge '©S63sG', identifier
-      urge '©S63sG', event
+      # urge '©S63sG', identifier
+      # urge '©S63sG', event
       ( values[ identifier ]?= [] ).push event
       # xxxx
       ### TAINT `MKTS.isa` must not match stamped events ###
-      send MKTS.hide event
+      send stamp hide copy event
       # [ type, name, text, meta, ] = event
       # send [ '?', name, text, meta, ]
     #.......................................................................................................
     else if MKTS.isa event, '∆'
       if ( definition = values[ identifier ] )?
-        send MKTS.stamp event
+        send stamp event
         send sub_event for sub_event in definition
       else
         send event
     #.......................................................................................................
     else
-      debug '©YLxXy', event
+      # debug '©YLxXy', event
       send event
 
 #-----------------------------------------------------------------------------------------------------------
@@ -252,7 +255,7 @@ SEMVER                    = require 'semver'
   return $ ( event, send ) =>
     #.......................................................................................................
     if MKTS.isa event, '<', 'document'
-      send MKTS.stamp event
+      send stamp event
       send [ 'tex', "\n% begin of MD document\n", ]
     #.......................................................................................................
     else
@@ -264,7 +267,7 @@ SEMVER                    = require 'semver'
   return $ ( event, send ) =>
     #.......................................................................................................
     if MKTS.isa event, '>', 'document'
-      send MKTS.stamp event
+      send stamp event
       send [ 'tex', "\n% end of MD document\n", ]
     #.......................................................................................................
     else
@@ -287,7 +290,7 @@ SEMVER                    = require 'semver'
     within_multi_column = track.within '{multi-column}'
     track event
     if MKTS.isa event, [ '{', '}', ], 'multi-column'
-      send MKTS.stamp event
+      send stamp event
       [ type, name, text, meta, ] = event
       #.....................................................................................................
       if type is '{'
@@ -317,7 +320,7 @@ SEMVER                    = require 'semver'
     track event
     #.......................................................................................................
     if MKTS.isa event, [ '{', '}', ], 'single-column'
-      send MKTS.stamp event
+      send stamp event
       [ type, name, text, meta, ] = event
       #.....................................................................................................
       if type is '{'
@@ -393,7 +396,7 @@ SEMVER                    = require 'semver'
       send [ type, name, text, meta, ]
     #.......................................................................................................
     else if MKTS.isa event, [ '{', '}', ], 'keep-lines'
-      send MKTS.stamp event
+      send stamp event
       [ type, name, text, meta, ] = event
       #.....................................................................................................
       if type is '{'
@@ -422,7 +425,7 @@ SEMVER                    = require 'semver'
       send [ type, name, text, meta, ]
     #.......................................................................................................
     else if MKTS.isa event, [ '{', '}', ], 'code'
-      send MKTS.stamp event
+      send stamp event
       [ type, name, text, meta, ] = event
       #.....................................................................................................
       if type is '{'
@@ -465,7 +468,7 @@ SEMVER                    = require 'semver'
     track event
     #.......................................................................................................
     if MKTS.isa event, [ '[', ']', ], [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', ]
-      send MKTS.stamp event
+      send stamp event
       [ type, name, text, meta, ] = event
       #.....................................................................................................
       # OPEN
@@ -510,10 +513,10 @@ SEMVER                    = require 'semver'
     if MKTS.isa event, '.', 'p'
       [ type, name, text, meta, ] = event
       if within_code or within_keep_lines
-        send MKTS.stamp event
+        send stamp event
         send [ 'text', '\n\n' ]
       else
-        send MKTS.stamp event
+        send stamp event
         ### TAINT use command from sty ###
         ### TAINT make configurable ###
         send [ 'tex', '\\mktsShowpar\\par\n' ]
@@ -527,7 +530,7 @@ SEMVER                    = require 'semver'
   return $ ( event, send ) =>
     #.......................................................................................................
     if MKTS.isa event, '.', 'hr'
-      send MKTS.stamp event
+      send stamp event
       [ type, name, text, meta, ] = event
       switch chr = text[ 0 ]
         when '-' then send [ 'text', '\n--------------\n' ]
@@ -543,7 +546,7 @@ SEMVER                    = require 'semver'
   return $ ( event, send ) =>
     #.......................................................................................................
     if MKTS.isa event, [ '(', ')', ], 'code'
-      send MKTS.stamp event
+      send stamp event
       [ type, name, text, meta, ] = event
       if type is '('
         send [ 'tex', '{\\mktsStyleCode{}', ]
@@ -565,10 +568,10 @@ SEMVER                    = require 'semver'
       [ type, name, text, meta, ] = event
       raw_text = meta[ 'raw' ]
       ### TAINT could the added `{}` conflict with some (La)TeX commands? ###
-      send MKTS.stamp [ '.', 'latex', raw_text, meta, ]
+      send stamp [ '.', 'latex', raw_text, meta, ]
     #.......................................................................................................
     else if MKTS.isa event, [ '(', ')', ], 'latex'
-      send MKTS.stamp event
+      send stamp event
     #.......................................................................................................
     else
       send event
@@ -592,7 +595,7 @@ SEMVER                    = require 'semver'
   return $ ( event, send ) =>
     #.......................................................................................................
     if MKTS.isa event, [ '(', ')', ], [ 'em', 'strong', ]
-      send MKTS.stamp event
+      send stamp event
       [ type, name, text, meta, ] = event
       if type is '('
         if name is 'em'
