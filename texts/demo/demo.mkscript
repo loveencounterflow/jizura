@@ -8,11 +8,11 @@ answer is “'∆
 (strong'42')'”.'¶
 }
 'Definition of the LaTeX Logo:
-'(:(latex'\\textbackslash{}LaTeX\\{\\}'))'.'¶
+'(:(raw'\\textbackslash{}LaTeX\\{\\}'))'.'¶
 'Use of the logo: '∆
-(latex
+(raw
 █ 19 █ IGNORED: [ '.',
-  'latex',
+  'raw',
   '\\LaTeX{}',
   { line_nr: 19, col_nr: 21, raw: '\\LaTeX{}', stamped: true } ])'.'¶
 'xxx '█ 25 █ [:'
@@ -26,42 +26,42 @@ xxx'¶
 █ 35 █ [h2'Generalized Command Syntax']
 'foo <'(bar'> baz'¶
 'Here we inserted ‘'∆
-(latex
+(raw
 █ 19 █ IGNORED: [ '.',
-  'latex',
+  'raw',
   '\\LaTeX{}',
   { line_nr: 19, col_nr: 21, raw: '\\LaTeX{}', stamped: true } ])'
 ''’ using '(code'<<!latexlogo>>')'.'¶
 (code'<<!end>>')¶
 █ 46 █ {multi-column█ 48 █ [h2'Math Mode']
 'It’s perfectly possible to take advantage of
-'(latex
+'(raw
 █ 50 █ IGNORED: [ '.',
-  'latex',
+  'raw',
   '\\LaTeX{}',
   { line_nr: 50, col_nr: 53, raw: '\\LaTeX{}', stamped: true } ])'\'s famous Math Mode; for example,
 you can now effortlessly have formulas like'¶
-(latex
+(raw
 █ 54 █ IGNORED: [ '.',
-  'latex',
+  'raw',
   '$\\lim_{x \\to \\infty} \\exp(-x) = 0$',
   { line_nr: 54,
     col_nr: 55,
     raw: '$\\lim_{x \\to \\infty} \\exp(-x) = 0$',
     stamped: true } ])'in your documents (and of course, inline math '(em'à la')'
-'(latex
+'(raw
 █ 56 █ IGNORED: [ '.',
-  'latex',
+  'raw',
   '$\\lim_{x \\to \\infty}$',
   { line_nr: 56,
     col_nr: 58,
     raw: '$\\lim_{x \\to \\infty}$',
     stamped: true } ])' works as well).'¶
 }
-'Some math: '(code'<<(latex>>\\$\\textbackslash{}lim\\_\\{x \\textbackslash{}to \\textbackslash{}infty\\} \\textbackslash{}exp(-x) = 0\\$<<latex)>>')¶
-'Some math: '(latex
+'Some math: '(code'<<(raw>>\\$\\textbackslash{}lim\\_\\{x \\textbackslash{}to \\textbackslash{}infty\\} \\textbackslash{}exp(-x) = 0\\$<<raw)>>')¶
+'Some math: '(raw
 █ 64 █ IGNORED: [ '.',
-  'latex',
+  'raw',
   '$\\lim_{x \\to \\infty} \\exp(-x) = 0$',
   { line_nr: 64,
     col_nr: 65,
@@ -71,48 +71,54 @@ you can now effortlessly have formulas like'¶
 █ 68 █ [h2'Quotes, Character Entities, TeX Special Characters']
 'foo ‘bar’ baz. \\cnjzr{} beautiful!'¶
 █ 72 █ {multi-column'
-You can use '(code'<<\\{latex>>...<<latex\\}>>')' or '(code'<<(latex>>...<<latex)>>')' to directly insert LaTeX
+You can use '(code'<<\\{raw>> ... <<raw\\}>>')' or '(code'<<(raw>> ... <<raw)>>')' to directly insert '∆
+(raw
+█ 19 █ IGNORED: [ '.',
+  'raw',
+  '\\LaTeX{}',
+  { line_nr: 19, col_nr: 21, raw: '\\LaTeX{}', stamped: true } ])'
+''
 code into your script; for example, you could
-use '(code'<<(latex>>\\textbackslash{}LaTeX<<latex)>>')'
-to obtain the '(latex
+use '(code'<<(raw>>\\textbackslash{}LaTeX\\{\\}<<raw)>>')'
+to obtain the '(raw
 █ 72 █ IGNORED: [ '.',
-  'latex',
+  'raw',
   '\\LaTeX{}',
   { line_nr: 72, col_nr: 85, raw: '\\LaTeX{}', stamped: true } ])' logogram.
 Observe that we had to write '(code'\\textbackslash{}LaTeX\\{\\}')' here instead of '(code'\\textbackslash{}LaTeX')' to preserve the space between the logogram itself and
 the word ‘logogram’—MKTS will not intervene to make that happen
 automatically, as a careful, scientific study has demonstrated
 that this problem—preserving spaces following commands in a
-general way that does not rely on parsing '(latex
+general way that does not rely on parsing '(raw
 █ 72 █ IGNORED: [ '.',
-  'latex',
+  'raw',
   '\\LaTeX{}',
   { line_nr: 72, col_nr: 85, raw: '\\LaTeX{}', stamped: true } ])'
 source and is not going to muck with very deep
-'(latex
+'(raw
 █ 72 █ IGNORED: [ '.',
-  'latex',
+  'raw',
   '\\TeX{}',
   { line_nr: 72, col_nr: 85, raw: '\\TeX{}', stamped: true } ])'
 internals—is NP-complete.'¶
-'Another potential use of  is to '(latex
+'Another potential use of  is to '(raw
 █ 86 █ IGNORED: [ '.',
-  'latex',
+  'raw',
   '{\\color{red}',
-  { line_nr: 86, col_nr: 87, raw: '{\\color{red}', stamped: true } ])'COLORIZE!'(latex
+  { line_nr: 86, col_nr: 87, raw: '{\\color{red}', stamped: true } ])'COLORIZE!'(raw
 █ 86 █ IGNORED: [ '.',
-  'latex',
+  'raw',
   '}',
   { line_nr: 86, col_nr: 87, raw: '}', stamped: true } ])' your text, here done by inserting'¶
-█ 87 █ {code'<<(latex>>\\{\\textbackslash{}color\\{red\\}<<latex)>>
+█ 87 █ {code'<<(raw>>\\{\\textbackslash{}color\\{red\\}<<raw)>>
 COLORIZE!
-<<(latex>>\\}<<latex)>>
+<<(raw>>\\}<<raw)>>
 '}
 '(with or without the line breaks) into the script.
 '}
 'xxx'¶
 '<<'(document'>…<'(document'>>'¶
-█ 101 █ {latex'
+█ 101 █ {raw'
 AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA
 AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA
 AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA
@@ -126,7 +132,13 @@ CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCC
 CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC
 CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC
 '}
-█ 116 █ {latex'to insert LaTeX commands
+█ 116 █ {raw'to insert '∆
+(raw
+█ 19 █ IGNORED: [ '.',
+  'raw',
+  '\\LaTeX{}',
+  { line_nr: 19, col_nr: 21, raw: '\\LaTeX{}', stamped: true } ])'
+'' commands
 '}
 '
 '¶

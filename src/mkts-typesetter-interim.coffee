@@ -551,20 +551,20 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       send event
 
 #-----------------------------------------------------------------------------------------------------------
-@MKTX.INLINE.$latex = ( S ) =>
-  track = MKTS.TRACKER.new_tracker '(latex)'
+@MKTX.INLINE.$raw = ( S ) =>
+  track = MKTS.TRACKER.new_tracker '(raw)'
   #.........................................................................................................
   return $ ( event, send ) =>
-    within_latex = track.within '(latex)'
+    within_latex = track.within '(raw)'
     track event
     #.......................................................................................................
     if within_latex and select event, '.', 'text'
       [ type, name, text, meta, ] = event
       raw_text = meta[ 'raw' ]
       ### TAINT could the added `{}` conflict with some (La)TeX commands? ###
-      send stamp [ '.', 'latex', raw_text, meta, ]
+      send stamp [ '.', 'raw', raw_text, meta, ]
     #.......................................................................................................
-    else if select event, [ '(', ')', ], 'latex'
+    else if select event, [ '(', ')', ], 'raw'
       send stamp event
     #.......................................................................................................
     else
@@ -647,8 +647,8 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
 #-----------------------------------------------------------------------------------------------------------
 @$filter_tex = ->
   return $ ( event, send ) =>
-    if select event, 'tex'                          then send event[ 1 ]
-    else if select event, '.', [ 'text', 'latex', ] then send event[ 2 ]
+    if select event, 'tex'                        then send event[ 1 ]
+    else if select event, '.', [ 'text', 'raw', ] then send event[ 2 ]
     else warn "unhandled event: #{JSON.stringify event}" unless is_stamped event
 
 #===========================================================================================================
@@ -692,7 +692,7 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       .pipe @MKTX.BLOCK.$heading                            state
       .pipe @MKTX.BLOCK.$hr                                 state
       .pipe @MKTX.INLINE.$code                              state
-      .pipe @MKTX.INLINE.$latex                             state
+      .pipe @MKTX.INLINE.$raw                               state
       # .pipe @MKTX.INLINE.$italic_correction                 state
       .pipe @MKTX.INLINE.$translate_i_and_b                 state
       .pipe @MKTX.INLINE.$em_and_strong                     state

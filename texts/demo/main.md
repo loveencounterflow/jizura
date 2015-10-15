@@ -9,28 +9,15 @@ the universe, and everything?*<<:)>>
 *italic*
 **bold**
 
-<!-- <<!new-page>> -->
-
 Use of definition: The question is "<<!thequestion>>"; the
 answer is "<<!theanswer>>".
 
 <<multi-column}>>
 <!-- <<!end>> -->
 Definition of the LaTeX Logo:
-<<(:latexlogo>><<(latex>>\LaTeX{}<<latex)>><<:)>>.
+<<(:latexlogo>><<(raw>>\LaTeX{}<<raw)>><<:)>>.
 
 Use of the logo: <<!latexlogo>>.
-
-
-xxx <<[:latexlogo>>
-<<:]>>
-xxx
-
-xxx <<:latexlogo>>
-
-xxx <<(latexlogo>>xxx<<latexlogo)>>xxx
-
-
 
 ## Generalized Command Syntax
 
@@ -40,28 +27,25 @@ Here we inserted '<<!latexlogo>>' using `<<!latexlogo>>`.
 
 `<<!end>>`
 
-
-
-
 <<{multi-column>>
 
 ## Math Mode
 
 It's perfectly possible to take advantage of
-<<(latex>>\LaTeX{}<<latex)>>'s famous Math Mode; for example,
+<<(raw>>\LaTeX{}<<raw)>>'s famous Math Mode; for example,
 you can now effortlessly have formulas like
 
-<<(latex>>$\lim_{x \to \infty} \exp(-x) = 0$<<latex)>>
+<<(raw>>$\lim_{x \to \infty} \exp(-x) = 0$<<raw)>>
 
 in your documents (and of course, inline math *à la*
-<<(latex>>$\lim_{x \to \infty}$<<latex)>> works as well).
+<<(raw>>$\lim_{x \to \infty}$<<raw)>> works as well).
 
 <<multi-column}>>
 
 
-Some math: `<<(latex>>$\lim_{x \to \infty} \exp(-x) = 0$<<latex)>>`
+Some math: `<<(raw>>$\lim_{x \to \infty} \exp(-x) = 0$<<raw)>>`
 
-Some math: <<(latex>>$\lim_{x \to \infty} \exp(-x) = 0$<<latex)>>
+Some math: <<(raw>>$\lim_{x \to \infty} \exp(-x) = 0$<<raw)>>
 
 xxx
 
@@ -70,24 +54,24 @@ xxx
 foo 'bar' baz. &jzr#xe170; beautiful!
 
 <<{multi-column>>
-You can use `<<{latex>>...<<latex}>>` or `<<(latex>>...<<latex)>>` to directly insert LaTeX
+You can use `<<{raw>> ... <<raw}>>` or `<<(raw>> ... <<raw)>>` to directly insert <<!latexlogo>>
 code into your script; for example, you could
-use `<<(latex>>\LaTeX<<latex)>>`
-to obtain the <<(latex>>\LaTeX{}<<latex)>> logogram.
+use `<<(raw>>\LaTeX{}<<raw)>>`
+to obtain the <<(raw>>\LaTeX{}<<raw)>> logogram.
 Observe that we had to write `\LaTeX{}` here instead of `\LaTeX` to preserve the space between the logogram itself and
 the word 'logogram'—MKTS will not intervene to make that happen
 automatically, as a careful, scientific study has demonstrated
 that this problem—preserving spaces following commands in a
-general way that does not rely on parsing <<(latex>>\LaTeX{}<<latex)>>
+general way that does not rely on parsing <<(raw>>\LaTeX{}<<raw)>>
 source and is not going to muck with very deep
-<<(latex>>\TeX{}<<latex)>>
+<<(raw>>\TeX{}<<raw)>>
 internals—is NP-complete.
 
-Another potential use of  is to <<(latex>>{\color{red}<<latex)>>COLORIZE!<<(latex>>}<<latex)>> your text, here done by inserting
+Another potential use of  is to <<(raw>>{\color{red}<<raw)>>COLORIZE!<<(raw>>}<<raw)>> your text, here done by inserting
 ```latex
-<<(latex>>{\color{red}<<latex)>>
+<<(raw>>{\color{red}<<raw)>>
 COLORIZE!
-<<(latex>>}<<latex)>>
+<<(raw>>}<<raw)>>
 ```
 (with or without the line breaks) into the script.
 <<multi-column}>>
@@ -95,10 +79,10 @@ COLORIZE!
 xxx
 
 
-<<<document>>...<<document>>>
+`<<<document>>...<<document>>>`
 
 
-<<{latex>>
+<<{raw>>
 AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA
 AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA
 AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA
@@ -111,10 +95,10 @@ CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCC
 CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC
 CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC
 CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC
-<<latex}>>
+<<raw}>>
 
-<<{latex>>to insert LaTeX commands
-<<latex}>>
+<<{raw>>to insert <<!latexlogo>> commands
+<<raw}>>
 <<{multi-column>>
 <<multi-column}>>
 

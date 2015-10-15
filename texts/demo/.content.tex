@@ -8,7 +8,7 @@ answer is “{\mktsStyleBold{}42}”.\mktsShowpar\par
 \end{multicols}Definition of the LaTeX Logo:
 .\mktsShowpar\par
 Use of the logo: \LaTeX{}.\mktsShowpar\par
-xxx 
+xxx
 xxx\mktsShowpar\par
 xxx {\mktsStyleBold\color{violet}{\mktsStyleSymbol}:latexlogo? {\mktsStyleSymbol█}}\mktsShowpar\par
 xxx {\mktsStyleBold\color{violet}{\mktsStyleSymbol█}(latexlogo {\mktsStyleSymbol}}xxx{\mktsStyleBold\color{violet}{\mktsStyleSymbol}latexlogo) {\mktsStyleSymbol█}}xxx\mktsShowpar\par
@@ -27,7 +27,7 @@ Here we inserted ‘\LaTeX{}
 you can now effortlessly have formulas like\mktsShowpar\par
 $\lim_{x \to \infty} \exp(-x) = 0$in your documents (and of course, inline math {\mktsStyleItalic{}à la\/}
 $\lim_{x \to \infty}$ works as well).\mktsShowpar\par
-\end{multicols}Some math: {\mktsStyleCode{}<<(latex>>\$\textbackslash{}lim\_\{x \textbackslash{}to \textbackslash{}infty\} \textbackslash{}exp(-x) = 0\$<<latex)>>}\mktsShowpar\par
+\end{multicols}Some math: {\mktsStyleCode{}<<(raw>>\$\textbackslash{}lim\_\{x \textbackslash{}to \textbackslash{}infty\} \textbackslash{}exp(-x) = 0\$<<raw)>>}\mktsShowpar\par
 Some math: $\lim_{x \to \infty} \exp(-x) = 0$\mktsShowpar\par
 xxx\mktsShowpar\par
 
@@ -35,9 +35,10 @@ xxx\mktsShowpar\par
 }
 foo ‘bar’ baz. \cnjzr{} beautiful!\mktsShowpar\par
 \begin{multicols}{2}
-You can use {\mktsStyleCode{}<<\{latex>>...<<latex\}>>} or {\mktsStyleCode{}<<(latex>>...<<latex)>>} to directly insert LaTeX
+You can use {\mktsStyleCode{}<<\{raw>> ... <<raw\}>>} or {\mktsStyleCode{}<<(raw>> ... <<raw)>>} to directly insert \LaTeX{}
+
 code into your script; for example, you could
-use {\mktsStyleCode{}<<(latex>>\textbackslash{}LaTeX<<latex)>>}
+use {\mktsStyleCode{}<<(raw>>\textbackslash{}LaTeX\{\}<<raw)>>}
 to obtain the \LaTeX{} logogram.
 Observe that we had to write {\mktsStyleCode{}\textbackslash{}LaTeX\{\}} here instead of {\mktsStyleCode{}\textbackslash{}LaTeX} to preserve the space between the logogram itself and
 the word ‘logogram’—MKTS will not intervene to make that happen
@@ -48,13 +49,13 @@ source and is not going to muck with very deep
 \TeX{}
 internals—is NP-complete.\mktsShowpar\par
 Another potential use of  is to {\color{red}COLORIZE!} your text, here done by inserting\mktsShowpar\par
-\begingroup\obeyalllines\mktsStyleCode{}<<(latex>>\{\textbackslash{}color\{red\}<<latex)>>
+\begingroup\obeyalllines\mktsStyleCode{}<<(raw>>\{\textbackslash{}color\{red\}<<raw)>>
 COLORIZE!
-<<(latex>>\}<<latex)>>
+<<(raw>>\}<<raw)>>
 \endgroup{}(with or without the line breaks) into the script.
 \end{multicols}xxx\mktsShowpar\par
 <<{\mktsStyleBold\color{violet}{\mktsStyleSymbol█}(document {\mktsStyleSymbol}}>…<{\mktsStyleBold\color{violet}{\mktsStyleSymbol█}(document {\mktsStyleSymbol}}>>\mktsShowpar\par
-{\mktsStyleBold\color{violet}{\mktsStyleSymbol█}\{latex {\mktsStyleSymbol}}
+{\mktsStyleBold\color{violet}{\mktsStyleSymbol█}\{raw {\mktsStyleSymbol}}
 AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA
 AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA
 AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA AAAAAA
@@ -67,8 +68,9 @@ CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCC
 CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC
 CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC
 CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC
-{\mktsStyleBold\color{violet}{\mktsStyleSymbol}latex\} {\mktsStyleSymbol█}}{\mktsStyleBold\color{violet}{\mktsStyleSymbol█}\{latex {\mktsStyleSymbol}}to insert LaTeX commands
-{\mktsStyleBold\color{violet}{\mktsStyleSymbol}latex\} {\mktsStyleSymbol█}}
+{\mktsStyleBold\color{violet}{\mktsStyleSymbol}raw\} {\mktsStyleSymbol█}}{\mktsStyleBold\color{violet}{\mktsStyleSymbol█}\{raw {\mktsStyleSymbol}}to insert \LaTeX{}
+ commands
+{\mktsStyleBold\color{violet}{\mktsStyleSymbol}raw\} {\mktsStyleSymbol█}}
 \mktsShowpar\par
 \begin{multicols}{2}
 \end{multicols}Helo {\mktsStyleCode{}world}! = Helo {\mktsStyleCode{}world}!\mktsShowpar\par
