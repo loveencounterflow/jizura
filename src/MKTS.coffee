@@ -756,13 +756,11 @@ tracker_pattern = /// ^
   index 3) and plain objects. The value returned will be a shallow copy in the case of objects and
   lists, but if a list has a value at index 3, that object will also be copied. Not guaranteed to
   work for general values. ###
-  R = if ( isa_list = CND.isa_list x )
-    []
-  else if CND.isa_pod x
-    {}
+  if ( isa_list = CND.isa_list x ) then R = []
+  else if         CND.isa_pod  x   then R = {}
   else throw new Error "unable to cpy a #{CND.type_of x}"
   R       = Object.assign R, x, updates...
-  R[ 3 ]  = Object.assign [], meta if isa_list and ( meta = R[ 3 ] )?
+  R[ 3 ]  = Object.assign {}, meta if isa_list and ( meta = R[ 3 ] )?
   return R
 
 #-----------------------------------------------------------------------------------------------------------
