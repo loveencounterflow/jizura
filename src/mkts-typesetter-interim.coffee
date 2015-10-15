@@ -234,7 +234,7 @@ SEMVER                    = require 'semver'
       ( values[ identifier ]?= [] ).push event
       # xxxx
       ### TAINT `MKTS.isa` must not match stamped events ###
-      # send @stamp event
+      send @stamp event
       # [ type, name, text, meta, ] = event
       # send [ '?', name, text, meta, ]
     #.......................................................................................................
@@ -626,7 +626,7 @@ SEMVER                    = require 'semver'
       send event
     else if MKTS.isa event, '.', 'text'
       send event
-    else unless event[ 3 ][ 'processed' ]
+    else unless event[ 3 ][ 'stamped' ]
       [ type, name, text, meta, ] = event
       if text?
         if ( CND.isa_pod text )
@@ -660,11 +660,11 @@ SEMVER                    = require 'semver'
     else if MKTS.isa event, '.', [ 'text', 'latex', ]
       send event[ 2 ]
     else
-      warn "unhandled event: #{JSON.stringify event}" unless event[ 3 ][ 'processed' ]
+      warn "unhandled event: #{JSON.stringify event}" unless event[ 3 ][ 'stamped' ]
 
 #-----------------------------------------------------------------------------------------------------------
 @stamp = ( event ) =>
-  event[ 3 ][ 'processed' ] = yes
+  event[ 3 ][ 'stamped' ] = yes
   return event
 
 #===========================================================================================================
