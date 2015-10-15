@@ -596,9 +596,11 @@ select                    = MKTS.select.bind MKTS
       if type is '('
         if name is 'em'
           send [ 'tex', '{\\mktsStyleItalic{}', ]
+          send [ 'tex', '\\/', ]
         else
           send [ 'tex', '{\\mktsStyleBold{}', ]
       else
+        send [ 'tex', '\\/', ] if name is 'em'
         send [ 'tex', "}", ]
     #.......................................................................................................
     else
@@ -697,6 +699,7 @@ select                    = MKTS.select.bind MKTS
       # .pipe D.$show()
       .pipe @MKTX.INLINE.$code                              state
       .pipe @MKTX.INLINE.$latex                             state
+      # .pipe @MKTX.INLINE.$italic_correction                 state
       .pipe @MKTX.INLINE.$translate_i_and_b                 state
       .pipe @MKTX.INLINE.$em_and_strong                     state
       .pipe @MKTX.DOCUMENT.$end                             state
