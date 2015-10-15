@@ -197,16 +197,6 @@ SEMVER                    = require 'semver'
   BLOCK:      {}
   INLINE:     {}
 
-# #-----------------------------------------------------------------------------------------------------------
-# @MKTX.$protocoll = ( S ) =>
-#   #.........................................................................................................
-#   return $ ( event, send ) =>
-#     if S.write_protocoll
-#       [ type, name, text, meta, ] = event
-#       line_nr = meta[ 'map' ]?[ 0 ] ? '?'
-#       send [ 'text', "% #{line_nr} #{type}#{name}" ]
-#     send event
-
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.COMMAND.$definition = ( S ) =>
   ### TAINT reject nested definitions ###
