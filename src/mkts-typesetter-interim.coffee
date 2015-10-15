@@ -235,7 +235,7 @@ select                    = MKTS.select.bind MKTS
     else if select event, '∆'
       if ( definition = values[ identifier ] )?
         send stamp event
-        send sub_event for sub_event in definition
+        send copy sub_event for sub_event in definition
       else
         send event
     #.......................................................................................................
