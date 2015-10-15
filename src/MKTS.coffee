@@ -705,10 +705,11 @@ tracker_pattern = /// ^
     return null
 
 #-----------------------------------------------------------------------------------------------------------
-@isa = ( event, type, name ) ->
+@isa = ( event, type, name, settings ) ->
   ### TAINT should use the same syntax as accepted by `FENCES.parse` ###
   ### check for arity as it's easy to write `isa event, '(', ')', 'latex'` when what you meant
   was `isa event, [ '(', ')', ], 'latex'` ###
+  # return false unless settings?[ 'processed' ]
   if ( arity = arguments.length ) > 3
     throw new Error "expected at most 3 arguments, got #{arity}"
   if type?
@@ -722,6 +723,17 @@ tracker_pattern = /// ^
       when 'list' then return false unless event[ 1 ] in name
       else throw new Error "expected text or list, got a #{type_of_name}"
   return true
+
+#-----------------------------------------------------------------------------------------------------------
+@stamp = ( event ) ->
+  ### 'Stamping' an event means to mark it as 'processed'; hence, downstream transformers can choose to
+  ignore events that have already been marked upstream, or, inversely choose to look out for events
+  that have not yet found a representation in the target document. ###
+  event[ 3 ][ 'stamped' ] = yes
+  return event
+
+#-----------------------------------------------------------------------------------------------------------
+@is_stamped = ( event ) -> event[ 3 ][ 'stamped' ] is true
 
 #-----------------------------------------------------------------------------------------------------------
 @_copy = ( meta, overwrites ) ->

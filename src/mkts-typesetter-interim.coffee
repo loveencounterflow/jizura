@@ -221,11 +221,11 @@ SEMVER                    = require 'semver'
     #.......................................................................................................
     if MKTS.isa event, [ '(', '[', ], ':'
       [ type, _, identifier, meta, ] = event
-      send @stamp event
+      send MKTS.stamp event
       urge '©Rnsg0', event
     else if MKTS.isa event, [ ')', ']', ], ':'
       # [ type, _, identifier, meta, ] = event
-      send @stamp event
+      send MKTS.stamp event
       urge '©YON2b', event
     #.......................................................................................................
     else if within_definition
@@ -234,13 +234,13 @@ SEMVER                    = require 'semver'
       ( values[ identifier ]?= [] ).push event
       # xxxx
       ### TAINT `MKTS.isa` must not match stamped events ###
-      send @stamp event
+      send MKTS.stamp event
       # [ type, name, text, meta, ] = event
       # send [ '?', name, text, meta, ]
     #.......................................................................................................
     else if MKTS.isa event, '∆'
       if ( definition = values[ identifier ] )?
-        send @stamp event
+        send MKTS.stamp event
         send sub_event for sub_event in definition
       else
         send event
@@ -262,7 +262,7 @@ SEMVER                    = require 'semver'
   return $ ( event, send ) =>
     #.......................................................................................................
     if MKTS.isa event, '<', 'document'
-      send @stamp event
+      send MKTS.stamp event
       send [ 'tex', "\n% begin of MD document\n", ]
     #.......................................................................................................
     else
@@ -274,7 +274,7 @@ SEMVER                    = require 'semver'
   return $ ( event, send ) =>
     #.......................................................................................................
     if MKTS.isa event, '>', 'document'
-      send @stamp event
+      send MKTS.stamp event
       send [ 'tex', "\n% end of MD document\n", ]
     #.......................................................................................................
     else
@@ -297,7 +297,7 @@ SEMVER                    = require 'semver'
     within_multi_column = track.within '{multi-column}'
     track event
     if MKTS.isa event, [ '{', '}', ], 'multi-column'
-      send @stamp event
+      send MKTS.stamp event
       [ type, name, text, meta, ] = event
       #.....................................................................................................
       if type is '{'
@@ -327,7 +327,7 @@ SEMVER                    = require 'semver'
     track event
     #.......................................................................................................
     if MKTS.isa event, [ '{', '}', ], 'single-column'
-      send @stamp event
+      send MKTS.stamp event
       [ type, name, text, meta, ] = event
       #.....................................................................................................
       if type is '{'
@@ -403,7 +403,7 @@ SEMVER                    = require 'semver'
       send [ type, name, text, meta, ]
     #.......................................................................................................
     else if MKTS.isa event, [ '{', '}', ], 'keep-lines'
-      send @stamp event
+      send MKTS.stamp event
       [ type, name, text, meta, ] = event
       #.....................................................................................................
       if type is '{'
@@ -432,7 +432,7 @@ SEMVER                    = require 'semver'
       send [ type, name, text, meta, ]
     #.......................................................................................................
     else if MKTS.isa event, [ '{', '}', ], 'code'
-      send @stamp event
+      send MKTS.stamp event
       [ type, name, text, meta, ] = event
       #.....................................................................................................
       if type is '{'
@@ -475,7 +475,7 @@ SEMVER                    = require 'semver'
     track event
     #.......................................................................................................
     if MKTS.isa event, [ '[', ']', ], [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', ]
-      send @stamp event
+      send MKTS.stamp event
       [ type, name, text, meta, ] = event
       #.....................................................................................................
       # OPEN
@@ -520,10 +520,10 @@ SEMVER                    = require 'semver'
     if MKTS.isa event, '.', 'p'
       [ type, name, text, meta, ] = event
       if within_code or within_keep_lines
-        send @stamp event
+        send MKTS.stamp event
         send [ 'text', '\n\n' ]
       else
-        send @stamp event
+        send MKTS.stamp event
         ### TAINT use command from sty ###
         ### TAINT make configurable ###
         send [ 'tex', '\\mktsShowpar\\par\n' ]
@@ -537,7 +537,7 @@ SEMVER                    = require 'semver'
   return $ ( event, send ) =>
     #.......................................................................................................
     if MKTS.isa event, '.', 'hr'
-      send @stamp event
+      send MKTS.stamp event
       [ type, name, text, meta, ] = event
       switch chr = text[ 0 ]
         when '-' then send [ 'text', '\n--------------\n' ]
@@ -553,7 +553,7 @@ SEMVER                    = require 'semver'
   return $ ( event, send ) =>
     #.......................................................................................................
     if MKTS.isa event, [ '(', ')', ], 'code'
-      send @stamp event
+      send MKTS.stamp event
       [ type, name, text, meta, ] = event
       if type is '('
         send [ 'tex', '{\\mktsStyleCode{}', ]
@@ -575,10 +575,10 @@ SEMVER                    = require 'semver'
       [ type, name, text, meta, ] = event
       raw_text = meta[ 'raw' ]
       ### TAINT could the added `{}` conflict with some (La)TeX commands? ###
-      send @stamp [ '.', 'latex', raw_text, meta, ]
+      send MKTS.stamp [ '.', 'latex', raw_text, meta, ]
     #.......................................................................................................
     else if MKTS.isa event, [ '(', ')', ], 'latex'
-      send @stamp event
+      send MKTS.stamp event
     #.......................................................................................................
     else
       send event
@@ -602,7 +602,7 @@ SEMVER                    = require 'semver'
   return $ ( event, send ) =>
     #.......................................................................................................
     if MKTS.isa event, [ '(', ')', ], [ 'em', 'strong', ]
-      send @stamp event
+      send MKTS.stamp event
       [ type, name, text, meta, ] = event
       if type is '('
         if name is 'em'
@@ -626,7 +626,7 @@ SEMVER                    = require 'semver'
       send event
     else if MKTS.isa event, '.', 'text'
       send event
-    else unless @is_stamped event
+    else unless MKTS.is_stamped event
       [ type, name, text, meta, ] = event
       if text?
         if ( CND.isa_pod text )
@@ -660,15 +660,7 @@ SEMVER                    = require 'semver'
     else if MKTS.isa event, '.', [ 'text', 'latex', ]
       send event[ 2 ]
     else
-      warn "unhandled event: #{JSON.stringify event}" unless @is_stamped event
-
-#-----------------------------------------------------------------------------------------------------------
-@stamp = ( event ) ->
-  event[ 3 ][ 'stamped' ] = yes
-  return event
-
-#-----------------------------------------------------------------------------------------------------------
-@is_stamped = ( event ) -> event[ 3 ][ 'stamped' ] is true
+      warn "unhandled event: #{JSON.stringify event}" unless MKTS.is_stamped event
 
 #===========================================================================================================
 # PDF FROM MD
