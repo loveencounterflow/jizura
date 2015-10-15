@@ -508,7 +508,7 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       [ type, name, text, meta, ] = event
       if within_code or within_keep_lines
         send stamp event
-        send [ 'text', '\n\n' ]
+        send [ 'tex', '\n\n' ]
       else
         send stamp event
         ### TAINT use command from sty ###
@@ -527,8 +527,8 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       send stamp event
       [ type, name, text, meta, ] = event
       switch chr = text[ 0 ]
-        when '-' then send [ 'text', '\n--------------\n' ]
-        when '*' then send [ 'text', '\n**************\n' ]
+        when '-' then send [ 'tex', '\n--------------\n' ]
+        when '*' then send [ 'tex', '\n**************\n' ]
         else warn "ignored hr markup #{rpr text}"
     #.......................................................................................................
     else
@@ -647,12 +647,9 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
 #-----------------------------------------------------------------------------------------------------------
 @$filter_tex = ->
   return $ ( event, send ) =>
-    if event[ 0 ] in [ 'tex', 'text', ]
-      send event[ 1 ]
-    else if select event, '.', [ 'text', 'latex', ]
-      send event[ 2 ]
-    else
-      warn "unhandled event: #{JSON.stringify event}" unless is_stamped event
+    if select event, 'tex'                          then send event[ 1 ]
+    else if select event, '.', [ 'text', 'latex', ] then send event[ 2 ]
+    else warn "unhandled event: #{JSON.stringify event}" unless is_stamped event
 
 #===========================================================================================================
 # PDF FROM MD
@@ -703,9 +700,10 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       .pipe @MKTX.BLOCK.$paragraph                          state
       .pipe D.$observe ( event ) =>
         if MKTS.select event, 'text'
-          info JSON.stringify event
+          # info JSON.stringify event
+          debug event
         else
-          whisper JSON.stringify event
+          # whisper JSON.stringify event
       # .pipe MKTS.$show_mktsmd_events                        state
       .pipe MKTS.$write_mktscript                           state
       .pipe @$show_unhandled_tags                           state
