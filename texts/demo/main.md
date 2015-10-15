@@ -1,11 +1,21 @@
 
+<<{multi-column>>
 
-A definition: <<(:theanswer>>**42**<<:)>> to print `42`.
+<<(:thequestion>>*What is the meaning of life,
+the universe, and everything?*<<:)>>
 
+<<(:theanswer>>**42**<<:)>>
 
-Use of definition: The answer is <<!answer>>.
+*italic*
+**bold**
 
-<<!end>>
+<!-- <<!new-page>> -->
+
+Use of definition: The question is "<<!thequestion>>"; the
+answer is "<<!theanswer>>".
+
+<<multi-column}>>
+<!-- <<!end>> -->
 Definition of the LaTeX Logo:
 <<(:latexlogo>><<(latex>>\LaTeX{}<<latex)>><<:)>>.
 
@@ -110,7 +120,7 @@ CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCC
 
 Helo <<(code>>world<<code)>>! = Helo `world`!
 
-∆∆∆end
+<!-- <<!end>> -->
 
 @@@multi-column
 
@@ -341,7 +351,6 @@ D-within
 D-after
 @@@
 
-<!-- ∆∆∆end -->
 
 # This is a Demonstration 中國皇帝
 

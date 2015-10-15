@@ -38,11 +38,12 @@ options_route             = '../options.coffee'
 SEMVER                    = require 'semver'
 #...........................................................................................................
 MKTS                      = require './MKTS'
-hide                      = MKTS.hide.bind   MKTS
-copy                      = MKTS.copy.bind   MKTS
-stamp                     = MKTS.stamp.bind  MKTS
-select                    = MKTS.select.bind MKTS
-
+hide                      = MKTS.hide.bind        MKTS
+copy                      = MKTS.copy.bind        MKTS
+stamp                     = MKTS.stamp.bind       MKTS
+select                    = MKTS.select.bind      MKTS
+is_hidden                 = MKTS.is_hidden.bind   MKTS
+is_stamped                = MKTS.is_stamped.bind  MKTS
 
 #===========================================================================================================
 #
@@ -204,7 +205,6 @@ select                    = MKTS.select.bind MKTS
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.COMMAND.$definition = ( S ) =>
   ### TAINT reject nested definitions ###
-  # ### Must start `<literal>` (?) section on command definition ###
   track           = MKTS.TRACKER.new_tracker '(:)', '[:]'
   last_identifier = null
   values          = {}
@@ -215,12 +215,10 @@ select                    = MKTS.select.bind MKTS
     #.......................................................................................................
     if select event, [ '(', '[', ], ':'
       [ type, _, last_identifier, meta, ] = event
-      send stamp event
-      # urge '©Rnsg0', event
+      send stamp hide event
+    #.......................................................................................................
     else if select event, [ ')', ']', ], ':'
-      # [ type, _, last_identifier, meta, ] = event
-      send stamp event
-      # urge '©YON2b', event
+      send stamp hide event
     #.......................................................................................................
     else if within_definition
       ( values[ last_identifier ]?= [] ).push event
@@ -229,13 +227,12 @@ select                    = MKTS.select.bind MKTS
     else if select event, '∆'
       [ _, identifier, _, _, ] = event
       if ( definition = values[ identifier ] )?
-        send stamp event
+        send stamp hide event
         send copy sub_event for sub_event in definition
       else
         send event
     #.......................................................................................................
     else
-      # debug '©YLxXy', event
       send event
 
 #-----------------------------------------------------------------------------------------------------------
@@ -243,6 +240,7 @@ select                    = MKTS.select.bind MKTS
   #.........................................................................................................
   return $ ( event, send ) =>
     return send event unless select event, '∆', 'new-page'
+    send stamp event
     send [ 'tex', "\\null\\newpage{}", ]
 
 #-----------------------------------------------------------------------------------------------------------
@@ -596,7 +594,8 @@ select                    = MKTS.select.bind MKTS
       if type is '('
         if name is 'em'
           send [ 'tex', '{\\mktsStyleItalic{}', ]
-          send [ 'tex', '\\/', ]
+          ### TAINT must not be sent when in vertical mode ###
+          # send [ 'tex', '\\/', ]
         else
           send [ 'tex', '{\\mktsStyleBold{}', ]
       else
@@ -617,7 +616,7 @@ select                    = MKTS.select.bind MKTS
       send event
     else if select event, '.', 'text'
       send event
-    else unless MKTS.is_stamped event
+    else unless is_stamped event
       [ type, name, text, meta, ] = event
       if text?
         if ( CND.isa_pod text )
@@ -653,7 +652,7 @@ select                    = MKTS.select.bind MKTS
     else if select event, '.', [ 'text', 'latex', ]
       send event[ 2 ]
     else
-      warn "unhandled event: #{JSON.stringify event}" unless MKTS.is_stamped event
+      warn "unhandled event: #{JSON.stringify event}" unless is_stamped event
 
 #===========================================================================================================
 # PDF FROM MD
@@ -685,6 +684,7 @@ select                    = MKTS.select.bind MKTS
     input
       .pipe MKTS.$fix_typography_for_tex                    @options
       .pipe @MKTX.DOCUMENT.$begin                           state
+      .pipe @MKTX.DOCUMENT.$end                             state
       .pipe @MKTX.COMMAND.$definition                       state
       .pipe @MKTX.COMMAND.$new_page                         state
       .pipe @MKTX.REGION.$correct_p_tags_before_regions     state
@@ -692,18 +692,21 @@ select                    = MKTS.select.bind MKTS
       .pipe @MKTX.REGION.$single_column                     state
       .pipe @MKTX.REGION.$keep_lines                        state
       .pipe @MKTX.REGION.$code                              state
-      .pipe @MKTX.BLOCK.$remove_empty_p_tags                state
       .pipe @MKTX.BLOCK.$heading                            state
-      .pipe @MKTX.BLOCK.$paragraph                          state
       .pipe @MKTX.BLOCK.$hr                                 state
-      # .pipe D.$show()
       .pipe @MKTX.INLINE.$code                              state
       .pipe @MKTX.INLINE.$latex                             state
       # .pipe @MKTX.INLINE.$italic_correction                 state
       .pipe @MKTX.INLINE.$translate_i_and_b                 state
       .pipe @MKTX.INLINE.$em_and_strong                     state
-      .pipe @MKTX.DOCUMENT.$end                             state
-      .pipe MKTS.$show_mktsmd_events                        state
+      .pipe @MKTX.BLOCK.$remove_empty_p_tags                state
+      .pipe @MKTX.BLOCK.$paragraph                          state
+      .pipe D.$observe ( event ) =>
+        if MKTS.select event, 'text'
+          info JSON.stringify event
+        else
+          whisper JSON.stringify event
+      # .pipe MKTS.$show_mktsmd_events                        state
       .pipe MKTS.$write_mktscript                           state
       .pipe @$show_unhandled_tags                           state
       .pipe @$filter_tex()

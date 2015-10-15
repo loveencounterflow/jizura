@@ -600,7 +600,7 @@ tracker_pattern = /// ^
             command_name = part[ ... last_idx ]
             if ( match = command_name.match prefix_pattern )?
               [ _, prefix, suffix, ] = match
-              debug '©9nGvB', ( rpr command_name ), ( rpr prefix ), ( rpr suffix )
+              # debug '©9nGvB', ( rpr command_name ), ( rpr prefix ), ( rpr suffix )
               switch prefix
                 when ':'
                   send [ right_fence, prefix, suffix, ( @copy meta ), ]
@@ -778,7 +778,7 @@ tracker_pattern = /// ^
   unknown_events    = []
   indentation       = ''
   tag_stack         = []
-  return D.$observe ( event, has_ended ) ->
+  return D.$observe ( event, has_ended ) =>
     if event?
       [ type, name, text, meta, ] = event
       if type is '?'
@@ -787,17 +787,18 @@ tracker_pattern = /// ^
       else
         color = CND.blue
         #...................................................................................................
-        switch type
-          when '<', '>'
-            color         = CND.yellow
-          when '{', '∆'
-            color         = CND.red
-          when ')', ']', '}'
-            color         = CND.grey
-          when '.'
-            switch name
-              when 'text' then color = CND.green
-              # when 'code' then color = CND.orange
+        if @is_hidden event
+          color = CND.brown
+        else
+          switch type
+            when '<', '>'      then color = CND.YELLOW
+            when '{','[',  '(' then color = CND.lime
+            when ')', ']', '}' then color = CND.olive
+            when '∆'           then color = CND.indigo
+            when '.'
+              switch name
+                when 'text' then color = CND.BLUE
+                # when 'code' then color = CND.orange
         #...................................................................................................
         text = if text? then ( color rpr text ) else ''
         switch type
@@ -805,9 +806,9 @@ tracker_pattern = /// ^
             log indentation + ( color type ) + ' ' + rpr name
           when 'tex'
             if S.show_tex_events ? no
-              log indentation + ( CND.grey type ) + ( color name ) + ' ' + text
+              log indentation + ( color type ) + ( color name ) + ' ' + text
           else
-            log indentation + ( CND.grey type ) + ( color name ) + ' ' + text
+            log indentation + ( color type ) + ( color name ) + ' ' + text
         #...................................................................................................
         switch type
           #.................................................................................................
