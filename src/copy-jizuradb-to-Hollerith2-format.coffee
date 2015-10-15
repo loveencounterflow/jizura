@@ -350,6 +350,37 @@ options =
       debug '©70RRX', new Date()
       end()
 
+#===========================================================================================================
+find_duplicated_guides = ->
+  D = require 'pipedreams'
+  $ = D.remit.bind D
+  input   = njs_fs.createReadStream '/Volumes/Storage/io/jizura-datasources/data/5-derivatives/guide-pairs.txt'
+  output  = njs_fs.createWriteStream '/Volumes/Storage/io/jizura-datasources/data/5-derivatives/guide-pairs-duplicated.txt'
+  input
+    .pipe D.$split()
+    # .pipe D.$parse_csv headers: no
+    .pipe $ ( line, send ) => send line unless line.length is 0
+    .pipe $ ( line, send ) => send line unless line.startsWith '#'
+    .pipe $ ( line, send ) => send [ line, ( line.split '\t' )... ]
+    .pipe $ ( [ line, _, guides, glyph, ], send ) => send [ line, glyph, guides, ]
+    .pipe $ ( fields, send ) =>
+      [ line, glyph, guides, ] = fields
+      unless CND.isa_text guides
+        warn line, fields
+      send fields
+    .pipe $ ( [ line, glyph, guides, ], send ) =>
+      send [ line, glyph, ( Array.from guides )... ]
+    .pipe $ ( fields, send ) =>
+      [ line, glyph, guide_0, guide_1, ] = fields
+      send fields unless guide_0 is '一' or guide_1 is '一'
+    .pipe $ ( fields, send ) =>
+      [ line, glyph, guide_0, guide_1, ] = fields
+      send fields if guide_0 is guide_1
+    # .pipe D.$show()
+    .pipe $ ( [ line, glyph, guide_0, guide_1, ], send ) => send line + '\n'
+    .pipe output
+find_duplicated_guides()
+
 #-----------------------------------------------------------------------------------------------------------
 @v1_split_so_bkey = ( bkey ) ->
   R       = bkey.toString 'utf-8'
