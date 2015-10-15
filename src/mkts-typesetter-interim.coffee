@@ -38,9 +38,10 @@ options_route             = '../options.coffee'
 SEMVER                    = require 'semver'
 #...........................................................................................................
 MKTS                      = require './MKTS'
-hide                      = MKTS.hide.bind  hide
-copy                      = MKTS.copy.bind  copy
-stamp                     = MKTS.stamp.bind stamp
+hide                      = MKTS.hide.bind   MKTS
+copy                      = MKTS.copy.bind   MKTS
+stamp                     = MKTS.stamp.bind  MKTS
+select                    = MKTS.select.bind MKTS
 
 
 #===========================================================================================================
@@ -212,11 +213,11 @@ stamp                     = MKTS.stamp.bind stamp
     within_definition = track.within '(:)', '[:]'
     track event
     #.......................................................................................................
-    if MKTS.isa event, [ '(', '[', ], ':'
+    if select event, [ '(', '[', ], ':'
       [ type, _, identifier, meta, ] = event
       send stamp event
       # urge '©Rnsg0', event
-    else if MKTS.isa event, [ ')', ']', ], ':'
+    else if select event, [ ')', ']', ], ':'
       # [ type, _, identifier, meta, ] = event
       send stamp event
       # urge '©YON2b', event
@@ -226,12 +227,12 @@ stamp                     = MKTS.stamp.bind stamp
       # urge '©S63sG', event
       ( values[ identifier ]?= [] ).push event
       # xxxx
-      ### TAINT `MKTS.isa` must not match stamped events ###
+      ### TAINT `select` must not match stamped events ###
       send stamp hide copy event
       # [ type, name, text, meta, ] = event
       # send [ '?', name, text, meta, ]
     #.......................................................................................................
-    else if MKTS.isa event, '∆'
+    else if select event, '∆'
       if ( definition = values[ identifier ] )?
         send stamp event
         send sub_event for sub_event in definition
@@ -246,7 +247,7 @@ stamp                     = MKTS.stamp.bind stamp
 @MKTX.COMMAND.$new_page = ( S ) =>
   #.........................................................................................................
   return $ ( event, send ) =>
-    return send event unless MKTS.isa event, '∆', 'new-page'
+    return send event unless select event, '∆', 'new-page'
     send [ 'tex', "\\null\\newpage{}", ]
 
 #-----------------------------------------------------------------------------------------------------------
@@ -254,7 +255,7 @@ stamp                     = MKTS.stamp.bind stamp
   #.........................................................................................................
   return $ ( event, send ) =>
     #.......................................................................................................
-    if MKTS.isa event, '<', 'document'
+    if select event, '<', 'document'
       send stamp event
       send [ 'tex', "\n% begin of MD document\n", ]
     #.......................................................................................................
@@ -266,7 +267,7 @@ stamp                     = MKTS.stamp.bind stamp
   #.........................................................................................................
   return $ ( event, send ) =>
     #.......................................................................................................
-    if MKTS.isa event, '>', 'document'
+    if select event, '>', 'document'
       send stamp event
       send [ 'tex', "\n% end of MD document\n", ]
     #.......................................................................................................
@@ -289,7 +290,7 @@ stamp                     = MKTS.stamp.bind stamp
   return $ ( event, send ) =>
     within_multi_column = track.within '{multi-column}'
     track event
-    if MKTS.isa event, [ '{', '}', ], 'multi-column'
+    if select event, [ '{', '}', ], 'multi-column'
       send stamp event
       [ type, name, text, meta, ] = event
       #.....................................................................................................
@@ -319,7 +320,7 @@ stamp                     = MKTS.stamp.bind stamp
     within_multi_column = track.within '{multi-column}'
     track event
     #.......................................................................................................
-    if MKTS.isa event, [ '{', '}', ], 'single-column'
+    if select event, [ '{', '}', ], 'single-column'
       send stamp event
       [ type, name, text, meta, ] = event
       #.....................................................................................................
@@ -348,24 +349,24 @@ stamp                     = MKTS.stamp.bind stamp
   return $ ( event, send ) =>
     # debug '©MwBAv', event
     #.......................................................................................................
-    if MKTS.isa event, 'tex'
+    if select event, 'tex'
       send event
     #.......................................................................................................
-    else if MKTS.isa event, '<', 'document'
+    else if select event, '<', 'document'
       # debug '©---1', last_was_begin_document
       # debug '©---2', last_was_p
       last_was_p              = no
       last_was_begin_document = yes
       send event
     #.......................................................................................................
-    else if MKTS.isa event, '.', 'p'
+    else if select event, '.', 'p'
       # debug '©---3', last_was_begin_document
       # debug '©---4', last_was_p
       last_was_p              = yes
       last_was_begin_document = no
       send event
     #.......................................................................................................
-    else if MKTS.isa event, [ '{', '[', ]
+    else if select event, [ '{', '[', ]
       # debug '©---5', last_was_begin_document
       # debug '©---6', last_was_p
       if ( not last_was_begin_document ) and ( not last_was_p )
@@ -388,14 +389,14 @@ stamp                     = MKTS.stamp.bind stamp
     within_keep_lines = track.within '{keep-lines}'
     track event
     #.......................................................................................................
-    if MKTS.isa event, '.', 'text'
+    if select event, '.', 'text'
       [ type, name, text, meta, ] = event
       ### TAINT other replacements possible; use API ###
       ### TAINT U+00A0 (nbsp) might be too wide ###
       text = text.replace /\u0020/g, '\u00a0' if within_keep_lines
       send [ type, name, text, meta, ]
     #.......................................................................................................
-    else if MKTS.isa event, [ '{', '}', ], 'keep-lines'
+    else if select event, [ '{', '}', ], 'keep-lines'
       send stamp event
       [ type, name, text, meta, ] = event
       #.....................................................................................................
@@ -418,13 +419,13 @@ stamp                     = MKTS.stamp.bind stamp
     within_code = track.within '{code}'
     track event
     #.......................................................................................................
-    if MKTS.isa event, '.', 'text'
+    if select event, '.', 'text'
       [ type, name, text, meta, ] = event
       if within_code
         text = text.replace /\u0020/g, '\u00a0'
       send [ type, name, text, meta, ]
     #.......................................................................................................
-    else if MKTS.isa event, [ '{', '}', ], 'code'
+    else if select event, [ '{', '}', ], 'code'
       send stamp event
       [ type, name, text, meta, ] = event
       #.....................................................................................................
@@ -442,15 +443,15 @@ stamp                     = MKTS.stamp.bind stamp
   #.........................................................................................................
   return $ ( event, send ) =>
     #.......................................................................................................
-    if MKTS.isa event, [ ']', '}', ]
+    if select event, [ ']', '}', ]
       text_count = 0
       send event
     #.......................................................................................................
-    else if MKTS.isa event, '.', 'text'
+    else if select event, '.', 'text'
       text_count += +1
       send event
     #.......................................................................................................
-    else if MKTS.isa event, '.', 'p'
+    else if select event, '.', 'p'
       if text_count > 0 then send event
       else whisper "ignoring empty `p` tag"
       text_count = 0
@@ -467,7 +468,7 @@ stamp                     = MKTS.stamp.bind stamp
     within_multi_column = track.within '{multi-column}'
     track event
     #.......................................................................................................
-    if MKTS.isa event, [ '[', ']', ], [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', ]
+    if select event, [ '[', ']', ], [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', ]
       send stamp event
       [ type, name, text, meta, ] = event
       #.....................................................................................................
@@ -510,7 +511,7 @@ stamp                     = MKTS.stamp.bind stamp
     within_keep_lines = track.within '{keep-lines}'
     track event
     #.......................................................................................................
-    if MKTS.isa event, '.', 'p'
+    if select event, '.', 'p'
       [ type, name, text, meta, ] = event
       if within_code or within_keep_lines
         send stamp event
@@ -529,7 +530,7 @@ stamp                     = MKTS.stamp.bind stamp
   #.........................................................................................................
   return $ ( event, send ) =>
     #.......................................................................................................
-    if MKTS.isa event, '.', 'hr'
+    if select event, '.', 'hr'
       send stamp event
       [ type, name, text, meta, ] = event
       switch chr = text[ 0 ]
@@ -545,7 +546,7 @@ stamp                     = MKTS.stamp.bind stamp
   #.........................................................................................................
   return $ ( event, send ) =>
     #.......................................................................................................
-    if MKTS.isa event, [ '(', ')', ], 'code'
+    if select event, [ '(', ')', ], 'code'
       send stamp event
       [ type, name, text, meta, ] = event
       if type is '('
@@ -564,13 +565,13 @@ stamp                     = MKTS.stamp.bind stamp
     within_latex = track.within '(latex)'
     track event
     #.......................................................................................................
-    if within_latex and MKTS.isa event, '.', 'text'
+    if within_latex and select event, '.', 'text'
       [ type, name, text, meta, ] = event
       raw_text = meta[ 'raw' ]
       ### TAINT could the added `{}` conflict with some (La)TeX commands? ###
       send stamp [ '.', 'latex', raw_text, meta, ]
     #.......................................................................................................
-    else if MKTS.isa event, [ '(', ')', ], 'latex'
+    else if select event, [ '(', ')', ], 'latex'
       send stamp event
     #.......................................................................................................
     else
@@ -581,7 +582,7 @@ stamp                     = MKTS.stamp.bind stamp
   #.........................................................................................................
   return $ ( event, send ) =>
     #.......................................................................................................
-    if MKTS.isa event, [ '(', ')', ], [ 'i', 'b', ]
+    if select event, [ '(', ')', ], [ 'i', 'b', ]
       [ type, name, text, meta, ] = event
       new_name = if name is 'i' then 'em' else 'strong'
       send [ type, new_name, text, meta, ]
@@ -594,7 +595,7 @@ stamp                     = MKTS.stamp.bind stamp
   #.........................................................................................................
   return $ ( event, send ) =>
     #.......................................................................................................
-    if MKTS.isa event, [ '(', ')', ], [ 'em', 'strong', ]
+    if select event, [ '(', ')', ], [ 'em', 'strong', ]
       send stamp event
       [ type, name, text, meta, ] = event
       if type is '('
@@ -617,7 +618,7 @@ stamp                     = MKTS.stamp.bind stamp
     ### TAINT selection could be simpler, less repetitive ###
     if event[ 0 ] in [ 'tex', 'text', ]
       send event
-    else if MKTS.isa event, '.', 'text'
+    else if select event, '.', 'text'
       send event
     else unless MKTS.is_stamped event
       [ type, name, text, meta, ] = event
@@ -650,7 +651,7 @@ stamp                     = MKTS.stamp.bind stamp
   return $ ( event, send ) =>
     if event[ 0 ] in [ 'tex', 'text', ]
       send event[ 1 ]
-    else if MKTS.isa event, '.', [ 'text', 'latex', ]
+    else if select event, '.', [ 'text', 'latex', ]
       send event[ 2 ]
     else
       warn "unhandled event: #{JSON.stringify event}" unless MKTS.is_stamped event
@@ -725,5 +726,5 @@ unless module.parent?
   # event = [ '{', 'single-column', ]
   # event = [ '}', 'single-column', ]
   # event = [ '{', 'new-page', ]
-  # debug '©Gpn1J', MKTS.isa event, [ '{', '}'], [ 'single-column', 'new-page', ]
+  # debug '©Gpn1J', select event, [ '{', '}'], [ 'single-column', 'new-page', ]
 

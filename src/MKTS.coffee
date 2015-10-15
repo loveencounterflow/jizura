@@ -60,7 +60,7 @@ misfit                    = Symbol 'misfit'
 #-----------------------------------------------------------------------------------------------------------
 @$fix_typography_for_tex = ( options ) ->
   return $ ( event, send ) =>
-    if @isa event, '.', 'text'
+    if @select event, '.', 'text'
       [ type, name, text, meta, ] = event
       meta[ 'raw' ] = text
       text          = @fix_typography_for_tex text, options
@@ -360,7 +360,7 @@ tracker_pattern = /// ^
     # debug '@763', "tracking event #{rpr event}"
     for pattern, state of self._states
       { parts } = state
-      continue unless _MKTS.isa event, parts...
+      continue unless _MKTS.select event, parts...
       [ [ left_fence, right_fence, ], pattern_name, ] = parts
       [ type, event_name, ]                           = event
       if type is left_fence
@@ -506,7 +506,7 @@ tracker_pattern = /// ^
     track event
     [ type, name, text, meta, ] = event
     #.......................................................................................................
-    if ( not within_code ) and ( @isa event, '.', 'text' )
+    if ( not within_code ) and ( @select event, '.', 'text' )
       lines = @_split_lines_with_nl text
       #.....................................................................................................
       for line in lines
@@ -529,7 +529,7 @@ tracker_pattern = /// ^
       #.....................................................................................................
       @_flush_text_collector send, collector, ( @copy meta )
     #.......................................................................................................
-    else if ( region_stack.length > 0 ) and ( @isa event, '>', 'document' )
+    else if ( region_stack.length > 0 ) and ( @select event, '>', 'document' )
       warn "auto-closing regions: #{rpr region_stack.join ', '}"
       send [ '}', region_stack.pop(), null, ( @copy meta ), ] while region_stack.length > 0
       send event
@@ -565,7 +565,7 @@ tracker_pattern = /// ^
     within_literal = track.within '{code}', '(code)', '(latex)', '(latex)'
     track event
     [ type, name, text, meta, ] = event
-    if ( not within_literal ) and @isa event, '.', 'text'
+    if ( not within_literal ) and @select event, '.', 'text'
       is_command = yes
       for part in text.split fence_pattern
         is_command  = not is_command
@@ -640,7 +640,7 @@ tracker_pattern = /// ^
     within_code = track.within '(code)'
     track event
     [ type, name, text, meta, ] = event
-    if ( not within_code ) and @isa event, '.', 'text'
+    if ( not within_code ) and @select event, '.', 'text'
       lines = @_split_lines_with_nl text
       #.......................................................................................................
       for line in lines
@@ -663,12 +663,12 @@ tracker_pattern = /// ^
   #.........................................................................................................
   return $ ( event, send ) =>
     # [ type, name, text, meta, ] = event
-    if @isa event, '∆', 'end'
+    if @select event, '∆', 'end'
       [ _, _, _, meta, ]    = event
       { line_nr, }          = meta
       warn "encountered `∆∆∆end` on line ##{line_nr}, ignoring further material"
       S.has_ended = yes
-    else if @isa event, '>', 'document'
+    else if @select event, '>', 'document'
       send event
     else
       send event unless S.has_ended
@@ -682,11 +682,11 @@ tracker_pattern = /// ^
   return $ ( event, send ) =>
     [ type, name, text, meta, ] = event
     # debug '©nLnB5', event
-    if @isa event, [ '{', '[', '(', ]
+    if @select event, [ '{', '[', '(', ]
       tag_stack.push [ type, name, null, meta, ]
       send event
-    else if @isa event, [ '}', ']', ')', ]
-      if @isa event, '>', 'document'
+    else if @select event, [ '}', ']', ')', ]
+      if @select event, '>', 'document'
         while tag_stack.length > 0
           sub_event                         = tag_stack.pop()
           [ sub_type, sub_name, sub_meta, ] = sub_event
@@ -705,10 +705,10 @@ tracker_pattern = /// ^
     return null
 
 #-----------------------------------------------------------------------------------------------------------
-@isa = ( event, type, name ) ->
+@select = ( event, type, name ) ->
   ### TAINT should use the same syntax as accepted by `FENCES.parse` ###
-  ### check for arity as it's easy to write `isa event, '(', ')', 'latex'` when what you meant
-  was `isa event, [ '(', ')', ], 'latex'` ###
+  ### check for arity as it's easy to write `select event, '(', ')', 'latex'` when what you meant
+  was `select event, [ '(', ')', ], 'latex'` ###
   return false if @is_hidden event
   if ( arity = arguments.length ) > 3
     throw new Error "expected at most 3 arguments, got #{arity}"
