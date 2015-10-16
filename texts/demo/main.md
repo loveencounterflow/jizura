@@ -1,4 +1,20 @@
 
+
+front #1 #,2<<(:foo1>>FOO<<:)>>. <<!foo1>>, <\<!foo1>>, \<<!foo1>>, back.
+
+front #1 #,2<<(:foo2>>#FOO#<<:)>>. <<!foo2>>, <\<!foo2>>, \<<!foo2>>, back.
+
+A <<(:x1>> <\<(raw>>\TeX{} <\<raw)>> <<:)>>: (<<!x1>>) Z
+
+A <<(:x2>> <<(raw>>\TeX{} <<raw)>> <<:)>>: (<<!x2>>) Z
+
+<<(:redefined>>[first value]<<:)>><<!redefined>>
+
+<<(:redefined>>[second value]<<:)>><<!redefined>>
+
+a <\<b>> \c
+<<!end>>
+
 <<(:thequestion>>*What is the meaning of life,
 the universe, and everything?*<<:)>>
 <<(:theanswer>>**42**<<:)>>

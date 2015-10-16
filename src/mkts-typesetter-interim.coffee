@@ -215,13 +215,17 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
     #.......................................................................................................
     if select event, [ '(', '[', ], ':'
       [ type, _, last_identifier, meta, ] = event
+      warn "re-defining command #{rpr last_identifier}" if values[ last_identifier ]?
+      values[ last_identifier ] = []
       send stamp hide event
     #.......................................................................................................
     else if select event, [ ')', ']', ], ':'
       send stamp hide event
     #.......................................................................................................
     else if within_definition
-      ( values[ last_identifier ]?= [] ).push event
+      unless ( target = values[ last_identifier ] )?
+        throw new Error "should never happen; unknown identifier #{rpr last_identifier}"
+      target.push event
       send stamp hide copy event
     #.......................................................................................................
     else if select event, '∆'
