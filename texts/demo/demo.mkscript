@@ -1,46 +1,20 @@
-█ 2 █ <document(:(em'What is the meaning of life,
-the universe, and everything?'))'
-'(:(strong'42'))'
-'(:(raw'\\textbackslash{}TeX\\{\\}'))'
-'(:(raw'\\textbackslash{}LaTeX\\{\\}'))'
-'(:(strong'MKTS'))'
-'(:'first first first first first first
-first first first first first first first first first
-first first first first first first first first first'¶
-'second second second second second second second second second
-second second second second second second second second second
-second second second second second second second second second
-second second second second second second second second second
-')¶
-█ 18 █ {multi-column∆
-'first first first first first first
-first first first first first first first first first
-first first first first first first first first first'¶
-'second second second second second second second second second
-second second second second second second second second second
-second second second second second second second second second
-second second second second second second second second second
-'¶
-'Use of definition: The question is “'∆
-(em'What is the meaning of life,
-the universe, and everything?')'”; the
-answer is “'∆
-(strong'42')'”.'¶
-}
-'Use of the logo: '∆
-(raw
-█ 2 █ IGNORED: [ '.',
+█ 3 █ <document'front \\#1 \\#,2'(:'FOO')'. '∆
+'FOO'', <<!foo1>>, <<!foo1>>, back.'¶
+'front \\#1 \\#,2'(:'\\#FOO\\#')'. '∆
+'\\#FOO\\#'', <<!foo2>>, <<!foo2>>, back.'¶
+'A '(:' <<(raw>>\\textbackslash{}TeX\\{\\} <<raw)>> ')': ('∆
+' <<(raw>>\\textbackslash{}TeX\\{\\} <<raw)>> '') Z'¶
+'A '(:' '(raw'\\textbackslash{}TeX\\{\\} ')' ')': ('∆
+' '(raw
+█ 9 █ IGNORED: [ '.',
   'raw',
-  '\\LaTeX{}',
-  { line_nr: 2, col_nr: 11, raw: '\\LaTeX{}', stamped: true } ])'.'¶
-█ 30 █ [h2'Generalized Command Syntax']
-'foo '
-█ 32 █ ?bar
-' baz'¶
-'Here we inserted ‘'∆
-(raw
-█ 2 █ IGNORED: [ '.',
-  'raw',
-  '\\LaTeX{}',
-  { line_nr: 2, col_nr: 11, raw: '\\LaTeX{}', stamped: true } ])'’ using '(code'<<!LATEX>>')'.'¶
->
+  '\\TeX{} ',
+  { line_nr: 9, col_nr: 10, raw: '\\TeX{} ', stamped: true } ])' '') Z'¶
+(:'[first value]')∆
+'[first value]'¶
+(:'[second value]')∆
+'[second value]'¶
+∆
+'[second value]''!!!'¶
+'a <<b>> \\textbackslash{}c
+'>

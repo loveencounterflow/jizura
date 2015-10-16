@@ -12,6 +12,8 @@ A <<(:x2>> <<(raw>>\TeX{} <<raw)>> <<:)>>: (<<!x2>>) Z
 
 <<(:redefined>>[second value]<<:)>><<!redefined>>
 
+&lt;&lt;!redefined>>!!!
+
 a <\<b>> \c
 <<!end>>
 
