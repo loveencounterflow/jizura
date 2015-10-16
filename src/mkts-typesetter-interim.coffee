@@ -698,13 +698,13 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       .pipe @MKTX.INLINE.$em_and_strong                     state
       .pipe @MKTX.BLOCK.$remove_empty_p_tags                state
       .pipe @MKTX.BLOCK.$paragraph                          state
-      .pipe D.$observe ( event ) =>
-        if MKTS.select event, 'text'
-          # info JSON.stringify event
-          debug event
-        else
-          # whisper JSON.stringify event
-      # .pipe MKTS.$show_mktsmd_events                        state
+      # .pipe D.$observe ( event ) =>
+      #   if MKTS.select event, 'text'
+      #     # info JSON.stringify event
+      #     debug event
+      #   else
+      #     # whisper JSON.stringify event
+      .pipe MKTS.$show_mktsmd_events                        state
       .pipe MKTS.$write_mktscript                           state
       .pipe @$show_unhandled_tags                           state
       .pipe @$filter_tex()

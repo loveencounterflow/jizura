@@ -1,38 +1,46 @@
 
-<<{multi-column>>
-
 <<(:thequestion>>*What is the meaning of life,
 the universe, and everything?*<<:)>>
-
 <<(:theanswer>>**42**<<:)>>
+<<(:TEX>><<(raw>>\TeX{}<<raw)>><<:)>>
+<<(:LATEX>><<(raw>>\LaTeX{}<<raw)>><<:)>>
+<<(:MKTS>>**MKTS**<<:)>>
+<<(:two-pars>>first first first first first first
+first first first first first first first first first
+first first first first first first first first first
 
-*italic*
-**bold**
+second second second second second second second second second
+second second second second second second second second second
+second second second second second second second second second
+second second second second second second second second second
+<<:)>>
+
+<<{multi-column>>
+
+<<!two-pars>>
 
 Use of definition: The question is "<<!thequestion>>"; the
 answer is "<<!theanswer>>".
 
 <<multi-column}>>
 <!-- <<!end>> -->
-Definition of the LaTeX Logo:
-<<(:latexlogo>><<(raw>>\LaTeX{}<<raw)>><<:)>>.
 
-Use of the logo: <<!latexlogo>>.
+Use of the logo: <<!LATEX>>.
 
 ## Generalized Command Syntax
 
-foo <<bar>> baz
+foo <\<bar>> baz
 
-Here we inserted '<<!latexlogo>>' using `<<!latexlogo>>`.
+Here we inserted '<<!LATEX>>' using `<<!LATEX>>`.
 
-`<<!end>>`
+<<!end>>
 
 <<{multi-column>>
 
 ## Math Mode
 
 It's perfectly possible to take advantage of
-<<(raw>>\LaTeX{}<<raw)>>'s famous Math Mode; for example,
+<<!TEX>>'s famous Math Mode; for example,
 you can now effortlessly have formulas like
 
 <<(raw>>$\lim_{x \to \infty} \exp(-x) = 0$<<raw)>>
@@ -49,22 +57,22 @@ Some math: <<(raw>>$\lim_{x \to \infty} \exp(-x) = 0$<<raw)>>
 
 xxx
 
-## Quotes, Character Entities, TeX Special Characters
+## Quotes, Character Entities, <<!TEX>> Special Characters
 
 foo 'bar' baz. &jzr#xe170; beautiful!
 
 <<{multi-column>>
-You can use `<<{raw>> ... <<raw}>>` or `<<(raw>> ... <<raw)>>` to directly insert <<!latexlogo>>
+You can use `<<{raw>> ... <<raw}>>` or `<<(raw>> ... <<raw)>>` to directly insert <<!LATEX>>
 code into your script; for example, you could
 use `<<(raw>>\LaTeX{}<<raw)>>`
 to obtain the <<(raw>>\LaTeX{}<<raw)>> logogram.
 Observe that we had to write `\LaTeX{}` here instead of `\LaTeX` to preserve the space between the logogram itself and
-the word 'logogram'—MKTS will not intervene to make that happen
+the word 'logogram'—<<!MKTS>> will not intervene to make that happen
 automatically, as a careful, scientific study has demonstrated
 that this problem—preserving spaces following commands in a
 general way that does not rely on parsing <<(raw>>\LaTeX{}<<raw)>>
 source and is not going to muck with very deep
-<<(raw>>\TeX{}<<raw)>>
+<<!TEX>>
 internals—is NP-complete.
 
 Another potential use of  is to <<(raw>>{\color{red}<<raw)>>COLORIZE!<<(raw>>}<<raw)>> your text, here done by inserting
@@ -97,7 +105,7 @@ CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCC
 CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC CCCCCC
 <<raw}>>
 
-<<{raw>>to insert <<!latexlogo>> commands
+<<{raw>>to insert <<!LATEX>> commands
 <<raw}>>
 <<{multi-column>>
 <<multi-column}>>
@@ -108,7 +116,7 @@ Helo <<(code>>world<<code)>>! = Helo `world`!
 
 @@@multi-column
 
-^[h2^MKTS Regions 中國皇帝^]h2^
+^[h2^<<!MKTS>> Regions 中國皇帝^]h2^
 
 ## Footnotes
 
@@ -123,7 +131,7 @@ belong to the previous footnote.
 
 ## MKTS Regions 中國皇帝
 
-To indicate the start of an MKTS-MD Region, place a triple at-sign `@@@`
+To indicate the start of an <<!MKTS>>/MD Region, place a triple at-sign `@@@`
 at the start of a line, immediately followed by a command name such as
 `keep-lines` or `single-column`. The end of a region is indicated by a
 triple at-sign without a command name. Nested regions are possible; for example,
@@ -185,7 +193,7 @@ x x x x x x x x x x x x x x x x x x x x x x x x x x
 
 ## MKTS Regions 中國皇帝
 
-To indicate the start of an MKTS-MD Region, place a triple at-sign `@@@`
+To indicate the start of an <<!MKTS>>/MD Region, place a triple at-sign `@@@`
 at the start of a line, immediately followed by a command name such as
 `keep-lines` or `single-column`. The end of a region is indicated by a
 triple at-sign without a command name. Nested regions are possible; for example,
@@ -214,7 +222,7 @@ indicates the end of the `keep-lines` region; since the
 paragraph runs across the entire width* of the documents text
 area.
 @@@
-Now a `}single-column` MKTS/MD event has been encountered
+Now a `}single-column` <<!MKTS>>/MD event has been encountered
 that was triggered by a triple-at command in the manuscript;
 accordingly, typesetting is reverted back to multi-column mode,
 which is why you can see this paragraph set in two columns.

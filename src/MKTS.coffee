@@ -791,7 +791,7 @@ tracker_pattern = /// ^
           color = CND.brown
         else
           switch type
-            when '<', '>'      then color = CND.YELLOW
+            when '<', '>'      then color = CND.yellow
             when '{','[',  '(' then color = CND.lime
             when ')', ']', '}' then color = CND.olive
             when '∆'           then color = CND.indigo
