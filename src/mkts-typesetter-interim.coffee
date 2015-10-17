@@ -2,7 +2,6 @@
 
 
 
-
 ############################################################################################################
 njs_path                  = require 'path'
 njs_fs                    = require 'fs'
@@ -670,18 +669,21 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
     # process.exit()
     ### TAINT should read MD source stream ###
     text                    = njs_fs.readFileSync source_locator, encoding: 'utf-8'
+    input                   = MKTS.create_mdreadstream text
+    resend                  = ( event ) => input.write event
     #---------------------------------------------------------------------------------------------------------
     state =
       # write_protocoll:      yes
       options:              @options
       layout_info:          layout_info
+      input:                input
+      resend:               resend
     #---------------------------------------------------------------------------------------------------------
     tex_output.on 'close', =>
       HELPERS.write_pdf layout_info, ( error ) =>
         throw error if error?
         handler null if handler?
     #---------------------------------------------------------------------------------------------------------
-    input = MKTS.create_mdreadstream text
     input
       .pipe MKTS.$fix_typography_for_tex                    @options
       .pipe @MKTX.DOCUMENT.$begin                           state
@@ -709,6 +711,7 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       #   else
       #     # whisper JSON.stringify event
       .pipe MKTS.$show_mktsmd_events                        state
+      .pipe MKTS.$close_dangling_open_tags                  state
       .pipe MKTS.$write_mktscript                           state
       .pipe @$show_unhandled_tags                           state
       .pipe @$filter_tex()

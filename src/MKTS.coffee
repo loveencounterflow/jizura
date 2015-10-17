@@ -676,29 +676,30 @@ tracker_pattern = /// ^
     return null
 
 #-----------------------------------------------------------------------------------------------------------
-@$_close_dangling_open_tags = ( S ) ->
+@$close_dangling_open_tags = ( S ) ->
+  # throw new Error "currently not used: `$close_dangling_open_tags`"
   tag_stack = []
   #.........................................................................................................
   return $ ( event, send ) =>
     [ type, name, text, meta, ] = event
     # debug '©nLnB5', event
-    if @select event, [ '{', '[', '(', ]
+    if @select event, '>', 'document'
+      while tag_stack.length > 0
+        sub_event                                   = tag_stack.pop()
+        [ sub_type, sub_name, sub_text, sub_meta, ] = sub_event
+        switch sub_type
+          when '{' then sub_type = '}'
+          when '[' then sub_type = ']'
+          when '(' then sub_type = ')'
+        S.resend [ sub_type, sub_name, sub_text, ( @copy sub_meta ), ]
+      send event
+    else if @select event, [ '{', '[', '(', ]
       tag_stack.push [ type, name, null, meta, ]
       send event
     else if @select event, [ '}', ']', ')', ]
-      if @select event, '>', 'document'
-        while tag_stack.length > 0
-          sub_event                         = tag_stack.pop()
-          [ sub_type, sub_name, sub_meta, ] = sub_event
-          switch sub_type
-            when '{' then sub_type = '}'
-            when '[' then sub_type = ']'
-            when '(' then sub_type = ')'
-          send [ sub_type, sub_name, null, ( @copy sub_meta ), ]
-        send event
-      else
-        tag_stack.pop()
-        send event
+      ### TAINT should check matching pairs ###
+      tag_stack.pop()
+      send event
     else
       send event
     #.......................................................................................................
@@ -758,7 +759,7 @@ tracker_pattern = /// ^
   work for general values. ###
   if ( isa_list = CND.isa_list x ) then R = []
   else if         CND.isa_pod  x   then R = {}
-  else throw new Error "unable to cpy a #{CND.type_of x}"
+  else throw new Error "unable to copy a #{CND.type_of x}"
   R       = Object.assign R, x, updates...
   R[ 3 ]  = Object.assign {}, meta if isa_list and ( meta = R[ 3 ] )?
   return R
@@ -944,7 +945,6 @@ tracker_pattern = /// ^
     .pipe @$_preprocess_commands            state
     .pipe @$_process_end_command            state
     .pipe @$_preprocess_regions             state
-    .pipe @$_close_dangling_open_tags       state
     .pipe R
   #.........................................................................................................
   R.on 'resume', =>
