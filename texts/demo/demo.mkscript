@@ -1,13 +1,108 @@
-█ 1 █ <document█ 1 █ {multi-column(:'*What is the meaning of life,
+█ 1 █ <document''¶
+█ 1 █ {multi-column''¶
+''(:'*What is the meaning of life,
 the universe, and everything?*')'
-'(:(strong'42'))'
-'(:(raw'\\textbackslash{}TeX\\{\\}'))'
-'(:(raw'\\textbackslash{}LaTeX\\{\\}'))'
-'(:(strong'MKTS'))¶
+'(:''(strong'42')'')'
+'(:''(raw'\\textbackslash{}TeX\\{\\}')'')'
+'(:''(raw'\\textbackslash{}LaTeX\\{\\}')'')'
+'(:''(strong'MKTS')'')''¶
 █ 11 █ [h1'MKTS/MD']
 █ 13 █ [h2'Regions, Blocks and Spans']
 █ 15 █ [h3'The Fine Print']
 'A fascinating description of a global language, '(em'A Grammar of Mandarin')' combines broad perspectives with illuminating depth. Crammed with examples from everyday conversations, it aims to let the language speak for itself. The book opens with an overview of the language situation and a thorough account of Mandarin speech sounds. Nine core chapters explore syntactic, morphological and lexical dimensions. A final chapter traces the Chinese character script from oracle-bone inscriptions to today’s digital pens.'¶
 'This work will cater to language learners and linguistic specialists alike. Easy reference is provided by more than eighty tables, figures, appendices, and a glossary. The main text is enriched by sections in finer print, offering further analysis and reflection. Example sentences are fully glossed, translated, and explained from diverse angles, with a keen eye for recent linguistic change. This grammar, in short, reveals a Mandarin language in full swing.'¶
-}
+█ 22 █ [h2'Math Mode']
+'It’s perfectly possible to take advantage of
+'!
+''(raw
+█ 4 █ IGNORED: [ '.',
+  'raw',
+  '\\TeX{}',
+  { line_nr: 4, col_nr: 10, raw: '\\TeX{}', stamped: true } ])'''\'s famous Math Mode; for example,
+you can now effortlessly have formulas like'¶
+''(raw
+█ 28 █ IGNORED: [ '.',
+  'raw',
+  '$\\lim_{x \\to \\infty} \\exp(-x) = 0$',
+  { line_nr: 28,
+    col_nr: 29,
+    raw: '$\\lim_{x \\to \\infty} \\exp(-x) = 0$',
+    stamped: true } ])''¶
+'in your documents (and of course, inline math '(em'à la')'
+'(raw
+█ 30 █ IGNORED: [ '.',
+  'raw',
+  '$\\lim_{x \\to \\infty}$',
+  { line_nr: 30,
+    col_nr: 32,
+    raw: '$\\lim_{x \\to \\infty}$',
+    stamped: true } ])' works as well).'¶
+''}
+''¶
+'Some math: '(code'<<(raw>>\\$\\textbackslash{}lim\\_\\{x \\textbackslash{}to \\textbackslash{}infty\\} \\textbackslash{}exp(-x) = 0\\$<<raw)>>')¶
+'Some math: '(raw
+█ 38 █ IGNORED: [ '.',
+  'raw',
+  '$\\lim_{x \\to \\infty} \\exp(-x) = 0$',
+  { line_nr: 38,
+    col_nr: 39,
+    raw: '$\\lim_{x \\to \\infty} \\exp(-x) = 0$',
+    stamped: true } ])''¶
+'xxx'¶
+█ 42 █ [h2'Quotes, Character Entities, '!
+''(raw
+█ 4 █ IGNORED: [ '.',
+  'raw',
+  '\\TeX{}',
+  { line_nr: 4, col_nr: 10, raw: '\\TeX{}', stamped: true } ])''' Special Characters']
+'foo ‘bar’ baz. \\cnjzr{} beautiful!'¶
+''¶
+█ 46 █ {multi-column'
+You can use '(code'<<\\{raw>> ... <<raw\\}>>')' or '(code'<<(raw>> ... <<raw)>>')' to directly insert '!
+''(raw
+█ 4 █ IGNORED: [ '.',
+  'raw',
+  '\\LaTeX{}',
+  { line_nr: 4, col_nr: 10, raw: '\\LaTeX{}', stamped: true } ])'''
+code into your script; for example, you could
+use '(code'<<(raw>>\\textbackslash{}LaTeX\\{\\}<<raw)>>')'
+to obtain the '(raw
+█ 46 █ IGNORED: [ '.',
+  'raw',
+  '\\LaTeX{}',
+  { line_nr: 46, col_nr: 59, raw: '\\LaTeX{}', stamped: true } ])' logogram.
+Observe that we had to write '(code'\\textbackslash{}LaTeX\\{\\}')' here instead of '(code'\\textbackslash{}LaTeX')' to preserve the space between the logogram itself and
+the word ‘logogram’—'!
+''(strong'MKTS')''' will not intervene to make that happen
+automatically, as a careful, scientific study has demonstrated
+that this problem—preserving spaces following commands in a
+general way that does not rely on parsing '(raw
+█ 46 █ IGNORED: [ '.',
+  'raw',
+  '\\LaTeX{}',
+  { line_nr: 46, col_nr: 59, raw: '\\LaTeX{}', stamped: true } ])'
+source and is not going to muck with very deep
+'!
+''(raw
+█ 4 █ IGNORED: [ '.',
+  'raw',
+  '\\TeX{}',
+  { line_nr: 4, col_nr: 10, raw: '\\TeX{}', stamped: true } ])'''
+internals—is NP-complete.'¶
+'Another potential use of  is to '(raw
+█ 60 █ IGNORED: [ '.',
+  'raw',
+  '{\\color{red}',
+  { line_nr: 60, col_nr: 61, raw: '{\\color{red}', stamped: true } ])'COLORIZE!'(raw
+█ 60 █ IGNORED: [ '.',
+  'raw',
+  '}',
+  { line_nr: 60, col_nr: 61, raw: '}', stamped: true } ])' your text, here done by inserting'¶
+█ 61 █ {code'<<(raw>>\\{\\textbackslash{}color\\{red\\}<<raw)>>
+COLORIZE!
+<<(raw>>\\}<<raw)>>
+'}
+'(with or without the line breaks) into the script.
+'}
+''¶
 >

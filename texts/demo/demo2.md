@@ -128,7 +128,7 @@ Helo <<(code>>world<<code)>>! = Helo `world`!
 
 <!-- <<!end>> -->
 
-@@@multi-column
+<<{multi-column>>
 
 ^[h2^<<!MKTS>> Regions 中國皇帝^]h2^
 
@@ -149,7 +149,7 @@ To indicate the start of an <<!MKTS>>/MD Region, place a triple at-sign `@@@`
 at the start of a line, immediately followed by a command name such as
 `keep-lines` or `single-column`. The end of a region is indicated by a
 triple at-sign without a command name. Nested regions are possible; for example,
-you can put a `@@@keep-lines` region inside a `@@@single-column` region as
+you can put a `<<{keep-lines>>` region inside a `<<{single-column>>` region as
 done here:
 
 ## Code Regions
@@ -172,7 +172,7 @@ x x x x x x x x x x x x x x x x x x x x x x x x x x
 
 It's possible to switch on `inline code`. It's also possible
 to have a region of code with lines rendered as in the source:
-@@@single-column
+<<{single-column>>
 ```
 #-------------------------------------------------------------------------------------
 @_shuffle = ( list, ratio, rnd, random_integer ) ->
@@ -189,7 +189,7 @@ to have a region of code with lines rendered as in the source:
   #...................................................................................
   return list
 ```
-@@@
+<<single-column}>>
 x x x x x x x x x x x x x x x x x x x x x x x x x x
 x x x x x x x x x x x x x x x x x x x x x x x x x x
 x x x x x x x x x x x x x x x x x x x x x x x x x x
@@ -211,13 +211,13 @@ To indicate the start of an <<!MKTS>>/MD Region, place a triple at-sign `@@@`
 at the start of a line, immediately followed by a command name such as
 `keep-lines` or `single-column`. The end of a region is indicated by a
 triple at-sign without a command name. Nested regions are possible; for example,
-you can put a `@@@keep-lines` region inside a `@@@single-column` region as
+you can put a `<<{keep-lines>>` region inside a `<<{single-column>>` region as
 done here:
 
 
-@@@single-column
+<<{single-column>>
 Here are some formulas:
-@@@keep-lines
+<<{keep-lines>>
 `u-cjk/4e36`  丶   ●
 `u-cjk/4e37`  丷   ⿰丶丿
 `u-cjk/4e38`  丸   ⿻九丶
@@ -229,13 +229,13 @@ Here are some formulas:
 
 `u-cjk-xb/250b7`  𥂷   ⿱⿰告巨皿
 `u-cjk-xb/250b8`  𥂸   ⿱楊皿
-@@@
+<<keep-lines}>>
 At this point, a line consisting of a triple at-sign `@@@`
 indicates the end of the `keep-lines` region; since the
 `single-column` region is still active, however, *this
 paragraph runs across the entire width* of the documents text
 area.
-@@@
+<<single-column}>>
 Now a `}single-column` <<!MKTS>>/MD event has been encountered
 that was triggered by a triple-at command in the manuscript;
 accordingly, typesetting is reverted back to multi-column mode,
@@ -276,13 +276,13 @@ And this is the text following the fence.
 ## Keep-Lines Regions: Formulas Example
 
 To preserve line breaks in the PDF the way they were entered in
-the MD manuscript, use `@@@keep-lines` regions. Currently, the
+the MD manuscript, use `<<{keep-lines>>` regions. Currently, the
 best idea is to position the sentinels in a 'tight' way, without
 intervening blank lines between the sentinels and the surrounding
 paragraph.
 
 Here are some formulas:
-@@@keep-lines
+<<{keep-lines>>
 `u-cjk/4e36`  丶   ●
 `u-cjk/4e37`  丷   ⿰丶丿
 `u-cjk/4e38`  丸   ⿻九丶
@@ -294,7 +294,7 @@ Here are some formulas:
 
 `u-cjk-xb/250b7`  𥂷   ⿱⿰告巨皿
 `u-cjk-xb/250b8`  𥂸   ⿱楊皿
-@@@
+<<keep-lines}>>
 These formulas may be recursively resolved by way of substitution to their
 ultimate constituent parts—strokes. Somewhere along that process of
 deconstruction, we meet with fairly recurrent figures or shapes.
@@ -302,60 +302,60 @@ deconstruction, we meet with fairly recurrent figures or shapes.
 
 ## Keep-Lines Regions: All in One Paragraph
 
-@@@single-column
+<<{single-column>>
 A-before
-@@@keep-lines
+<<{keep-lines>>
 A-within
 A-within
 A-within
-@@@
+<<keep-lines}>>
 A-after
-@@@
+<<single-column}>>
 
 ## Keep-Lines Regions: With separate Before, After Paragraphs
 
-@@@single-column
+<<{single-column>>
 B-before
 
-@@@keep-lines
+<<{keep-lines>>
 B-within
 B-within
 B-within
-@@@
+<<keep-lines}>>
 
 B-after
 
-@@@
+<<single-column}>>
 
 ## Keep-Lines Regions: Region Starts, Ends within Paragraph
 
-@@@single-column
+<<{single-column>>
 C-before
-@@@keep-lines
+<<{keep-lines>>
 
 C-within
 C-within
 C-within
 
-@@@
+<<keep-lines}>>
 C-after
-@@@
+<<single-column}>>
 
 ## Keep-Lines Regions: Region Starts, Ends with separate Paragraph
 
-@@@single-column
+<<{single-column>>
 D-before
 
-@@@keep-lines
+<<{keep-lines>>
 
 D-within
 D-within
 D-within
 
-@@@
+<<keep-lines}>>
 
 D-after
-@@@
+<<single-column}>>
 
 
 # This is a Demonstration 中國皇帝
@@ -565,14 +565,14 @@ To indicate the start of an MKTS-MD Region, place a triple at-sign `@@@`
 at the start of a line, immediately followed by a command name such as
 `keep-lines` or `single-column`. The end of a region is indicated by a
 triple at-sign without a command name. Nested regions are possible; for example,
-∆∆∆new-page
-you can put a `@@@keep-lines` region inside a `@@@single-column` region as
+<<!new-page>>
+you can put a `<<{keep-lines>>` region inside a `<<{single-column>>` region as
 done here:
 
 
-@@@single-column
+<<{single-column>>
 Here are some formulas:
-@@@keep-lines
+<<{keep-lines>>
 `u-cjk/4e36`  丶   ●
 `u-cjk/4e37`  丷   ⿰丶丿
 `u-cjk/4e38`  丸   ⿻九丶
@@ -585,7 +585,7 @@ Here are some formulas:
 `u-cjk-xb/250b7`  𥂷   ⿱⿰告巨皿
 `u-cjk-xb/250b8`  𥂸   ⿱楊皿
 
-@@@
+<<keep-lines}>>
 
 At this point, a line consisting of a triple at-sign `@@@`
 indicates the end of the `keep-lines` region; since the
@@ -595,7 +595,7 @@ area.
 
 xxxx
 
-@@@
+<<single-column}>>
 
 # Another Demonstration
 
@@ -644,13 +644,13 @@ To indicate the start of an MKTS-MD Region, place a triple at-sign `@@@`
 at the start of a line, immediately followed by a command name such as
 `keep-lines` or `single-column`. The end of a region is indicated by a
 triple at-sign without a command name. Nested regions are possible; for example,
-you can put a `@@@keep-lines` region inside a `@@@single-column` region as
+you can put a `<<{keep-lines>>` region inside a `<<{single-column>>` region as
 done here:
 
 
-@@@single-column
+<<{single-column>>
 Here are some formulas:
-@@@keep-lines
+<<{keep-lines>>
 `u-cjk/4e36`  丶   ●
 `u-cjk/4e37`  丷   ⿰丶丿
 `u-cjk/4e38`  丸   ⿻九丶
@@ -662,21 +662,21 @@ Here are some formulas:
 
 `u-cjk-xb/250b7`  𥂷   ⿱⿰告巨皿
 `u-cjk-xb/250b8`  𥂸   ⿱楊皿
-@@@
+<<keep-lines}>>
 At this point, a line consisting of a  triple at-sign `@@@`
 indicates the end of the `keep-lines` region; since the
 `single-column` region is still active, however, this
 paragraph runs across the entire width of the document's text
 area.
 
-@@@
+<<single-column}>>
 
 
 # This is a Demonstration
 
-@@@single-column
+<<{single-column>>
 
-@@@keep-lines
+<<{keep-lines>>
 `u-cjk/4e36`  丶   ●
 `u-cjk/4e37`  丷   ⿰丶丿
 `u-cjk/4e38`  丸   ⿻九丶
@@ -735,9 +735,9 @@ area.
 `u-cjk-xb/250b6`  𥂶   (⿱亠〓皿)
 `u-cjk-xb/250b7`  𥂷   ⿱⿰告巨皿
 `u-cjk-xb/250b8`  𥂸   ⿱楊皿
-@@@
+<<keep-lines}>>
 
-@@@
+<<single-column}>>
 
 
 The above are just a few of the over 75,000 formulas in the Jizura collection.
@@ -750,11 +750,11 @@ The above are just a few of the over 75,000 formulas in the Jizura collection.
 
 Here comes a `keeplines` block:
 
-@@@keep-lines
+<<{keep-lines>>
 lines are kept
 as they are
 in the markdown source
-@@@
+<<keep-lines}>>
 
 <div>
 this line directly below `keeplines` block
@@ -767,7 +767,7 @@ the Mouse's tail; 'but why do you call it sad?' And she kept on puzzling
 about it while the Mouse was speaking, so that her idea of the tale was
 something like this:--
 
-@@@keep-lines
+<<{keep-lines>>
          'Fury said to a
          mouse, That he
         met in the
@@ -812,9 +812,9 @@ something like this:--
            you
           to
            death."'
-@@@
+<<keep-lines}>>
 
-∆∆∆ new-page
+<<!new-page>>
 
 this line *not* directly below `keeplines` block
 
@@ -837,7 +837,7 @@ some *slants* attempts
 \&gt;
 
 
-@@@single-column
+<<{single-column>>
 It was the White Rabbit, trotting slowly back again, and looking
 anxiously about as it went, as if it had lost something; and she heard
 it muttering to itself 'The Duchess! The Duchess! Oh my dear paws! Oh
@@ -849,7 +849,7 @@ nowhere to be seen--everything seemed to have changed since her swim in
 the pool, and the great hall, with the glass table and the little door,
 had vanished completely.
 
-@@@keep-lines
+<<{keep-lines>>
 foobar 1
 foobar 2
 foobar 3
@@ -861,7 +861,7 @@ foobar 7
 foobar 8
 foobar 9
 foobar 10
-@@@
+<<keep-lines}>>
 
 Very soon the Rabbit noticed Alice, as she went hunting about, and
 called out to her in an angry tone, 'Why, Mary Ann, what ARE you doing
@@ -869,7 +869,7 @@ out here? Run home this moment, and fetch me a pair of gloves and a fan!
 Quick, now!' And Alice was so much frightened that she ran off at once
 in the direction it pointed to, without trying to explain the mistake it
 had made.
-@@@
+<<single-column}>>
 
 
 
@@ -922,7 +922,7 @@ between 20‰ and 3%
 
 ### Ideographic Description Chracters (IDCs)
 
-@@@keep-lines
+<<{keep-lines>>
 '↻': 
 '↔': 
 '↕': 
@@ -939,7 +939,7 @@ between 20‰ and 3%
 '⿴':  
 '⿻':  
 '≈': 
-@@@
+<<keep-lines}>>
 
 ### Code Sections
 
@@ -972,7 +972,7 @@ difference: u-cjk-5019 候 ⿰&cdp#x8b7a;&cdp#x8bc7; [ '⿰&jzr#xe219;(⿱&jzr#x
 It's possible to switch on `inline code`. It's also possible
 to have a block of code with lines rendered as in the source:
 
-@@@single-column
+<<{single-column>>
 
 ```
 #-------------------------------------------------------------------------------------
@@ -991,7 +991,7 @@ to have a block of code with lines rendered as in the source:
   return list
 ```
 
-@@@
+<<single-column}>>
 
 Code sample, keeping indentations:
 
@@ -1128,7 +1128,7 @@ x x x x x x x x x x x x x x x x x x x x x x x
 
 
 
-∆∆∆new-page
+<<!new-page>>
 
 
 ## Fenced Code Blocks

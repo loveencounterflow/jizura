@@ -494,52 +494,52 @@ tracker_pattern = /// ^
       end()
     return null
 
-#-----------------------------------------------------------------------------------------------------------
-@$_preprocess_regions = ( S ) ->
-  opening_pattern     = /^@@@(\S.+)(\n|$)/
-  closing_pattern     = /^@@@\s*(\n|$)/
-  collector           = []
-  region_stack        = []
-  track               = @TRACKER.new_tracker '(code)'
-  #.........................................................................................................
-  return $ ( event, send ) =>
-    #.......................................................................................................
-    within_code = track.within '(code)'
-    track event
-    [ type, name, text, meta, ] = event
-    #.......................................................................................................
-    if ( not within_code ) and ( @select event, '.', 'text' )
-      lines = @_split_lines_with_nl text
-      #.....................................................................................................
-      for line in lines
-        #...................................................................................................
-        if ( match = line.match opening_pattern )?
-          @_flush_text_collector send, collector, ( @copy meta )
-          region_name = match[ 1 ]
-          region_stack.push region_name
-          send [ '{', region_name, null, ( @copy meta ), ]
-        #...................................................................................................
-        else if ( match = line.match closing_pattern )?
-          @_flush_text_collector send, collector, ( @copy meta )
-          if region_stack.length > 0
-            send [ '}', region_stack.pop(), null, ( @copy meta ), ]
-          else
-            warn "ignoring end-region"
-        #...................................................................................................
-        else
-          collector.push line
-      #.....................................................................................................
-      @_flush_text_collector send, collector, ( @copy meta )
-    #.......................................................................................................
-    else if ( region_stack.length > 0 ) and ( @select event, '>', 'document' )
-      warn "auto-closing regions: #{rpr region_stack.join ', '}"
-      send [ '}', region_stack.pop(), null, ( @copy meta ), ] while region_stack.length > 0
-      send event
-    #.......................................................................................................
-    else
-      send event
-    #.......................................................................................................
-    return null
+# #-----------------------------------------------------------------------------------------------------------
+# @$_preprocess_regions = ( S ) ->
+#   opening_pattern     = /^@@@(\S.+)(\n|$)/
+#   closing_pattern     = /^@@@\s*(\n|$)/
+#   collector           = []
+#   region_stack        = []
+#   track               = @TRACKER.new_tracker '(code)'
+#   #.........................................................................................................
+#   return $ ( event, send ) =>
+#     #.......................................................................................................
+#     within_code = track.within '(code)'
+#     track event
+#     [ type, name, text, meta, ] = event
+#     #.......................................................................................................
+#     if ( not within_code ) and ( @select event, '.', 'text' )
+#       lines = @_split_lines_with_nl text
+#       #.....................................................................................................
+#       for line in lines
+#         #...................................................................................................
+#         if ( match = line.match opening_pattern )?
+#           @_flush_text_collector send, collector, ( @copy meta )
+#           region_name = match[ 1 ]
+#           region_stack.push region_name
+#           send [ '{', region_name, null, ( @copy meta ), ]
+#         #...................................................................................................
+#         else if ( match = line.match closing_pattern )?
+#           @_flush_text_collector send, collector, ( @copy meta )
+#           if region_stack.length > 0
+#             send [ '}', region_stack.pop(), null, ( @copy meta ), ]
+#           else
+#             warn "ignoring end-region"
+#         #...................................................................................................
+#         else
+#           collector.push line
+#       #.....................................................................................................
+#       @_flush_text_collector send, collector, ( @copy meta )
+#     #.......................................................................................................
+#     else if ( region_stack.length > 0 ) and ( @select event, '>', 'document' )
+#       warn "auto-closing regions: #{rpr region_stack.join ', '}"
+#       send [ '}', region_stack.pop(), null, ( @copy meta ), ] while region_stack.length > 0
+#       send event
+#     #.......................................................................................................
+#     else
+#       send event
+#     #.......................................................................................................
+#     return null
 
 #-----------------------------------------------------------------------------------------------------------
 @$_preprocess_XXXX = ( S ) ->
@@ -620,7 +620,7 @@ tracker_pattern = /// ^
               [ _, prefix, suffix, ] = match
               switch prefix
                 when '!'
-                  send [ '∆', suffix, null, ( @copy meta ), ]
+                  send [ '!', suffix, null, ( @copy meta ), ]
                 else
                   warn "prefix #{rpr prefix} not supported in #{rpr part}"
                   send [ '?', part, null, ( @copy meta ), ]
@@ -632,32 +632,32 @@ tracker_pattern = /// ^
     #.......................................................................................................
     return null
 
-#-----------------------------------------------------------------------------------------------------------
-@$_preprocess_commands = ( S ) ->
-  pattern             = /^∆∆∆(\S.+)(\n|$)/
-  collector           = []
-  track               = @TRACKER.new_tracker '(code)'
-  #.........................................................................................................
-  return $ ( event, send ) =>
-    within_code = track.within '(code)'
-    track event
-    [ type, name, text, meta, ] = event
-    if ( not within_code ) and @select event, '.', 'text'
-      lines = @_split_lines_with_nl text
-      #.......................................................................................................
-      for line in lines
-        if ( match = line.match pattern )?
-          @_flush_text_collector send, collector, ( @copy meta )
-          send [ '∆', match[ 1 ], null, ( @copy meta ), ]
-        else
-          collector.push line
-      #.......................................................................................................
-      @_flush_text_collector send, collector, ( @copy meta )
-    #.......................................................................................................
-    else
-      send event
-    #.......................................................................................................
-    return null
+# #-----------------------------------------------------------------------------------------------------------
+# @$_preprocess_commands = ( S ) ->
+#   pattern             = /^∆∆∆(\S.+)(\n|$)/
+#   collector           = []
+#   track               = @TRACKER.new_tracker '(code)'
+#   #.........................................................................................................
+#   return $ ( event, send ) =>
+#     within_code = track.within '(code)'
+#     track event
+#     [ type, name, text, meta, ] = event
+#     if ( not within_code ) and @select event, '.', 'text'
+#       lines = @_split_lines_with_nl text
+#       #.......................................................................................................
+#       for line in lines
+#         if ( match = line.match pattern )?
+#           @_flush_text_collector send, collector, ( @copy meta )
+#           send [ '∆', match[ 1 ], null, ( @copy meta ), ]
+#         else
+#           collector.push line
+#       #.......................................................................................................
+#       @_flush_text_collector send, collector, ( @copy meta )
+#     #.......................................................................................................
+#     else
+#       send event
+#     #.......................................................................................................
+#     return null
 
 #-----------------------------------------------------------------------------------------------------------
 @$_process_end_command = ( S ) ->
@@ -665,10 +665,10 @@ tracker_pattern = /// ^
   #.........................................................................................................
   return $ ( event, send ) =>
     # [ type, name, text, meta, ] = event
-    if @select event, '∆', 'end'
+    if @select event, '!', 'end'
       [ _, _, _, meta, ]    = event
       { line_nr, }          = meta
-      warn "encountered `∆∆∆end` on line ##{line_nr}, ignoring further material"
+      warn "encountered `<<!end>>` on line ##{line_nr}, ignoring further material"
       S.has_ended = yes
     else if @select event, '>', 'document'
       send event
@@ -797,7 +797,7 @@ tracker_pattern = /// ^
             when '<', '>'      then color = CND.yellow
             when '{','[',  '(' then color = CND.lime
             when ')', ']', '}' then color = CND.olive
-            when '∆'           then color = CND.indigo
+            when '!'           then color = CND.indigo
             when '.'
               switch name
                 when 'text' then color = CND.BLUE
@@ -858,7 +858,7 @@ tracker_pattern = /// ^
             write "\n#{anchor}#{type}#{name}\n"
           when '<', '{', '['
             write "#{anchor}#{type}#{name}"
-          when '>', '}', ']', '∆'
+          when '>', '}', ']', '!'
             write "#{type}\n"
           when '('
             write "#{type}#{name}"
@@ -944,9 +944,9 @@ tracker_pattern = /// ^
     .pipe @$_replace_text                   state, @_unescape_command_fences_A
     .pipe @$_preprocess_XXXX                state
     .pipe @$_replace_text                   state, @_unescape_command_fences_B
-    .pipe @$_preprocess_commands            state
+    # .pipe @$_preprocess_commands            state
     .pipe @$_process_end_command            state
-    .pipe @$_preprocess_regions             state
+    # .pipe @$_preprocess_regions             state
     .pipe R
   #.........................................................................................................
   R.on 'resume', =>

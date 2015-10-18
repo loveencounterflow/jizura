@@ -1,6 +1,8 @@
 
 % begin of MD document
-\begin{multicols}{2}
+\mktsShowpar\par
+\begin{multicols}{2}\mktsShowpar\par
+
 
 
 
@@ -17,4 +19,41 @@
 A fascinating description of a global language, {\mktsStyleItalic{}A Grammar of Mandarin\/} combines broad perspectives with illuminating depth. Crammed with examples from everyday conversations, it aims to let the language speak for itself. The book opens with an overview of the language situation and a thorough account of Mandarin speech sounds. Nine core chapters explore syntactic, morphological and lexical dimensions. A final chapter traces the Chinese character script from oracle-bone inscriptions to today’s digital pens.\mktsShowpar\par
 This work will cater to language learners and linguistic specialists alike. Easy reference is provided by more than eighty tables, figures, appendices, and a glossary. The main text is enriched by sections in finer print, offering further analysis and reflection. Example sentences are fully glossed, translated, and explained from diverse angles, with a keen eye for recent linguistic change. This grammar, in short, reveals a Mandarin language in full swing.\mktsShowpar\par
 \end{multicols}
+\section{Math Mode
+}
+\begin{multicols}{2}It’s perfectly possible to take advantage of
+\TeX{}'s famous Math Mode; for example,
+you can now effortlessly have formulas like\mktsShowpar\par
+$\lim_{x \to \infty} \exp(-x) = 0$\mktsShowpar\par
+in your documents (and of course, inline math {\mktsStyleItalic{}à la\/}
+$\lim_{x \to \infty}$ works as well).\mktsShowpar\par
+\end{multicols}\mktsShowpar\par
+Some math: {\mktsStyleCode{}<<(raw>>\$\textbackslash{}lim\_\{x \textbackslash{}to \textbackslash{}infty\} \textbackslash{}exp(-x) = 0\$<<raw)>>}\mktsShowpar\par
+Some math: $\lim_{x \to \infty} \exp(-x) = 0$\mktsShowpar\par
+xxx\mktsShowpar\par
+
+\section{Quotes, Character Entities, \TeX{} Special Characters
+}
+foo ‘bar’ baz. \cnjzr{} beautiful!\mktsShowpar\par
+\mktsShowpar\par
+\begin{multicols}{2}
+You can use {\mktsStyleCode{}<<\{raw>> ... <<raw\}>>} or {\mktsStyleCode{}<<(raw>> ... <<raw)>>} to directly insert \LaTeX{}
+code into your script; for example, you could
+use {\mktsStyleCode{}<<(raw>>\textbackslash{}LaTeX\{\}<<raw)>>}
+to obtain the \LaTeX{} logogram.
+Observe that we had to write {\mktsStyleCode{}\textbackslash{}LaTeX\{\}} here instead of {\mktsStyleCode{}\textbackslash{}LaTeX} to preserve the space between the logogram itself and
+the word ‘logogram’—{\mktsStyleBold{}MKTS} will not intervene to make that happen
+automatically, as a careful, scientific study has demonstrated
+that this problem—preserving spaces following commands in a
+general way that does not rely on parsing \LaTeX{}
+source and is not going to muck with very deep
+\TeX{}
+internals—is NP-complete.\mktsShowpar\par
+Another potential use of  is to {\color{red}COLORIZE!} your text, here done by inserting\mktsShowpar\par
+\begingroup\obeyalllines\mktsStyleCode{}<<(raw>>\{\textbackslash{}color\{red\}<<raw)>>
+COLORIZE!
+<<(raw>>\}<<raw)>>
+\endgroup{}(with or without the line breaks) into the script.
+\end{multicols}\mktsShowpar\par
+
 % end of MD document

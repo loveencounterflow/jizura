@@ -228,7 +228,7 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       target.push event
       send stamp hide copy event
     #.......................................................................................................
-    else if select event, '∆'
+    else if select event, '!'
       [ _, identifier, _, _, ] = event
       if ( definition = values[ identifier ] )?
         send stamp hide event
@@ -243,7 +243,7 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
 @MKTX.COMMAND.$new_page = ( S ) =>
   #.........................................................................................................
   return $ ( event, send ) =>
-    return send event unless select event, '∆', 'new-page'
+    return send event unless select event, '!', 'new-page'
     send stamp event
     send [ 'tex', "\\null\\newpage{}", ]
 
@@ -646,7 +646,7 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
             text = rpr text
       else
         text = ''
-      if type in [ '.', '∆', ] or type in MKTS.FENCES.xleft
+      if type in [ '.', '!', ] or type in MKTS.FENCES.xleft
         first             = type
         last              = name
         pre               = '█'
