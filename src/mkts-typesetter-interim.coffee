@@ -200,6 +200,7 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
   REGION:     {}
   BLOCK:      {}
   INLINE:     {}
+  MIXED:      {}
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.COMMAND.$definition = ( S ) =>
@@ -278,12 +279,12 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       send event
 
 #-----------------------------------------------------------------------------------------------------------
-@MKTX.REGION._begin_multi_column  = ( meta ) =>
+@MKTX.REGION._begin_multi_column = =>
   ### TAINT Column count must come from layout / options / MKTS-MD command ###
   return [ 'tex', '\\begin{multicols}{2}' ]
 
 #-----------------------------------------------------------------------------------------------------------
-@MKTX.REGION._end_multi_column    = ( meta ) =>
+@MKTX.REGION._end_multi_column = =>
   return [ 'tex', '\\end{multicols}' ]
 
 #-----------------------------------------------------------------------------------------------------------
@@ -472,6 +473,7 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
     track event
     #.......................................................................................................
     if select event, [ '[', ']', ], [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', ]
+      # debug '@rg19TQ', event
       send stamp event
       [ type, name, text, meta, ] = event
       #.....................................................................................................
@@ -521,12 +523,16 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
         send [ 'tex', '\n\n' ]
       else
         send stamp event
-        ### TAINT use command from sty ###
-        ### TAINT make configurable ###
-        send [ 'tex', '\\mktsShowpar\\par\n' ]
+        send @MKTX.BLOCK._end_paragraph()
     #.......................................................................................................
     else
       send event
+
+#-----------------------------------------------------------------------------------------------------------
+@MKTX.BLOCK._end_paragraph = =>
+  ### TAINT use command from sty ###
+  ### TAINT make configurable ###
+  return [ 'tex', '\\mktsShowpar\\par\n' ]
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.BLOCK.$hr = ( S ) =>
@@ -561,11 +567,11 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       send event
 
 #-----------------------------------------------------------------------------------------------------------
-@MKTX.INLINE.$raw = ( S ) =>
-  track = MKTS.TRACKER.new_tracker '(raw)'
+@MKTX.MIXED.$raw = ( S ) =>
+  track = MKTS.TRACKER.new_tracker '{raw}', '[raw]', '(raw)'
   #.........................................................................................................
   return $ ( event, send ) =>
-    within_raw = track.within '(raw)'
+    within_raw = track.within '{raw}', '[raw]', '(raw)'
     track event
     #.......................................................................................................
     if within_raw and select event, '.', 'text'
@@ -574,7 +580,11 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       ### TAINT could the added `{}` conflict with some (La)TeX commands? ###
       send stamp [ '.', 'raw', raw_text, meta, ]
     #.......................................................................................................
-    else if select event, [ '(', ')', ], 'raw'
+    # else if select event, [ '{', '}', '[', ']', '(', ')', ], 'raw'
+    else if select event, [ '}', ']', ], 'raw'
+      send stamp event
+      send @MKTX.BLOCK._end_paragraph()
+    else if select event, [ '{', '[', '(', ')', ], 'raw'
       send stamp event
     #.......................................................................................................
     else
@@ -704,7 +714,7 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       .pipe @MKTX.BLOCK.$heading                            state
       .pipe @MKTX.BLOCK.$hr                                 state
       .pipe @MKTX.INLINE.$code                              state
-      .pipe @MKTX.INLINE.$raw                               state
+      .pipe @MKTX.MIXED.$raw                               state
       # .pipe @MKTX.INLINE.$italic_correction                 state
       .pipe @MKTX.INLINE.$translate_i_and_b                 state
       .pipe @MKTX.INLINE.$em_and_strong                     state
