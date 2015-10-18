@@ -1,3 +1,4 @@
+<<{multi-column>>
 
 
 front #1 #,2<<(:foo1>>FOO<<:)>>. <<!foo1>>, <\<!foo1>>, \<<!foo1>>, back.
@@ -15,7 +16,9 @@ A <<(:x2>> <<(raw>>\TeX{} <<raw)>> <<:)>>: (<<!x2>>) Z
 &lt;&lt;!redefined>>!!!
 
 a <\<b>> \c
-<<!end>>
+<!-- <<multi-column}>> -->
+
+<!-- <<!end>> -->
 
 <<(:thequestion>>*What is the meaning of life,
 the universe, and everything?*<<:)>>
@@ -33,7 +36,6 @@ second second second second second second second second second
 second second second second second second second second second
 <<:)>>
 
-<<{multi-column>>
 
 <<!two-pars>>
 
@@ -51,7 +53,7 @@ foo <\<bar>> baz
 
 Here we inserted '<<!LATEX>>' using `<<!LATEX>>`.
 
-<<!end>>
+<!-- <<!end>> -->
 
 <<{multi-column>>
 

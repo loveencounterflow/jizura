@@ -473,7 +473,8 @@ tracker_pattern = /// ^
           when 'html_inline'
             [ position, name, extra, ] = @_parse_html_tag token[ 'content' ]
             switch position
-              when 'comment'  then whisper "ignoring comment: #{rpr extra}"
+              when 'comment'
+                send [ '.', 'comment', extra.trim(), meta, ]
               when 'begin'
                 unless name is 'p'
                   send [ '(', name, extra, meta, ]
@@ -919,7 +920,7 @@ tracker_pattern = /// ^
 #-----------------------------------------------------------------------------------------------------------
 @$_replace_text = ( S, method ) ->
   return $ ( event, send ) =>
-    if @.select event, '.', [ 'text', 'code', ]
+    if @.select event, '.', [ 'text', 'code', 'comment', ]
       [ type, name, text, meta, ] = event
       event[ 2 ] = method text
     send event

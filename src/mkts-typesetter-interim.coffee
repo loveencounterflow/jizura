@@ -247,6 +247,13 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
     send [ 'tex', "\\null\\newpage{}", ]
 
 #-----------------------------------------------------------------------------------------------------------
+@MKTX.COMMAND.$comment = ( S ) =>
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    return send event unless select event, '.', 'comment'
+    whisper "ignoring comment #{rpr event[ 2 ]}"
+
+#-----------------------------------------------------------------------------------------------------------
 @MKTX.DOCUMENT.$begin= ( S ) =>
   #.........................................................................................................
   return $ ( event, send ) =>
@@ -558,10 +565,10 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
   track = MKTS.TRACKER.new_tracker '(raw)'
   #.........................................................................................................
   return $ ( event, send ) =>
-    within_latex = track.within '(raw)'
+    within_raw = track.within '(raw)'
     track event
     #.......................................................................................................
-    if within_latex and select event, '.', 'text'
+    if within_raw and select event, '.', 'text'
       [ type, name, text, meta, ] = event
       raw_text = meta[ 'raw' ]
       ### TAINT could the added `{}` conflict with some (La)TeX commands? ###
@@ -670,14 +677,12 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
     ### TAINT should read MD source stream ###
     text                    = njs_fs.readFileSync source_locator, encoding: 'utf-8'
     input                   = MKTS.create_mdreadstream text
-    resend                  = ( event ) => input.write event
     #---------------------------------------------------------------------------------------------------------
     state =
-      # write_protocoll:      yes
       options:              @options
       layout_info:          layout_info
       input:                input
-      resend:               resend
+      resend:               ( event ) => input.write event
     #---------------------------------------------------------------------------------------------------------
     tex_output.on 'close', =>
       HELPERS.write_pdf layout_info, ( error ) =>
@@ -690,6 +695,7 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       .pipe @MKTX.DOCUMENT.$end                             state
       .pipe @MKTX.COMMAND.$definition                       state
       .pipe @MKTX.COMMAND.$new_page                         state
+      .pipe @MKTX.COMMAND.$comment                          state
       .pipe @MKTX.REGION.$correct_p_tags_before_regions     state
       .pipe @MKTX.REGION.$multi_column                      state
       .pipe @MKTX.REGION.$single_column                     state
@@ -710,8 +716,8 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       #     debug event
       #   else
       #     # whisper JSON.stringify event
-      .pipe MKTS.$show_mktsmd_events                        state
       .pipe MKTS.$close_dangling_open_tags                  state
+      .pipe MKTS.$show_mktsmd_events                        state
       .pipe MKTS.$write_mktscript                           state
       .pipe @$show_unhandled_tags                           state
       .pipe @$filter_tex()
