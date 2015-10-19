@@ -1,9 +1,30 @@
 █ 2 █ <document!
 █ 2 █ {multi-column'
-'(:(strong'MKTS'))(:(strong'MKTS'))(:(strong'MKTS'))¶
+'(:(strong'MKTS'))(:(strong'MKTS'))(:(strong'MKTS'))
+█ 7 █ IGNORED: [ '#',
+  'insert',
+  '`p` because region or block opens',
+  { line_nr: 7,
+    col_nr: 8,
+    badge: '$correct_p_tags_before_regions',
+    stamped: true } ]¶
 █ 7 █ [h1'MKTS/MD']
-█ 9 █ [h2'Regions, Blocks and Spans']
-█ 11 █ [h3'The Fine Print']
+
+█ 9 █ IGNORED: [ '#',
+  'insert',
+  '`p` because region or block opens',
+  { line_nr: 9,
+    col_nr: 10,
+    badge: '$correct_p_tags_before_regions',
+    stamped: true } ]█ 9 █ [h2'Regions, Blocks and Spans']
+
+█ 11 █ IGNORED: [ '#',
+  'insert',
+  '`p` because region or block opens',
+  { line_nr: 11,
+    col_nr: 12,
+    badge: '$correct_p_tags_before_regions',
+    stamped: true } ]█ 11 █ [h3'The Fine Print']
 'A fascinating description of a global language, '(em'A Grammar of Mandarin')' combines broad perspectives with illuminating depth. Crammed with examples from everyday conversations, it aims to let the language speak for itself. The book opens with an overview of the language situation and a thorough account of Mandarin speech sounds. Nine core chapters explore syntactic, morphological and lexical dimensions. A final chapter traces the Chinese character script from oracle-bone inscriptions to today’s digital pens.'¶
 }
 >

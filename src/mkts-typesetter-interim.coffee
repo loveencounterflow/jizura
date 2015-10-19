@@ -363,6 +363,7 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
 @MKTX.REGION.$correct_p_tags_before_regions = ( S ) =>
   last_was_p              = no
   last_was_begin_document = no
+  remark                  = MKTS._get_remark()
   #.........................................................................................................
   return $ ( event, send ) =>
     # debug '©MwBAv', event
@@ -389,7 +390,9 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       # debug '©---6', last_was_p
       if ( not last_was_begin_document ) and ( not last_was_p )
         [ ..., meta, ] = event
-        send [ '.', 'p', null, ( MKTS.copy meta ), ]
+        # send stamp [ '#', 'insert', my_badge, "inserting `p` tag", ( copy meta ), ]
+        send remark 'insert', "`p` because region or block opens", meta
+        send [ '.', 'p', null, ( copy meta ), ]
       send event
       last_was_p              = no
       last_was_begin_document = no

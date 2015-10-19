@@ -2,7 +2,7 @@
 
 
 ############################################################################################################
-# njs_path                  = require 'path'
+njs_path                  = require 'path'
 njs_fs                    = require 'fs'
 #...........................................................................................................
 CND                       = require 'cnd'
@@ -31,7 +31,22 @@ new_md_inline_plugin      = require 'markdown-it-regexp'
 #...........................................................................................................
 misfit                    = Symbol 'misfit'
 
+#-----------------------------------------------------------------------------------------------------------
+@_get_badge = ( delta = 0 ) ->
+  ### Experimental, to be used with remarks when things got omitted or inserted. ###
+  caller_info = CND.get_caller_info delta + 2
+  # filename    = njs_path.basename caller_info[ 'route' ]
+  # line_nr     = caller_info[ 'line-nr' ]
+  method_name = caller_info[ 'function-name' ] ? caller_info[ 'method-name' ]
+  # return "#{filename}/#{method_name}"
+  return method_name
 
+#-----------------------------------------------------------------------------------------------------------
+@_get_remark = ( delta = 0 ) ->
+  my_badge = @_get_badge delta + 1
+  return ( kind, message, meta ) =>
+    return @stamp [ '#', kind, message, ( @copy meta, { badge: my_badge, } ), ]
+  # send stamp [ '#', 'insert', my_badge, "inserting `p` tag", ( copy meta ), ]
 
 #-----------------------------------------------------------------------------------------------------------
 @_tex_escape_replacements = [
@@ -724,6 +739,7 @@ tracker_pattern = /// ^
             when '{','[',  '(' then color = CND.lime
             when ')', ']', '}' then color = CND.olive
             when '!'           then color = CND.indigo
+            when '#'           then color = CND.plum
             when '.'
               switch name
                 when 'text' then color = CND.BLUE
@@ -736,6 +752,13 @@ tracker_pattern = /// ^
           when 'tex'
             if S.show_tex_events ? no
               log indentation + ( color type ) + ( color name ) + ' ' + text
+          when '#'
+            [ _, kind, message, _, ]  = event
+            my_badge                  = meta[ 'badge' ]
+            method = switch kind
+              when 'insert' then  'help'
+              else                'whisper'
+            ( CND.get_logger method, my_badge ) "#{kind} #{message}"
           else
             log indentation + ( color type ) + ( color name ) + ' ' + text
         #...................................................................................................
