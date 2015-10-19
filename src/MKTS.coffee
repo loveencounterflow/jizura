@@ -494,55 +494,8 @@ tracker_pattern = /// ^
       end()
     return null
 
-# #-----------------------------------------------------------------------------------------------------------
-# @$_preprocess_regions = ( S ) ->
-#   opening_pattern     = /^@@@(\S.+)(\n|$)/
-#   closing_pattern     = /^@@@\s*(\n|$)/
-#   collector           = []
-#   region_stack        = []
-#   track               = @TRACKER.new_tracker '(code)'
-#   #.........................................................................................................
-#   return $ ( event, send ) =>
-#     #.......................................................................................................
-#     within_code = track.within '(code)'
-#     track event
-#     [ type, name, text, meta, ] = event
-#     #.......................................................................................................
-#     if ( not within_code ) and ( @select event, '.', 'text' )
-#       lines = @_split_lines_with_nl text
-#       #.....................................................................................................
-#       for line in lines
-#         #...................................................................................................
-#         if ( match = line.match opening_pattern )?
-#           @_flush_text_collector send, collector, ( @copy meta )
-#           region_name = match[ 1 ]
-#           region_stack.push region_name
-#           send [ '{', region_name, null, ( @copy meta ), ]
-#         #...................................................................................................
-#         else if ( match = line.match closing_pattern )?
-#           @_flush_text_collector send, collector, ( @copy meta )
-#           if region_stack.length > 0
-#             send [ '}', region_stack.pop(), null, ( @copy meta ), ]
-#           else
-#             warn "ignoring end-region"
-#         #...................................................................................................
-#         else
-#           collector.push line
-#       #.....................................................................................................
-#       @_flush_text_collector send, collector, ( @copy meta )
-#     #.......................................................................................................
-#     else if ( region_stack.length > 0 ) and ( @select event, '>', 'document' )
-#       warn "auto-closing regions: #{rpr region_stack.join ', '}"
-#       send [ '}', region_stack.pop(), null, ( @copy meta ), ] while region_stack.length > 0
-#       send event
-#     #.......................................................................................................
-#     else
-#       send event
-#     #.......................................................................................................
-#     return null
-
 #-----------------------------------------------------------------------------------------------------------
-@$_preprocess_XXXX = ( S ) ->
+@$_preprocess_commands = ( S ) ->
   ### TAINT `<xxx>` translates as `(xxx`, which is generally correct, but it should translate
   to `(xxx)` when `xxx` is a known HTML5 'lone' tag. ###
   left_meta_fence     = '<'
@@ -631,33 +584,6 @@ tracker_pattern = /// ^
       send event
     #.......................................................................................................
     return null
-
-# #-----------------------------------------------------------------------------------------------------------
-# @$_preprocess_commands = ( S ) ->
-#   pattern             = /^∆∆∆(\S.+)(\n|$)/
-#   collector           = []
-#   track               = @TRACKER.new_tracker '(code)'
-#   #.........................................................................................................
-#   return $ ( event, send ) =>
-#     within_code = track.within '(code)'
-#     track event
-#     [ type, name, text, meta, ] = event
-#     if ( not within_code ) and @select event, '.', 'text'
-#       lines = @_split_lines_with_nl text
-#       #.......................................................................................................
-#       for line in lines
-#         if ( match = line.match pattern )?
-#           @_flush_text_collector send, collector, ( @copy meta )
-#           send [ '∆', match[ 1 ], null, ( @copy meta ), ]
-#         else
-#           collector.push line
-#       #.......................................................................................................
-#       @_flush_text_collector send, collector, ( @copy meta )
-#     #.......................................................................................................
-#     else
-#       send event
-#     #.......................................................................................................
-#     return null
 
 #-----------------------------------------------------------------------------------------------------------
 @$_process_end_command = ( S ) ->
@@ -892,17 +818,6 @@ tracker_pattern = /// ^
   R = R.replace /<</g,      '♎4'
   return R
 
-# #-----------------------------------------------------------------------------------------------------------
-# @_unescape_command_fences = ( text ) ->
-#   R = text
-#   ### TAINT remove backslashes ###
-#   R = R.replace /♎4/g, '<<'
-#   R = R.replace /♎3/g, '<\\<'
-#   R = R.replace /♎2/g, '\\<<'
-#   R = R.replace /♎1/g, '\\<\\<'
-#   R = R.replace /♎0/g, '♎'
-#   return R
-
 #-----------------------------------------------------------------------------------------------------------
 @_unescape_command_fences_A = ( text ) ->
   R = text
@@ -927,6 +842,42 @@ tracker_pattern = /// ^
     send event
 
 #-----------------------------------------------------------------------------------------------------------
+@$_remove_empty_texts = ( S ) ->
+  return $ ( event, send ) =>
+    if @.select event, '.', 'text'
+      [ type, name, text, meta, ] = event
+      send event unless text is ''
+    else
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
+@$_remove_postdef_dispensables = ( S ) ->
+  last_was_definition = no
+  return $ ( event, send ) =>
+    if @.select event,  ')', ':'
+      debug '>>> 1'
+      last_was_definition = yes
+      send event
+    else if last_was_definition and @.select event,  '.', [ 'text', 'p', ]
+      [ type, name, text, meta, ] = event
+      if name is 'text'
+        debug '>>> 2'
+        if ( /^\n*$/ ).test text
+          debug '>>> 3'
+          whisper "ignoring blank text after command definition"
+        else
+          debug '>>> 4'
+          send event
+      else
+        debug '>>> 5'
+        whisper "ignoring `p` after command definition"
+        last_was_definition = no
+    else
+      debug '>>> 6'
+      last_was_definition = no
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
 @create_mdreadstream = ( md_source, settings ) ->
   throw new Error "settings currently unsupported" if settings?
   #.........................................................................................................
@@ -942,11 +893,11 @@ tracker_pattern = /// ^
     .pipe @$_reinject_html_blocks           state
     .pipe @$_rewrite_markdownit_tokens      state
     .pipe @$_replace_text                   state, @_unescape_command_fences_A
-    .pipe @$_preprocess_XXXX                state
+    .pipe @$_preprocess_commands            state
     .pipe @$_replace_text                   state, @_unescape_command_fences_B
-    # .pipe @$_preprocess_commands            state
+    .pipe @$_remove_empty_texts             state
+    .pipe @$_remove_postdef_dispensables    state
     .pipe @$_process_end_command            state
-    # .pipe @$_preprocess_regions             state
     .pipe R
   #.........................................................................................................
   R.on 'resume', =>
@@ -955,10 +906,6 @@ tracker_pattern = /// ^
     ### TAINT what to do with useful data appearing environment? ###
     ### TAINT environment becomes important for footnotes ###
     environment = {}
-    # md_source = """front #1 #,2<<(:foo>>FOO<<:)>>. <<!foo>>, <\\<!foo>>, \\<<!foo>>, back."""
-    # md_source = """front #1 #,2<<(:foo>>#FOO#<<:)>>. <<!foo>>, <\\<!foo>>, \\<<!foo>>, back."""
-    # md_source = """A <<(:x>> <\\<(raw>>\\TeX{} <\\<raw)>> <<:)>>: <<!x>> Z"""
-    # md_source = """A <<(:x>> <<(raw>>\\TeX{} <<raw)>> <<:)>>: <<!x>> Z"""
     md_source   = @_escape_command_fences md_source
     tokens      = md_parser.parse md_source, environment
     # @set_meta R, 'environment', environment

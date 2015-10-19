@@ -288,6 +288,20 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
   return [ 'tex', '\\end{multicols}' ]
 
 #-----------------------------------------------------------------------------------------------------------
+@MKTX.COMMAND.$multi_column = ( S ) =>
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    if select event, '!', 'multi-column'
+      send stamp event
+      [ type, name, text, meta, ] = event
+      send [ '{', 'multi-column', text, ( copy meta ), ]
+    #.......................................................................................................
+    else
+      send event
+    #.......................................................................................................
+    return null
+
+#-----------------------------------------------------------------------------------------------------------
 @MKTX.REGION.$multi_column = ( S ) =>
   track = MKTS.TRACKER.new_tracker '{multi-column}'
   #.........................................................................................................
@@ -707,6 +721,7 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       .pipe @MKTX.COMMAND.$new_page                         state
       .pipe @MKTX.COMMAND.$comment                          state
       .pipe @MKTX.REGION.$correct_p_tags_before_regions     state
+      .pipe @MKTX.COMMAND.$multi_column                     state
       .pipe @MKTX.REGION.$multi_column                      state
       .pipe @MKTX.REGION.$single_column                     state
       .pipe @MKTX.REGION.$keep_lines                        state
