@@ -235,6 +235,29 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       send event
 
 #-----------------------------------------------------------------------------------------------------------
+@MKTX.COMMAND.$definition_NG = ( S ) =>
+  track           = MKTS.TRACKER.new_tracker '{definitions}'
+  S.definitions   = {}
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    within_definition = track.within '{definitions}'
+    track event
+    #.......................................................................................................
+    if select event, [ '{', '}', ], 'definitions'
+      send stamp event
+      [ type, identifier, text, meta, ] = event
+      if type is '{'
+        null
+      else
+        null
+    #.......................................................................................................
+    else if within_definition and select event, '.'
+    #.......................................................................................................
+    else
+      send event
+
+
+#-----------------------------------------------------------------------------------------------------------
 @MKTX.COMMAND.$expansion = ( S ) =>
   #.........................................................................................................
   return $ ( event, send ) =>
@@ -542,11 +565,11 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.MIXED.$raw = ( S ) =>
-  track   = MKTS.TRACKER.new_tracker '{raw}', '[raw]', '(raw)'
+  track   = MKTS.TRACKER.new_tracker '{raw}', '[raw]', '(raw)', '{definitions}'
   # remark  = MKTS._get_remark()
   #.........................................................................................................
   return $ ( event, send ) =>
-    within_raw = track.within '{raw}', '[raw]', '(raw)'
+    within_raw = track.within '{raw}', '[raw]', '(raw)', '{definitions}'
     track event
     #.......................................................................................................
     if within_raw and select event, '.', 'text'
@@ -620,33 +643,33 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
     else
       send event
 
-#-----------------------------------------------------------------------------------------------------------
-@MKTX.CLEANUP.$remove_postdef_dispensables = ( S ) ->
-  last_was_definition = no
-  remark              = MKTS._get_remark()
-  return $ ( event, send ) =>
-    if select event, ')', ':'
-      debug '>>> 1'
-      last_was_definition = yes
-      send event
-    else if last_was_definition and select event,  '.', [ 'text', 'p', ]
-      [ type, name, text, meta, ] = event
-      if name is 'text'
-        debug '>>> 2'
-        if ( /^\n*$/ ).test text
-          debug '>>> 3'
-          send remark 'drop', "blank `.text` after command definition", copy meta
-        else
-          debug '>>> 4'
-          send event
-      else
-        debug '>>> 5'
-        send remark 'drop', "`.p` after command definition", copy meta
-        last_was_definition = no
-    else
-      debug '>>> 6'
-      last_was_definition = no
-      send event
+# #-----------------------------------------------------------------------------------------------------------
+# @MKTX.CLEANUP.$remove_postdef_dispensables = ( S ) ->
+#   last_was_definition = no
+#   remark              = MKTS._get_remark()
+#   return $ ( event, send ) =>
+#     if select event, ')', ':'
+#       # debug '>>> 1'
+#       last_was_definition = yes
+#       send event
+#     else if last_was_definition and select event,  '.', [ 'text', 'p', ]
+#       [ type, name, text, meta, ] = event
+#       if name is 'text'
+#         # debug '>>> 2'
+#         if ( /^\n*$/ ).test text
+#           # debug '>>> 3'
+#           send remark 'drop', "blank `.text` after command definition", copy meta
+#         else
+#           # debug '>>> 4'
+#           send event
+#       else
+#         # debug '>>> 5'
+#         send remark 'drop', "`.p` after command definition", copy meta
+#         last_was_definition = no
+#     else
+#       # debug '>>> 6'
+#       last_was_definition = no
+#       send event
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.CLEANUP.$remove_empty_p_tags = ( S ) =>
@@ -797,6 +820,7 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       .pipe @MKTX.DOCUMENT.$end                             state
       .pipe @MKTX.MIXED.$raw                                state
       .pipe @MKTX.COMMAND.$definition                       state
+      # .pipe @MKTX.COMMAND.$definition_NG                    state
       .pipe @MKTX.COMMAND.$expansion                        state
       .pipe @MKTX.COMMAND.$new_page                         state
       .pipe @MKTX.COMMAND.$comment                          state
@@ -821,7 +845,6 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       #   else
       #     # whisper JSON.stringify event
       .pipe @MKTX.CLEANUP.$remove_empty_texts               state
-      .pipe @MKTX.CLEANUP.$remove_postdef_dispensables      state
       .pipe MKTS.$close_dangling_open_tags                  state
       .pipe MKTS.$show_mktsmd_events                        state
       .pipe MKTS.$write_mktscript                           state

@@ -1,103 +1,15 @@
 
 % begin of MD document
-\begin{multicols}{2}
-
-
-
-
-
-\mktsShowpar\par
-multi-column multi-column multi-column multi-column multi-column multi-column multi-column multi-column
-multi-column multi-column multi-column multi-column multi-column multi-column multi-column multi-column
-multi-column multi-column multi-column multi-column multi-column multi-column multi-column multi-column
-multi-column multi-column multi-column multi-column multi-column multi-column multi-column multi-column\mktsShowpar\par
-\end{multicols}
-single column!
-\begin{multicols}{2}\mktsShowpar\par
-\TeX{}
-multi-column multi-column multi-column multi-column multi-column multi-column multi-column multi-column
-multi-column multi-column multi-column multi-column multi-column multi-column multi-column multi-column
-multi-column multi-column multi-column multi-column multi-column multi-column multi-column multi-column
-multi-column multi-column multi-column multi-column multi-column multi-column multi-column multi-column\mktsShowpar\par
-\end{multicols}
-\chapter{MKTS/MD
-}
-\begin{multicols}{2}\end{multicols}
-\section{Regions, Blocks and Spans
-}
-\begin{multicols}{2}
-\subsection{The Fine Print
-}
 A fascinating description of a global language, {\mktsStyleItalic{}A Grammar of Mandarin\/} combines broad perspectives with illuminating depth. Crammed with examples from everyday conversations, it aims to let the language speak for itself. The book opens with an overview of the language situation and a thorough account of Mandarin speech sounds. Nine core chapters explore syntactic, morphological and lexical dimensions. A final chapter traces the Chinese character script from oracle-bone inscriptions to today’s digital pens.\mktsShowpar\par
-This work will cater to language learners and linguistic specialists alike. Easy reference is provided by more than eighty tables, figures, appendices, and a glossary. The main text is enriched by sections in finer print, offering further analysis and reflection. Example sentences are fully glossed, translated, and explained from diverse angles, with a keen eye for recent linguistic change. This grammar, in short, reveals a Mandarin language in full swing.\mktsShowpar\par
-\end{multicols}
-\section{Math Mode
-}
-\begin{multicols}{2}It’s perfectly possible to take advantage of
-\TeX{}'s famous Math Mode; for example,
-you can now effortlessly have formulas like\mktsShowpar\par
-$\lim_{x \to \infty} \exp(-x) = 0$\mktsShowpar\par
-in your documents (and of course, inline math {\mktsStyleItalic{}à la\/}
-$\lim_{x \to \infty}$ works as well).\mktsShowpar\par
-\end{multicols}
-Some math: {\mktsStyleCode{}<<(raw>>\$\textbackslash{}lim\_\{x \textbackslash{}to \textbackslash{}infty\} \textbackslash{}exp(-x) = 0\$<<raw)>>}\mktsShowpar\par
-Some math: $\lim_{x \to \infty} \exp(-x) = 0$
-\begin{multicols}{2}\mktsShowpar\par
-\end{multicols}
-\section{Quotes, Character Entities, \TeX{} Special Characters
-}
-\begin{multicols}{2}foo ‘bar’ baz. \cnjzr{} beautiful!\mktsShowpar\par
-\mktsShowpar\par
-You can use {\mktsStyleCode{}<<\{raw>> ... <<raw\}>>} or {\mktsStyleCode{}<<(raw>> ... <<raw)>>} to directly insert \LaTeX{}
-code into your script; for example, you could
-use {\mktsStyleCode{}<<(raw>>\textbackslash{}LaTeX\{\}<<raw)>>}
-to obtain the \LaTeX{} logogram.
-Observe that we had to write {\mktsStyleCode{}\textbackslash{}LaTeX\{\}} here instead of {\mktsStyleCode{}\textbackslash{}LaTeX} to preserve the space between the logogram itself and
-the word ‘logogram’—{\mktsStyleBold{}MKTS} will not intervene to make that happen
-automatically, as a careful, scientific study has demonstrated
-that this problem—preserving spaces following commands in a
-general way that does not rely on parsing \LaTeX{}
-source and is not going to muck with very deep
-\TeX{}
-internals—is NP-complete.\mktsShowpar\par
-Another potential use of  is to {\color{red}COLORIZE!} your text, here done by inserting\mktsShowpar\par
-\begingroup\obeyalllines\mktsStyleCode{}<<(raw>>\{\textbackslash{}color\{red\}<<raw)>>
-COLORIZE!
-<<(raw>>\}<<raw)>>
-\endgroup{}(with or without the line breaks) into the script.\mktsShowpar\par
-\end{multicols}
-\section{MKTS Regions \cn{中國皇帝}
-}
-\begin{multicols}{2}To indicate the start of an {\mktsStyleBold{}MKTS/MD} Region, place a triple at-sign {\mktsStyleCode{}@@@}
-at the start of a line, immediately followed by a command name such as
-{\mktsStyleCode{}keep-lines} or {\mktsStyleCode{}single-column}. The end of a region is indicated by a
-triple at-sign without a command name. Nested regions are possible; for example,
-you can put a {\mktsStyleCode{}<<\{keep-lines>>} region inside a {\mktsStyleCode{}<<\{single-column>>} region as
-done here:\mktsShowpar\par
-\end{multicols}
-Here are some formulas:
-\begingroup\obeyalllines{}
-{\mktsStyleCode{}u-cjk/4e36}  \cn{丶}   \cnxJzr{}
-{\mktsStyleCode{}u-cjk/4e37}  \cn{丷}   \cnxJzr{}\cn{丶}\cnxJzr{}
-{\mktsStyleCode{}u-cjk/4e38}  \cn{丸}   \cnxJzr{}\cn{九丶}
-{\mktsStyleCode{}u-cjk/4e39}  \cn{丹}   \cnxJzr{}\cnxBabel{⺆}\cnxJzr{}\cn{丶一}
-{\mktsStyleCode{}u-cjk/4e3a}  \cn{为}   \cnxJzr{}\cn{丶}\cnxJzr{}\cn{力丶}
-{\mktsStyleCode{}u-cjk/4e3b}  \cn{主}   \cnxJzr{}\cn{丶王}
-{\mktsStyleCode{}u-cjk/4e3b}  \cn{主}   \cnxJzr{}\cn{亠土}
-{\mktsStyleCode{}u-cjk/4e3c}  \cn{丼}   \cnxJzr{}\cn{井丶}
-
-{\mktsStyleCode{}u-cjk-xb/250b7}  \cnxb{𥂷}   \cnxJzr{}\cnxJzr{}\cn{告巨皿}
-{\mktsStyleCode{}u-cjk-xb/250b8}  \cnxb{𥂸}   \cnxJzr{}\cn{楊皿}
-\endgroup{}
-At this point, a line consisting of a triple at-sign {\mktsStyleCode{}@@@}
-indicates the end of the {\mktsStyleCode{}keep-lines} region; since the
-{\mktsStyleCode{}single-column} region is still active, however, {\mktsStyleItalic{}this
-paragraph runs across the entire width\/} of the documents text
-area.
 \begin{multicols}{2}
-Now a {\mktsStyleCode{}\}single-column} {\mktsStyleBold{}MKTS/MD} event has been encountered
-that was triggered by a triple-at command in the manuscript;
-accordingly, typesetting is reverted back to multi-column mode,
-which is why you can see this paragraph set in two columns.\mktsShowpar\par
+
+
+
+
+
+
+\mktsShowpar\par
+\mktsShowpar\par
+{\mktsStyleBold{}MKTS} and {\mktsStyleBold{}MKTS}\mktsShowpar\par
 \end{multicols}
 % end of MD document

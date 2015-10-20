@@ -1,3 +1,4 @@
+A fascinating description of a global language, *A Grammar of Mandarin* combines broad perspectives with illuminating depth. Crammed with examples from everyday conversations, it aims to let the language speak for itself. The book opens with an overview of the language situation and a thorough account of Mandarin speech sounds. Nine core chapters explore syntactic, morphological and lexical dimensions. A final chapter traces the Chinese character script from oracle-bone inscriptions to today’s digital pens.
 
 <<!multi-column>>
 <<(:thequestion>>*What is the meaning of life,
@@ -6,7 +7,24 @@ the universe, and everything?*<<:)>>
 <<(:TEX>><<(raw>>\TeX{}<<raw)>><<:)>>
 <<(:LATEX>><<(raw>>\LaTeX{}<<raw)>><<:)>>
 <<(:MKTS>>**MKTS**<<:)>>
+<<(:MKTS2>><<(raw>>**MKTS**<<raw)>><<:)>>
 <<(:MKTS/MD>>**MKTS/MD**<<:)>>
+
+<!-- <<{definitions>>
+  thequestion:    "*What is the meaning of life, the universe, and everything?*"
+  theanswer:      "**42**"
+  TEX:            "<<(raw>>\TeX{}<<raw)>>"
+  LATEX:          "<<(raw>>\LaTeX{}<<raw)>>"
+  MKTS:           "**MKTS**"
+  MKTS/MD:        "**MKTS/MD**"
+  MKTS2:          "<<(raw>>**MKTS**<<raw)>>"
+<<definitions}>> -->
+
+<<!MKTS>> and <<!MKTS2>>
+
+
+
+<<!end>>
 
 multi-column multi-column multi-column multi-column multi-column multi-column multi-column multi-column
 multi-column multi-column multi-column multi-column multi-column multi-column multi-column multi-column

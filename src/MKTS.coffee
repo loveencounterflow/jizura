@@ -520,6 +520,7 @@ tracker_pattern = /// ^
 @$_preprocess_commands = ( S ) ->
   ### TAINT `<xxx>` translates as `(xxx`, which is generally correct, but it should translate
   to `(xxx)` when `xxx` is a known HTML5 'lone' tag. ###
+  ### TAINT no need for `:` any more; replaced by `{definitions}` ###
   left_meta_fence     = '<'
   right_meta_fence    = '>'
   repetitions         = 2
