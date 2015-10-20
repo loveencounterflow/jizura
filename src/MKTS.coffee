@@ -38,6 +38,7 @@ misfit                    = Symbol 'misfit'
   # filename    = njs_path.basename caller_info[ 'route' ]
   # line_nr     = caller_info[ 'line-nr' ]
   method_name = caller_info[ 'function-name' ] ? caller_info[ 'method-name' ]
+  method_name = method_name.replace /^__dirname\./, ''
   # return "#{filename}/#{method_name}"
   return method_name
 
@@ -84,7 +85,7 @@ misfit                    = Symbol 'misfit'
       send event
 
 #-----------------------------------------------------------------------------------------------------------
-@fix_typography_for_tex = ( text, options ) ->
+@fix_typography_for_tex = ( text, options, send = null ) ->
   ### An improved version of `XELATEX.tag_from_chr` ###
   ### TAINT should accept settings, fall back to `require`d `options.coffee` ###
   glyph_styles          = options[ 'tex' ]?[ 'glyph-styles'             ] ? {}
@@ -93,6 +94,7 @@ misfit                    = Symbol 'misfit'
   R                     = []
   stretch               = []
   last_rsg              = null
+  remark                = if send? then @_get_remark() else null
   #.........................................................................................................
   unless tex_command_by_rsgs?
     throw new Error "need setting 'tex-command-by-rsgs'"
@@ -126,7 +128,11 @@ misfit                    = Symbol 'misfit'
       continue
     #.......................................................................................................
     unless ( command = tex_command_by_rsgs[ rsg ] )?
-      warn "unknown RSG #{rpr rsg}: #{fncr} #{chr}"
+      message = "unknown RSG #{rpr rsg}: #{fncr} #{chr}"
+      if send?
+        send remark 'warn', "unknown RSG #{rpr rsg}: #{fncr} #{chr}", {}
+      else
+        warn message
       advance()
       stretch.push chr
       continue
@@ -424,6 +430,7 @@ tracker_pattern = /// ^
   is_first        = yes
   last_map        = [ 0, 0, ]
   _send           = null
+  remark          = @_get_remark()
   #.........................................................................................................
   send_unknown = ( token, meta ) =>
     { type, } = token
@@ -504,7 +511,7 @@ tracker_pattern = /// ^
     #.......................................................................................................
     if end?
       if unknown_tokens.length > 0
-        warn "unknown tokens: #{unknown_tokens.sort().join ', '}"
+        send remark 'warn', "unknown tokens: #{unknown_tokens.sort().join ', '}", {}
       send [ '>', 'document', null, {}, ]
       end()
     return null
@@ -602,14 +609,15 @@ tracker_pattern = /// ^
 
 #-----------------------------------------------------------------------------------------------------------
 @$_process_end_command = ( S ) ->
-  S.has_ended = no
+  S.has_ended   = no
+  remark        = @_get_remark()
   #.........................................................................................................
   return $ ( event, send ) =>
     # [ type, name, text, meta, ] = event
     if @select event, '!', 'end'
       [ _, _, _, meta, ]    = event
       { line_nr, }          = meta
-      warn "encountered `<<!end>>` on line ##{line_nr}, ignoring further material"
+      send remark 'info', "encountered `<<!end>>` on line ##{line_nr}", @copy meta
       S.has_ended = yes
     else if @select event, '>', 'document'
       send event
@@ -620,8 +628,8 @@ tracker_pattern = /// ^
 
 #-----------------------------------------------------------------------------------------------------------
 @$close_dangling_open_tags = ( S ) ->
-  # throw new Error "currently not used: `$close_dangling_open_tags`"
   tag_stack = []
+  remark    = @_get_remark()
   #.........................................................................................................
   return $ ( event, send ) =>
     [ type, name, text, meta, ] = event
@@ -634,6 +642,7 @@ tracker_pattern = /// ^
           when '{' then sub_type = '}'
           when '[' then sub_type = ']'
           when '(' then sub_type = ')'
+        send remark 'resend', "`#{sub_name}#{sub_type}`", @copy meta
         S.resend [ sub_type, sub_name, sub_text, ( @copy sub_meta ), ]
       send event
     else if @select event, [ '{', '[', '(', ]
@@ -755,28 +764,32 @@ tracker_pattern = /// ^
           when '#'
             [ _, kind, message, _, ]  = event
             my_badge                  = meta[ 'badge' ]
-            method = switch kind
-              when 'insert' then  'help'
-              else                'whisper'
-            ( CND.get_logger method, my_badge ) "#{kind} #{message}"
+            color = switch kind
+              when 'insert' then  'lime'
+              when 'drop'   then  'orange'
+              when 'warn'   then  'RED'
+              when 'info'   then  'BLUE'
+              else                'grey'
+            log ( CND[ color ] kind ), ( CND.white message ), ( CND.grey my_badge )
           else
             log indentation + ( color type ) + ( color name ) + ' ' + text
         #...................................................................................................
-        switch type
-          #.................................................................................................
-          when '{', '[', '(', ')', ']', '}'
-            switch type
-              when '{', '[', '('
-                tag_stack.push [ type, name, ]
-              when ')', ']', '}'
-                if tag_stack.length > 0
-                  [ topmost_type, topmost_name, ] = tag_stack.pop()
-                  unless topmost_name is name
-                    topmost_type = { '{': '}', '[': ']', '(', ')', }[ topmost_type ]
-                    warn "encountered #{type}#{name} when #{topmost_type}#{topmost_name} was expected"
-                else
-                  warn "level below zero"
-            indentation = ( new Array tag_stack.length ).join '  '
+        unless @is_hidden event
+          switch type
+            #.................................................................................................
+            when '{', '[', '(', ')', ']', '}'
+              switch type
+                when '{', '[', '('
+                  tag_stack.push [ type, name, ]
+                when ')', ']', '}'
+                  if tag_stack.length > 0
+                    [ topmost_type, topmost_name, ] = tag_stack.pop()
+                    unless topmost_name is name
+                      topmost_type = { '{': '}', '[': ']', '(', ')', }[ topmost_type ]
+                      warn "encountered #{type}#{name} when #{topmost_type}#{topmost_name} was expected"
+                  else
+                    warn "level below zero"
+              indentation = ( new Array tag_stack.length ).join '  '
     #.......................................................................................................
     if has_ended
       if tag_stack.length > 0
@@ -865,42 +878,6 @@ tracker_pattern = /// ^
     send event
 
 #-----------------------------------------------------------------------------------------------------------
-@$_remove_empty_texts = ( S ) ->
-  return $ ( event, send ) =>
-    if @.select event, '.', 'text'
-      [ type, name, text, meta, ] = event
-      send event unless text is ''
-    else
-      send event
-
-#-----------------------------------------------------------------------------------------------------------
-@$_remove_postdef_dispensables = ( S ) ->
-  last_was_definition = no
-  return $ ( event, send ) =>
-    if @.select event,  ')', ':'
-      debug '>>> 1'
-      last_was_definition = yes
-      send event
-    else if last_was_definition and @.select event,  '.', [ 'text', 'p', ]
-      [ type, name, text, meta, ] = event
-      if name is 'text'
-        debug '>>> 2'
-        if ( /^\n*$/ ).test text
-          debug '>>> 3'
-          whisper "ignoring blank text after command definition"
-        else
-          debug '>>> 4'
-          send event
-      else
-        debug '>>> 5'
-        whisper "ignoring `p` after command definition"
-        last_was_definition = no
-    else
-      debug '>>> 6'
-      last_was_definition = no
-      send event
-
-#-----------------------------------------------------------------------------------------------------------
 @create_mdreadstream = ( md_source, settings ) ->
   throw new Error "settings currently unsupported" if settings?
   #.........................................................................................................
@@ -918,8 +895,7 @@ tracker_pattern = /// ^
     .pipe @$_replace_text                   state, @_unescape_command_fences_A
     .pipe @$_preprocess_commands            state
     .pipe @$_replace_text                   state, @_unescape_command_fences_B
-    .pipe @$_remove_empty_texts             state
-    .pipe @$_remove_postdef_dispensables    state
+    # .pipe @$_remove_postdef_dispensables    state
     .pipe @$_process_end_command            state
     .pipe R
   #.........................................................................................................

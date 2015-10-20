@@ -1,8 +1,28 @@
 
 <<!multi-column>>
+<<(:thequestion>>*What is the meaning of life,
+the universe, and everything?*<<:)>>
+<<(:theanswer>>**42**<<:)>>
+<<(:TEX>><<(raw>>\TeX{}<<raw)>><<:)>>
+<<(:LATEX>><<(raw>>\LaTeX{}<<raw)>><<:)>>
 <<(:MKTS>>**MKTS**<<:)>>
-<<(:MKTS1>>**MKTS**<<:)>>
-<<(:MKTS2>>**MKTS**<<:)>>
+<<(:MKTS/MD>>**MKTS/MD**<<:)>>
+
+multi-column multi-column multi-column multi-column multi-column multi-column multi-column multi-column
+multi-column multi-column multi-column multi-column multi-column multi-column multi-column multi-column
+multi-column multi-column multi-column multi-column multi-column multi-column multi-column multi-column
+multi-column multi-column multi-column multi-column multi-column multi-column multi-column multi-column
+
+<<{single-column>>
+single column!
+<<single-column}>>
+
+<<!TEX>>
+multi-column multi-column multi-column multi-column multi-column multi-column multi-column multi-column
+multi-column multi-column multi-column multi-column multi-column multi-column multi-column multi-column
+multi-column multi-column multi-column multi-column multi-column multi-column multi-column multi-column
+multi-column multi-column multi-column multi-column multi-column multi-column multi-column multi-column
+
 
 # MKTS/MD
 
@@ -13,17 +33,8 @@
 A fascinating description of a global language, *A Grammar of Mandarin* combines broad perspectives with illuminating depth. Crammed with examples from everyday conversations, it aims to let the language speak for itself. The book opens with an overview of the language situation and a thorough account of Mandarin speech sounds. Nine core chapters explore syntactic, morphological and lexical dimensions. A final chapter traces the Chinese character script from oracle-bone inscriptions to today’s digital pens.
 
 
-<<!end>>
 
 This work will cater to language learners and linguistic specialists alike. Easy reference is provided by more than eighty tables, figures, appendices, and a glossary. The main text is enriched by sections in finer print, offering further analysis and reflection. Example sentences are fully glossed, translated, and explained from diverse angles, with a keen eye for recent linguistic change. This grammar, in short, reveals a Mandarin language in full swing.
-
-<<(:thequestion>>*What is the meaning of life,
-the universe, and everything?*<<:)>>
-<<(:theanswer>>**42**<<:)>>
-<<(:TEX>><<(raw>>\TeX{}<<raw)>><<:)>>
-<<(:LATEX>><<(raw>>\LaTeX{}<<raw)>><<:)>>
-<<(:MKTS>>**MKTS**<<:)>>
-
 
 
 ## Math Mode
@@ -37,20 +48,17 @@ you can now effortlessly have formulas like
 in your documents (and of course, inline math *à la*
 <<(raw>>$\lim_{x \to \infty}$<<raw)>> works as well).
 
-<<multi-column}>>
-
-
+<<{single-column>>
 Some math: `<<(raw>>$\lim_{x \to \infty} \exp(-x) = 0$<<raw)>>`
 
 Some math: <<(raw>>$\lim_{x \to \infty} \exp(-x) = 0$<<raw)>>
-
-xxx
+<<single-column}>>
 
 ## Quotes, Character Entities, <<!TEX>> Special Characters
 
 foo 'bar' baz. &jzr#xe170; beautiful!
 
-<<{multi-column>>
+<!-- <<{multi-column>> -->
 You can use `<<{raw>> ... <<raw}>>` or `<<(raw>> ... <<raw)>>` to directly insert <<!LATEX>>
 code into your script; for example, you could
 use `<<(raw>>\LaTeX{}<<raw)>>`
@@ -71,3 +79,40 @@ COLORIZE!
 <<(raw>>}<<raw)>>
 ```
 (with or without the line breaks) into the script.
+
+
+## MKTS Regions 中國皇帝
+
+To indicate the start of an <<!MKTS/MD>> Region, place a triple at-sign `@@@`
+at the start of a line, immediately followed by a command name such as
+`keep-lines` or `single-column`. The end of a region is indicated by a
+triple at-sign without a command name. Nested regions are possible; for example,
+you can put a `<<{keep-lines>>` region inside a `<<{single-column>>` region as
+done here:
+
+
+<<{single-column>>
+Here are some formulas:
+<<{keep-lines>>
+`u-cjk/4e36`  丶   ●
+`u-cjk/4e37`  丷   ⿰丶丿
+`u-cjk/4e38`  丸   ⿻九丶
+`u-cjk/4e39`  丹   ⿻⺆⿱丶一
+`u-cjk/4e3a`  为   ⿻丶⿵力丶
+`u-cjk/4e3b`  主   ⿱丶王
+`u-cjk/4e3b`  主   ⿱亠土
+`u-cjk/4e3c`  丼   ⿴井丶
+
+`u-cjk-xb/250b7`  𥂷   ⿱⿰告巨皿
+`u-cjk-xb/250b8`  𥂸   ⿱楊皿
+<<keep-lines}>>
+At this point, a line consisting of a triple at-sign `@@@`
+indicates the end of the `keep-lines` region; since the
+`single-column` region is still active, however, *this
+paragraph runs across the entire width* of the documents text
+area.
+<<single-column}>>
+Now a `}single-column` <<!MKTS/MD>> event has been encountered
+that was triggered by a triple-at command in the manuscript;
+accordingly, typesetting is reverted back to multi-column mode,
+which is why you can see this paragraph set in two columns.

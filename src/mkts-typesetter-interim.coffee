@@ -201,38 +201,50 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
   BLOCK:      {}
   INLINE:     {}
   MIXED:      {}
+  CLEANUP:    {}
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.COMMAND.$definition = ( S ) =>
   ### TAINT reject nested definitions ###
+  ### TAINT choice of brackets has no effect on definition ###
   track           = MKTS.TRACKER.new_tracker '(:)', '[:]'
-  last_identifier = null
-  values          = {}
+  identifier      = null
+  S.definitions   = {}
   #.........................................................................................................
   return $ ( event, send ) =>
     within_definition = track.within '(:)', '[:]'
     track event
     #.......................................................................................................
     if select event, [ '(', '[', ], ':'
-      [ type, _, last_identifier, meta, ] = event
-      warn "re-defining command #{rpr last_identifier}" if values[ last_identifier ]?
-      values[ last_identifier ] = []
+      [ type, _, identifier, meta, ] = event
+      warn "re-defining command #{rpr identifier}" if S.definitions[ identifier ]?
+      S.definitions[ identifier ] = []
       send stamp hide event
     #.......................................................................................................
     else if select event, [ ')', ']', ], ':'
       send stamp hide event
     #.......................................................................................................
     else if within_definition
-      unless ( target = values[ last_identifier ] )?
-        throw new Error "should never happen; unknown identifier #{rpr last_identifier}"
-      target.push event
-      send stamp hide copy event
+      unless ( target = S.definitions[ identifier ] )?
+        throw new Error "should never happen; unknown identifier #{rpr identifier}"
+      unless ( select event, '.', 'text' ) and event[ 2 ] is ''
+        target.push event
+        send stamp hide copy event
     #.......................................................................................................
-    else if select event, '!'
-      [ _, identifier, _, _, ] = event
-      if ( definition = values[ identifier ] )?
-        send stamp hide event
+    else
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
+@MKTX.COMMAND.$expansion = ( S ) =>
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    if select event, '!'
+      [ type, identifier, _, meta, ] = event
+      if ( definition = S.definitions[ identifier ] )?
+        # send stamp hide event
+        send stamp hide [ '(', '!', identifier, ( copy meta ), ]
         send copy sub_event for sub_event in definition
+        send stamp hide [ ')', '!', identifier, ( copy meta ), ]
       else
         send event
     #.......................................................................................................
@@ -249,10 +261,12 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.COMMAND.$comment = ( S ) =>
+  remark = MKTS._get_remark()
   #.........................................................................................................
   return $ ( event, send ) =>
     return send event unless select event, '.', 'comment'
-    whisper "ignoring comment #{rpr event[ 2 ]}"
+    [ type, name, text, meta, ] = event
+    send remark 'drop', "`.comment`: #{rpr text}", copy meta
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.DOCUMENT.$begin= ( S ) =>
@@ -292,9 +306,10 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
   #.........................................................................................................
   return $ ( event, send ) =>
     if select event, '!', 'multi-column'
-      send stamp event
       [ type, name, text, meta, ] = event
+      send stamp hide [ '(', '!', name, ( copy meta ), ]
       send [ '{', 'multi-column', text, ( copy meta ), ]
+      send stamp hide [ ')', '!', name, ( copy meta ), ]
     #.......................................................................................................
     else
       send event
@@ -303,7 +318,8 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.REGION.$multi_column = ( S ) =>
-  track = MKTS.TRACKER.new_tracker '{multi-column}'
+  track   = MKTS.TRACKER.new_tracker '{multi-column}'
+  remark  = MKTS._get_remark()
   #.........................................................................................................
   return $ ( event, send ) =>
     within_multi_column = track.within '{multi-column}'
@@ -314,7 +330,7 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       #.....................................................................................................
       if type is '{'
         if within_multi_column
-          whisper "ignored #{type}#{name}"
+          send remark 'drop', "`{multi-column` because already within `{multi-column}`". copy meta
         else
           send track @MKTX.REGION._begin_multi_column()
       #.....................................................................................................
@@ -322,7 +338,7 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
         if within_multi_column
           send track @MKTX.REGION._end_multi_column()
         else
-          whisper "ignored #{type}#{name}"
+          send remark 'drop', "`multi-column}` because not within `{multi-column}`". copy meta
     #.......................................................................................................
     else
       send event
@@ -332,75 +348,37 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.REGION.$single_column = ( S ) =>
   ### TAINT consider to implement command `change_column_count = ( send, n )` ###
-  track = MKTS.TRACKER.new_tracker '{multi-column}'
+  track   = MKTS.TRACKER.new_tracker '{multi-column}'
+  remark  = MKTS._get_remark()
   #.........................................................................................................
   return $ ( event, send ) =>
     within_multi_column = track.within '{multi-column}'
     track event
     #.......................................................................................................
     if select event, [ '{', '}', ], 'single-column'
-      send stamp event
       [ type, name, text, meta, ] = event
       #.....................................................................................................
       if type is '{'
         if within_multi_column
+          send remark 'insert', "`multi-column}`", copy meta
           send track @MKTX.REGION._end_multi_column()
+          send stamp event
         else
-          whisper "ignored #{type}#{name}"
+          # send stamp event
+          send remark 'drop', "`single-column` because not within `{multi-column}`", copy meta
       #.....................................................................................................
       else
         if within_multi_column
+          send stamp event
+          send remark 'insert', "`{multi-column`", copy meta
           send track @MKTX.REGION._begin_multi_column()
         else
-          whisper "ignored #{type}#{name}"
+          send remark 'drop', "`single-column` because not within `{multi-column}`", copy meta
     #.......................................................................................................
     else
       send event
     #.......................................................................................................
     return null
-
-#-----------------------------------------------------------------------------------------------------------
-@MKTX.REGION.$correct_p_tags_before_regions = ( S ) =>
-  last_was_p              = no
-  last_was_begin_document = no
-  remark                  = MKTS._get_remark()
-  #.........................................................................................................
-  return $ ( event, send ) =>
-    # debug '©MwBAv', event
-    #.......................................................................................................
-    if select event, 'tex'
-      send event
-    #.......................................................................................................
-    else if select event, '<', 'document'
-      # debug '©---1', last_was_begin_document
-      # debug '©---2', last_was_p
-      last_was_p              = no
-      last_was_begin_document = yes
-      send event
-    #.......................................................................................................
-    else if select event, '.', 'p'
-      # debug '©---3', last_was_begin_document
-      # debug '©---4', last_was_p
-      last_was_p              = yes
-      last_was_begin_document = no
-      send event
-    #.......................................................................................................
-    else if select event, [ '{', '[', ]
-      # debug '©---5', last_was_begin_document
-      # debug '©---6', last_was_p
-      if ( not last_was_begin_document ) and ( not last_was_p )
-        [ ..., meta, ] = event
-        # send stamp [ '#', 'insert', my_badge, "inserting `p` tag", ( copy meta ), ]
-        send remark 'insert', "`p` because region or block opens", meta
-        send [ '.', 'p', null, ( copy meta ), ]
-      send event
-      last_was_p              = no
-      last_was_begin_document = no
-    #.......................................................................................................
-    else
-      last_was_p              = no
-      last_was_begin_document = no
-      send event
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.REGION.$keep_lines = ( S ) =>
@@ -454,28 +432,6 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
         send [ 'tex', "\\begingroup\\obeyalllines\\mktsStyleCode{}", ]
       else
         send [ 'tex', "\\endgroup{}", ]
-    #.......................................................................................................
-    else
-      send event
-
-#-----------------------------------------------------------------------------------------------------------
-@MKTX.BLOCK.$remove_empty_p_tags = ( S ) =>
-  text_count = 0
-  #.........................................................................................................
-  return $ ( event, send ) =>
-    #.......................................................................................................
-    if select event, [ ']', '}', ]
-      text_count = 0
-      send event
-    #.......................................................................................................
-    else if select event, '.', 'text'
-      text_count += +1
-      send event
-    #.......................................................................................................
-    else if select event, '.', 'p'
-      if text_count > 0 then send event
-      else whisper "ignoring empty `p` tag"
-      text_count = 0
     #.......................................................................................................
     else
       send event
@@ -553,6 +509,7 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.BLOCK.$hr = ( S ) =>
+  remark = MKTS._get_remark()
   #.........................................................................................................
   return $ ( event, send ) =>
     #.......................................................................................................
@@ -562,7 +519,7 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       switch chr = text[ 0 ]
         when '-' then send [ 'tex', '\n--------------\n' ]
         when '*' then send [ 'tex', '\n**************\n' ]
-        else warn "ignored hr markup #{rpr text}"
+        else send remark 'drop', "`[hr] because markup unknown #{rpr text}", copy meta
     #.......................................................................................................
     else
       send event
@@ -585,7 +542,8 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.MIXED.$raw = ( S ) =>
-  track = MKTS.TRACKER.new_tracker '{raw}', '[raw]', '(raw)'
+  track   = MKTS.TRACKER.new_tracker '{raw}', '[raw]', '(raw)'
+  # remark  = MKTS._get_remark()
   #.........................................................................................................
   return $ ( event, send ) =>
     within_raw = track.within '{raw}', '[raw]', '(raw)'
@@ -595,6 +553,7 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       [ type, name, text, meta, ] = event
       raw_text = meta[ 'raw' ]
       ### TAINT could the added `{}` conflict with some (La)TeX commands? ###
+      # send remark 'convert', "escaped to raw text", copy meta
       send stamp [ '.', 'raw', raw_text, meta, ]
     #.......................................................................................................
     # else if select event, [ '{', '}', '[', ']', '(', ')', ], 'raw'
@@ -602,7 +561,8 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       send stamp event
       send @MKTX.BLOCK._end_paragraph()
     else if select event, [ '{', '[', '(', ')', ], 'raw'
-      send stamp event
+      null
+      # send stamp event
     #.......................................................................................................
     else
       send event
@@ -640,6 +600,121 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
         send [ 'tex', "}", ]
     #.......................................................................................................
     else
+      send event
+
+
+#===========================================================================================================
+# CLEANUP
+#-----------------------------------------------------------------------------------------------------------
+@MKTX.CLEANUP.$remove_empty_texts = ( S ) ->
+  remark = MKTS._get_remark()
+  return $ ( event, send ) =>
+    if select event, '.', 'text'
+      [ type, name, text, meta, ] = event
+      if text is ''
+        ### remain silent to make output an easier read ###
+        null
+        # send remark 'drop', "empty text", copy meta
+      else
+        send event
+    else
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
+@MKTX.CLEANUP.$remove_postdef_dispensables = ( S ) ->
+  last_was_definition = no
+  remark              = MKTS._get_remark()
+  return $ ( event, send ) =>
+    if select event, ')', ':'
+      debug '>>> 1'
+      last_was_definition = yes
+      send event
+    else if last_was_definition and select event,  '.', [ 'text', 'p', ]
+      [ type, name, text, meta, ] = event
+      if name is 'text'
+        debug '>>> 2'
+        if ( /^\n*$/ ).test text
+          debug '>>> 3'
+          send remark 'drop', "blank `.text` after command definition", copy meta
+        else
+          debug '>>> 4'
+          send event
+      else
+        debug '>>> 5'
+        send remark 'drop', "`.p` after command definition", copy meta
+        last_was_definition = no
+    else
+      debug '>>> 6'
+      last_was_definition = no
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
+@MKTX.CLEANUP.$remove_empty_p_tags = ( S ) =>
+  text_count  = 0
+  remark      = MKTS._get_remark()
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    #.......................................................................................................
+    if select event, [ ']', '}', ]
+      text_count = 0
+      send event
+    #.......................................................................................................
+    else if select event, '.', 'text'
+      text_count += +1
+      send event
+    #.......................................................................................................
+    else if select event, '.', 'p'
+      if text_count > 0
+        send event
+      else
+        [ _, _, _, meta, ] = event
+        send remark 'drop', "`.p` because it's empty", copy meta
+      text_count = 0
+    #.......................................................................................................
+    else
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
+@MKTX.REGION.$correct_p_tags_before_regions = ( S ) =>
+  last_was_p              = no
+  last_was_begin_document = no
+  remark                  = MKTS._get_remark()
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    # debug '©MwBAv', event
+    #.......................................................................................................
+    if select event, 'tex'
+      send event
+    #.......................................................................................................
+    else if select event, '<', 'document'
+      # debug '©---1', last_was_begin_document
+      # debug '©---2', last_was_p
+      last_was_p              = no
+      last_was_begin_document = yes
+      send event
+    #.......................................................................................................
+    else if select event, '.', 'p'
+      # debug '©---3', last_was_begin_document
+      # debug '©---4', last_was_p
+      last_was_p              = yes
+      last_was_begin_document = no
+      send event
+    #.......................................................................................................
+    else if select event, [ '{', '[', ]
+      # debug '©---5', last_was_begin_document
+      # debug '©---6', last_was_p
+      if ( not last_was_begin_document ) and ( not last_was_p )
+        [ ..., meta, ] = event
+        # send stamp [ '#', 'insert', my_badge, "inserting `.p` tag", ( copy meta ), ]
+        send remark 'insert', "`.p` because region or block opens", copy meta
+        send [ '.', 'p', null, ( copy meta ), ]
+      send event
+      last_was_p              = no
+      last_was_begin_document = no
+    #.......................................................................................................
+    else
+      last_was_p              = no
+      last_was_begin_document = no
       send event
 
 
@@ -720,10 +795,12 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       .pipe MKTS.$fix_typography_for_tex                    @options
       .pipe @MKTX.DOCUMENT.$begin                           state
       .pipe @MKTX.DOCUMENT.$end                             state
+      .pipe @MKTX.MIXED.$raw                                state
       .pipe @MKTX.COMMAND.$definition                       state
+      .pipe @MKTX.COMMAND.$expansion                        state
       .pipe @MKTX.COMMAND.$new_page                         state
       .pipe @MKTX.COMMAND.$comment                          state
-      .pipe @MKTX.REGION.$correct_p_tags_before_regions     state
+      # .pipe @MKTX.REGION.$correct_p_tags_before_regions     state
       .pipe @MKTX.COMMAND.$multi_column                     state
       .pipe @MKTX.REGION.$multi_column                      state
       .pipe @MKTX.REGION.$single_column                     state
@@ -732,11 +809,10 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       .pipe @MKTX.BLOCK.$heading                            state
       .pipe @MKTX.BLOCK.$hr                                 state
       .pipe @MKTX.INLINE.$code                              state
-      .pipe @MKTX.MIXED.$raw                               state
       # .pipe @MKTX.INLINE.$italic_correction                 state
       .pipe @MKTX.INLINE.$translate_i_and_b                 state
       .pipe @MKTX.INLINE.$em_and_strong                     state
-      .pipe @MKTX.BLOCK.$remove_empty_p_tags                state
+      # .pipe @MKTX.BLOCK.$remove_empty_p_tags                state
       .pipe @MKTX.BLOCK.$paragraph                          state
       # .pipe D.$observe ( event ) =>
       #   if MKTS.select event, 'text'
@@ -744,6 +820,8 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       #     debug event
       #   else
       #     # whisper JSON.stringify event
+      .pipe @MKTX.CLEANUP.$remove_empty_texts               state
+      .pipe @MKTX.CLEANUP.$remove_postdef_dispensables      state
       .pipe MKTS.$close_dangling_open_tags                  state
       .pipe MKTS.$show_mktsmd_events                        state
       .pipe MKTS.$write_mktscript                           state
