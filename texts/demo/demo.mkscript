@@ -41,10 +41,8 @@ the universe, and everything?*')'
   { line_nr: 3, col_nr: 12, raw: '', stamped: true, hidden: true } ])'
 '(:(strong'MKTS/MD'))¶
 
-█ 1 █ IGNORED: [ '#',
-  'drop',
-  '`.comment`: \'<<{definitions>>\\n  thequestion:    "*What is the meaning of life, the universe, and everything?*"\\n  theanswer:      "**42**"\\n  TEX:            "<<(raw>>\\\\TeX{}<<raw)>>"\\n  LATEX:          "<<(raw>>\\\\LaTeX{}<<raw)>>"\\n  MKTS:           "**MKTS**"\\n  MKTS/MD:        "**MKTS/MD**"\\n  MKTS2:          "<<(raw>>**MKTS**<<raw)>>"\\n<<definitions}>>\'',
-  { line_nr: 1, col_nr: 10, badge: '$comment', stamped: true } ]¶
+█ 13 █ ?regexp-1
+¶
 (!(strong'MKTS'))' and '(!
 █ 3 █ IGNORED: [ '.',
   'raw',
@@ -57,13 +55,13 @@ the universe, and everything?*')'
 █ 3 █ IGNORED: [ '.',
   'raw',
   '',
-  { line_nr: 3, col_nr: 12, raw: '', stamped: true } ])¶
-
-█ 27 █ IGNORED: [ '#',
+  { line_nr: 3, col_nr: 12, raw: '', stamped: true } ])'
+'
+█ 15 █ IGNORED: [ '#',
   'info',
-  'encountered `<<!end>>` on line #27',
-  { line_nr: 27,
-    col_nr: 28,
+  'encountered `<<!end>>` on line #15',
+  { line_nr: 15,
+    col_nr: 17,
     badge: '$_process_end_command',
     stamped: true } ]
 █ undefined █ IGNORED: [ '#',

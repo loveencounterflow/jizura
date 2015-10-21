@@ -10,6 +10,11 @@ the universe, and everything?*<<:)>>
 <<(:MKTS2>><<(raw>>**MKTS**<<raw)>><<:)>>
 <<(:MKTS/MD>>**MKTS/MD**<<:)>>
 
+@johnfrazer
+
+<<!MKTS>> and <<!MKTS2>>
+<<!end>>
+
 <!-- <<{definitions>>
   thequestion:    "*What is the meaning of life, the universe, and everything?*"
   theanswer:      "**42**"
@@ -20,11 +25,9 @@ the universe, and everything?*<<:)>>
   MKTS2:          "<<(raw>>**MKTS**<<raw)>>"
 <<definitions}>> -->
 
-<<!MKTS>> and <<!MKTS2>>
 
 
 
-<<!end>>
 
 multi-column multi-column multi-column multi-column multi-column multi-column multi-column multi-column
 multi-column multi-column multi-column multi-column multi-column multi-column multi-column multi-column

@@ -206,14 +206,14 @@ misfit                    = Symbol 'misfit'
   # R.use require 'markdown-it-mark'
   # R.use require 'markdown-it-sub'
   # R.use require 'markdown-it-sup'
-  # #.......................................................................................................
-  # ### sample plugin ###
-  # user_pattern  = /@(\w+)/
-  # user_handler  = ( match, utils ) ->
-  #   url = 'http://example.org/u/' + match[ 1 ]
-  #   return '<a href="' + utils.escape(url) + '">' + utils.escape(match[1]) + '</a>'
-  # user_plugin = new_md_inline_plugin user_pattern, user_handler
-  # R.use user_plugin
+  #.......................................................................................................
+  ### sample plugin ###
+  user_pattern  = /@(\w+)/
+  user_handler  = ( match, utils ) ->
+    url = 'http://example.org/u/' + match[ 1 ]
+    return '<a href="' + utils.escape(url) + '">' + utils.escape(match[1]) + '</a>'
+  user_plugin = new_md_inline_plugin user_pattern, user_handler
+  R.use user_plugin
   #.......................................................................................................
   return R
 
@@ -440,7 +440,6 @@ tracker_pattern = /// ^
   return $ ( token, send, end ) =>
     _send = send
     if token?
-      # debug '@a20g1TH9yLG', token
       { type, map, } = token
       map           ?= last_map
       line_nr        = ( map[ 0 ] ? 0 ) + 1
@@ -455,6 +454,7 @@ tracker_pattern = /// ^
         send [ '<', 'document', null, meta, ]
       #.....................................................................................................
       unless S.has_ended
+        debug '@a20g1TH9yLG', token[ 'markup' ]
         switch type
           # blocks
           when 'heading_open'       then send [ '[', token[ 'tag' ],  null,               meta, ]
@@ -505,7 +505,9 @@ tracker_pattern = /// ^
                 if name is 'p' then send [ '.', name, null, meta, ]
                 else                send [ ')', name, null, meta, ]
               else throw new Error "unknown HTML tag position #{rpr position}"
-          else send_unknown token, meta
+          else
+            debug '@26.05', token
+            send_unknown token, meta
         #...................................................................................................
         last_map = map
     #.......................................................................................................
@@ -618,6 +620,7 @@ tracker_pattern = /// ^
     if @select event, '!', 'end'
       [ _, _, _, meta, ]    = event
       { line_nr, }          = meta
+      ### TAINT consider to re-send `document>` ###
       send remark 'info', "encountered `<<!end>>` on line ##{line_nr}", @copy meta
       S.has_ended = yes
     else if @select event, '>', 'document'
