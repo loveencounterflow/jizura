@@ -519,98 +519,6 @@ tracker_pattern = /// ^
     return null
 
 #-----------------------------------------------------------------------------------------------------------
-@$_preprocess_commands = ( S ) ->
-  ### TAINT `<xxx>` translates as `(xxx`, which is generally correct, but it should translate
-  to `(xxx)` when `xxx` is a known HTML5 'lone' tag. ###
-  ### TAINT no need for `:` any more; replaced by `{definitions}` ###
-  left_meta_fence     = '<'
-  right_meta_fence    = '>'
-  repetitions         = 2
-  fence_pattern       = ///
-    #{left_meta_fence}{#{repetitions}}
-    (
-      (?:
-        \\#{right_meta_fence}       |
-        [^ #{right_meta_fence} ]    |
-        #{right_meta_fence}{ #{repetitions - 1} } (?! #{right_meta_fence} )
-        )*
-      )
-    #{right_meta_fence}{#{repetitions}}
-    ///
-  prefix_pattern      = ///^ ( [ !: ] ) ( .* ) ///
-  collector           = []
-  track               = @TRACKER.new_tracker '{code}', '(code)', '(latex)', '(latex)'
-  #.........................................................................................................
-  return $ ( event, send ) =>
-    within_literal = track.within '{code}', '(code)', '(latex)', '(latex)'
-    track event
-    [ type, name, text, meta, ] = event
-    if ( not within_literal ) and @select event, '.', 'text'
-      is_command = yes
-      for part in text.split fence_pattern
-        is_command  = not is_command
-        left_fence  = null
-        right_fence = null
-        if is_command
-          last_idx    = part.length - 1
-          left_fence  = part[        0 ] if part[        0 ] in @FENCES.xleft
-          right_fence = part[ last_idx ] if part[ last_idx ] in @FENCES.xright
-          if left_fence? and right_fence?
-            command_name = part[ 1 ... last_idx ]
-            if prefix_pattern.test command_name
-              warn "prefix not supported in #{rpr part}"
-              send [ '?', part, null, ( @copy meta ), ]
-            else
-              send [ left_fence,  command_name, null, ( @copy meta ), ]
-              send [ right_fence, command_name, null, ( @copy meta ), ]
-          else if left_fence?
-            command_name  = part[ 1 ... ]
-            if ( match = command_name.match prefix_pattern )?
-              [ _, prefix, suffix, ] = match
-              switch prefix
-                when ':'
-                  send [ left_fence, prefix, suffix, ( @copy meta ), ]
-                else
-                  warn "prefix #{rpr prefix} not supported in #{rpr part}"
-                  send [ '?', part, null, ( @copy meta ), ]
-            else
-              send [ left_fence, command_name, null, ( @copy meta ), ]
-          else if right_fence?
-            ### TAINT code duplication ###
-            command_name = part[ ... last_idx ]
-            if ( match = command_name.match prefix_pattern )?
-              [ _, prefix, suffix, ] = match
-              # debug '©9nGvB', ( rpr command_name ), ( rpr prefix ), ( rpr suffix )
-              switch prefix
-                when ':'
-                  send [ right_fence, prefix, suffix, ( @copy meta ), ]
-                else
-                  warn "prefix #{rpr prefix} not supported in #{rpr part}"
-                  send [ '?', part, null, ( @copy meta ), ]
-            else
-              send [ right_fence, command_name, null, ( @copy meta ), ]
-          else
-            match = part.match prefix_pattern
-            unless match?
-              warn "not a legal command: #{rpr part}"
-              send [ '?', part, null, ( @copy meta ), ]
-            else
-              [ _, prefix, suffix, ] = match
-              switch prefix
-                when '!'
-                  send [ '!', suffix, null, ( @copy meta ), ]
-                else
-                  warn "prefix #{rpr prefix} not supported in #{rpr part}"
-                  send [ '?', part, null, ( @copy meta ), ]
-        else
-          send [ type, name, part, ( @copy meta ), ]
-    #.......................................................................................................
-    else
-      send event
-    #.......................................................................................................
-    return null
-
-#-----------------------------------------------------------------------------------------------------------
 @$_process_end_command = ( S ) ->
   S.has_ended   = no
   remark        = @_get_remark()
@@ -1077,21 +985,5 @@ tracker_pattern = /// ^
   #.........................................................................................................
   return R
 
-### TAINT currently not used, but 'potentially useful'
-#-----------------------------------------------------------------------------------------------------------
-@_meta  = Symbol 'meta'
-
-#-----------------------------------------------------------------------------------------------------------
-@set_meta = ( x, name, value = true ) ->
-  target          = x[ @_meta ]?= {}
-  target[ name ]  = value
-  return x
-
-#-----------------------------------------------------------------------------------------------------------
-@get_meta = ( x, name = null ) ->
-  R = x[ @_meta ]
-  R = R[ name ] if name
-  return R
-###
 
 
