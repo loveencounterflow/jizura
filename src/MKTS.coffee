@@ -904,6 +904,9 @@ tracker_pattern = /// ^
   R = R.replace @XXX_command_pattern, ( _, $1, $2, $3, $4, $5 ) =>
     raw_content     = $2
     parsed_content  = [ $3, $4, $5, ]
+    ### replace fences by `null` in case of empty string: ###
+    parsed_content[ 0 ] = null if parsed_content[ 0 ].length is 0
+    parsed_content[ 2 ] = null if parsed_content[ 2 ].length is 0
     id              = @XXX_raw_id_from_content 'command', raw_content, parsed_content
     return "#{$1}\x12#{id}\x13"
   #.........................................................................................................
@@ -941,8 +944,10 @@ tracker_pattern = /// ^
           ### should never happen: ###
           throw new Error "unknown ID #{rpr stretch}"                 unless command?
           throw new Error "not registered correctly: #{rpr stretch}"  unless CND.isa_list command
-          [ left_fence, name, right_fence, ] = command
-          send [ left_fence, name, stretch, ( @copy meta ), ]
+          debug 'er67', command
+          [ left_fence, command_name, right_fence, ] = command
+          fence = left_fence ? right_fence
+          send [ fence, command_name, null, ( @copy meta ), ]
         else
           send [ type, name, stretch, ( @copy meta ), ]
     #.......................................................................................................
@@ -1023,8 +1028,8 @@ hilite = ( text ) ->
     .pipe @$_reinject_html_blocks           state
     .pipe @$_rewrite_markdownit_tokens      state
     .pipe @$XXX_expand_commands             state
-    .pipe @$XXX_expand_raw_spans          state
-    .pipe D.$show()
+    .pipe @$XXX_expand_raw_spans            state
+    # .pipe D.$show()
     .pipe @$_process_end_command            state
     .pipe R
   #.........................................................................................................
