@@ -747,42 +747,6 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
 #===========================================================================================================
 #
 #-----------------------------------------------------------------------------------------------------------
-@$show_unhandled_tags = ( S ) ->
-  return $ ( event, send ) =>
-    ### TAINT selection could be simpler, less repetitive ###
-    if event[ 0 ] in [ 'tex', 'text', ]
-      send event
-    else if select event, '.', 'text'
-      send event
-    else unless is_stamped event
-      [ type, name, text, meta, ] = event
-      if text?
-        if ( CND.isa_pod text )
-          if ( Object.keys text ).length is 0
-            text = ''
-          else
-            text = rpr text
-      else
-        text = ''
-      if type in [ '.', '!', ] or type in MKTS.FENCES.xleft
-        first             = type
-        last              = name
-        pre               = '█'
-        post              = ''
-      else
-        first             = name
-        last              = type
-        pre               = ''
-        post              = '█'
-      event_txt         = first + last + ' ' + text
-      event_tex         = MKTS.fix_typography_for_tex event_txt, @options
-      ### TAINT use mkts command ###
-      send [ 'tex', "{\\mktsStyleBold\\color{violet}{\\mktsStyleSymbol#{pre}}#{event_tex}{\\mktsStyleSymbol#{post}}}" ]
-      send event
-    else
-      send event
-
-#-----------------------------------------------------------------------------------------------------------
 @$filter_tex = ->
   return $ ( event, send ) =>
     if select event, 'tex'                        then send event[ 1 ]
@@ -851,8 +815,9 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       .pipe MKTS.$close_dangling_open_tags                  state
       .pipe MKTS.$show_mktsmd_events                        state
       .pipe MKTS.$write_mktscript                           state
-      .pipe @$show_unhandled_tags                           state
+      .pipe MKTS.$show_unhandled_tags                       state
       .pipe @$filter_tex()
+      .pipe MKTS.$show_illegal_chrs                         state
       .pipe tex_output
     #---------------------------------------------------------------------------------------------------------
     # D.resume input

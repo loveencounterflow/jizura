@@ -731,6 +731,54 @@ tracker_pattern = /// ^
   return null
 
 #-----------------------------------------------------------------------------------------------------------
+@$show_unhandled_tags = ( S ) ->
+  return $ ( event, send ) =>
+    ### TAINT selection could be simpler, less repetitive ###
+    if event[ 0 ] in [ 'tex', 'text', ]
+      send event
+    else if @select event, '.', 'text'
+      send event
+    else unless @is_stamped event
+      [ type, name, text, meta, ] = event
+      if text?
+        if ( CND.isa_pod text )
+          if ( Object.keys text ).length is 0
+            text = ''
+          else
+            text = rpr text
+      else
+        text = ''
+      if type in [ '.', '!', ] or type in MKTS.FENCES.xleft
+        first             = type
+        last              = name
+        pre               = '█'
+        post              = ''
+      else
+        first             = name
+        last              = type
+        pre               = ''
+        post              = '█'
+      event_txt         = first + last + ' ' + text
+      event_tex         = MKTS.fix_typography_for_tex event_txt, @options
+      ### TAINT use mkts command ###
+      send [ 'tex', """{\\mktsStyleBold\\color{violet}{%
+        \\mktsStyleSymbol#{pre}}#{event_tex}{\\mktsStyleSymbol#{post}}}""" ]
+      send event
+    else
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
+@$show_illegal_chrs = ( S ) ->
+  return $ ( old_text, send ) ->
+    new_text = old_text.replace /[\x00-\x08\x0b\x0c\x0e-\x1f\x7f\ufffd-\uffff]/g, ( $0 ) ->
+      cid_hex = ( $0.codePointAt 0 ).toString 16
+      ### TAINT use mkts command ###
+      return """{\\mktsStyleBold\\color{red}{%
+        \\mktsStyleSymbol#{pre}}U+#{cid_hex}{\\mktsStyleSymbol#{post}}}"""
+    warn "detected (probably) illegal character U+#{cid_hex}" if old_text isnt new_text
+    send new_text
+
+#-----------------------------------------------------------------------------------------------------------
 @$show_mktsmd_events = ( S ) ->
   unknown_events    = []
   indentation       = ''
@@ -935,7 +983,6 @@ tracker_pattern = /// ^
     if @.select event, '.', [ 'text', 'code', 'comment', ]
       is_command                  = yes
       [ type, name, text, meta, ] = event
-      debug 'mGiKE', text.split @XXX_command_id_pattern
       for stretch in text.split @XXX_command_id_pattern
         is_command = not is_command
         if is_command
@@ -944,7 +991,6 @@ tracker_pattern = /// ^
           ### should never happen: ###
           throw new Error "unknown ID #{rpr stretch}"                 unless command?
           throw new Error "not registered correctly: #{rpr stretch}"  unless CND.isa_list command
-          debug 'er67', command
           [ left_fence, command_name, right_fence, ] = command
           fence = left_fence ? right_fence
           send [ fence, command_name, null, ( @copy meta ), ]
@@ -953,11 +999,6 @@ tracker_pattern = /// ^
     #.......................................................................................................
     else
       send event
-
-hilite = ( text ) ->
-  ### TAINT matcher excludes 0x1b (ESC) which should likewise not occur in MD source ###
-  return text.replace /[\x00-\x08\x0b\x0c\x0d-\x1a\x1c\x1f\x7f\ufffd-\uffff]/g, ( $0 ) ->
-    CND.red ( $0.codePointAt 0 ).toString 16
 
 #-----------------------------------------------------------------------------------------------------------
 @$XXX_expand_raw_spans  = ( state ) ->
@@ -979,17 +1020,6 @@ hilite = ( text ) ->
     #.......................................................................................................
     else
       send event
-
-# #-----------------------------------------------------------------------------------------------------------
-# @XXX_expand_raw_spans = ( text ) ->
-#   R = text
-#   R = text.replace @XXX_raw_id_pattern, ( _, id_txt ) =>
-#     id  = parseInt id_txt, 10
-#     R   = @XXX_raw_content_by_ids.get id
-#     throw new Error "unknown ID #{rpr id_txt}" unless R?
-#     return R
-#   R = @XXX_unescape_escape_chrs R
-#   return R
 
 #-----------------------------------------------------------------------------------------------------------
 @XXX_escape_escape_chrs = ( text ) ->
