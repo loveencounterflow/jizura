@@ -572,7 +572,10 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
     within_raw = track.within '{raw}', '[raw]', '(raw)', '{definitions}'
     track event
     #.......................................................................................................
-    if within_raw and select event, '.', 'text'
+    if select event, '.', 'raw'
+      send stamp event
+    else if within_raw and select event, '.', 'text'
+      throw new Error "should never happen"
       [ type, name, text, meta, ] = event
       raw_text = meta[ 'raw' ]
       ### TAINT could the added `{}` conflict with some (La)TeX commands? ###

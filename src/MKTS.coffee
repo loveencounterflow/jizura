@@ -454,7 +454,7 @@ tracker_pattern = /// ^
         send [ '<', 'document', null, meta, ]
       #.....................................................................................................
       unless S.has_ended
-        debug '@a20g1TH9yLG', token[ 'markup' ]
+        # debug '@a20g1TH9yLG', token[ 'markup' ]
         switch type
           # blocks
           when 'heading_open'       then send [ '[', token[ 'tag' ],  null,               meta, ]
@@ -887,6 +887,7 @@ tracker_pattern = /// ^
 @XXX_escape_raw_spans = ( text ) ->
   R = text
   R = @XXX_escape_escape_chrs R
+  #.........................................................................................................
   R = R.replace @XXX_raw_bracketed_pattern, ( _, $1, $2, $3 ) =>
     $1           ?= ''
     $2           ?= ''
@@ -894,15 +895,18 @@ tracker_pattern = /// ^
     raw_content   = $3 ? ''
     id            = @XXX_raw_id_from_content 'raw', raw_content
     return "#{$1}\x11#{id}\x13"
+  #.........................................................................................................
   R = R.replace @XXX_raw_heredoc_pattern, ( _, $1, $2, $3 ) =>
     raw_content   = $3 ? ''
     id            = @XXX_raw_id_from_content 'raw', raw_content
     return "#{$1}\x11#{id}\x13"
+  #.........................................................................................................
   R = R.replace @XXX_command_pattern, ( _, $1, $2, $3, $4, $5 ) =>
     raw_content     = $2
     parsed_content  = [ $3, $4, $5, ]
     id              = @XXX_raw_id_from_content 'command', raw_content, parsed_content
     return "#{$1}\x12#{id}\x13"
+  #.........................................................................................................
   return R
 
 #-----------------------------------------------------------------------------------------------------------
@@ -928,6 +932,7 @@ tracker_pattern = /// ^
     if @.select event, '.', [ 'text', 'code', 'comment', ]
       is_command                  = yes
       [ type, name, text, meta, ] = event
+      debug 'mGiKE', text.split @XXX_command_id_pattern
       for stretch in text.split @XXX_command_id_pattern
         is_command = not is_command
         if is_command
@@ -944,24 +949,42 @@ tracker_pattern = /// ^
     else
       send event
 
-#-----------------------------------------------------------------------------------------------------------
-@$XXX_unescape_raw_spans  = ( state ) ->
-  return $ ( event, send ) =>
-    if @.select event, '.', [ 'text', 'code', 'comment', 'raw', ]
-      [ type, name, text, meta, ] = event
-      event[ 2 ] = @XXX_unescape_raw_spans text
-    send event
+hilite = ( text ) ->
+  ### TAINT matcher excludes 0x1b (ESC) which should likewise not occur in MD source ###
+  return text.replace /[\x00-\x08\x0b\x0c\x0d-\x1a\x1c\x1f\x7f\ufffd-\uffff]/g, ( $0 ) ->
+    CND.red ( $0.codePointAt 0 ).toString 16
 
 #-----------------------------------------------------------------------------------------------------------
-@XXX_unescape_raw_spans = ( text ) ->
-  R = text
-  R = text.replace @XXX_raw_id_pattern, ( _, id_txt ) =>
-    id  = parseInt id_txt, 10
-    R   = @XXX_raw_content_by_ids.get id
-    throw new Error "unknown ID #{rpr id_txt}" unless R?
-    return R
-  R = @XXX_unescape_escape_chrs R
-  return R
+@$XXX_expand_raw_spans  = ( state ) ->
+  return $ ( event, send ) =>
+    #.......................................................................................................
+    if @.select event, '.', [ 'text', 'code', 'comment', ]
+      is_raw                      = yes
+      [ type, name, text, meta, ] = event
+      for stretch in text.split @XXX_raw_id_pattern
+        is_raw = not is_raw
+        if is_raw
+          id      = parseInt stretch, 10
+          content = @XXX_raw_content_by_ids.get id
+          ### should never happen: ###
+          throw new Error "unknown ID #{rpr stretch}"                 unless content?
+          send [ '.', 'raw', content, ( @copy meta ), ]
+        else
+          send [ type, name, stretch, ( @copy meta ), ]
+    #.......................................................................................................
+    else
+      send event
+
+# #-----------------------------------------------------------------------------------------------------------
+# @XXX_expand_raw_spans = ( text ) ->
+#   R = text
+#   R = text.replace @XXX_raw_id_pattern, ( _, id_txt ) =>
+#     id  = parseInt id_txt, 10
+#     R   = @XXX_raw_content_by_ids.get id
+#     throw new Error "unknown ID #{rpr id_txt}" unless R?
+#     return R
+#   R = @XXX_unescape_escape_chrs R
+#   return R
 
 #-----------------------------------------------------------------------------------------------------------
 @XXX_escape_escape_chrs = ( text ) ->
@@ -1000,7 +1023,7 @@ tracker_pattern = /// ^
     .pipe @$_reinject_html_blocks           state
     .pipe @$_rewrite_markdownit_tokens      state
     .pipe @$XXX_expand_commands             state
-    .pipe @$XXX_unescape_raw_spans          state
+    .pipe @$XXX_expand_raw_spans          state
     .pipe D.$show()
     .pipe @$_process_end_command            state
     .pipe R
