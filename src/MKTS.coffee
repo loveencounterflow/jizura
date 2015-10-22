@@ -994,6 +994,8 @@ MKTS.XXX_unescape_escape_chrs = ( text ) ->
     .pipe @$_flatten_tokens                 state
     .pipe @$_reinject_html_blocks           state
     .pipe @$_rewrite_markdownit_tokens      state
+    .pipe @$XXX_expand_commands             state
+    .pipe @$XXX_unescape_raw_spans          state
     # .pipe @$_replace_text                   state, @_unescape_command_fences_A
     # .pipe @$_preprocess_commands            state
     # .pipe @$_replace_text                   state, @_unescape_command_fences_B
@@ -1006,7 +1008,7 @@ MKTS.XXX_unescape_escape_chrs = ( text ) ->
     ### TAINT what to do with useful data appearing environment? ###
     ### TAINT environment becomes important for footnotes ###
     environment = {}
-    md_source   = MKTS.XXX_escape_raw_spans md_source
+    md_source   = @XXX_escape_raw_spans md_source
     tokens      = md_parser.parse md_source, environment
     # @set_meta R, 'environment', environment
     confluence.write token for token in tokens
