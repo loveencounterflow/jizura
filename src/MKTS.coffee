@@ -896,9 +896,9 @@ tracker_pattern = /// ^
     .pipe @$_flatten_tokens                 state
     .pipe @$_reinject_html_blocks           state
     .pipe @$_rewrite_markdownit_tokens      state
-    .pipe @$_replace_text                   state, @_unescape_command_fences_A
-    .pipe @$_preprocess_commands            state
-    .pipe @$_replace_text                   state, @_unescape_command_fences_B
+    # .pipe @$_replace_text                   state, @_unescape_command_fences_A
+    # .pipe @$_preprocess_commands            state
+    # .pipe @$_replace_text                   state, @_unescape_command_fences_B
     # .pipe @$_remove_postdef_dispensables    state
     .pipe @$_process_end_command            state
     .pipe R
@@ -909,7 +909,7 @@ tracker_pattern = /// ^
     ### TAINT what to do with useful data appearing environment? ###
     ### TAINT environment becomes important for footnotes ###
     environment = {}
-    md_source   = @_escape_command_fences md_source
+    # md_source   = @_escape_command_fences md_source
     tokens      = md_parser.parse md_source, environment
     # @set_meta R, 'environment', environment
     confluence.write token for token in tokens
