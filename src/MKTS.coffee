@@ -390,6 +390,7 @@ tracker_pattern = /// ^
       else
         # debug '@2', pattern, no
         self._leave state
+        ### TAINT shouldn't throw error but issue warning remark ###
         throw new Error "too many right fences: #{rpr event}" if state[ 'count' ] < 0
     return event
   #.........................................................................................................
@@ -656,7 +657,7 @@ tracker_pattern = /// ^
             text = rpr text
       else
         text = ''
-      if type in [ '.', '!', ] or type in MKTS.FENCES.xleft
+      if type in [ '.', '!', ] or type in @FENCES.xleft
         first             = type
         last              = name
         pre               = '█'
@@ -667,7 +668,7 @@ tracker_pattern = /// ^
         pre               = ''
         post              = '█'
       event_txt         = first + last + ' ' + text
-      event_tex         = MKTS.fix_typography_for_tex event_txt, @options
+      event_tex         = @fix_typography_for_tex event_txt, S.options
       ### TAINT use mkts command ###
       send [ 'tex', """{\\mktsStyleBold\\color{violet}{%
         \\mktsStyleSymbol#{pre}}#{event_tex}{\\mktsStyleSymbol#{post}}}""" ]
