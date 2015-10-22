@@ -1,71 +1,29 @@
-█ 1 █ <document'A fascinating description of a global language, '(em'A Grammar of Mandarin')' combines broad perspectives with illuminating depth. Crammed with examples from everyday conversations, it aims to let the language speak for itself. The book opens with an overview of the language situation and a thorough account of Mandarin speech sounds. Nine core chapters explore syntactic, morphological and lexical dimensions. A final chapter traces the Chinese character script from oracle-bone inscriptions to today’s digital pens.'¶
-(!█ 3 █ {multi-column)'
-'(:'*What is the meaning of life,
-the universe, and everything?*')'
-'(:(strong'42'))'
-'(:
-█ 3 █ IGNORED: [ '.',
-  'raw',
-  '\\TeX{}',
-  { line_nr: 3,
-    col_nr: 12,
-    raw: '\\TeX{}',
-    stamped: true,
-    hidden: true } ])'
-'(:
-█ 3 █ IGNORED: [ '.',
-  'raw',
-  '\\LaTeX{}',
-  { line_nr: 3,
-    col_nr: 12,
-    raw: '\\LaTeX{}',
-    stamped: true,
-    hidden: true } ])'
-'(:(strong'MKTS'))'
-'(:
-█ 3 █ IGNORED: [ '.',
-  'raw',
-  '',
-  { line_nr: 3, col_nr: 12, raw: '', stamped: true, hidden: true } ](strong
-█ 3 █ IGNORED: [ '.',
-  'raw',
-  'MKTS',
-  { line_nr: 3,
-    col_nr: 12,
-    raw: 'MKTS',
-    stamped: true,
-    hidden: true } ])
-█ 3 █ IGNORED: [ '.',
-  'raw',
-  '',
-  { line_nr: 3, col_nr: 12, raw: '', stamped: true, hidden: true } ])'
-'(:(strong'MKTS/MD'))¶
+█ 1 █ <document'first R0Z AaAbAz
+abcdef0123zABCaZ R0Z B1Z
+A line with a **raw** stretch that ends here.
+Another rawish 
+Another rawish line
+helo first R0Z AaAbAz
+helo \\textbackslash{}<<(raw>>first R0Z'
+█ 1 █ IGNORED: [ '', 'raw', '0', { line_nr: 1, col_nr: 15 } ]
+█ 1 █ IGNORED: [ '.', 'raw', '\nhelo ', { line_nr: 1, col_nr: 15 } ](code
+█ 1 █ IGNORED: [ '.', 'code', '', { line_nr: 1, col_nr: 15 } ](em'world')
+█ 1 █ IGNORED: [ '', 'code', '2', { line_nr: 1, col_nr: 15 } ]
+█ 1 █ IGNORED: [ '.', 'code', '\nsome ', { line_nr: 1, col_nr: 15 } ](foo
+█ 1 █ IGNORED: [ '.', 'foo', '', { line_nr: 1, col_nr: 15 } ](em(strong'emphasized stuff
+that runs across several')' lines')
+█ 1 █ IGNORED: [ '', 'foo', '4', { line_nr: 1, col_nr: 15 } ]
+█ 1 █ IGNORED: [ '.',
+  'foo',
+  '\nhelo \u00111\u0013\n\\n\\b\nA Command: ',
+  { line_nr: 1, col_nr: 15 } ]!
 
-█ 13 █ ?regexp-1
-¶
-(!(strong'MKTS'))' and '(!
-█ 3 █ IGNORED: [ '.',
-  'raw',
-  '',
-  { line_nr: 3, col_nr: 12, raw: '', stamped: true } ](strong
-█ 3 █ IGNORED: [ '.',
-  'raw',
-  'MKTS',
-  { line_nr: 3, col_nr: 12, raw: 'MKTS', stamped: true } ])
-█ 3 █ IGNORED: [ '.',
-  'raw',
-  '',
-  { line_nr: 3, col_nr: 12, raw: '', stamped: true } ])'
-'
-█ 15 █ IGNORED: [ '#',
-  'info',
-  'encountered `<<!end>>` on line #15',
-  { line_nr: 15,
-    col_nr: 17,
-    badge: '$_process_end_command',
-    stamped: true } ]
+█ 1 █ IGNORED: [ '.',
+  'literally',
+  '.\n\u00112\u0013',
+  { line_nr: 1, col_nr: 15 } ]¶
+
 █ undefined █ IGNORED: [ '#',
   'resend',
-  '`multi-column}`',
-  { stamped: true, badge: '$close_dangling_open_tags' } ]}
->
+  '`foo)`',
+  { stamped: true, badge: '$close_dangling_open_tags' } ])>
