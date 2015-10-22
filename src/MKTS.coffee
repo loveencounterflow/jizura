@@ -922,22 +922,28 @@ MKTS.XXX_raw_id_from_content = ( collection_name, raw_content, parsed_content = 
   return R
 
 #-----------------------------------------------------------------------------------------------------------
-MKTS.XXX_expand_commands = ( text ) ->
-  is_command  = yes
-  R           = []
-  for stretch in text.split @XXX_command_id_pattern
-    is_command = not is_command
-    if is_command
-      id      = parseInt stretch, 10
-      command = @XXX_command_by_ids.get id
-      ### should never happen: ###
-      throw new Error "unknown ID #{rpr stretch}"                 unless command?
-      throw new Error "not registered correctly: #{rpr stretch}"  unless CND.isa_list command
-      [ left_fence, name, right_fence, ] = command
-      R.push CND.gold "#{left_fence}#{name}#{right_fence}"
+MKTS.$XXX_expand_commands = ( text ) ->
+  return $ ( event, send ) =>
+    #.......................................................................................................
+    if @.select event, '.', [ 'text', 'code', 'comment', ]
+      is_command                  = yes
+      [ type, name, text, meta, ] = event
+      for stretch in text.split @XXX_command_id_pattern
+        is_command = not is_command
+        if is_command
+          id      = parseInt stretch, 10
+          command = @XXX_command_by_ids.get id
+          ### should never happen: ###
+          throw new Error "unknown ID #{rpr stretch}"                 unless command?
+          throw new Error "not registered correctly: #{rpr stretch}"  unless CND.isa_list command
+          [ left_fence, name, right_fence, ] = command
+          send [ left_fence, name, stretch, ( @copy meta ), ]
+        else
+          send [ type, name, stretch, ( @copy meta ), ]
+      return R.join ''
+    #.......................................................................................................
     else
-      R.push CND.steel stretch
-  return R.join ''
+      send event
 
 #-----------------------------------------------------------------------------------------------------------
 MKTS.$XXX_unescape_raw_spans  = ( state ) ->
