@@ -853,26 +853,26 @@ tracker_pattern = /// ^
 # CHR ESCAPING
 #-----------------------------------------------------------------------------------------------------------
 ### TAINT don't keep state here ###
-MKTS.XXX_raw_content_by_ids    = new Map()
-MKTS.XXX_raw_id_by_contents    = new Map()
-MKTS.XXX_command_by_ids        = new Map()
-MKTS.XXX_id_by_commands        = new Map()
+@XXX_raw_content_by_ids    = new Map()
+@XXX_raw_id_by_contents    = new Map()
+@XXX_command_by_ids        = new Map()
+@XXX_id_by_commands        = new Map()
 
 #-----------------------------------------------------------------------------------------------------------
-MKTS.XXX_raw_bracketed_pattern = ///
+@XXX_raw_bracketed_pattern = ///
   (?: ( ^ | [^\\] ) <<\( raw >>               << raw \)>> ) |
   (?: ( ^ | [^\\] ) <<\( raw >> ( .*? [^\\] ) << raw \)>> )
   ///g
-MKTS.XXX_raw_heredoc_pattern = ///
+@XXX_raw_heredoc_pattern = ///
   ( ^ | [^\\] ) <<! raw: ( [^\s>]* )>> ( .*? ) \2
   ///g
-MKTS.XXX_raw_id_pattern      = ///
+@XXX_raw_id_pattern      = ///
   \x11 ( [ 0-9 ]+ ) \x13
   ///g
-MKTS.XXX_command_id_pattern  = ///
+@XXX_command_id_pattern  = ///
   \x12 ( [ 0-9 ]+ ) \x13
   ///g
-MKTS.XXX_command_pattern = ///
+@XXX_command_pattern = ///
   ( ^ | [^\\] )
   (
     <<
@@ -884,7 +884,7 @@ MKTS.XXX_command_pattern = ///
   ///g
 
 #-----------------------------------------------------------------------------------------------------------
-MKTS.XXX_escape_raw_spans = ( text ) ->
+@XXX_escape_raw_spans = ( text ) ->
   R = text
   R = @XXX_escape_escape_chrs R
   R = R.replace @XXX_raw_bracketed_pattern, ( _, $1, $2, $3 ) =>
@@ -906,7 +906,7 @@ MKTS.XXX_escape_raw_spans = ( text ) ->
   return R
 
 #-----------------------------------------------------------------------------------------------------------
-MKTS.XXX_raw_id_from_content = ( collection_name, raw_content, parsed_content = null ) ->
+@XXX_raw_id_from_content = ( collection_name, raw_content, parsed_content = null ) ->
   switch collection_name
     when 'raw'
       fragment_by_ids = @XXX_raw_content_by_ids
@@ -922,7 +922,7 @@ MKTS.XXX_raw_id_from_content = ( collection_name, raw_content, parsed_content = 
   return R
 
 #-----------------------------------------------------------------------------------------------------------
-MKTS.$XXX_expand_commands = ( text ) ->
+@$XXX_expand_commands = ( text ) ->
   return $ ( event, send ) =>
     #.......................................................................................................
     if @.select event, '.', [ 'text', 'code', 'comment', ]
@@ -940,13 +940,12 @@ MKTS.$XXX_expand_commands = ( text ) ->
           send [ left_fence, name, stretch, ( @copy meta ), ]
         else
           send [ type, name, stretch, ( @copy meta ), ]
-      return R.join ''
     #.......................................................................................................
     else
       send event
 
 #-----------------------------------------------------------------------------------------------------------
-MKTS.$XXX_unescape_raw_spans  = ( state ) ->
+@$XXX_unescape_raw_spans  = ( state ) ->
   return $ ( event, send ) =>
     if @.select event, '.', [ 'text', 'code', 'comment', ]
       [ type, name, text, meta, ] = event
@@ -954,7 +953,7 @@ MKTS.$XXX_unescape_raw_spans  = ( state ) ->
     send event
 
 #-----------------------------------------------------------------------------------------------------------
-MKTS.XXX_unescape_raw_spans = ( text ) ->
+@XXX_unescape_raw_spans = ( text ) ->
   R = text
   R = text.replace @XXX_raw_id_pattern, ( _, id_txt ) =>
     id  = parseInt id_txt, 10
@@ -965,7 +964,7 @@ MKTS.XXX_unescape_raw_spans = ( text ) ->
   return R
 
 #-----------------------------------------------------------------------------------------------------------
-MKTS.XXX_escape_escape_chrs = ( text ) ->
+@XXX_escape_escape_chrs = ( text ) ->
   R = text
   R = R.replace /\x10/g, '\x10a'
   R = R.replace /\x11/g, '\x10r'
@@ -974,7 +973,7 @@ MKTS.XXX_escape_escape_chrs = ( text ) ->
   return R
 
 #-----------------------------------------------------------------------------------------------------------
-MKTS.XXX_unescape_escape_chrs = ( text ) ->
+@XXX_unescape_escape_chrs = ( text ) ->
   R = text
   R = R.replace /\x10z/g, '\x13'
   R = R.replace /\x10r/g, '\x11'
