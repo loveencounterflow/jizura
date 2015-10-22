@@ -947,7 +947,7 @@ tracker_pattern = /// ^
 #-----------------------------------------------------------------------------------------------------------
 @$XXX_unescape_raw_spans  = ( state ) ->
   return $ ( event, send ) =>
-    if @.select event, '.', [ 'text', 'code', 'comment', ]
+    if @.select event, '.', [ 'text', 'code', 'comment', 'raw', ]
       [ type, name, text, meta, ] = event
       event[ 2 ] = @XXX_unescape_raw_spans text
     send event
