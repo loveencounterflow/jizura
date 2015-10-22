@@ -852,14 +852,6 @@ tracker_pattern = /// ^
 #===========================================================================================================
 # CHR ESCAPING
 #-----------------------------------------------------------------------------------------------------------
-@$_replace_text = ( S, method ) ->
-  return $ ( event, send ) =>
-    if @.select event, '.', [ 'text', 'code', 'comment', ]
-      [ type, name, text, meta, ] = event
-      event[ 2 ] = method text
-    send event
-
-#-----------------------------------------------------------------------------------------------------------
 ### TAINT don't keep state here ###
 MKTS.XXX_raw_content_by_ids    = new Map()
 MKTS.XXX_raw_id_by_contents    = new Map()
@@ -948,6 +940,14 @@ MKTS.XXX_expand_commands = ( text ) ->
   return R.join ''
 
 #-----------------------------------------------------------------------------------------------------------
+MKTS.$XXX_unescape_raw_spans  = ( state ) ->
+  return $ ( event, send ) =>
+    if @.select event, '.', [ 'text', 'code', 'comment', ]
+      [ type, name, text, meta, ] = event
+      event[ 2 ] = @XXX_unescape_raw_spans text
+    send event
+
+#-----------------------------------------------------------------------------------------------------------
 MKTS.XXX_unescape_raw_spans = ( text ) ->
   R = text
   R = text.replace @XXX_raw_id_pattern, ( _, id_txt ) =>
@@ -996,9 +996,7 @@ MKTS.XXX_unescape_escape_chrs = ( text ) ->
     .pipe @$_rewrite_markdownit_tokens      state
     .pipe @$XXX_expand_commands             state
     .pipe @$XXX_unescape_raw_spans          state
-    # .pipe @$_replace_text                   state, @_unescape_command_fences_A
-    # .pipe @$_preprocess_commands            state
-    # .pipe @$_replace_text                   state, @_unescape_command_fences_B
+    .pipe D.$show()
     .pipe @$_process_end_command            state
     .pipe R
   #.........................................................................................................
