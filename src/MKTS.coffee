@@ -849,31 +849,6 @@ tracker_pattern = /// ^
     return null
 
 #-----------------------------------------------------------------------------------------------------------
-@_escape_command_fences = ( text ) ->
-  R = text
-  R = R.replace /♎/g,       '♎0'
-  R = R.replace /\\<\\</g,  '♎1'
-  R = R.replace /\\<</g,    '♎2'
-  R = R.replace /<\\</g,    '♎3'
-  R = R.replace /<</g,      '♎4'
-  return R
-
-#-----------------------------------------------------------------------------------------------------------
-@_unescape_command_fences_A = ( text ) ->
-  R = text
-  R = R.replace /♎4/g, '<<'
-  return R
-
-#-----------------------------------------------------------------------------------------------------------
-@_unescape_command_fences_B = ( text ) ->
-  R = text
-  R = R.replace /♎3/g, '<<'
-  R = R.replace /♎2/g, '<<'
-  R = R.replace /♎1/g, '<<'
-  R = R.replace /♎0/g, '♎'
-  return R
-
-#-----------------------------------------------------------------------------------------------------------
 @$_replace_text = ( S, method ) ->
   return $ ( event, send ) =>
     if @.select event, '.', [ 'text', 'code', 'comment', ]
@@ -899,7 +874,6 @@ tracker_pattern = /// ^
     # .pipe @$_replace_text                   state, @_unescape_command_fences_A
     # .pipe @$_preprocess_commands            state
     # .pipe @$_replace_text                   state, @_unescape_command_fences_B
-    # .pipe @$_remove_postdef_dispensables    state
     .pipe @$_process_end_command            state
     .pipe R
   #.........................................................................................................
