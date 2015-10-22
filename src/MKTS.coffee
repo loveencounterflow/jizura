@@ -1006,7 +1006,7 @@ MKTS.XXX_unescape_escape_chrs = ( text ) ->
     ### TAINT what to do with useful data appearing environment? ###
     ### TAINT environment becomes important for footnotes ###
     environment = {}
-    # md_source   = @_escape_command_fences md_source
+    md_source   = MKTS.XXX_escape_raw_spans md_source
     tokens      = md_parser.parse md_source, environment
     # @set_meta R, 'environment', environment
     confluence.write token for token in tokens
