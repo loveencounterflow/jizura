@@ -826,6 +826,12 @@ tracker_pattern = /// ^
   ///g
 
 #-----------------------------------------------------------------------------------------------------------
+@XXX_do_bracketed_pattern = ///
+  (?: ( ^ | [^\\] ) <<\{ do >>               << do \}>> ) |
+  (?: ( ^ | [^\\] ) <<\{ do >> ( .*? [^\\] ) << do \}>> )
+  ///g
+
+#-----------------------------------------------------------------------------------------------------------
 @XXX_raw_bracketed_pattern = ///
   (?: ( ^ | [^\\] ) <<\( raw >>               << raw \)>> ) |
   (?: ( ^ | [^\\] ) <<\( raw >> ( .*? [^\\] ) << raw \)>> )
@@ -875,6 +881,14 @@ tracker_pattern = /// ^
     raw_content   = $3 ? ''
     id            = @XXX_raw_id_from_content 'comment', raw_content.trim()
     return "#{$1}\x14#{id}\x13"
+  #.........................................................................................................
+  R = R.replace @XXX_do_bracketed_pattern, ( _, $1, $2, $3 ) =>
+    $1           ?= ''
+    $2           ?= ''
+    $1           += $2
+    raw_content   = $3 ? ''
+    id            = @XXX_raw_id_from_content 'raw', raw_content
+    return "#{$1}\x11#{id}\x13"
   #.........................................................................................................
   R = R.replace @XXX_raw_bracketed_pattern, ( _, $1, $2, $3 ) =>
     $1           ?= ''
@@ -927,7 +941,6 @@ tracker_pattern = /// ^
     if @.select event, '.', [ 'text', 'code', ]
       is_comment                  = yes
       [ type, name, text, meta, ] = event
-      debug '©lP6sz', text.split @XXX_html_comment_id_pattern
       for stretch in text.split @XXX_html_comment_id_pattern
         is_comment = not is_comment
         if is_comment
@@ -937,7 +950,7 @@ tracker_pattern = /// ^
           throw new Error "unknown ID #{rpr stretch}" unless comment?
           send [ '.', 'comment', comment, ( @copy meta ), ]
         else
-          send [ type, name, stretch, ( @copy meta ), ]
+          send [ type, name, stretch, ( @copy meta ), ] unless stretch.length is 0
     #.......................................................................................................
     else
       send event
@@ -961,7 +974,7 @@ tracker_pattern = /// ^
           fence = left_fence ? right_fence
           send [ fence, command_name, null, ( @copy meta ), ]
         else
-          send [ type, name, stretch, ( @copy meta ), ]
+          send [ type, name, stretch, ( @copy meta ), ] unless stretch.length is 0
     #.......................................................................................................
     else
       send event
