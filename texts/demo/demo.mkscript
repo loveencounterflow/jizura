@@ -1,0 +1,11 @@
+█ 1 █ <document'a line with '
+█ 1 █ IGNORED: [ '.',
+  'raw',
+  'raw content: \\TeX{}',
+  { line_nr: 1, col_nr: 2, stamped: true } ]' displaying a logogram.'¶
+
+█ 3 █ IGNORED: [ '#',
+  'drop',
+  '`.comment`: \'single-line comment\'',
+  { line_nr: 3, col_nr: 4, badge: '$comment', stamped: true } ]¶
+>
