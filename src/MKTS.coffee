@@ -863,7 +863,7 @@ tracker_pattern = /// ^
   R = text
   R = @XXX_escape_escape_chrs R
   #.........................................................................................................
-  R = R.replace @XXX_command_pattern, ( _, $1, $2, $3 ) =>
+  R = R.replace @XXX_html_comment_pattern, ( _, $1, $2, $3 ) =>
     $1           ?= ''
     $2           ?= ''
     $1           += $2
@@ -1010,7 +1010,9 @@ tracker_pattern = /// ^
     ### TAINT environment becomes important for footnotes ###
     environment = {}
     md_source   = @XXX_escape_raw_spans md_source
-    debug '23.3194', @XXX_comment_by_ids
+    debug 'comment_by_ids     ', @XXX_comment_by_ids
+    debug 'raw_content_by_ids ', @XXX_raw_content_by_ids
+    debug 'command_by_ids     ', @XXX_command_by_ids
     tokens      = md_parser.parse md_source, environment
     # @set_meta R, 'environment', environment
     confluence.write token for token in tokens

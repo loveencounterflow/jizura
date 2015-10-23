@@ -757,74 +757,76 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
 # PDF FROM MD
 #-----------------------------------------------------------------------------------------------------------
 @pdf_from_md = ( source_route, handler ) ->
-  step ( resume ) =>
-    handler                ?= ->
-    layout_info             = HELPERS.new_layout_info @options, source_route
-    yield @write_mkts_master layout_info, resume
-    source_locator          = layout_info[ 'source-locator'  ]
-    content_locator         = layout_info[ 'content-locator' ]
-    tex_output              = njs_fs.createWriteStream content_locator
-    # debug '©y9meI', layout_info
-    # process.exit()
-    ### TAINT should read MD source stream ###
-    text                    = njs_fs.readFileSync source_locator, encoding: 'utf-8'
-    input                   = MKTS.create_mdreadstream text
-    #---------------------------------------------------------------------------------------------------------
-    state =
-      options:              @options
-      layout_info:          layout_info
-      input:                input
-      resend:               ( event ) => input.write event
-    #---------------------------------------------------------------------------------------------------------
-    tex_output.on 'close', =>
-      HELPERS.write_pdf layout_info, ( error ) =>
-        throw error if error?
-        handler null if handler?
-    #---------------------------------------------------------------------------------------------------------
-    input
-      .pipe MKTS.$fix_typography_for_tex                    @options
-      .pipe @MKTX.DOCUMENT.$begin                           state
-      .pipe @MKTX.DOCUMENT.$end                             state
-      .pipe @MKTX.MIXED.$raw                                state
-      .pipe @MKTX.COMMAND.$definition                       state
-      # .pipe @MKTX.COMMAND.$definition_NG                    state
-      .pipe @MKTX.COMMAND.$expansion                        state
-      .pipe @MKTX.COMMAND.$new_page                         state
-      .pipe @MKTX.COMMAND.$comment                          state
-      # .pipe @MKTX.REGION.$correct_p_tags_before_regions     state
-      .pipe @MKTX.COMMAND.$multi_column                     state
-      .pipe @MKTX.REGION.$multi_column                      state
-      .pipe @MKTX.REGION.$single_column                     state
-      .pipe @MKTX.REGION.$keep_lines                        state
-      .pipe @MKTX.REGION.$code                              state
-      .pipe @MKTX.BLOCK.$heading                            state
-      .pipe @MKTX.BLOCK.$hr                                 state
-      .pipe @MKTX.INLINE.$code                              state
-      # .pipe @MKTX.INLINE.$italic_correction                 state
-      .pipe @MKTX.INLINE.$translate_i_and_b                 state
-      .pipe @MKTX.INLINE.$em_and_strong                     state
-      # .pipe @MKTX.BLOCK.$remove_empty_p_tags                state
-      .pipe @MKTX.BLOCK.$paragraph                          state
-      # .pipe D.$observe ( event ) =>
-      #   if MKTS.select event, 'text'
-      #     # info JSON.stringify event
-      #     debug event
-      #   else
-      #     # whisper JSON.stringify event
-      .pipe @MKTX.CLEANUP.$remove_empty_texts               state
-      .pipe MKTS.$close_dangling_open_tags                  state
-      .pipe MKTS.$show_mktsmd_events                        state
-      .pipe MKTS.$write_mktscript                           state
-      .pipe MKTS.$show_unhandled_tags                       state
-      .pipe @$filter_tex()
-      .pipe MKTS.$show_illegal_chrs                         state
-      .pipe tex_output
-    #---------------------------------------------------------------------------------------------------------
-    # D.resume input
-    input.resume()
-    # debug '©Fad1u', MKTS.get_meta input
-
-
+  D.run =>
+    step ( resume ) =>
+      handler                ?= ->
+      layout_info             = HELPERS.new_layout_info @options, source_route
+      yield @write_mkts_master layout_info, resume
+      source_locator          = layout_info[ 'source-locator'  ]
+      content_locator         = layout_info[ 'content-locator' ]
+      tex_output              = njs_fs.createWriteStream content_locator
+      # debug '©y9meI', layout_info
+      # process.exit()
+      ### TAINT should read MD source stream ###
+      text                    = njs_fs.readFileSync source_locator, encoding: 'utf-8'
+      input                   = MKTS.create_mdreadstream text
+      #---------------------------------------------------------------------------------------------------------
+      state =
+        options:              @options
+        layout_info:          layout_info
+        input:                input
+        resend:               ( event ) => input.write event
+      #---------------------------------------------------------------------------------------------------------
+      tex_output.on 'close', =>
+        HELPERS.write_pdf layout_info, ( error ) =>
+          throw error if error?
+          handler null if handler?
+      #---------------------------------------------------------------------------------------------------------
+      input
+        .pipe MKTS.$fix_typography_for_tex                    @options
+        .pipe @MKTX.DOCUMENT.$begin                           state
+        .pipe @MKTX.DOCUMENT.$end                             state
+        .pipe @MKTX.MIXED.$raw                                state
+        .pipe @MKTX.COMMAND.$definition                       state
+        # .pipe @MKTX.COMMAND.$definition_NG                    state
+        .pipe @MKTX.COMMAND.$expansion                        state
+        .pipe @MKTX.COMMAND.$new_page                         state
+        .pipe @MKTX.COMMAND.$comment                          state
+        # .pipe @MKTX.REGION.$correct_p_tags_before_regions     state
+        .pipe @MKTX.COMMAND.$multi_column                     state
+        .pipe @MKTX.REGION.$multi_column                      state
+        .pipe @MKTX.REGION.$single_column                     state
+        .pipe @MKTX.REGION.$keep_lines                        state
+        .pipe @MKTX.REGION.$code                              state
+        .pipe @MKTX.BLOCK.$heading                            state
+        .pipe @MKTX.BLOCK.$hr                                 state
+        .pipe @MKTX.INLINE.$code                              state
+        # .pipe @MKTX.INLINE.$italic_correction                 state
+        .pipe @MKTX.INLINE.$translate_i_and_b                 state
+        .pipe @MKTX.INLINE.$em_and_strong                     state
+        # .pipe @MKTX.BLOCK.$remove_empty_p_tags                state
+        .pipe @MKTX.BLOCK.$paragraph                          state
+        # .pipe D.$observe ( event ) =>
+        #   if MKTS.select event, 'text'
+        #     # info JSON.stringify event
+        #     debug event
+        #   else
+        #     # whisper JSON.stringify event
+        .pipe @MKTX.CLEANUP.$remove_empty_texts               state
+        .pipe MKTS.$close_dangling_open_tags                  state
+        .pipe MKTS.$show_mktsmd_events                        state
+        .pipe MKTS.$write_mktscript                           state
+        .pipe MKTS.$show_unhandled_tags                       state
+        .pipe @$filter_tex()
+        .pipe MKTS.$show_illegal_chrs                         state
+        .pipe tex_output
+      #---------------------------------------------------------------------------------------------------------
+      input.resume()
+  , ( error ) =>
+    alert error[ 'message' ]
+    whisper '\n' + ( error.stack.split '\n' )[ .. 10 ].join '\n'
+    whisper '...'
+    process.exit 1
 
 
 ############################################################################################################
