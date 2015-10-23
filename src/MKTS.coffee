@@ -832,17 +832,22 @@ tracker_pattern = /// ^
   ///g
 
 #-----------------------------------------------------------------------------------------------------------
-@XXX_raw_heredoc_pattern = ///
+@XXX_raw_heredoc_pattern  = ///
   ( ^ | [^\\] ) <<! raw: ( [^\s>]* )>> ( .*? ) \2
   ///g
 
 #-----------------------------------------------------------------------------------------------------------
-@XXX_raw_id_pattern      = ///
+@XXX_raw_id_pattern       = ///
   \x11 ( [ 0-9 ]+ ) \x13
   ///g
 
 #-----------------------------------------------------------------------------------------------------------
-@XXX_command_id_pattern  = ///
+@XXX_html_comment_id_pattern = ///
+  \x14 ( [ 0-9 ]+ ) \x13
+  ///g
+
+#-----------------------------------------------------------------------------------------------------------
+@XXX_command_id_pattern   = ///
   \x12 ( [ 0-9 ]+ ) \x13
   ///g
 
@@ -859,7 +864,7 @@ tracker_pattern = /// ^
   ///g
 
 #-----------------------------------------------------------------------------------------------------------
-@XXX_escape_raw_spans = ( text ) ->
+@XXX_escape_html_comments_raw_spans_and_commands = ( text ) ->
   R = text
   R = @XXX_escape_escape_chrs R
   #.........................................................................................................
@@ -868,7 +873,7 @@ tracker_pattern = /// ^
     $2           ?= ''
     $1           += $2
     raw_content   = $3 ? ''
-    id            = @XXX_raw_id_from_content 'comment', raw_content
+    id            = @XXX_raw_id_from_content 'comment', raw_content.trim()
     return "#{$1}\x14#{id}\x13"
   #.........................................................................................................
   R = R.replace @XXX_raw_bracketed_pattern, ( _, $1, $2, $3 ) =>
@@ -913,6 +918,29 @@ tracker_pattern = /// ^
     fragment_by_ids.set R, parsed_content ? raw_content
     id_by_fragments.set raw_content, R
   return R
+
+#-----------------------------------------------------------------------------------------------------------
+@$XXX_expand_html_comments = ( text ) ->
+  ### TAINT code duplication ###
+  return $ ( event, send ) =>
+    #.......................................................................................................
+    if @.select event, '.', [ 'text', 'code', ]
+      is_comment                  = yes
+      [ type, name, text, meta, ] = event
+      debug '©lP6sz', text.split @XXX_html_comment_id_pattern
+      for stretch in text.split @XXX_html_comment_id_pattern
+        is_comment = not is_comment
+        if is_comment
+          id      = parseInt stretch, 10
+          comment = @XXX_comment_by_ids.get id
+          ### should never happen: ###
+          throw new Error "unknown ID #{rpr stretch}" unless comment?
+          send [ '.', 'comment', comment, ( @copy meta ), ]
+        else
+          send [ type, name, stretch, ( @copy meta ), ]
+    #.......................................................................................................
+    else
+      send event
 
 #-----------------------------------------------------------------------------------------------------------
 @$XXX_expand_commands = ( text ) ->
@@ -997,6 +1025,7 @@ tracker_pattern = /// ^
     .pipe @$_flatten_tokens                 state
     .pipe @$_reinject_html_blocks           state
     .pipe @$_rewrite_markdownit_tokens      state
+    .pipe @$XXX_expand_html_comments        state
     .pipe @$XXX_expand_commands             state
     .pipe @$XXX_expand_raw_spans            state
     # .pipe D.$show()
@@ -1009,7 +1038,7 @@ tracker_pattern = /// ^
     ### TAINT what to do with useful data appearing environment? ###
     ### TAINT environment becomes important for footnotes ###
     environment = {}
-    md_source   = @XXX_escape_raw_spans md_source
+    md_source   = @XXX_escape_html_comments_raw_spans_and_commands md_source
     debug 'comment_by_ids     ', @XXX_comment_by_ids
     debug 'raw_content_by_ids ', @XXX_raw_content_by_ids
     debug 'command_by_ids     ', @XXX_command_by_ids
