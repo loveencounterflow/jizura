@@ -681,10 +681,12 @@ tracker_pattern = /// ^
   return $ ( old_text, send ) ->
     new_text = old_text.replace /[\x00-\x08\x0b\x0c\x0e-\x1f\x7f\ufffd-\uffff]/g, ( $0 ) ->
       cid_hex = ( $0.codePointAt 0 ).toString 16
+      pre     = '█'
+      post    = '█'
       ### TAINT use mkts command ###
+      warn "detected (probably) illegal character U+#{cid_hex}" # if old_text isnt new_text
       return """{\\mktsStyleBold\\color{red}{%
         \\mktsStyleSymbol#{pre}}U+#{cid_hex}{\\mktsStyleSymbol#{post}}}"""
-    warn "detected (probably) illegal character U+#{cid_hex}" if old_text isnt new_text
     send new_text
 
 #-----------------------------------------------------------------------------------------------------------
