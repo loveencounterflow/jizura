@@ -390,6 +390,7 @@ tracker_pattern = /// ^
       else
         # debug '@2', pattern, no
         self._leave state
+        ### TAINT shouldn't throw error but issue warning remark ###
         throw new Error "too many right fences: #{rpr event}" if state[ 'count' ] < 0
     return event
   #.........................................................................................................
@@ -454,7 +455,7 @@ tracker_pattern = /// ^
         send [ '<', 'document', null, meta, ]
       #.....................................................................................................
       unless S.has_ended
-        debug '@a20g1TH9yLG', token[ 'markup' ]
+        # debug '@a20g1TH9yLG', token[ 'markup' ]
         switch type
           # blocks
           when 'heading_open'       then send [ '[', token[ 'tag' ],  null,               meta, ]
@@ -516,98 +517,6 @@ tracker_pattern = /// ^
         send remark 'warn', "unknown tokens: #{unknown_tokens.sort().join ', '}", {}
       send [ '>', 'document', null, {}, ]
       end()
-    return null
-
-#-----------------------------------------------------------------------------------------------------------
-@$_preprocess_commands = ( S ) ->
-  ### TAINT `<xxx>` translates as `(xxx`, which is generally correct, but it should translate
-  to `(xxx)` when `xxx` is a known HTML5 'lone' tag. ###
-  ### TAINT no need for `:` any more; replaced by `{definitions}` ###
-  left_meta_fence     = '<'
-  right_meta_fence    = '>'
-  repetitions         = 2
-  fence_pattern       = ///
-    #{left_meta_fence}{#{repetitions}}
-    (
-      (?:
-        \\#{right_meta_fence}       |
-        [^ #{right_meta_fence} ]    |
-        #{right_meta_fence}{ #{repetitions - 1} } (?! #{right_meta_fence} )
-        )*
-      )
-    #{right_meta_fence}{#{repetitions}}
-    ///
-  prefix_pattern      = ///^ ( [ !: ] ) ( .* ) ///
-  collector           = []
-  track               = @TRACKER.new_tracker '{code}', '(code)', '(latex)', '(latex)'
-  #.........................................................................................................
-  return $ ( event, send ) =>
-    within_literal = track.within '{code}', '(code)', '(latex)', '(latex)'
-    track event
-    [ type, name, text, meta, ] = event
-    if ( not within_literal ) and @select event, '.', 'text'
-      is_command = yes
-      for part in text.split fence_pattern
-        is_command  = not is_command
-        left_fence  = null
-        right_fence = null
-        if is_command
-          last_idx    = part.length - 1
-          left_fence  = part[        0 ] if part[        0 ] in @FENCES.xleft
-          right_fence = part[ last_idx ] if part[ last_idx ] in @FENCES.xright
-          if left_fence? and right_fence?
-            command_name = part[ 1 ... last_idx ]
-            if prefix_pattern.test command_name
-              warn "prefix not supported in #{rpr part}"
-              send [ '?', part, null, ( @copy meta ), ]
-            else
-              send [ left_fence,  command_name, null, ( @copy meta ), ]
-              send [ right_fence, command_name, null, ( @copy meta ), ]
-          else if left_fence?
-            command_name  = part[ 1 ... ]
-            if ( match = command_name.match prefix_pattern )?
-              [ _, prefix, suffix, ] = match
-              switch prefix
-                when ':'
-                  send [ left_fence, prefix, suffix, ( @copy meta ), ]
-                else
-                  warn "prefix #{rpr prefix} not supported in #{rpr part}"
-                  send [ '?', part, null, ( @copy meta ), ]
-            else
-              send [ left_fence, command_name, null, ( @copy meta ), ]
-          else if right_fence?
-            ### TAINT code duplication ###
-            command_name = part[ ... last_idx ]
-            if ( match = command_name.match prefix_pattern )?
-              [ _, prefix, suffix, ] = match
-              # debug '©9nGvB', ( rpr command_name ), ( rpr prefix ), ( rpr suffix )
-              switch prefix
-                when ':'
-                  send [ right_fence, prefix, suffix, ( @copy meta ), ]
-                else
-                  warn "prefix #{rpr prefix} not supported in #{rpr part}"
-                  send [ '?', part, null, ( @copy meta ), ]
-            else
-              send [ right_fence, command_name, null, ( @copy meta ), ]
-          else
-            match = part.match prefix_pattern
-            unless match?
-              warn "not a legal command: #{rpr part}"
-              send [ '?', part, null, ( @copy meta ), ]
-            else
-              [ _, prefix, suffix, ] = match
-              switch prefix
-                when '!'
-                  send [ '!', suffix, null, ( @copy meta ), ]
-                else
-                  warn "prefix #{rpr prefix} not supported in #{rpr part}"
-                  send [ '?', part, null, ( @copy meta ), ]
-        else
-          send [ type, name, part, ( @copy meta ), ]
-    #.......................................................................................................
-    else
-      send event
-    #.......................................................................................................
     return null
 
 #-----------------------------------------------------------------------------------------------------------
@@ -729,6 +638,56 @@ tracker_pattern = /// ^
     send [ '.', 'text', ( collector.join '' ), meta, ]
     collector.length = 0
   return null
+
+#-----------------------------------------------------------------------------------------------------------
+@$show_unhandled_tags = ( S ) ->
+  return $ ( event, send ) =>
+    ### TAINT selection could be simpler, less repetitive ###
+    if event[ 0 ] in [ 'tex', 'text', ]
+      send event
+    else if @select event, '.', 'text'
+      send event
+    else unless @is_stamped event
+      [ type, name, text, meta, ] = event
+      if text?
+        if ( CND.isa_pod text )
+          if ( Object.keys text ).length is 0
+            text = ''
+          else
+            text = rpr text
+      else
+        text = ''
+      if type in [ '.', '!', ] or type in @FENCES.xleft
+        first             = type
+        last              = name
+        pre               = '█'
+        post              = ''
+      else
+        first             = name
+        last              = type
+        pre               = ''
+        post              = '█'
+      event_txt         = first + last + ' ' + text
+      event_tex         = @fix_typography_for_tex event_txt, S.options
+      ### TAINT use mkts command ###
+      send [ 'tex', """{\\mktsStyleBold\\color{violet}{%
+        \\mktsStyleSymbol#{pre}}#{event_tex}{\\mktsStyleSymbol#{post}}}""" ]
+      send event
+    else
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
+@$show_illegal_chrs = ( S ) ->
+  return $ ( old_text, send ) ->
+    new_text = old_text.replace /[\x00-\x08\x0b\x0c\x0e-\x1f\x7f\ufffd-\uffff]/g, ( $0 ) ->
+      cid_hex = ( $0.codePointAt 0 ).toString 16
+      pre     = '█'
+      post    = '█'
+      ### TAINT use mkts command ###
+      warn "detected (probably) illegal character U+#{cid_hex}" # if old_text isnt new_text
+      return """{\\mktsStyleBold\\color{red}{%
+        \\mktsStyleSymbol#{pre}}U+#{cid_hex}{\\mktsStyleSymbol#{post}}}"""
+    send new_text
 
 #-----------------------------------------------------------------------------------------------------------
 @$show_mktsmd_events = ( S ) ->
@@ -853,25 +812,41 @@ tracker_pattern = /// ^
 # CHR ESCAPING
 #-----------------------------------------------------------------------------------------------------------
 ### TAINT don't keep state here ###
+@XXX_comment_by_ids        = new Map()
+@XXX_id_by_comments        = new Map()
 @XXX_raw_content_by_ids    = new Map()
 @XXX_raw_id_by_contents    = new Map()
 @XXX_command_by_ids        = new Map()
 @XXX_id_by_commands        = new Map()
 
 #-----------------------------------------------------------------------------------------------------------
+@XXX_html_comment_pattern = ///
+  (?: ( ^ | [^\\] ) <!--               --> ) |
+  (?: ( ^ | [^\\] ) <!-- ( .*? [^\\] ) --> )
+  ///g
+
+#-----------------------------------------------------------------------------------------------------------
 @XXX_raw_bracketed_pattern = ///
   (?: ( ^ | [^\\] ) <<\( raw >>               << raw \)>> ) |
   (?: ( ^ | [^\\] ) <<\( raw >> ( .*? [^\\] ) << raw \)>> )
   ///g
+
+#-----------------------------------------------------------------------------------------------------------
 @XXX_raw_heredoc_pattern = ///
   ( ^ | [^\\] ) <<! raw: ( [^\s>]* )>> ( .*? ) \2
   ///g
+
+#-----------------------------------------------------------------------------------------------------------
 @XXX_raw_id_pattern      = ///
   \x11 ( [ 0-9 ]+ ) \x13
   ///g
+
+#-----------------------------------------------------------------------------------------------------------
 @XXX_command_id_pattern  = ///
   \x12 ( [ 0-9 ]+ ) \x13
   ///g
+
+#-----------------------------------------------------------------------------------------------------------
 @XXX_command_pattern = ///
   ( ^ | [^\\] )
   (
@@ -887,6 +862,15 @@ tracker_pattern = /// ^
 @XXX_escape_raw_spans = ( text ) ->
   R = text
   R = @XXX_escape_escape_chrs R
+  #.........................................................................................................
+  R = R.replace @XXX_command_pattern, ( _, $1, $2, $3 ) =>
+    $1           ?= ''
+    $2           ?= ''
+    $1           += $2
+    raw_content   = $3 ? ''
+    id            = @XXX_raw_id_from_content 'comment', raw_content
+    return "#{$1}\x14#{id}\x13"
+  #.........................................................................................................
   R = R.replace @XXX_raw_bracketed_pattern, ( _, $1, $2, $3 ) =>
     $1           ?= ''
     $2           ?= ''
@@ -894,20 +878,29 @@ tracker_pattern = /// ^
     raw_content   = $3 ? ''
     id            = @XXX_raw_id_from_content 'raw', raw_content
     return "#{$1}\x11#{id}\x13"
+  #.........................................................................................................
   R = R.replace @XXX_raw_heredoc_pattern, ( _, $1, $2, $3 ) =>
     raw_content   = $3 ? ''
     id            = @XXX_raw_id_from_content 'raw', raw_content
     return "#{$1}\x11#{id}\x13"
+  #.........................................................................................................
   R = R.replace @XXX_command_pattern, ( _, $1, $2, $3, $4, $5 ) =>
     raw_content     = $2
     parsed_content  = [ $3, $4, $5, ]
+    ### replace fences by `null` in case of empty string: ###
+    parsed_content[ 0 ] = null if parsed_content[ 0 ].length is 0
+    parsed_content[ 2 ] = null if parsed_content[ 2 ].length is 0
     id              = @XXX_raw_id_from_content 'command', raw_content, parsed_content
     return "#{$1}\x12#{id}\x13"
+  #.........................................................................................................
   return R
 
 #-----------------------------------------------------------------------------------------------------------
 @XXX_raw_id_from_content = ( collection_name, raw_content, parsed_content = null ) ->
   switch collection_name
+    when 'comment'
+      fragment_by_ids = @XXX_comment_by_ids
+      id_by_fragments = @XXX_id_by_comments
     when 'raw'
       fragment_by_ids = @XXX_raw_content_by_ids
       id_by_fragments = @XXX_raw_id_by_contents
@@ -936,8 +929,9 @@ tracker_pattern = /// ^
           ### should never happen: ###
           throw new Error "unknown ID #{rpr stretch}"                 unless command?
           throw new Error "not registered correctly: #{rpr stretch}"  unless CND.isa_list command
-          [ left_fence, name, right_fence, ] = command
-          send [ left_fence, name, stretch, ( @copy meta ), ]
+          [ left_fence, command_name, right_fence, ] = command
+          fence = left_fence ? right_fence
+          send [ fence, command_name, null, ( @copy meta ), ]
         else
           send [ type, name, stretch, ( @copy meta ), ]
     #.......................................................................................................
@@ -945,23 +939,25 @@ tracker_pattern = /// ^
       send event
 
 #-----------------------------------------------------------------------------------------------------------
-@$XXX_unescape_raw_spans  = ( state ) ->
+@$XXX_expand_raw_spans  = ( state ) ->
   return $ ( event, send ) =>
-    if @.select event, '.', [ 'text', 'code', 'comment', 'raw', ]
+    #.......................................................................................................
+    if @.select event, '.', [ 'text', 'code', 'comment', ]
+      is_raw                      = yes
       [ type, name, text, meta, ] = event
-      event[ 2 ] = @XXX_unescape_raw_spans text
-    send event
-
-#-----------------------------------------------------------------------------------------------------------
-@XXX_unescape_raw_spans = ( text ) ->
-  R = text
-  R = text.replace @XXX_raw_id_pattern, ( _, id_txt ) =>
-    id  = parseInt id_txt, 10
-    R   = @XXX_raw_content_by_ids.get id
-    throw new Error "unknown ID #{rpr id_txt}" unless R?
-    return R
-  R = @XXX_unescape_escape_chrs R
-  return R
+      for stretch in text.split @XXX_raw_id_pattern
+        is_raw = not is_raw
+        if is_raw
+          id      = parseInt stretch, 10
+          content = @XXX_raw_content_by_ids.get id
+          ### should never happen: ###
+          throw new Error "unknown ID #{rpr stretch}"                 unless content?
+          send [ '.', 'raw', content, ( @copy meta ), ]
+        else
+          send [ type, name, stretch, ( @copy meta ), ]
+    #.......................................................................................................
+    else
+      send event
 
 #-----------------------------------------------------------------------------------------------------------
 @XXX_escape_escape_chrs = ( text ) ->
@@ -970,11 +966,13 @@ tracker_pattern = /// ^
   R = R.replace /\x11/g, '\x10r'
   R = R.replace /\x12/g, '\x10c'
   R = R.replace /\x13/g, '\x10z'
+  R = R.replace /\x14/g, '\x10h'
   return R
 
 #-----------------------------------------------------------------------------------------------------------
 @XXX_unescape_escape_chrs = ( text ) ->
   R = text
+  R = R.replace /\x10h/g, '\x14'
   R = R.replace /\x10z/g, '\x13'
   R = R.replace /\x10r/g, '\x11'
   R = R.replace /\x10c/g, '\x12'
@@ -1000,8 +998,8 @@ tracker_pattern = /// ^
     .pipe @$_reinject_html_blocks           state
     .pipe @$_rewrite_markdownit_tokens      state
     .pipe @$XXX_expand_commands             state
-    .pipe @$XXX_unescape_raw_spans          state
-    .pipe D.$show()
+    .pipe @$XXX_expand_raw_spans            state
+    # .pipe D.$show()
     .pipe @$_process_end_command            state
     .pipe R
   #.........................................................................................................
@@ -1012,6 +1010,7 @@ tracker_pattern = /// ^
     ### TAINT environment becomes important for footnotes ###
     environment = {}
     md_source   = @XXX_escape_raw_spans md_source
+    debug '23.3194', @XXX_comment_by_ids
     tokens      = md_parser.parse md_source, environment
     # @set_meta R, 'environment', environment
     confluence.write token for token in tokens
@@ -1019,21 +1018,5 @@ tracker_pattern = /// ^
   #.........................................................................................................
   return R
 
-### TAINT currently not used, but 'potentially useful'
-#-----------------------------------------------------------------------------------------------------------
-@_meta  = Symbol 'meta'
-
-#-----------------------------------------------------------------------------------------------------------
-@set_meta = ( x, name, value = true ) ->
-  target          = x[ @_meta ]?= {}
-  target[ name ]  = value
-  return x
-
-#-----------------------------------------------------------------------------------------------------------
-@get_meta = ( x, name = null ) ->
-  R = x[ @_meta ]
-  R = R[ name ] if name
-  return R
-###
 
 
