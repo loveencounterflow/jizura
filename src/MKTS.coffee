@@ -810,25 +810,41 @@ tracker_pattern = /// ^
 # CHR ESCAPING
 #-----------------------------------------------------------------------------------------------------------
 ### TAINT don't keep state here ###
+@XXX_comment_by_ids        = new Map()
+@XXX_id_by_comments        = new Map()
 @XXX_raw_content_by_ids    = new Map()
 @XXX_raw_id_by_contents    = new Map()
 @XXX_command_by_ids        = new Map()
 @XXX_id_by_commands        = new Map()
 
 #-----------------------------------------------------------------------------------------------------------
+@XXX_html_comment_pattern = ///
+  (?: ( ^ | [^\\] ) <!--               --> ) |
+  (?: ( ^ | [^\\] ) <!-- ( .*? [^\\] ) --> )
+  ///g
+
+#-----------------------------------------------------------------------------------------------------------
 @XXX_raw_bracketed_pattern = ///
   (?: ( ^ | [^\\] ) <<\( raw >>               << raw \)>> ) |
   (?: ( ^ | [^\\] ) <<\( raw >> ( .*? [^\\] ) << raw \)>> )
   ///g
+
+#-----------------------------------------------------------------------------------------------------------
 @XXX_raw_heredoc_pattern = ///
   ( ^ | [^\\] ) <<! raw: ( [^\s>]* )>> ( .*? ) \2
   ///g
+
+#-----------------------------------------------------------------------------------------------------------
 @XXX_raw_id_pattern      = ///
   \x11 ( [ 0-9 ]+ ) \x13
   ///g
+
+#-----------------------------------------------------------------------------------------------------------
 @XXX_command_id_pattern  = ///
   \x12 ( [ 0-9 ]+ ) \x13
   ///g
+
+#-----------------------------------------------------------------------------------------------------------
 @XXX_command_pattern = ///
   ( ^ | [^\\] )
   (
@@ -844,6 +860,14 @@ tracker_pattern = /// ^
 @XXX_escape_raw_spans = ( text ) ->
   R = text
   R = @XXX_escape_escape_chrs R
+  #.........................................................................................................
+  R = R.replace @XXX_command_pattern, ( _, $1, $2, $3 ) =>
+    $1           ?= ''
+    $2           ?= ''
+    $1           += $2
+    raw_content   = $3 ? ''
+    id            = @XXX_raw_id_from_content 'comment', raw_content
+    return "#{$1}\x14#{id}\x13"
   #.........................................................................................................
   R = R.replace @XXX_raw_bracketed_pattern, ( _, $1, $2, $3 ) =>
     $1           ?= ''
@@ -872,6 +896,9 @@ tracker_pattern = /// ^
 #-----------------------------------------------------------------------------------------------------------
 @XXX_raw_id_from_content = ( collection_name, raw_content, parsed_content = null ) ->
   switch collection_name
+    when 'comment'
+      fragment_by_ids = @XXX_comment_by_ids
+      id_by_fragments = @XXX_id_by_comments
     when 'raw'
       fragment_by_ids = @XXX_raw_content_by_ids
       id_by_fragments = @XXX_raw_id_by_contents
@@ -937,11 +964,13 @@ tracker_pattern = /// ^
   R = R.replace /\x11/g, '\x10r'
   R = R.replace /\x12/g, '\x10c'
   R = R.replace /\x13/g, '\x10z'
+  R = R.replace /\x14/g, '\x10h'
   return R
 
 #-----------------------------------------------------------------------------------------------------------
 @XXX_unescape_escape_chrs = ( text ) ->
   R = text
+  R = R.replace /\x10h/g, '\x14'
   R = R.replace /\x10z/g, '\x13'
   R = R.replace /\x10r/g, '\x11'
   R = R.replace /\x10c/g, '\x12'
@@ -979,6 +1008,7 @@ tracker_pattern = /// ^
     ### TAINT environment becomes important for footnotes ###
     environment = {}
     md_source   = @XXX_escape_raw_spans md_source
+    debug '23.3194', @XXX_comment_by_ids
     tokens      = md_parser.parse md_source, environment
     # @set_meta R, 'environment', environment
     confluence.write token for token in tokens
