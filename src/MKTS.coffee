@@ -812,12 +812,20 @@ tracker_pattern = /// ^
 # CHR ESCAPING
 #-----------------------------------------------------------------------------------------------------------
 ### TAINT don't keep state here ###
+### TAINT soon to be obsoleted: ###
 @XXX_comment_by_ids        = new Map()
 @XXX_id_by_comments        = new Map()
 @XXX_raw_content_by_ids    = new Map()
 @XXX_raw_id_by_contents    = new Map()
 @XXX_command_by_ids        = new Map()
 @XXX_id_by_commands        = new Map()
+### TAINT new: ###
+@XXX_registry = new Map [
+  [ 'raw',          new Map(), ]
+  [ 'do',           new Map(), ]
+  [ 'comment',      new Map(), ]
+  [ 'action',       new Map(), ]
+  ]
 
 #-----------------------------------------------------------------------------------------------------------
 @XXX_html_comment_pattern = ///
@@ -932,6 +940,19 @@ tracker_pattern = /// ^
     fragment_by_ids.set R, parsed_content ? raw_content
     id_by_fragments.set raw_content, R
   return R
+
+#-----------------------------------------------------------------------------------------------------------
+@XXX_register_content = ( kind, raw, parsed, meta ) ->
+  collection = @XXX_registry.get kind
+  ### should never happen ###
+  throw new Error "unknown MKTS.PRE kind #{rpr kind}" unless collection?
+  id    = collection.size
+  entry =
+    raw:      raw
+    parsed:   parsed
+    meta:     @copy meta
+  collection.set id, entry
+  return id
 
 #-----------------------------------------------------------------------------------------------------------
 @$XXX_expand_html_comments = ( text ) ->
