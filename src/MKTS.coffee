@@ -821,10 +821,10 @@ tracker_pattern = /// ^
 @XXX_id_by_commands        = new Map()
 ### TAINT new: ###
 @XXX_registry = new Map [
-  [ 'raw',          new Map(), ]
-  [ 'do',           new Map(), ]
-  [ 'comment',      new Map(), ]
   [ 'action',       new Map(), ]
+  [ 'comment',      new Map(), ]
+  [ 'do',           new Map(), ]
+  [ 'raw',          new Map(), ]
   ]
 
 #-----------------------------------------------------------------------------------------------------------
@@ -952,7 +952,7 @@ tracker_pattern = /// ^
     parsed:   parsed
     meta:     @copy meta
   collection.set id, entry
-  return id
+  return "#{kind}#{id}"
 
 #-----------------------------------------------------------------------------------------------------------
 @$XXX_expand_html_comments = ( text ) ->

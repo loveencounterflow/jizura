@@ -3,9 +3,38 @@
   'raw',
   'raw content: \\TeX{}',
   { line_nr: 1, col_nr: 2, stamped: true } ]' displaying a logogram.'¶
-
-█ 3 █ IGNORED: [ '#',
-  'drop',
-  '`.comment`: \'single-line comment\'',
-  { line_nr: 3, col_nr: 4, badge: '$comment', stamped: true } ]¶
->
+'A fascinating description of a global language, '(em'A Grammar of Mandarin')' combines broad perspectives with illuminating depth. Crammed with examples from everyday conversations, it aims to let the language speak for itself. The book opens with an overview of the language situation and a thorough account of Mandarin speech sounds. Nine core chapters explore syntactic, morphological and lexical dimensions. A final chapter traces the Chinese character script from oracle-bone inscriptions to today’s digital pens.'¶
+█ 7 █ {do'
+definitions =
+  thequestion:    "'(em'What is the meaning of life, the universe, and everything?')'"
+  theanswer:      "'(strong'42')'"
+  TEX:            “'
+█ 7 █ IGNORED: [ '.',
+  'raw',
+  '\\TeX{}',
+  { line_nr: 7, col_nr: 17, stamped: true } ]'”
+  LATEX:          “'
+█ 7 █ IGNORED: [ '.',
+  'raw',
+  '\\LaTeX{}',
+  { line_nr: 7, col_nr: 17, stamped: true } ]'”
+  MKTS:           "'(strong'MKTS')'"
+  MKTS/MD:        "'(strong'MKTS/MD')'"
+  MKTS2:          “'
+█ 7 █ IGNORED: [ '.',
+  'raw',
+  '**MKTS**',
+  { line_nr: 7, col_nr: 17, stamped: true } ]'”
+'}
+¶
+!
+' and '!
+'
+'
+█ 18 █ IGNORED: [ '#',
+  'info',
+  'encountered `<<!end>>` on line #18',
+  { line_nr: 18,
+    col_nr: 20,
+    badge: '$_process_end_command',
+    stamped: true } ]>
