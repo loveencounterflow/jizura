@@ -820,12 +820,11 @@ tracker_pattern = /// ^
 @XXX_command_by_ids        = new Map()
 @XXX_id_by_commands        = new Map()
 ### TAINT new: ###
-@XXX_registry = new Map [
-  [ 'action',       new Map(), ]
-  [ 'comment',      new Map(), ]
-  [ 'do',           new Map(), ]
-  [ 'raw',          new Map(), ]
-  ]
+@XXX_registry               = []
+  # [ 'action',       new Map(), ]
+  # [ 'comment',      new Map(), ]
+  # [ 'do',           new Map(), ]
+  # [ 'raw',          new Map(), ]
 
 #-----------------------------------------------------------------------------------------------------------
 @XXX_html_comment_pattern = ///
@@ -887,7 +886,7 @@ tracker_pattern = /// ^
     $2           ?= ''
     $1           += $2
     raw_content   = $3 ? ''
-    id            = @XXX_raw_id_from_content 'comment', raw_content.trim()
+    id            = @XXX_register_content 'comment', raw_content.trim()
     return "#{$1}\x14#{id}\x13"
   #.........................................................................................................
   R = R.replace @XXX_do_bracketed_pattern, ( _, $1, $2, $3 ) =>
@@ -942,24 +941,18 @@ tracker_pattern = /// ^
   return R
 
 #-----------------------------------------------------------------------------------------------------------
-@XXX_register_content = ( kind, raw, parsed, meta ) ->
-  collection = @XXX_registry.get kind
-  ### should never happen ###
-  throw new Error "unknown MKTS.PRE kind #{rpr kind}" unless collection?
-  id    = collection.size
-  entry =
-    raw:      raw
-    parsed:   parsed
-    meta:     @copy meta
-  collection.set id, entry
-  return "#{kind}#{id}"
+@XXX_register_content = ( kind, raw, parsed = null ) ->
+  id = @XXX_registry.length
+  @XXX_registry.push { id, kind, raw, parsed, }
+  return id
 
 #-----------------------------------------------------------------------------------------------------------
 @$XXX_expand_html_comments = ( text ) ->
   ### TAINT code duplication ###
   return $ ( event, send ) =>
     #.......................................................................................................
-    if @.select event, '.', [ 'text', 'code', ]
+    ### !!! ###
+    if false and @.select event, '.', [ 'text', 'code', ]
       is_comment                  = yes
       [ type, name, text, meta, ] = event
       for stretch in text.split @XXX_html_comment_id_pattern
@@ -1076,6 +1069,7 @@ tracker_pattern = /// ^
     debug 'comment_by_ids     ', @XXX_comment_by_ids
     debug 'raw_content_by_ids ', @XXX_raw_content_by_ids
     debug 'command_by_ids     ', @XXX_command_by_ids
+    debug 'registry           ', @XXX_registry
     tokens      = md_parser.parse md_source, environment
     # @set_meta R, 'environment', environment
     confluence.write token for token in tokens
