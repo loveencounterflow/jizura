@@ -820,9 +820,10 @@ tracker_pattern = /// ^
 @_ESC = {}
 
 #-----------------------------------------------------------------------------------------------------------
-### TAINT don't keep state here ###
-@_ESC.registry              = []
-@_ESC.registry_index        = new Map()
+@_ESC.initialize = ( state ) =>
+  state[ '_ESC' ] =
+    registry:   []
+    index:      new Map()
 
 #-----------------------------------------------------------------------------------------------------------
 ### Code duplication ###
@@ -887,7 +888,7 @@ tracker_pattern = /// ^
   ///g
 
 #-----------------------------------------------------------------------------------------------------------
-@_ESC.escape_html_comments_raw_spans_and_commands = ( text ) =>
+@_ESC.escape_html_comments_raw_spans_and_commands = ( state, text ) =>
   R = text
   R = @_ESC.escape_escape_chrs R
   #.........................................................................................................
@@ -896,7 +897,7 @@ tracker_pattern = /// ^
     $2           ?= ''
     $1           += $2
     raw_content   = $3 ? ''
-    key           = @_ESC.register_content 'comment', raw_content.trim()
+    key           = @_ESC.register_content state, 'comment', raw_content.trim()
     return "#{$1}\x15#{key}\x13"
   #.........................................................................................................
   R = R.replace @_ESC.do_bracketed_pattern, ( _, $1, $2, $3 ) =>
@@ -905,7 +906,7 @@ tracker_pattern = /// ^
     $1           += $2
     raw_content   = $3 ? ''
     debug '©0qY0t', raw_content
-    id            = @_ESC.register_content 'do', raw_content
+    id            = @_ESC.register_content state, 'do', raw_content
     return "#{$1}\x15#{id}\x13"
   #.........................................................................................................
   R = R.replace @_ESC.raw_bracketed_pattern, ( _, $1, $2, $3 ) =>
@@ -913,12 +914,12 @@ tracker_pattern = /// ^
     $2           ?= ''
     $1           += $2
     raw_content   = $3 ? ''
-    id            = @_ESC.register_content 'raw', raw_content
+    id            = @_ESC.register_content state, 'raw', raw_content
     return "#{$1}\x15#{id}\x13"
   #.........................................................................................................
   R = R.replace @_ESC.raw_heredoc_pattern, ( _, $1, $2, $3 ) =>
     raw_content   = $3 ? ''
-    id            = @_ESC.register_content 'raw', raw_content
+    id            = @_ESC.register_content state, 'raw', raw_content
     return "#{$1}\x15#{id}\x13"
   #.........................................................................................................
   R = R.replace @_ESC.command_pattern, ( _, $1, $2, $3, $4, $5 ) =>
@@ -927,31 +928,33 @@ tracker_pattern = /// ^
     ### replace fences by `null` in case of empty string: ###
     parsed_content[ 0 ] = null if parsed_content[ 0 ].length is 0
     parsed_content[ 2 ] = null if parsed_content[ 2 ].length is 0
-    key                 = @_ESC.register_content 'action', raw_content, parsed_content
+    key                 = @_ESC.register_content state, 'action', raw_content, parsed_content
     return "#{$1}\x15#{key}\x13"
   #.........................................................................................................
   return R
 
 #-----------------------------------------------------------------------------------------------------------
-@_ESC.register_content = ( kind, raw, parsed = null ) =>
-  id = @_ESC.registry_index.get raw
+@_ESC.register_content = ( state, kind, raw, parsed = null ) =>
+  registry  = state[ '_ESC' ][ 'registry' ]
+  index     = state[ '_ESC' ][ 'index' ]
+  id        = index.get raw
   if id?
-    entry   = @_ESC.registry[ id ]
+    entry   = registry[ id ]
     { key } = entry
   else
-    id      = @_ESC.registry.length
+    id      = registry.length
     key     = "#{kind}#{id}"
-    @_ESC.registry.push { key, raw, parsed, }
-    @_ESC.registry_index.set raw, id
+    registry.push { key, raw, parsed, }
+    index.set raw, id
   return key
 
 #-----------------------------------------------------------------------------------------------------------
-@_ESC.retrieve_entry = ( id ) =>
-  throw new Error "unknown ID #{rpr id}" unless ( R = @_ESC.registry[ id ] )?
+@_ESC.retrieve_entry = ( state, id ) =>
+  throw new Error "unknown ID #{rpr id}" unless ( R = state[ '_ESC' ][ 'registry' ][ id ] )?
   return R
 
 #-----------------------------------------------------------------------------------------------------------
-@_ESC.$expand_html_comments = ( text ) =>
+@_ESC.$expand_html_comments = ( state ) =>
   ### TAINT code duplication ###
   return $ ( event, send ) =>
     #.......................................................................................................
@@ -962,7 +965,7 @@ tracker_pattern = /// ^
         is_comment = not is_comment
         if is_comment
           id      = parseInt stretch, 10
-          entry   = @_ESC.retrieve_entry id
+          entry   = @_ESC.retrieve_entry state, id
           content = entry[ 'raw' ]
           send [ '.', 'comment', content, ( @copy meta ), ]
         else
@@ -972,7 +975,7 @@ tracker_pattern = /// ^
       send event
 
 #-----------------------------------------------------------------------------------------------------------
-@_ESC.$expand_actions = ( text ) =>
+@_ESC.$expand_actions = ( state ) =>
   ### TAINT code duplication ###
   return $ ( event, send ) =>
     #.......................................................................................................
@@ -983,7 +986,7 @@ tracker_pattern = /// ^
         is_command = not is_command
         if is_command
           id      = parseInt stretch, 10
-          entry   = @_ESC.retrieve_entry id
+          entry   = @_ESC.retrieve_entry state, id
           content = entry[ 'parsed' ]
           ### should never happen: ###
           throw new Error "not registered correctly: #{rpr stretch}"  unless CND.isa_list content
@@ -1008,7 +1011,7 @@ tracker_pattern = /// ^
         is_raw = not is_raw
         if is_raw
           id      = parseInt stretch, 10
-          entry   = @_ESC.retrieve_entry id
+          entry   = @_ESC.retrieve_entry state, id
           content = entry[ 'raw' ]
           send [ '.', 'raw', content, ( @copy meta ), ]
         else
@@ -1029,7 +1032,7 @@ tracker_pattern = /// ^
         is_do = not is_do
         if is_do
           id      = parseInt stretch, 10
-          entry   = @_ESC.retrieve_entry id
+          entry   = @_ESC.retrieve_entry state, id
           content = entry[ 'raw' ]
           send [ '!', 'do', content, ( @copy meta ), ]
         else
@@ -1074,19 +1077,18 @@ tracker_pattern = /// ^
     .pipe @_ESC.$expand_actions                 state
     .pipe @_ESC.$expand_raw_spans               state
     .pipe @_ESC.$expand_do_spans                state
-    # .pipe D.$show()
     .pipe @_PRE.$process_end_command            state
     .pipe R
   #.........................................................................................................
   R.on 'resume', =>
     md_parser   = @_new_markdown_parser()
     ### for `environment` see https://markdown-it.github.io/markdown-it/#MarkdownIt.parse ###
-    ### TAINT what to do with useful data appearing environment? ###
     ### TAINT environment becomes important for footnotes ###
     environment = {}
-    md_source   = @_ESC.escape_html_comments_raw_spans_and_commands md_source
-    urge 'registry           ', @_ESC.registry
-    urge 'registry_index     ', @_ESC.registry_index
+    @_ESC.initialize state
+    md_source   = @_ESC.escape_html_comments_raw_spans_and_commands state, md_source
+    urge 'registry    ', state[ '_ESC' ][ 'registry' ]
+    urge 'index       ', state[ '_ESC' ][ 'index' ]
     tokens      = md_parser.parse md_source, environment
     # @set_meta R, 'environment', environment
     confluence.write token for token in tokens
