@@ -812,34 +812,25 @@ tracker_pattern = /// ^
 # CHR ESCAPING
 #-----------------------------------------------------------------------------------------------------------
 ### TAINT don't keep state here ###
-### TAINT soon to be obsoleted: ###
-@XXX_comment_by_ids        = new Map()
-@XXX_id_by_comments        = new Map()
-@XXX_raw_content_by_ids    = new Map()
-@XXX_raw_id_by_contents    = new Map()
-@XXX_command_by_ids        = new Map()
-@XXX_id_by_commands        = new Map()
-### TAINT new: ###
 @XXX_registry              = []
 @XXX_registry_index        = new Map()
-  # [ 'action',       new Map(), ]
-  # [ 'comment',      new Map(), ]
-  # [ 'do',           new Map(), ]
-  # [ 'raw',          new Map(), ]
 
 #-----------------------------------------------------------------------------------------------------------
+### Code duplication ###
 @XXX_html_comment_pattern = ///
   (?: ( ^ | [^\\] ) <!--                      --> ) |
   (?: ( ^ | [^\\] ) <!-- ( [ \s\S ]*? [^\\] ) --> )
   ///g
 
 #-----------------------------------------------------------------------------------------------------------
+### Code duplication ###
 @XXX_do_bracketed_pattern = ///
   (?: ( ^ | [^\\] ) <<\{ do >>                      << do \}>> ) |
   (?: ( ^ | [^\\] ) <<\{ do >> ( [ \s\S ]*? [^\\] ) << do \}>> )
   ///g
 
 #-----------------------------------------------------------------------------------------------------------
+### Code duplication ###
 @XXX_raw_bracketed_pattern = ///
   (?: ( ^ | [^\\] ) <<\( raw >>                      << raw \)>> ) |
   (?: ( ^ | [^\\] ) <<\( raw >> ( [ \s\S ]*? [^\\] ) << raw \)>> )
@@ -904,6 +895,7 @@ tracker_pattern = /// ^
     $2           ?= ''
     $1           += $2
     raw_content   = $3 ? ''
+    debug '©0qY0t', raw_content
     id            = @XXX_register_content 'do', raw_content
     return "#{$1}\x15#{id}\x13"
   #.........................................................................................................
@@ -929,25 +921,6 @@ tracker_pattern = /// ^
     key                 = @XXX_register_content 'action', raw_content, parsed_content
     return "#{$1}\x15#{key}\x13"
   #.........................................................................................................
-  return R
-
-#-----------------------------------------------------------------------------------------------------------
-@XXX_raw_id_from_content = ( collection_name, raw_content, parsed_content = null ) ->
-  switch collection_name
-    when 'comment'
-      fragment_by_ids = @XXX_comment_by_ids
-      id_by_fragments = @XXX_id_by_comments
-    when 'raw'
-      fragment_by_ids = @XXX_raw_content_by_ids
-      id_by_fragments = @XXX_raw_id_by_contents
-    when 'command'
-      fragment_by_ids = @XXX_command_by_ids
-      id_by_fragments = @XXX_id_by_commands
-    else throw new Error "unknown collection collection_name #{rpr collection_name}"
-  unless ( R = id_by_fragments.get raw_content )?
-    R = fragment_by_ids.size
-    fragment_by_ids.set R, parsed_content ? raw_content
-    id_by_fragments.set raw_content, R
   return R
 
 #-----------------------------------------------------------------------------------------------------------
@@ -1060,11 +1033,6 @@ tracker_pattern = /// ^
 @XXX_escape_escape_chrs = ( text ) ->
   R = text
   R = R.replace /\x10/g, '\x10A'
-  R = R.replace /\x11/g, '\x10R'
-  R = R.replace /\x12/g, '\x10C'
-  R = R.replace /\x13/g, '\x10Z'
-  R = R.replace /\x14/g, '\x10H'
-  #.........................................................................................................
   R = R.replace /\x15/g, '\x10X'
   return R
 
@@ -1072,11 +1040,6 @@ tracker_pattern = /// ^
 @XXX_unescape_escape_chrs = ( text ) ->
   R = text
   R = R.replace /\x10X/g, '\x15'
-  #.........................................................................................................
-  R = R.replace /\x10H/g, '\x14'
-  R = R.replace /\x10Z/g, '\x13'
-  R = R.replace /\x10R/g, '\x11'
-  R = R.replace /\x10C/g, '\x12'
   R = R.replace /\x10A/g, '\x10'
   return R
 
@@ -1113,9 +1076,6 @@ tracker_pattern = /// ^
     ### TAINT environment becomes important for footnotes ###
     environment = {}
     md_source   = @XXX_escape_html_comments_raw_spans_and_commands md_source
-    debug 'comment_by_ids     ', @XXX_comment_by_ids
-    debug 'raw_content_by_ids ', @XXX_raw_content_by_ids
-    debug 'command_by_ids     ', @XXX_command_by_ids
     urge 'registry           ', @XXX_registry
     urge 'registry_index     ', @XXX_registry_index
     tokens      = md_parser.parse md_source, environment
