@@ -5,6 +5,10 @@ comment -->
 
 A fascinating description of a global language, *A Grammar of Mandarin* combines broad perspectives with illuminating depth. Crammed with examples from everyday conversations, it aims to let the language speak for itself. The book opens with an overview of the language situation and a thorough account of Mandarin speech sounds. Nine core chapters explore syntactic, morphological and lexical dimensions. A final chapter traces the Chinese character script from oracle-bone inscriptions to today’s digital pens.
 
+<!-- a short
+comment -->
+<!-- another comment -->
+
 <<{do>>
 definitions =
   thequestion:    "*What is the meaning of life, the universe, and everything?*"
