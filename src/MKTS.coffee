@@ -684,7 +684,7 @@ tracker_pattern = /// ^
       pre     = '█'
       post    = '█'
       ### TAINT use mkts command ###
-      warn "detected (probably) illegal character U+#{cid_hex}" # if old_text isnt new_text
+      warn "detected illegal character U+#{cid_hex}" # if old_text isnt new_text
       return """{\\mktsStyleBold\\color{red}{%
         \\mktsStyleSymbol#{pre}}U+#{cid_hex}{\\mktsStyleSymbol#{post}}}"""
     send new_text
@@ -820,7 +820,8 @@ tracker_pattern = /// ^
 @XXX_command_by_ids        = new Map()
 @XXX_id_by_commands        = new Map()
 ### TAINT new: ###
-@XXX_registry               = []
+@XXX_registry              = []
+@XXX_registry_index        = new Map()
   # [ 'action',       new Map(), ]
   # [ 'comment',      new Map(), ]
   # [ 'do',           new Map(), ]
@@ -828,20 +829,20 @@ tracker_pattern = /// ^
 
 #-----------------------------------------------------------------------------------------------------------
 @XXX_html_comment_pattern = ///
-  (?: ( ^ | [^\\] ) <!--               --> ) |
+  (?: ( ^ | [^\\] ) <!--                      --> ) |
   (?: ( ^ | [^\\] ) <!-- ( [ \s\S ]*? [^\\] ) --> )
   ///g
 
 #-----------------------------------------------------------------------------------------------------------
 @XXX_do_bracketed_pattern = ///
-  (?: ( ^ | [^\\] ) <<\{ do >>               << do \}>> ) |
-  (?: ( ^ | [^\\] ) <<\{ do >> ( .*? [^\\] ) << do \}>> )
+  (?: ( ^ | [^\\] ) <<\{ do >>                      << do \}>> ) |
+  (?: ( ^ | [^\\] ) <<\{ do >> ( [ \s\S ]*? [^\\] ) << do \}>> )
   ///g
 
 #-----------------------------------------------------------------------------------------------------------
 @XXX_raw_bracketed_pattern = ///
-  (?: ( ^ | [^\\] ) <<\( raw >>               << raw \)>> ) |
-  (?: ( ^ | [^\\] ) <<\( raw >> ( .*? [^\\] ) << raw \)>> )
+  (?: ( ^ | [^\\] ) <<\( raw >>                      << raw \)>> ) |
+  (?: ( ^ | [^\\] ) <<\( raw >> ( [ \s\S ]*? [^\\] ) << raw \)>> )
   ///g
 
 #-----------------------------------------------------------------------------------------------------------
@@ -850,18 +851,27 @@ tracker_pattern = /// ^
   ///g
 
 #-----------------------------------------------------------------------------------------------------------
+### Code duplication ###
 @XXX_raw_id_pattern       = ///
-  \x11 ( [ 0-9 ]+ ) \x13
+  \x15 raw ( [ 0-9 ]+ ) \x13
   ///g
 
 #-----------------------------------------------------------------------------------------------------------
+### Code duplication ###
 @XXX_html_comment_id_pattern = ///
-  \x14 ( [ 0-9 ]+ ) \x13
+  \x15 comment ( [ 0-9 ]+ ) \x13
   ///g
 
 #-----------------------------------------------------------------------------------------------------------
-@XXX_command_id_pattern   = ///
-  \x12 ( [ 0-9 ]+ ) \x13
+### Code duplication ###
+@XXX_do_id_pattern   = ///
+  \x15 do ( [ 0-9 ]+ ) \x13
+  ///g
+
+#-----------------------------------------------------------------------------------------------------------
+### Code duplication ###
+@XXX_action_id_pattern   = ///
+  \x15 action ( [ 0-9 ]+ ) \x13
   ///g
 
 #-----------------------------------------------------------------------------------------------------------
@@ -886,29 +896,29 @@ tracker_pattern = /// ^
     $2           ?= ''
     $1           += $2
     raw_content   = $3 ? ''
-    id            = @XXX_register_content 'comment', raw_content.trim()
-    return "#{$1}\x14#{id}\x13"
+    key           = @XXX_register_content 'comment', raw_content.trim()
+    return "#{$1}\x15#{key}\x13"
   #.........................................................................................................
   R = R.replace @XXX_do_bracketed_pattern, ( _, $1, $2, $3 ) =>
     $1           ?= ''
     $2           ?= ''
     $1           += $2
     raw_content   = $3 ? ''
-    id            = @XXX_raw_id_from_content 'raw', raw_content
-    return "#{$1}\x11#{id}\x13"
+    id            = @XXX_register_content 'do', raw_content
+    return "#{$1}\x15#{id}\x13"
   #.........................................................................................................
   R = R.replace @XXX_raw_bracketed_pattern, ( _, $1, $2, $3 ) =>
     $1           ?= ''
     $2           ?= ''
     $1           += $2
     raw_content   = $3 ? ''
-    id            = @XXX_raw_id_from_content 'raw', raw_content
-    return "#{$1}\x11#{id}\x13"
+    id            = @XXX_register_content 'raw', raw_content
+    return "#{$1}\x15#{id}\x13"
   #.........................................................................................................
   R = R.replace @XXX_raw_heredoc_pattern, ( _, $1, $2, $3 ) =>
     raw_content   = $3 ? ''
-    id            = @XXX_raw_id_from_content 'raw', raw_content
-    return "#{$1}\x11#{id}\x13"
+    id            = @XXX_register_content 'raw', raw_content
+    return "#{$1}\x15#{id}\x13"
   #.........................................................................................................
   R = R.replace @XXX_command_pattern, ( _, $1, $2, $3, $4, $5 ) =>
     raw_content     = $2
@@ -916,8 +926,8 @@ tracker_pattern = /// ^
     ### replace fences by `null` in case of empty string: ###
     parsed_content[ 0 ] = null if parsed_content[ 0 ].length is 0
     parsed_content[ 2 ] = null if parsed_content[ 2 ].length is 0
-    id              = @XXX_raw_id_from_content 'command', raw_content, parsed_content
-    return "#{$1}\x12#{id}\x13"
+    key                 = @XXX_register_content 'action', raw_content, parsed_content
+    return "#{$1}\x15#{key}\x13"
   #.........................................................................................................
   return R
 
@@ -942,27 +952,37 @@ tracker_pattern = /// ^
 
 #-----------------------------------------------------------------------------------------------------------
 @XXX_register_content = ( kind, raw, parsed = null ) ->
-  id = @XXX_registry.length
-  @XXX_registry.push { id, kind, raw, parsed, }
-  return id
+  id = @XXX_registry_index.get raw
+  if id?
+    entry   = @XXX_registry[ id ]
+    { key } = entry
+  else
+    id      = @XXX_registry.length
+    key     = "#{kind}#{id}"
+    @XXX_registry.push { key, raw, parsed, }
+    @XXX_registry_index.set raw, id
+  return key
+
+#-----------------------------------------------------------------------------------------------------------
+@XXX_retrieve_entry = ( id ) ->
+  throw new Error "unknown ID #{rpr id}" unless ( R = @XXX_registry[ id ] )?
+  return R
 
 #-----------------------------------------------------------------------------------------------------------
 @$XXX_expand_html_comments = ( text ) ->
   ### TAINT code duplication ###
   return $ ( event, send ) =>
     #.......................................................................................................
-    ### !!! ###
-    if false and @.select event, '.', [ 'text', 'code', ]
+    if @.select event, '.', [ 'text', 'code', ]
       is_comment                  = yes
       [ type, name, text, meta, ] = event
       for stretch in text.split @XXX_html_comment_id_pattern
         is_comment = not is_comment
         if is_comment
           id      = parseInt stretch, 10
-          comment = @XXX_comment_by_ids.get id
-          ### should never happen: ###
-          throw new Error "unknown ID #{rpr stretch}" unless comment?
-          send [ '.', 'comment', comment, ( @copy meta ), ]
+          entry   = @XXX_retrieve_entry id
+          content = entry[ 'raw' ]
+          send [ '.', 'comment', content, ( @copy meta ), ]
         else
           send [ type, name, stretch, ( @copy meta ), ] unless stretch.length is 0
     #.......................................................................................................
@@ -970,23 +990,24 @@ tracker_pattern = /// ^
       send event
 
 #-----------------------------------------------------------------------------------------------------------
-@$XXX_expand_commands = ( text ) ->
+@$XXX_expand_actions = ( text ) ->
+  ### TAINT code duplication ###
   return $ ( event, send ) =>
     #.......................................................................................................
     if @.select event, '.', [ 'text', 'code', 'comment', ]
       is_command                  = yes
       [ type, name, text, meta, ] = event
-      for stretch in text.split @XXX_command_id_pattern
+      for stretch in text.split @XXX_action_id_pattern
         is_command = not is_command
         if is_command
           id      = parseInt stretch, 10
-          command = @XXX_command_by_ids.get id
+          entry   = @XXX_retrieve_entry id
+          content = entry[ 'parsed' ]
           ### should never happen: ###
-          throw new Error "unknown ID #{rpr stretch}"                 unless command?
-          throw new Error "not registered correctly: #{rpr stretch}"  unless CND.isa_list command
-          [ left_fence, command_name, right_fence, ] = command
+          throw new Error "not registered correctly: #{rpr stretch}"  unless CND.isa_list content
+          [ left_fence, action_name, right_fence, ] = content
           fence = left_fence ? right_fence
-          send [ fence, command_name, null, ( @copy meta ), ]
+          send [ fence, action_name, null, ( @copy meta ), ]
         else
           send [ type, name, stretch, ( @copy meta ), ] unless stretch.length is 0
     #.......................................................................................................
@@ -995,6 +1016,7 @@ tracker_pattern = /// ^
 
 #-----------------------------------------------------------------------------------------------------------
 @$XXX_expand_raw_spans  = ( state ) ->
+  ### TAINT code duplication ###
   return $ ( event, send ) =>
     #.......................................................................................................
     if @.select event, '.', [ 'text', 'code', 'comment', ]
@@ -1004,10 +1026,30 @@ tracker_pattern = /// ^
         is_raw = not is_raw
         if is_raw
           id      = parseInt stretch, 10
-          content = @XXX_raw_content_by_ids.get id
-          ### should never happen: ###
-          throw new Error "unknown ID #{rpr stretch}"                 unless content?
+          entry   = @XXX_retrieve_entry id
+          content = entry[ 'raw' ]
           send [ '.', 'raw', content, ( @copy meta ), ]
+        else
+          send [ type, name, stretch, ( @copy meta ), ]
+    #.......................................................................................................
+    else
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
+@$XXX_expand_do_spans  = ( state ) ->
+  ### TAINT code duplication ###
+  return $ ( event, send ) =>
+    #.......................................................................................................
+    if @.select event, '.', [ 'text', 'code', 'comment', ]
+      is_do                       = yes
+      [ type, name, text, meta, ] = event
+      for stretch in text.split @XXX_do_id_pattern
+        is_do = not is_do
+        if is_do
+          id      = parseInt stretch, 10
+          entry   = @XXX_retrieve_entry id
+          content = entry[ 'raw' ]
+          send [ '!', 'do', content, ( @copy meta ), ]
         else
           send [ type, name, stretch, ( @copy meta ), ]
     #.......................................................................................................
@@ -1017,21 +1059,25 @@ tracker_pattern = /// ^
 #-----------------------------------------------------------------------------------------------------------
 @XXX_escape_escape_chrs = ( text ) ->
   R = text
-  R = R.replace /\x10/g, '\x10a'
-  R = R.replace /\x11/g, '\x10r'
-  R = R.replace /\x12/g, '\x10c'
-  R = R.replace /\x13/g, '\x10z'
-  R = R.replace /\x14/g, '\x10h'
+  R = R.replace /\x10/g, '\x10A'
+  R = R.replace /\x11/g, '\x10R'
+  R = R.replace /\x12/g, '\x10C'
+  R = R.replace /\x13/g, '\x10Z'
+  R = R.replace /\x14/g, '\x10H'
+  #.........................................................................................................
+  R = R.replace /\x15/g, '\x10X'
   return R
 
 #-----------------------------------------------------------------------------------------------------------
 @XXX_unescape_escape_chrs = ( text ) ->
   R = text
-  R = R.replace /\x10h/g, '\x14'
-  R = R.replace /\x10z/g, '\x13'
-  R = R.replace /\x10r/g, '\x11'
-  R = R.replace /\x10c/g, '\x12'
-  R = R.replace /\x10a/g, '\x10'
+  R = R.replace /\x10X/g, '\x15'
+  #.........................................................................................................
+  R = R.replace /\x10H/g, '\x14'
+  R = R.replace /\x10Z/g, '\x13'
+  R = R.replace /\x10R/g, '\x11'
+  R = R.replace /\x10C/g, '\x12'
+  R = R.replace /\x10A/g, '\x10'
   return R
 
 
@@ -1053,8 +1099,9 @@ tracker_pattern = /// ^
     .pipe @$_reinject_html_blocks           state
     .pipe @$_rewrite_markdownit_tokens      state
     .pipe @$XXX_expand_html_comments        state
-    .pipe @$XXX_expand_commands             state
+    .pipe @$XXX_expand_actions              state
     .pipe @$XXX_expand_raw_spans            state
+    .pipe @$XXX_expand_do_spans             state
     # .pipe D.$show()
     .pipe @$_process_end_command            state
     .pipe R
@@ -1069,7 +1116,8 @@ tracker_pattern = /// ^
     debug 'comment_by_ids     ', @XXX_comment_by_ids
     debug 'raw_content_by_ids ', @XXX_raw_content_by_ids
     debug 'command_by_ids     ', @XXX_command_by_ids
-    debug 'registry           ', @XXX_registry
+    urge 'registry           ', @XXX_registry
+    urge 'registry_index     ', @XXX_registry_index
     tokens      = md_parser.parse md_source, environment
     # @set_meta R, 'environment', environment
     confluence.write token for token in tokens
