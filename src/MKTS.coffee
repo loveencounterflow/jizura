@@ -218,36 +218,6 @@ misfit                    = Symbol 'misfit'
   return R
 
 #-----------------------------------------------------------------------------------------------------------
-@$_flatten_tokens = ( S ) ->
-  return $ ( token, send ) ->
-    switch ( type = token[ 'type' ] )
-      when 'inline' then send sub_token for sub_token in token[ 'children' ]
-      else send token
-
-#-----------------------------------------------------------------------------------------------------------
-@$_reinject_html_blocks = ( S ) ->
-  ### re-inject HTML blocks ###
-  md_parser   = @_new_markdown_parser()
-  return $ ( token, send ) =>
-    { type, map, } = token
-    if type is 'html_block'
-      ### TAINT `map` location data is borked with this method ###
-      ### add extraneous text content; this causes the parser to parse the HTML block as a paragraph
-      with some inline HTML: ###
-      XXX_source  = "XXX" + token[ 'content' ]
-      ### for `environment` see https://markdown-it.github.io/markdown-it/#MarkdownIt.parse ###
-      ### TAINT what to do with useful data appearing environment? ###
-      environment = {}
-      tokens      = md_parser.parse XXX_source, environment
-      ### remove extraneous text content: ###
-      removed     = tokens[ 1 ]?[ 'children' ]?.splice 0, 1
-      unless removed[ 0 ]?[ 'content' ] is "XXX"
-        throw new Error "should never happen"
-      S.confluence.write token for token in tokens
-    else
-      send token
-
-#-----------------------------------------------------------------------------------------------------------
 get_parse_html_methods = ->
   Parser      = ( require 'parse5' ).Parser
   parser      = new Parser()
@@ -424,9 +394,42 @@ tracker_pattern = /// ^
 
 
 #===========================================================================================================
-#
+# _PRE (PREPROCESSING)
 #-----------------------------------------------------------------------------------------------------------
-@$_rewrite_markdownit_tokens = ( S ) ->
+@_PRE = {}
+
+#-----------------------------------------------------------------------------------------------------------
+@_PRE.$flatten_tokens = ( S ) =>
+  return $ ( token, send ) ->
+    switch ( type = token[ 'type' ] )
+      when 'inline' then send sub_token for sub_token in token[ 'children' ]
+      else send token
+
+#-----------------------------------------------------------------------------------------------------------
+@_PRE.$reinject_html_blocks = ( S ) =>
+  ### re-inject HTML blocks ###
+  md_parser   = @_new_markdown_parser()
+  return $ ( token, send ) =>
+    { type, map, } = token
+    if type is 'html_block'
+      ### TAINT `map` location data is borked with this method ###
+      ### add extraneous text content; this causes the parser to parse the HTML block as a paragraph
+      with some inline HTML: ###
+      XXX_source  = "XXX" + token[ 'content' ]
+      ### for `environment` see https://markdown-it.github.io/markdown-it/#MarkdownIt.parse ###
+      ### TAINT what to do with useful data appearing environment? ###
+      environment = {}
+      tokens      = md_parser.parse XXX_source, environment
+      ### remove extraneous text content: ###
+      removed     = tokens[ 1 ]?[ 'children' ]?.splice 0, 1
+      unless removed[ 0 ]?[ 'content' ] is "XXX"
+        throw new Error "should never happen"
+      S.confluence.write token for token in tokens
+    else
+      send token
+
+#-----------------------------------------------------------------------------------------------------------
+@_PRE.$rewrite_markdownit_tokens = ( S ) =>
   unknown_tokens  = []
   is_first        = yes
   last_map        = [ 0, 0, ]
@@ -520,7 +523,7 @@ tracker_pattern = /// ^
     return null
 
 #-----------------------------------------------------------------------------------------------------------
-@$_process_end_command = ( S ) ->
+@_PRE.$process_end_command = ( S ) =>
   S.has_ended   = no
   remark        = @_get_remark()
   #.........................................................................................................
@@ -539,6 +542,9 @@ tracker_pattern = /// ^
     #.......................................................................................................
     return null
 
+
+#===========================================================================================================
+#
 #-----------------------------------------------------------------------------------------------------------
 @$close_dangling_open_tags = ( S ) ->
   tag_stack = []
@@ -809,64 +815,67 @@ tracker_pattern = /// ^
 
 
 #===========================================================================================================
-# CHR ESCAPING
+# _ESC (RAW / ACTION / COMMAND ESCAPING)
+#-----------------------------------------------------------------------------------------------------------
+@_ESC = {}
+
 #-----------------------------------------------------------------------------------------------------------
 ### TAINT don't keep state here ###
-@XXX_registry              = []
-@XXX_registry_index        = new Map()
+@_ESC.registry              = []
+@_ESC.registry_index        = new Map()
 
 #-----------------------------------------------------------------------------------------------------------
 ### Code duplication ###
-@XXX_html_comment_pattern = ///
+@_ESC.html_comment_pattern = ///
   (?: ( ^ | [^\\] ) <!--                      --> ) |
   (?: ( ^ | [^\\] ) <!-- ( [ \s\S ]*? [^\\] ) --> )
   ///g
 
 #-----------------------------------------------------------------------------------------------------------
 ### Code duplication ###
-@XXX_do_bracketed_pattern = ///
+@_ESC.do_bracketed_pattern = ///
   (?: ( ^ | [^\\] ) <<\{ do >>                      << do \}>> ) |
   (?: ( ^ | [^\\] ) <<\{ do >> ( [ \s\S ]*? [^\\] ) << do \}>> )
   ///g
 
 #-----------------------------------------------------------------------------------------------------------
 ### Code duplication ###
-@XXX_raw_bracketed_pattern = ///
+@_ESC.raw_bracketed_pattern = ///
   (?: ( ^ | [^\\] ) <<\( raw >>                      << raw \)>> ) |
   (?: ( ^ | [^\\] ) <<\( raw >> ( [ \s\S ]*? [^\\] ) << raw \)>> )
   ///g
 
 #-----------------------------------------------------------------------------------------------------------
-@XXX_raw_heredoc_pattern  = ///
+@_ESC.raw_heredoc_pattern  = ///
   ( ^ | [^\\] ) <<! raw: ( [^\s>]* )>> ( .*? ) \2
   ///g
 
 #-----------------------------------------------------------------------------------------------------------
 ### Code duplication ###
-@XXX_raw_id_pattern       = ///
+@_ESC.raw_id_pattern       = ///
   \x15 raw ( [ 0-9 ]+ ) \x13
   ///g
 
 #-----------------------------------------------------------------------------------------------------------
 ### Code duplication ###
-@XXX_html_comment_id_pattern = ///
+@_ESC.html_comment_id_pattern = ///
   \x15 comment ( [ 0-9 ]+ ) \x13
   ///g
 
 #-----------------------------------------------------------------------------------------------------------
 ### Code duplication ###
-@XXX_do_id_pattern   = ///
+@_ESC.do_id_pattern   = ///
   \x15 do ( [ 0-9 ]+ ) \x13
   ///g
 
 #-----------------------------------------------------------------------------------------------------------
 ### Code duplication ###
-@XXX_action_id_pattern   = ///
+@_ESC.action_id_pattern   = ///
   \x15 action ( [ 0-9 ]+ ) \x13
   ///g
 
 #-----------------------------------------------------------------------------------------------------------
-@XXX_command_pattern = ///
+@_ESC.command_pattern = ///
   ( ^ | [^\\] )
   (
     <<
@@ -878,82 +887,82 @@ tracker_pattern = /// ^
   ///g
 
 #-----------------------------------------------------------------------------------------------------------
-@XXX_escape_html_comments_raw_spans_and_commands = ( text ) ->
+@_ESC.escape_html_comments_raw_spans_and_commands = ( text ) =>
   R = text
-  R = @XXX_escape_escape_chrs R
+  R = @_ESC.escape_escape_chrs R
   #.........................................................................................................
-  R = R.replace @XXX_html_comment_pattern, ( _, $1, $2, $3 ) =>
+  R = R.replace @_ESC.html_comment_pattern, ( _, $1, $2, $3 ) =>
     $1           ?= ''
     $2           ?= ''
     $1           += $2
     raw_content   = $3 ? ''
-    key           = @XXX_register_content 'comment', raw_content.trim()
+    key           = @_ESC.register_content 'comment', raw_content.trim()
     return "#{$1}\x15#{key}\x13"
   #.........................................................................................................
-  R = R.replace @XXX_do_bracketed_pattern, ( _, $1, $2, $3 ) =>
+  R = R.replace @_ESC.do_bracketed_pattern, ( _, $1, $2, $3 ) =>
     $1           ?= ''
     $2           ?= ''
     $1           += $2
     raw_content   = $3 ? ''
     debug '©0qY0t', raw_content
-    id            = @XXX_register_content 'do', raw_content
+    id            = @_ESC.register_content 'do', raw_content
     return "#{$1}\x15#{id}\x13"
   #.........................................................................................................
-  R = R.replace @XXX_raw_bracketed_pattern, ( _, $1, $2, $3 ) =>
+  R = R.replace @_ESC.raw_bracketed_pattern, ( _, $1, $2, $3 ) =>
     $1           ?= ''
     $2           ?= ''
     $1           += $2
     raw_content   = $3 ? ''
-    id            = @XXX_register_content 'raw', raw_content
+    id            = @_ESC.register_content 'raw', raw_content
     return "#{$1}\x15#{id}\x13"
   #.........................................................................................................
-  R = R.replace @XXX_raw_heredoc_pattern, ( _, $1, $2, $3 ) =>
+  R = R.replace @_ESC.raw_heredoc_pattern, ( _, $1, $2, $3 ) =>
     raw_content   = $3 ? ''
-    id            = @XXX_register_content 'raw', raw_content
+    id            = @_ESC.register_content 'raw', raw_content
     return "#{$1}\x15#{id}\x13"
   #.........................................................................................................
-  R = R.replace @XXX_command_pattern, ( _, $1, $2, $3, $4, $5 ) =>
+  R = R.replace @_ESC.command_pattern, ( _, $1, $2, $3, $4, $5 ) =>
     raw_content     = $2
     parsed_content  = [ $3, $4, $5, ]
     ### replace fences by `null` in case of empty string: ###
     parsed_content[ 0 ] = null if parsed_content[ 0 ].length is 0
     parsed_content[ 2 ] = null if parsed_content[ 2 ].length is 0
-    key                 = @XXX_register_content 'action', raw_content, parsed_content
+    key                 = @_ESC.register_content 'action', raw_content, parsed_content
     return "#{$1}\x15#{key}\x13"
   #.........................................................................................................
   return R
 
 #-----------------------------------------------------------------------------------------------------------
-@XXX_register_content = ( kind, raw, parsed = null ) ->
-  id = @XXX_registry_index.get raw
+@_ESC.register_content = ( kind, raw, parsed = null ) =>
+  id = @_ESC.registry_index.get raw
   if id?
-    entry   = @XXX_registry[ id ]
+    entry   = @_ESC.registry[ id ]
     { key } = entry
   else
-    id      = @XXX_registry.length
+    id      = @_ESC.registry.length
     key     = "#{kind}#{id}"
-    @XXX_registry.push { key, raw, parsed, }
-    @XXX_registry_index.set raw, id
+    @_ESC.registry.push { key, raw, parsed, }
+    @_ESC.registry_index.set raw, id
   return key
 
 #-----------------------------------------------------------------------------------------------------------
-@XXX_retrieve_entry = ( id ) ->
-  throw new Error "unknown ID #{rpr id}" unless ( R = @XXX_registry[ id ] )?
+@_ESC.retrieve_entry = ( id ) =>
+  throw new Error "unknown ID #{rpr id}" unless ( R = @_ESC.registry[ id ] )?
   return R
 
 #-----------------------------------------------------------------------------------------------------------
-@$XXX_expand_html_comments = ( text ) ->
+@_ESC.$expand_html_comments = ( text ) =>
   ### TAINT code duplication ###
   return $ ( event, send ) =>
     #.......................................................................................................
     if @.select event, '.', [ 'text', 'code', ]
       is_comment                  = yes
       [ type, name, text, meta, ] = event
-      for stretch in text.split @XXX_html_comment_id_pattern
+      for stretch in text.split @_ESC.html_comment_id_pattern
         is_comment = not is_comment
         if is_comment
           id      = parseInt stretch, 10
-          entry   = @XXX_retrieve_entry id
+          entry   = @_ESC.retrieve_entry id
           content = entry[ 'raw' ]
           send [ '.', 'comment', content, ( @copy meta ), ]
         else
@@ -963,18 +972,18 @@ tracker_pattern = /// ^
       send event
 
 #-----------------------------------------------------------------------------------------------------------
-@$XXX_expand_actions = ( text ) ->
+@_ESC.$expand_actions = ( text ) =>
   ### TAINT code duplication ###
   return $ ( event, send ) =>
     #.......................................................................................................
     if @.select event, '.', [ 'text', 'code', 'comment', ]
       is_command                  = yes
       [ type, name, text, meta, ] = event
-      for stretch in text.split @XXX_action_id_pattern
+      for stretch in text.split @_ESC.action_id_pattern
         is_command = not is_command
         if is_command
           id      = parseInt stretch, 10
-          entry   = @XXX_retrieve_entry id
+          entry   = @_ESC.retrieve_entry id
           content = entry[ 'parsed' ]
           ### should never happen: ###
           throw new Error "not registered correctly: #{rpr stretch}"  unless CND.isa_list content
@@ -988,18 +997,18 @@ tracker_pattern = /// ^
       send event
 
 #-----------------------------------------------------------------------------------------------------------
-@$XXX_expand_raw_spans  = ( state ) ->
+@_ESC.$expand_raw_spans  = ( state ) =>
   ### TAINT code duplication ###
   return $ ( event, send ) =>
     #.......................................................................................................
     if @.select event, '.', [ 'text', 'code', 'comment', ]
       is_raw                      = yes
       [ type, name, text, meta, ] = event
-      for stretch in text.split @XXX_raw_id_pattern
+      for stretch in text.split @_ESC.raw_id_pattern
         is_raw = not is_raw
         if is_raw
           id      = parseInt stretch, 10
-          entry   = @XXX_retrieve_entry id
+          entry   = @_ESC.retrieve_entry id
           content = entry[ 'raw' ]
           send [ '.', 'raw', content, ( @copy meta ), ]
         else
@@ -1009,18 +1018,18 @@ tracker_pattern = /// ^
       send event
 
 #-----------------------------------------------------------------------------------------------------------
-@$XXX_expand_do_spans  = ( state ) ->
+@_ESC.$expand_do_spans  = ( state ) =>
   ### TAINT code duplication ###
   return $ ( event, send ) =>
     #.......................................................................................................
     if @.select event, '.', [ 'text', 'code', 'comment', ]
       is_do                       = yes
       [ type, name, text, meta, ] = event
-      for stretch in text.split @XXX_do_id_pattern
+      for stretch in text.split @_ESC.do_id_pattern
         is_do = not is_do
         if is_do
           id      = parseInt stretch, 10
-          entry   = @XXX_retrieve_entry id
+          entry   = @_ESC.retrieve_entry id
           content = entry[ 'raw' ]
           send [ '!', 'do', content, ( @copy meta ), ]
         else
@@ -1030,14 +1039,14 @@ tracker_pattern = /// ^
       send event
 
 #-----------------------------------------------------------------------------------------------------------
-@XXX_escape_escape_chrs = ( text ) ->
+@_ESC.escape_escape_chrs = ( text ) =>
   R = text
   R = R.replace /\x10/g, '\x10A'
   R = R.replace /\x15/g, '\x10X'
   return R
 
 #-----------------------------------------------------------------------------------------------------------
-@XXX_unescape_escape_chrs = ( text ) ->
+@_ESC.unescape_escape_chrs = ( text ) =>
   R = text
   R = R.replace /\x10X/g, '\x15'
   R = R.replace /\x10A/g, '\x10'
@@ -1045,7 +1054,7 @@ tracker_pattern = /// ^
 
 
 #===========================================================================================================
-# STREAM CREATION & PREPROCESSING
+# STREAM CREATION
 #-----------------------------------------------------------------------------------------------------------
 @create_mdreadstream = ( md_source, settings ) ->
   throw new Error "settings currently unsupported" if settings?
@@ -1058,15 +1067,15 @@ tracker_pattern = /// ^
     confluence:           confluence
   #.........................................................................................................
   confluence
-    .pipe @$_flatten_tokens                 state
-    .pipe @$_reinject_html_blocks           state
-    .pipe @$_rewrite_markdownit_tokens      state
-    .pipe @$XXX_expand_html_comments        state
-    .pipe @$XXX_expand_actions              state
-    .pipe @$XXX_expand_raw_spans            state
-    .pipe @$XXX_expand_do_spans             state
+    .pipe @_PRE.$flatten_tokens                 state
+    .pipe @_PRE.$reinject_html_blocks           state
+    .pipe @_PRE.$rewrite_markdownit_tokens      state
+    .pipe @_ESC.$expand_html_comments           state
+    .pipe @_ESC.$expand_actions                 state
+    .pipe @_ESC.$expand_raw_spans               state
+    .pipe @_ESC.$expand_do_spans                state
     # .pipe D.$show()
-    .pipe @$_process_end_command            state
+    .pipe @_PRE.$process_end_command            state
     .pipe R
   #.........................................................................................................
   R.on 'resume', =>
@@ -1075,9 +1084,9 @@ tracker_pattern = /// ^
     ### TAINT what to do with useful data appearing environment? ###
     ### TAINT environment becomes important for footnotes ###
     environment = {}
-    md_source   = @XXX_escape_html_comments_raw_spans_and_commands md_source
-    urge 'registry           ', @XXX_registry
-    urge 'registry_index     ', @XXX_registry_index
+    md_source   = @_ESC.escape_html_comments_raw_spans_and_commands md_source
+    urge 'registry           ', @_ESC.registry
+    urge 'registry_index     ', @_ESC.registry_index
     tokens      = md_parser.parse md_source, environment
     # @set_meta R, 'environment', environment
     confluence.write token for token in tokens
@@ -1086,4 +1095,3 @@ tracker_pattern = /// ^
   return R
 
 
-  s
