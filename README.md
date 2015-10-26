@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [jizura](#jizura)
+  - [Overview of Unicode CJK Characters by Regions](#overview-of-unicode-cjk-characters-by-regions)
+    - [TexLive installation](#texlive-installation)
+      - [TexLive installation (OSX)](#texlive-installation-osx)
+      - [TexLive installation (Ubuntu)](#texlive-installation-ubuntu)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 
 
 - [jizura](#jizura)

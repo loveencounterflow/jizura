@@ -21,14 +21,62 @@
   { line_nr: 7, col_nr: 9, badge: '$comment', stamped: true } ]¶
 !
 ¶
-!
-' and '!
-'
-'
+'‘thequestion’: '(!
 █ 12 █ IGNORED: [ '#',
+  'resend',
+  'expanding `thequestion`',
+  { line_nr: 12, col_nr: 19, badge: '$expansion', stamped: true } ](em'What is the meaning of life, the universe, and everything?')¶
+)';
+‘theanswer’: '(!
+█ 12 █ IGNORED: [ '#',
+  'resend',
+  'expanding `theanswer`',
+  { line_nr: 12, col_nr: 19, badge: '$expansion', stamped: true } ](strong'42')¶
+)';
+‘TEX’: '(!
+█ 12 █ IGNORED: [ '#',
+  'resend',
+  'expanding `TEX`',
+  { line_nr: 12, col_nr: 19, badge: '$expansion', stamped: true } ]
+█ 1 █ IGNORED: [ '.', 'raw', 'TeX{}', { line_nr: 1, col_nr: 2, stamped: true } ]¶
+)';
+‘LATEX’: '(!
+█ 12 █ IGNORED: [ '#',
+  'resend',
+  'expanding `LATEX`',
+  { line_nr: 12, col_nr: 19, badge: '$expansion', stamped: true } ]
+█ 1 █ IGNORED: [ '.',
+  'raw',
+  'LaTeX{}',
+  { line_nr: 1, col_nr: 2, stamped: true } ]¶
+)';
+‘MKTS’: '(!
+█ 12 █ IGNORED: [ '#',
+  'resend',
+  'expanding `MKTS`',
+  { line_nr: 12, col_nr: 19, badge: '$expansion', stamped: true } ](strong'MKTS')¶
+)';
+‘MKTS/MD’: '(!
+█ 12 █ IGNORED: [ '#',
+  'resend',
+  'expanding `MKTS/MD`',
+  { line_nr: 12, col_nr: 19, badge: '$expansion', stamped: true } ](strong'MKTS/MD')¶
+)';
+‘MKTS2’: '(!
+█ 12 █ IGNORED: [ '#',
+  'resend',
+  'expanding `MKTS2`',
+  { line_nr: 12, col_nr: 19, badge: '$expansion', stamped: true } ]
+█ 1 █ IGNORED: [ '.',
+  'raw',
+  '**MKTS**',
+  { line_nr: 1, col_nr: 2, stamped: true } ]¶
+)'.'¶
+
+█ 20 █ IGNORED: [ '#',
   'info',
-  'encountered `<<!end>>` on line #12',
-  { line_nr: 12,
-    col_nr: 14,
-    badge: '$_process_end_command',
+  'encountered `<<!end>>` on line #20',
+  { line_nr: 20,
+    col_nr: 21,
+    badge: '$process_end_command',
     stamped: true } ]>

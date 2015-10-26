@@ -10,17 +10,24 @@ comment -->
 <!-- another comment -->
 
 <<{do>>
-definitions =
+define
   thequestion:    "*What is the meaning of life, the universe, and everything?*"
   theanswer:      "**42**"
   TEX:            "<<(raw>>\TeX{}<<raw)>>"
   LATEX:          "<<(raw>>\LaTeX{}<<raw)>>"
   MKTS:           "**MKTS**"
-  MKTS/MD:        "**MKTS/MD**"
+  'MKTS/MD':      "**MKTS/MD**"
   MKTS2:          "<<(raw>>**MKTS**<<raw)>>"
 <<do}>>
 
-<<!MKTS>> and <<!MKTS2>>
+'thequestion': <<!thequestion>>;
+'theanswer': <<!theanswer>>;
+'TEX': <<!TEX>>;
+'LATEX': <<!LATEX>>;
+'MKTS': <<!MKTS>>;
+'MKTS/MD': <<!MKTS/MD>>;
+'MKTS2': <<!MKTS2>>.
+
 <<!end>>
 
 
