@@ -444,27 +444,32 @@ tracker_pattern = /// ^
   return $ ( token, send, end ) =>
     _send = send
     if token?
-      { type, map, } = token
-      map           ?= last_map
-      line_nr        = ( map[ 0 ] ? 0 ) + 1
-      col_nr         = ( map[ 1 ] ? 0 ) + 1
+      { type
+        map
+        markup }      = token
+      map            ?= last_map
+      line_nr         = ( map[ 0 ] ? 0 ) + 1
+      col_nr          = ( map[ 1 ] ? 0 ) + 1
       #.....................................................................................................
       meta = {
         line_nr
         col_nr
+        markup
         }
       if is_first
         is_first = no
         send [ '<', 'document', null, meta, ]
       #.....................................................................................................
       unless S.has_ended
-        # debug '@a20g1TH9yLG', token[ 'markup' ]
+        # debug '@a20g1TH9yLG', token[ 'markup' ] if type is 'bullet_list_open'
         switch type
           # blocks
           when 'heading_open'       then send [ '[', token[ 'tag' ],  null,               meta, ]
           when 'heading_close'      then send [ ']', token[ 'tag' ],  null,               meta, ]
           when 'paragraph_open'     then null
           when 'paragraph_close'    then send [ '.', 'p',             null,               meta, ]
+          when 'bullet_list_open'   then send [ '[', 'ul',            null,               meta, ]
+          when 'bullet_list_close'  then send [ ']', 'ul',            null,               meta, ]
           when 'list_item_open'     then send [ '[', 'li',            null,               meta, ]
           when 'list_item_close'    then send [ ']', 'li',            null,               meta, ]
           # inlines
@@ -508,7 +513,7 @@ tracker_pattern = /// ^
                 else                send [ ')', name, null, meta, ]
               else throw new Error "unknown HTML tag position #{rpr position}"
           else
-            debug '@26.05', token
+            # debug '@26.05', token
             send_unknown token, meta
         #...................................................................................................
         last_map = map
@@ -723,11 +728,14 @@ tracker_pattern = /// ^
         #...................................................................................................
         text = if text? then ( color rpr text ) else ''
         switch type
+          #.................................................................................................
           when 'text'
             log indentation + ( color type ) + ' ' + rpr name
+          #.................................................................................................
           when 'tex'
             if S.show_tex_events ? no
               log indentation + ( color type ) + ( color name ) + ' ' + text
+          #.................................................................................................
           when '#'
             [ _, kind, message, _, ]  = event
             my_badge                  = meta[ 'badge' ]
@@ -737,7 +745,8 @@ tracker_pattern = /// ^
               when 'warn'   then  'RED'
               when 'info'   then  'BLUE'
               else                'grey'
-            log ( CND[ color ] kind ), ( CND.white message ), ( CND.grey my_badge )
+            log ( CND.grey my_badge ), ( CND[ color ] kind ), ( CND.white message )
+          #.................................................................................................
           else
             log indentation + ( color type ) + ( color name ) + ' ' + text
         #...................................................................................................
@@ -1062,7 +1071,13 @@ tracker_pattern = /// ^
     environment = {}
     md_source   = @_ESC.escape_html_comments_raw_spans_and_commands state, md_source
     tokens      = md_parser.parse md_source, environment
-    stream.write token for token in tokens
+    if tokens.length > 0
+      ### Omit `paragraph_open` as first and `paragraph_close` as last token: ###
+      first_idx   = 0
+      last_idx    = tokens.length - 1
+      first_idx   = if tokens[ first_idx ][ 'type' ] is 'paragraph_open'  then first_idx + 1 else first_idx
+      last_idx    = if tokens[  last_idx ][ 'type' ] is 'paragraph_close' then  last_idx - 1 else  last_idx
+      stream.write tokens[ idx ] for idx in [ first_idx .. last_idx ]
 
 #===========================================================================================================
 # STREAM CREATION

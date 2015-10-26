@@ -513,6 +513,39 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
   return [ 'tex', '\\mktsShowpar\\par\n' ]
 
 #-----------------------------------------------------------------------------------------------------------
+@MKTX.BLOCK.$unordered_list = ( S ) =>
+  tex_by_md_markup =
+    '*':          '$\\star$'
+    'fallback':   '—'
+  item_markup_tex = null
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    #.......................................................................................................
+    if select event, '[', 'ul'
+      [ type, name, text, meta, ] = event
+      { markup } = meta
+      ### TAINT won't work in nested lists ###
+      ### TAINT make configurable ###
+      item_markup_tex = tex_by_md_markup[ markup ] ? tex_by_md_markup[ 'fallback' ]
+      send stamp event
+      send [ 'tex', '\\begin{itemize}' ]
+    #.......................................................................................................
+    else if select event, '[', 'li'
+      send stamp event
+      send [ 'tex', "\\item[#{item_markup_tex}] " ]
+    #.......................................................................................................
+    else if select event, ']', 'li'
+      send stamp event
+      send [ 'tex', '\n' ]
+    #.......................................................................................................
+    else if select event, ']', 'ul'
+      send stamp event
+      send [ 'tex', '\\end{itemize}' ]
+    #.......................................................................................................
+    else
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
 @MKTX.BLOCK.$hr = ( S ) =>
   remark = MKTS._get_remark()
   #.........................................................................................................
@@ -782,6 +815,7 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
         .pipe @MKTX.REGION.$code                              state
         .pipe @MKTX.BLOCK.$heading                            state
         .pipe @MKTX.BLOCK.$hr                                 state
+        .pipe @MKTX.BLOCK.$unordered_list                     state
         .pipe @MKTX.INLINE.$code                              state
         # .pipe @MKTX.INLINE.$italic_correction                 state
         .pipe @MKTX.INLINE.$translate_i_and_b                 state
