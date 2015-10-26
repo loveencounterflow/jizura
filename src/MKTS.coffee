@@ -965,7 +965,7 @@ tracker_pattern = /// ^
   ### TAINT code duplication ###
   return $ ( event, send ) =>
     #.......................................................................................................
-    if @.select event, '.', [ 'text', 'code', ]
+    if @select event, '.', [ 'text', 'code', ]
       is_comment                  = yes
       [ type, name, text, meta, ] = event
       for stretch in text.split @_ESC.html_comment_id_pattern
@@ -984,9 +984,12 @@ tracker_pattern = /// ^
 #-----------------------------------------------------------------------------------------------------------
 @_ESC.$expand_actions = ( state ) =>
   ### TAINT code duplication ###
+  track = @TRACKER.new_tracker '(code)', '{code}'
   return $ ( event, send ) =>
+    within_code = track.within '(code)', '{code}'
+    track event
     #.......................................................................................................
-    if @.select event, '.', [ 'text', 'code', 'comment', ]
+    if @select event, '.', [ 'text', 'code', 'comment', ]
       is_command                  = yes
       [ type, name, text, meta, ] = event
       for stretch in text.split @_ESC.action_id_pattern
@@ -994,12 +997,17 @@ tracker_pattern = /// ^
         if is_command
           id      = parseInt stretch, 10
           entry   = @_ESC.retrieve_entry state, id
-          content = entry[ 'parsed' ]
-          ### should never happen: ###
-          throw new Error "not registered correctly: #{rpr stretch}"  unless CND.isa_list content
-          [ left_fence, action_name, right_fence, ] = content
-          fence = left_fence ? right_fence
-          send [ fence, action_name, null, ( @copy meta ), ]
+          debug '©YfyVm', entry
+          if within_code
+            content = entry[ 'raw' ]
+            send [ '.', 'text', content, ( @copy meta ), ]
+          else
+            content = entry[ 'parsed' ]
+            ### should never happen: ###
+            throw new Error "not registered correctly: #{rpr stretch}"  unless CND.isa_list content
+            [ left_fence, action_name, right_fence, ] = content
+            fence = left_fence ? right_fence
+            send [ fence, action_name, null, ( @copy meta ), ]
         else
           send [ type, name, stretch, ( @copy meta ), ] unless stretch.length is 0
     #.......................................................................................................
@@ -1011,7 +1019,7 @@ tracker_pattern = /// ^
   ### TAINT code duplication ###
   return $ ( event, send ) =>
     #.......................................................................................................
-    if @.select event, '.', [ 'text', 'code', 'comment', ]
+    if @select event, '.', [ 'text', 'code', 'comment', ]
       is_raw                      = yes
       [ type, name, text, meta, ] = event
       for stretch in text.split @_ESC.raw_id_pattern
@@ -1032,7 +1040,7 @@ tracker_pattern = /// ^
   ### TAINT code duplication ###
   return $ ( event, send ) =>
     #.......................................................................................................
-    if @.select event, '.', [ 'text', 'code', 'comment', ]
+    if @select event, '.', [ 'text', 'code', 'comment', ]
       is_do                       = yes
       [ type, name, text, meta, ] = event
       for stretch in text.split @_ESC.do_id_pattern
