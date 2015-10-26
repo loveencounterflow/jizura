@@ -1055,12 +1055,13 @@ tracker_pattern = /// ^
 
 
 #-----------------------------------------------------------------------------------------------------------
-@new_resender = ( stream ) ->
+@new_resender = ( state, stream ) ->
   md_parser = @_new_markdown_parser()
-  return ( source ) =>
+  return ( md_source ) =>
     ### TAINT must handle data in environment ###
     environment = {}
-    tokens      = md_parser.parse source, environment
+    md_source   = @_ESC.escape_html_comments_raw_spans_and_commands state, md_source
+    tokens      = md_parser.parse md_source, environment
     stream.write token for token in tokens
 
 #===========================================================================================================
@@ -1072,10 +1073,11 @@ tracker_pattern = /// ^
   confluence  = D.create_throughstream()
   R           = D.create_throughstream()
   R.pause()
-  R.XXX_resend = @new_resender confluence
   #.........................................................................................................
   state       =
     confluence:           confluence
+  #.........................................................................................................
+  R.XXX_resend = @new_resender state, confluence
   #.........................................................................................................
   confluence
     .pipe @_PRE.$flatten_tokens                 state
