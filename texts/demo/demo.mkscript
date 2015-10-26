@@ -1,82 +1,33 @@
-█ 1 █ <document'a line with '
-█ 1 █ IGNORED: [ '.',
-  'raw',
-  'raw content: \\TeX{}',
-  { line_nr: 1, col_nr: 2, stamped: true } ]' displaying a logogram.'¶
-
-█ 3 █ IGNORED: [ '#',
-  'drop',
-  '`.comment`: \'a short\\ncomment\'',
-  { line_nr: 3, col_nr: 4, badge: '$comment', stamped: true } ]¶
-'A fascinating description of a global language, '(em'A Grammar of Mandarin')' combines broad perspectives with illuminating depth. Crammed with examples from everyday conversations, it aims to let the language speak for itself. The book opens with an overview of the language situation and a thorough account of Mandarin speech sounds. Nine core chapters explore syntactic, morphological and lexical dimensions. A final chapter traces the Chinese character script from oracle-bone inscriptions to today’s digital pens.'¶
-
-█ 7 █ IGNORED: [ '#',
-  'drop',
-  '`.comment`: \'a short\\ncomment\'',
-  { line_nr: 7, col_nr: 9, badge: '$comment', stamped: true } ]'
-'
-█ 7 █ IGNORED: [ '#',
-  'drop',
-  '`.comment`: \'another comment\'',
-  { line_nr: 7, col_nr: 9, badge: '$comment', stamped: true } ]¶
-!
+█ 2 █ <document!
 ¶
-'‘thequestion’: '(!
-█ 12 █ IGNORED: [ '#',
-  'resend',
-  'expanding `thequestion`',
-  { line_nr: 12, col_nr: 19, badge: '$expansion', stamped: true } ](em'What is the meaning of life, the universe, and everything?')¶
-)';
-‘theanswer’: '(!
-█ 12 █ IGNORED: [ '#',
-  'resend',
-  'expanding `theanswer`',
-  { line_nr: 12, col_nr: 19, badge: '$expansion', stamped: true } ](strong'42')¶
-)';
-‘TEX’: '(!
-█ 12 █ IGNORED: [ '#',
+'a'(!
+█ 4 █ IGNORED: [ '#',
   'resend',
   'expanding `TEX`',
-  { line_nr: 12, col_nr: 19, badge: '$expansion', stamped: true } ]
-█ 1 █ IGNORED: [ '.', 'raw', 'TeX{}', { line_nr: 1, col_nr: 2, stamped: true } ]¶
-)';
-‘LATEX’: '(!
-█ 12 █ IGNORED: [ '#',
-  'resend',
-  'expanding `LATEX`',
-  { line_nr: 12, col_nr: 19, badge: '$expansion', stamped: true } ]
-█ 1 █ IGNORED: [ '.',
+  { line_nr: 4,
+    col_nr: 5,
+    markup: '',
+    badge: '$expansion',
+    stamped: true } ]
+█ 4 █ IGNORED: [ '.',
   'raw',
-  'LaTeX{}',
-  { line_nr: 1, col_nr: 2, stamped: true } ]¶
-)';
-‘MKTS’: '(!
-█ 12 █ IGNORED: [ '#',
+  '\\TeX{}',
+  { line_nr: 4, col_nr: 5, markup: '', stamped: true } ])'b'(!
+█ 4 █ IGNORED: [ '#',
   'resend',
   'expanding `MKTS`',
-  { line_nr: 12, col_nr: 19, badge: '$expansion', stamped: true } ](strong'MKTS')¶
-)';
-‘MKTS/MD’: '(!
-█ 12 █ IGNORED: [ '#',
-  'resend',
-  'expanding `MKTS/MD`',
-  { line_nr: 12, col_nr: 19, badge: '$expansion', stamped: true } ](strong'MKTS/MD')¶
-)';
-‘MKTS2’: '(!
-█ 12 █ IGNORED: [ '#',
-  'resend',
-  'expanding `MKTS2`',
-  { line_nr: 12, col_nr: 19, badge: '$expansion', stamped: true } ]
-█ 1 █ IGNORED: [ '.',
-  'raw',
-  '**MKTS**',
-  { line_nr: 1, col_nr: 2, stamped: true } ]¶
-)'.'¶
+  { line_nr: 4,
+    col_nr: 5,
+    markup: '',
+    badge: '$expansion',
+    stamped: true } ](strong'MKTS'))'c**DEF**d'¶
+(code'a\\textbackslash{}<<!TEX>>b''<<!MKTS>>''c**DEF**d')¶
 
-█ 20 █ IGNORED: [ '#',
+█ 8 █ IGNORED: [ '#',
   'info',
-  'encountered `<<!end>>` on line #20',
-  { line_nr: 20,
-    col_nr: 21,
+  'encountered `<<!end>>` on line #8',
+  { line_nr: 8,
+    col_nr: 9,
+    markup: '',
     badge: '$process_end_command',
     stamped: true } ]>
