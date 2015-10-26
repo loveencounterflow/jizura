@@ -483,8 +483,6 @@ tracker_pattern = /// ^
             send [ ')', 'code', null,               ( @copy meta ),  ]
           #.................................................................................................
           when 'html_block'
-            # @_parse_html_block token[ 'content' ].trim()
-            debug '@8873', @_parse_html_tag token[ 'content' ]
             throw new Error "should never happen"
           #.................................................................................................
           when 'fence'
@@ -1056,6 +1054,15 @@ tracker_pattern = /// ^
   return R
 
 
+#-----------------------------------------------------------------------------------------------------------
+@new_resender = ( stream ) ->
+  md_parser = @_new_markdown_parser()
+  return ( source ) =>
+    ### TAINT must handle data in environment ###
+    environment = {}
+    tokens      = md_parser.parse source, environment
+    stream.write token for token in tokens
+
 #===========================================================================================================
 # STREAM CREATION
 #-----------------------------------------------------------------------------------------------------------
@@ -1065,6 +1072,7 @@ tracker_pattern = /// ^
   confluence  = D.create_throughstream()
   R           = D.create_throughstream()
   R.pause()
+  R.XXX_resend = @new_resender confluence
   #.........................................................................................................
   state       =
     confluence:           confluence

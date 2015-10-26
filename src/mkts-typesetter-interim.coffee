@@ -204,69 +204,51 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
   CLEANUP:    {}
 
 #-----------------------------------------------------------------------------------------------------------
-@MKTX.COMMAND.$definition = ( S ) =>
-  ### TAINT reject nested definitions ###
-  ### TAINT choice of brackets has no effect on definition ###
-  track           = MKTS.TRACKER.new_tracker '(:)', '[:]'
-  identifier      = null
-  S.definitions   = {}
+@MKTX.COMMAND.$do = ( S ) =>
+  CS                        = require 'coffee-script'
+  VM                        = require 'vm'
+  local_filename            = 'XXXXXXXXXXXXX'
+  S.local                   = { definitions: new Map(), }
+  sandbox =
+    urge:         CND.get_logger 'urge', local_filename
+    help:         CND.get_logger 'help', local_filename
+    __filename:   local_filename
+    define:       ( pod ) ->
+      for key, value of pod
+        S.local.definitions.set key, value
+  # sandbox[ '__sandbox' ] = sandbox
+  VM.createContext sandbox
   #.........................................................................................................
   return $ ( event, send ) =>
-    within_definition = track.within '(:)', '[:]'
-    track event
     #.......................................................................................................
-    if select event, [ '(', '[', ], ':'
-      [ type, _, identifier, meta, ] = event
-      warn "re-defining command #{rpr identifier}" if S.definitions[ identifier ]?
-      S.definitions[ identifier ] = []
+    if select event, '!', 'do'
+      [ type, action, cs_source, meta, ] = event
+      # warn "re-defining command #{rpr identifier}" if S.definitions[ identifier ]?
+      # S.definitions[ identifier ] = []
+      js_source = CS.compile cs_source, { bare: true, filename: local_filename, }
+      urge '4742', js_source
+      VM.runInContext js_source, sandbox, { filename: local_filename, }
+      # debug '©YMF7F', sandbox
+      debug '©YMF7F', S.local.definitions
       send stamp hide event
-    #.......................................................................................................
-    else if select event, [ ')', ']', ], ':'
-      send stamp hide event
-    #.......................................................................................................
-    else if within_definition
-      unless ( target = S.definitions[ identifier ] )?
-        throw new Error "should never happen; unknown identifier #{rpr identifier}"
-      unless ( select event, '.', 'text' ) and event[ 2 ] is ''
-        target.push event
-        send stamp hide copy event
     #.......................................................................................................
     else
       send event
-
-#-----------------------------------------------------------------------------------------------------------
-@MKTX.COMMAND.$definition_NG = ( S ) =>
-  track           = MKTS.TRACKER.new_tracker '{definitions}'
-  S.definitions   = {}
-  #.........................................................................................................
-  return $ ( event, send ) =>
-    within_definition = track.within '{definitions}'
-    track event
-    #.......................................................................................................
-    if select event, [ '{', '}', ], 'definitions'
-      send stamp event
-      [ type, identifier, text, meta, ] = event
-      if type is '{'
-        null
-      else
-        null
-    #.......................................................................................................
-    else if within_definition and select event, '.'
-    #.......................................................................................................
-    else
-      send event
-
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.COMMAND.$expansion = ( S ) =>
+  remark = MKTS._get_remark()
   #.........................................................................................................
   return $ ( event, send ) =>
     if select event, '!'
       [ type, identifier, _, meta, ] = event
-      if ( definition = S.definitions[ identifier ] )?
+      if ( definition = S.local.definitions.get identifier )?
         # send stamp hide event
         send stamp hide [ '(', '!', identifier, ( copy meta ), ]
-        send copy sub_event for sub_event in definition
+        # send copy sub_event for sub_event in definition
+        debug '@16', rpr definition
+        send remark 'resend', "expanding `#{identifier}`", ( copy meta )
+        S.resend definition # [ '.', 'text', definition, ( copy meta ), ]
         send stamp hide [ ')', '!', identifier, ( copy meta ), ]
       else
         send event
@@ -775,7 +757,8 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
         options:              @options
         layout_info:          layout_info
         input:                input
-        resend:               ( event ) => input.write event
+        # resend:               ( event ) => input.write event
+        resend:               input.XXX_resend
       #---------------------------------------------------------------------------------------------------------
       tex_output.on 'close', =>
         HELPERS.write_pdf layout_info, ( error ) =>
@@ -787,8 +770,7 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
         .pipe @MKTX.DOCUMENT.$begin                           state
         .pipe @MKTX.DOCUMENT.$end                             state
         .pipe @MKTX.MIXED.$raw                                state
-        .pipe @MKTX.COMMAND.$definition                       state
-        # .pipe @MKTX.COMMAND.$definition_NG                    state
+        .pipe @MKTX.COMMAND.$do                               state
         .pipe @MKTX.COMMAND.$expansion                        state
         .pipe @MKTX.COMMAND.$new_page                         state
         .pipe @MKTX.COMMAND.$comment                          state
