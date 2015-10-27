@@ -229,7 +229,7 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       urge '4742', js_source
       VM.runInContext js_source, sandbox, { filename: local_filename, }
       # debug '©YMF7F', sandbox
-      debug '©YMF7F', S.local.definitions
+      # debug '©YMF7F', S.local.definitions
       send stamp hide event
     #.......................................................................................................
     else
@@ -246,7 +246,7 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
         # send stamp hide event
         send stamp hide [ '(', '!', identifier, ( copy meta ), ]
         # send copy sub_event for sub_event in definition
-        debug '@16', rpr definition
+        # debug '@16', rpr definition
         send remark 'resend', "expanding `#{identifier}`", ( copy meta )
         S.resend definition # [ '.', 'text', definition, ( copy meta ), ]
         send stamp hide [ ')', '!', identifier, ( copy meta ), ]
@@ -786,7 +786,8 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       text                    = njs_fs.readFileSync source_locator, encoding: 'utf-8'
       input                   = MKTS.create_mdreadstream text
       #---------------------------------------------------------------------------------------------------------
-      state =
+      ### TAINT get state via return value of MKTS.create_mdreadstream ###
+      S =
         options:              @options
         layout_info:          layout_info
         input:                input
@@ -800,41 +801,41 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       #---------------------------------------------------------------------------------------------------------
       input
         .pipe MKTS.$fix_typography_for_tex                    @options
-        .pipe @MKTX.DOCUMENT.$begin                           state
-        .pipe @MKTX.DOCUMENT.$end                             state
-        .pipe @MKTX.MIXED.$raw                                state
-        .pipe @MKTX.COMMAND.$do                               state
-        .pipe @MKTX.COMMAND.$expansion                        state
-        .pipe @MKTX.COMMAND.$new_page                         state
-        .pipe @MKTX.COMMAND.$comment                          state
-        # .pipe @MKTX.REGION.$correct_p_tags_before_regions     state
-        .pipe @MKTX.COMMAND.$multi_column                     state
-        .pipe @MKTX.REGION.$multi_column                      state
-        .pipe @MKTX.REGION.$single_column                     state
-        .pipe @MKTX.REGION.$keep_lines                        state
-        .pipe @MKTX.REGION.$code                              state
-        .pipe @MKTX.BLOCK.$heading                            state
-        .pipe @MKTX.BLOCK.$hr                                 state
-        .pipe @MKTX.BLOCK.$unordered_list                     state
-        .pipe @MKTX.INLINE.$code                              state
-        # .pipe @MKTX.INLINE.$italic_correction                 state
-        .pipe @MKTX.INLINE.$translate_i_and_b                 state
-        .pipe @MKTX.INLINE.$em_and_strong                     state
-        # .pipe @MKTX.BLOCK.$remove_empty_p_tags                state
-        .pipe @MKTX.BLOCK.$paragraph                          state
+        .pipe @MKTX.DOCUMENT.$begin                           S
+        .pipe @MKTX.DOCUMENT.$end                             S
+        .pipe @MKTX.MIXED.$raw                                S
+        .pipe @MKTX.COMMAND.$do                               S
+        .pipe @MKTX.COMMAND.$expansion                        S
+        .pipe @MKTX.COMMAND.$new_page                         S
+        .pipe @MKTX.COMMAND.$comment                          S
+        # .pipe @MKTX.REGION.$correct_p_tags_before_regions     S
+        .pipe @MKTX.COMMAND.$multi_column                     S
+        .pipe @MKTX.REGION.$multi_column                      S
+        .pipe @MKTX.REGION.$single_column                     S
+        .pipe @MKTX.REGION.$keep_lines                        S
+        .pipe @MKTX.REGION.$code                              S
+        .pipe @MKTX.BLOCK.$heading                            S
+        .pipe @MKTX.BLOCK.$hr                                 S
+        .pipe @MKTX.BLOCK.$unordered_list                     S
+        .pipe @MKTX.INLINE.$code                              S
+        # .pipe @MKTX.INLINE.$italic_correction                 S
+        .pipe @MKTX.INLINE.$translate_i_and_b                 S
+        .pipe @MKTX.INLINE.$em_and_strong                     S
+        # .pipe @MKTX.BLOCK.$remove_empty_p_tags                S
+        .pipe @MKTX.BLOCK.$paragraph                          S
         # .pipe D.$observe ( event ) =>
         #   if MKTS.select event, 'text'
         #     # info JSON.stringify event
         #     debug event
         #   else
         #     # whisper JSON.stringify event
-        .pipe @MKTX.CLEANUP.$remove_empty_texts               state
-        .pipe MKTS.$close_dangling_open_tags                  state
-        .pipe MKTS.$show_mktsmd_events                        state
-        .pipe MKTS.$write_mktscript                           state
-        .pipe MKTS.$show_unhandled_tags                       state
+        .pipe @MKTX.CLEANUP.$remove_empty_texts               S
+        .pipe MKTS.$close_dangling_open_tags                  S
+        .pipe MKTS.$show_mktsmd_events                        S
+        .pipe MKTS.$write_mktscript                           S
+        .pipe MKTS.$show_unhandled_tags                       S
         .pipe @$filter_tex()
-        .pipe MKTS.$show_illegal_chrs                         state
+        .pipe MKTS.$show_illegal_chrs                         S
         .pipe tex_output
       #---------------------------------------------------------------------------------------------------------
       input.resume()

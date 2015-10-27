@@ -207,13 +207,13 @@ misfit                    = Symbol 'misfit'
   # R.use require 'markdown-it-sub'
   # R.use require 'markdown-it-sup'
   #.......................................................................................................
-  ### sample plugin ###
-  user_pattern  = /@(\w+)/
-  user_handler  = ( match, utils ) ->
-    url = 'http://example.org/u/' + match[ 1 ]
-    return '<a href="' + utils.escape(url) + '">' + utils.escape(match[1]) + '</a>'
-  user_plugin = new_md_inline_plugin user_pattern, user_handler
-  R.use user_plugin
+  # ### sample plugin ###
+  # user_pattern  = /@(\w+)/
+  # user_handler  = ( match, utils ) ->
+  #   url = 'http://example.org/u/' + match[ 1 ]
+  #   return '<a href="' + utils.escape(url) + '">' + utils.escape(match[1]) + '</a>'
+  # user_plugin = new_md_inline_plugin user_pattern, user_handler
+  # R.use user_plugin
   #.......................................................................................................
   return R
 
@@ -460,7 +460,13 @@ tracker_pattern = /// ^
         is_first = no
         send [ '<', 'document', null, meta, ]
       #.....................................................................................................
-      unless S.has_ended
+      if type in [
+        'footnote_ref',
+        'footnote_open', 'footnote_close',
+        'footnote_anchor',
+        'footnote_block_open', 'footnote_block_close', ]
+        debug '©a5AIi', token
+      else unless S.has_ended
         # debug '@a20g1TH9yLG', token[ 'markup' ] if type is 'bullet_list_open'
         switch type
           # blocks
@@ -941,9 +947,9 @@ tracker_pattern = /// ^
   return R
 
 #-----------------------------------------------------------------------------------------------------------
-@_ESC.register_content = ( state, kind, raw, parsed = null ) =>
-  registry  = state[ '_ESC' ][ 'registry' ]
-  index     = state[ '_ESC' ][ 'index' ]
+@_ESC.register_content = ( S, kind, raw, parsed = null ) =>
+  registry  = S[ '_ESC' ][ 'registry' ]
+  index     = S[ '_ESC' ][ 'index' ]
   id        = index.get raw
   if id?
     entry   = registry[ id ]
@@ -956,15 +962,16 @@ tracker_pattern = /// ^
   return key
 
 #-----------------------------------------------------------------------------------------------------------
-@_ESC.retrieve_entry = ( state, id ) =>
-  throw new Error "unknown ID #{rpr id}" unless ( R = state[ '_ESC' ][ 'registry' ][ id ] )?
+@_ESC.retrieve_entry = ( S, id ) =>
+  throw new Error "unknown ID #{rpr id}" unless ( R = S[ '_ESC' ][ 'registry' ][ id ] )?
   return R
 
 #-----------------------------------------------------------------------------------------------------------
-@_ESC.$expand_html_comments = ( state ) =>
+@_ESC.$expand_html_comments = ( S ) =>
   ### TAINT code duplication ###
   return $ ( event, send ) =>
     #.......................................................................................................
+    ### TAINT wrong selector ###
     if @select event, '.', [ 'text', 'code', ]
       is_comment                  = yes
       [ type, name, text, meta, ] = event
@@ -972,7 +979,7 @@ tracker_pattern = /// ^
         is_comment = not is_comment
         if is_comment
           id      = parseInt stretch, 10
-          entry   = @_ESC.retrieve_entry state, id
+          entry   = @_ESC.retrieve_entry S, id
           content = entry[ 'raw' ]
           send [ '.', 'comment', content, ( @copy meta ), ]
         else
@@ -982,13 +989,14 @@ tracker_pattern = /// ^
       send event
 
 #-----------------------------------------------------------------------------------------------------------
-@_ESC.$expand_actions = ( state ) =>
+@_ESC.$expand_actions = ( S ) =>
   ### TAINT code duplication ###
   track = @TRACKER.new_tracker '(code)', '{code}'
   return $ ( event, send ) =>
     within_code = track.within '(code)', '{code}'
     track event
     #.......................................................................................................
+    ### TAINT wrong selector ###
     if @select event, '.', [ 'text', 'code', 'comment', ]
       is_command                  = yes
       [ type, name, text, meta, ] = event
@@ -996,8 +1004,7 @@ tracker_pattern = /// ^
         is_command = not is_command
         if is_command
           id      = parseInt stretch, 10
-          entry   = @_ESC.retrieve_entry state, id
-          debug '©YfyVm', entry
+          entry   = @_ESC.retrieve_entry S, id
           if within_code
             content = entry[ 'raw' ]
             send [ '.', 'text', content, ( @copy meta ), ]
@@ -1015,10 +1022,11 @@ tracker_pattern = /// ^
       send event
 
 #-----------------------------------------------------------------------------------------------------------
-@_ESC.$expand_raw_spans  = ( state ) =>
+@_ESC.$expand_raw_spans  = ( S ) =>
   ### TAINT code duplication ###
   return $ ( event, send ) =>
     #.......................................................................................................
+    ### TAINT wrong selector ###
     if @select event, '.', [ 'text', 'code', 'comment', ]
       is_raw                      = yes
       [ type, name, text, meta, ] = event
@@ -1026,7 +1034,7 @@ tracker_pattern = /// ^
         is_raw = not is_raw
         if is_raw
           id      = parseInt stretch, 10
-          entry   = @_ESC.retrieve_entry state, id
+          entry   = @_ESC.retrieve_entry S, id
           content = entry[ 'raw' ]
           send [ '.', 'raw', content, ( @copy meta ), ]
         else
@@ -1036,10 +1044,11 @@ tracker_pattern = /// ^
       send event
 
 #-----------------------------------------------------------------------------------------------------------
-@_ESC.$expand_do_spans  = ( state ) =>
+@_ESC.$expand_do_spans  = ( S ) =>
   ### TAINT code duplication ###
   return $ ( event, send ) =>
     #.......................................................................................................
+    ### TAINT wrong selector ###
     if @select event, '.', [ 'text', 'code', 'comment', ]
       is_do                       = yes
       [ type, name, text, meta, ] = event
@@ -1047,7 +1056,7 @@ tracker_pattern = /// ^
         is_do = not is_do
         if is_do
           id      = parseInt stretch, 10
-          entry   = @_ESC.retrieve_entry state, id
+          entry   = @_ESC.retrieve_entry S, id
           content = entry[ 'raw' ]
           send [ '!', 'do', content, ( @copy meta ), ]
         else
@@ -1072,13 +1081,20 @@ tracker_pattern = /// ^
 
 
 #-----------------------------------------------------------------------------------------------------------
-@new_resender = ( state, stream ) ->
+@new_resender = ( S, stream ) ->
+  ### TAINT new parser not needed, can reuse 'main' parser ###
   md_parser = @_new_markdown_parser()
   return ( md_source ) =>
     ### TAINT must handle data in environment ###
+    md_source   = @_ESC.escape_html_comments_raw_spans_and_commands S, md_source
     environment = {}
-    md_source   = @_ESC.escape_html_comments_raw_spans_and_commands state, md_source
     tokens      = md_parser.parse md_source, environment
+    # tokens      = md_parser.parse md_source, S.environment
+    #.......................................................................................................
+    ### TAINT intermediate solution ###
+    if ( keys = Object.keys environment ).length > 0
+      warn "ignoring keys from sub-parsing environment: #{rpr keys}"
+    #.......................................................................................................
     if tokens.length > 0
       ### Omit `paragraph_open` as first and `paragraph_close` as last token: ###
       first_idx   = 0
@@ -1097,32 +1113,34 @@ tracker_pattern = /// ^
   R           = D.create_throughstream()
   R.pause()
   #.........................................................................................................
-  state       =
+  S =
     confluence:           confluence
+    environment:          {}
   #.........................................................................................................
-  R.XXX_resend = @new_resender state, confluence
+  ### TAINT shouldn't attach method here ###
+  R.XXX_resend = @new_resender S, confluence
   #.........................................................................................................
   confluence
-    .pipe @_PRE.$flatten_tokens                 state
-    .pipe @_PRE.$reinject_html_blocks           state
-    .pipe @_PRE.$rewrite_markdownit_tokens      state
-    .pipe @_ESC.$expand_html_comments           state
-    .pipe @_ESC.$expand_actions                 state
-    .pipe @_ESC.$expand_raw_spans               state
-    .pipe @_ESC.$expand_do_spans                state
-    .pipe @_PRE.$process_end_command            state
+    .pipe @_PRE.$flatten_tokens                 S
+    .pipe @_PRE.$reinject_html_blocks           S
+    .pipe @_PRE.$rewrite_markdownit_tokens      S
+    .pipe @_ESC.$expand_html_comments           S
+    .pipe @_ESC.$expand_actions                 S
+    .pipe @_ESC.$expand_raw_spans               S
+    .pipe @_ESC.$expand_do_spans                S
+    .pipe @_PRE.$process_end_command            S
     .pipe R
   #.........................................................................................................
   R.on 'resume', =>
     md_parser   = @_new_markdown_parser()
     ### for `environment` see https://markdown-it.github.io/markdown-it/#MarkdownIt.parse ###
-    ### TAINT environment becomes important for footnotes ###
-    environment = {}
-    @_ESC.initialize state
-    md_source   = @_ESC.escape_html_comments_raw_spans_and_commands state, md_source
-    urge 'registry    ', state[ '_ESC' ][ 'registry' ]
-    urge 'index       ', state[ '_ESC' ][ 'index' ]
-    tokens      = md_parser.parse md_source, environment
+    @_ESC.initialize S
+    ### TAINT consider to make `<<!end>>` special and detect it before parsing ###
+    md_source   = @_ESC.escape_html_comments_raw_spans_and_commands S, md_source
+    urge 'registry    ', S[ '_ESC' ][ 'registry' ]
+    urge 'index       ', S[ '_ESC' ][ 'index' ]
+    tokens      = md_parser.parse md_source, S.environment
+    debug '©iOCip', S.environment
     # @set_meta R, 'environment', environment
     confluence.write token for token in tokens
     confluence.end()
