@@ -9,6 +9,22 @@ a<<!TEX>>b<<!MKTS>>c\*\*DEF**d
 
 `a\<<!TEX>>b<<!MKTS>>c**DEF**d`
 
+Here is a footnote reference,[^1] and another,[^longnote]
+and a third[^3] one.
+
+[^1]: Here is the footnote.
+
+[^3]: Third footnote.
+
+[^longnote]: Here's one with multiple blocks.
+
+    Subsequent paragraphs are indented to show that they
+belong to the previous footnote.
+
+Here is an inline note.^[Inlines notes are easier to write, since
+you don't have to pick an identifier and move down to type the
+note.]
+
 <<!end>>
 
 a line with <<(raw>>raw content: \TeX{}<<raw)>> displaying a logogram.

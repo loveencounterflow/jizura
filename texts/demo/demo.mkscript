@@ -22,12 +22,15 @@
     badge: '$expansion',
     stamped: true } ](strong'MKTS'))'c**DEF**d'¶
 (code'a\\textbackslash{}<<!TEX>>b''<<!MKTS>>''c**DEF**d')¶
+'Here is a footnote reference,'' and another,''
+and a third'' one.'¶
+'Here is an inline note.'¶
 
-█ 8 █ IGNORED: [ '#',
+█ 24 █ IGNORED: [ '#',
   'info',
-  'encountered `<<!end>>` on line #8',
-  { line_nr: 8,
-    col_nr: 9,
+  'encountered `<<!end>>` on line #24',
+  { line_nr: 24,
+    col_nr: 25,
     markup: '',
     badge: '$process_end_command',
     stamped: true } ]>
