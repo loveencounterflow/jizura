@@ -610,27 +610,19 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
 
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.MIXED.$footnote = ( S ) =>
-  track = MKTS.TRACKER.new_tracker '(footnote-def)'
+  # track = MKTS.TRACKER.new_tracker '(footnote)'
   #.........................................................................................................
   return $ ( event, send ) =>
-    within_footnote_def = track.within '(footnote-def)'
-    track event
+    # within_footnote_def = track.within '(footnote)'
+    # track event
     #.......................................................................................................
-    if select event, '.', 'footnote-ref'
+    if select event, '(', 'footnote'
       send stamp event
       [ type, name, id, meta, ] = event
       ### TAINT make footnote reference style configurable ###
-      id = id + 1
-      send [ 'tex', "\\footnotemark[#{id}]", ]
+      send [ 'tex', "\\footnote{", ]
     #.......................................................................................................
-    else if select event, '(', 'footnote-def'
-      send stamp event
-      [ type, name, id, meta, ] = event
-      ### TAINT make footnote reference style configurable ###
-      id = id + 1
-      send [ 'tex', "\\footnotetext[#{id}]{", ]
-    #.......................................................................................................
-    else if select event, ')', 'footnote-def'
+    else if select event, ')', 'footnote'
       send stamp event
       send [ 'tex', "}", ]
     #.......................................................................................................

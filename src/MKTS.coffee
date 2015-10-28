@@ -590,21 +590,17 @@ tracker_pattern = /// ^
       track event
       #.....................................................................................................
       if @select event, '.', 'footnote-ref'
-        send @stamp event
         [ type, name, id, meta, ] = event
-        collector.push [ '(', 'footnote', id, ( @copy meta ), ]
-        collector.push [ '.', 'text', '---', ( @copy meta ), ]
+        collector.push [ [ '(', 'footnote', id, ( @copy meta ), ], ]
         idx_by_ids.set id, collector.length
-        collector.push [ '.', 'text', '---', ( @copy meta ), ]
-        collector.push [ ')', 'footnote', id, ( @copy meta ), ]
+        collector.push []
+        collector.push [ [ ')', 'footnote', id, ( @copy meta ), ], ]
       #.....................................................................................................
       else if @select event, '(', 'footnote-def'
-        send @stamp event
         [ type, name, id, meta, ] = event
         current_footnote_id       = id
       #.....................................................................................................
       else if @select event, ')', 'footnote-def'
-        send @stamp event
         current_footnote_id       = null
       #.....................................................................................................
       else
@@ -613,13 +609,14 @@ tracker_pattern = /// ^
           unless target_idx
             send.error new Error "unknown footnote ID #{rpr current_footnote_id}"
           else
-            collector.splice target_idx, 0, event
-            idx_by_ids.set current_footnote_id, target_idx + 1
+            collector[ target_idx ].push event
         else
-          collector.push event
+          collector.push [ event, ]
     #.......................................................................................................
     if end?
-      send event for event in collector
+      for events in collector
+        for event in events
+          send event
       end()
 
 
