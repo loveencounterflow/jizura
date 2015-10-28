@@ -609,6 +609,35 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       send event
 
 #-----------------------------------------------------------------------------------------------------------
+@MKTX.MIXED.$footnote = ( S ) =>
+  track = MKTS.TRACKER.new_tracker '(footnote-def)'
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    within_footnote_def = track.within '(footnote-def)'
+    track event
+    #.......................................................................................................
+    if select event, '.', 'footnote-ref'
+      send stamp event
+      [ type, name, id, meta, ] = event
+      ### TAINT make footnote reference style configurable ###
+      id = id + 1
+      send [ 'tex', "\\footnotemark[#{id}]", ]
+    #.......................................................................................................
+    else if select event, '(', 'footnote-def'
+      send stamp event
+      [ type, name, id, meta, ] = event
+      ### TAINT make footnote reference style configurable ###
+      id = id + 1
+      send [ 'tex', "\\footnotetext[#{id}]{", ]
+    #.......................................................................................................
+    else if select event, ')', 'footnote-def'
+      send stamp event
+      send [ 'tex', "}", ]
+    #.......................................................................................................
+    else
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
 @MKTX.INLINE.$translate_i_and_b = ( S ) =>
   #.........................................................................................................
   return $ ( event, send ) =>
@@ -804,6 +833,7 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
         .pipe @MKTX.DOCUMENT.$begin                           S
         .pipe @MKTX.DOCUMENT.$end                             S
         .pipe @MKTX.MIXED.$raw                                S
+        .pipe @MKTX.MIXED.$footnote                           S
         .pipe @MKTX.COMMAND.$do                               S
         .pipe @MKTX.COMMAND.$expansion                        S
         .pipe @MKTX.COMMAND.$new_page                         S

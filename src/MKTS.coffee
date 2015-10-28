@@ -498,20 +498,23 @@ tracker_pattern = /// ^
             send [ ')', 'code', null,               ( @copy meta ),  ]
           #.................................................................................................
           when 'footnote_ref'
-            urge '@x22', JSON.stringify token
+            id = token[ 'meta' ][ 'id' ]
+            send [ '.', 'footnote-ref', id, meta, ]
+          #  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
           when 'footnote_open'
-            urge '@x45', JSON.stringify token
-            ( meta[ 'footnote' ]?= {} )[ 'id' ] = token[ 'meta' ][ 'id' ]
-            send [ '(', 'footnote', null, meta, ]
+            id = token[ 'meta' ][ 'id' ]
+            send [ '(', 'footnote-def', id, meta, ]
+          #  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
           when 'footnote_close'
-            urge '@x58', JSON.stringify token
-            send [ ')', 'footnote', null, meta, ]
+            send [ ')', 'footnote-def', null, meta, ]
+          #  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
           when 'footnote_anchor'
-            urge '@x37', JSON.stringify token
-          when 'footnote_block_open'
-            urge '@x67', JSON.stringify token
-          when 'footnote_block_close'
-            urge '@x77', JSON.stringify token
+            null
+            # send remark 'drop', "footnote anchor is dispensable", ( @copy meta )
+          #  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+          when 'footnote_block_open', 'footnote_block_close'
+            null
+            # send remark 'drop', "footnote block processed", ( @copy meta )
           #.................................................................................................
           when 'html_block'
             throw new Error "should never happen"
@@ -571,6 +574,53 @@ tracker_pattern = /// ^
       send event
     #.......................................................................................................
     return null
+
+#-----------------------------------------------------------------------------------------------------------
+@_PRE.$consolidate_footnotes  = ( S ) =>
+  track                   = @TRACKER.new_tracker '(footnote-def)'
+  collector               = []
+  idx_by_ids              = new Map()
+  current_footnote_events = []
+  current_footnote_id     = null
+  within_footnote_def     = no
+  #.........................................................................................................
+  return $ ( event, send, end ) =>
+    if event?
+      within_footnote_def = track.within '(footnote-def)'
+      track event
+      #.....................................................................................................
+      if @select event, '.', 'footnote-ref'
+        send @stamp event
+        [ type, name, id, meta, ] = event
+        collector.push [ '(', 'footnote', id, ( @copy meta ), ]
+        collector.push [ '.', 'text', '---', ( @copy meta ), ]
+        idx_by_ids.set id, collector.length
+        collector.push [ '.', 'text', '---', ( @copy meta ), ]
+        collector.push [ ')', 'footnote', id, ( @copy meta ), ]
+      #.....................................................................................................
+      else if @select event, '(', 'footnote-def'
+        send @stamp event
+        [ type, name, id, meta, ] = event
+        current_footnote_id       = id
+      #.....................................................................................................
+      else if @select event, ')', 'footnote-def'
+        send @stamp event
+        current_footnote_id       = null
+      #.....................................................................................................
+      else
+        if within_footnote_def
+          target_idx = idx_by_ids.get current_footnote_id
+          unless target_idx
+            send.error new Error "unknown footnote ID #{rpr current_footnote_id}"
+          else
+            collector.splice target_idx, 0, event
+            idx_by_ids.set current_footnote_id, target_idx + 1
+        else
+          collector.push event
+    #.......................................................................................................
+    if end?
+      send event for event in collector
+      end()
 
 
 #===========================================================================================================
@@ -765,14 +815,14 @@ tracker_pattern = /// ^
           #.................................................................................................
           when '#'
             [ _, kind, message, _, ]  = event
-            my_badge                  = meta[ 'badge' ]
+            my_badge                  = "(#{meta[ 'badge' ]})"
             color = switch kind
               when 'insert' then  'lime'
               when 'drop'   then  'orange'
               when 'warn'   then  'RED'
               when 'info'   then  'BLUE'
               else                'grey'
-            log ( CND.grey my_badge ), ( CND[ color ] kind ), ( CND.white message )
+            log ( CND[ color ] kind ), ( CND.white message ), ( CND.grey my_badge )
           #.................................................................................................
           else
             log indentation + ( color type ) + ( color name ) + ' ' + text
@@ -1150,6 +1200,7 @@ tracker_pattern = /// ^
     .pipe @_ESC.$expand_raw_spans               S
     .pipe @_ESC.$expand_do_spans                S
     .pipe @_PRE.$process_end_command            S
+    .pipe @_PRE.$consolidate_footnotes          S
     .pipe R
   #.........................................................................................................
   R.on 'resume', =>
