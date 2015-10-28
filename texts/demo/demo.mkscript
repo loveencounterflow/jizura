@@ -1,4 +1,28 @@
-█ 2 █ <document!
+
+█ 8 █ IGNORED: [ '.',
+  'footnote-ref',
+  0,
+  { line_nr: 8, col_nr: 10, markup: '', stamped: true } ]
+█ 8 █ IGNORED: [ '.',
+  'footnote-ref',
+  1,
+  { line_nr: 8, col_nr: 10, markup: '', stamped: true } ]
+█ 8 █ IGNORED: [ '.',
+  'footnote-ref',
+  2,
+  { line_nr: 8, col_nr: 10, markup: '', stamped: true } ]
+█ 20 █ IGNORED: [ '.',
+  'footnote-ref',
+  3,
+  { line_nr: 20, col_nr: 23, markup: '', stamped: true } ]
+█ 24 █ IGNORED: [ '.',
+  'footnote-ref',
+  4,
+  { line_nr: 24, col_nr: 30, markup: '', stamped: true } ]
+█ 24 █ IGNORED: [ '.',
+  'footnote-ref',
+  5,
+  { line_nr: 24, col_nr: 30, markup: '', stamped: true } ](footnote-def)(footnote-def)(footnote-def)(footnote-def)(footnote-def)(footnote-def)█ 2 █ <document!
 ¶
 'a'(!
 █ 4 █ IGNORED: [ '#',
@@ -8,11 +32,7 @@
     col_nr: 5,
     markup: '',
     badge: '$expansion',
-    stamped: true } ]
-█ 4 █ IGNORED: [ '.',
-  'raw',
-  '\\TeX{}',
-  { line_nr: 4, col_nr: 5, markup: '', stamped: true } ])'b'(!
+    stamped: true } ])'b'(!
 █ 4 █ IGNORED: [ '#',
   'resend',
   'expanding `MKTS`',
@@ -20,25 +40,32 @@
     col_nr: 5,
     markup: '',
     badge: '$expansion',
-    stamped: true } ](strong'MKTS'))'c**DEF**d'¶
+    stamped: true } ])'c**DEF**d'¶
 (code'a\\textbackslash{}<<!TEX>>b''<<!MKTS>>''c**DEF**d')¶
-'Here is a footnote reference,'' and another,''
-and a third'' one.'¶
-'Here is an inline note.'¶
-
+'Here is a footnote reference,'(footnote'---''Here is the footnote.'¶
+'---')' and another,''Here’s one with multiple blocks.'¶
+'Subsequent paragraphs are indented to show that they
+belong to the previous footnote.'¶
+(footnote'Third footnote.'¶
+'---''---')'
+and a third'(footnote'Inlines notes are easier to write, since
+you don\'t have to pick an identifier and move down to type the
+note.'¶
+'---''---')' one.''Inlines notes are easier to write, since
+you don\'t have to pick an identifier and move down to type the
+note.'¶
+¶
+'Here is an inline note.'(footnote'Inlines notes are easier to write, since
+you don\'t have to pick an identifier and move down to type the
+note.'¶
+'---''---')¶
+'Here is an inline note.'(footnote'---''---')' Here is an inline note.'(footnote'---''---')'
+'
 █ 24 █ IGNORED: [ '#',
   'info',
   'encountered `<<!end>>` on line #24',
   { line_nr: 24,
-    col_nr: 25,
+    col_nr: 30,
     markup: '',
     badge: '$process_end_command',
-    stamped: true } ](footnote'Here is the footnote.'¶
-)(footnote'Here’s one with multiple blocks.'¶
-'Subsequent paragraphs are indented to show that they
-belong to the previous footnote.'¶
-)(footnote'Third footnote.'¶
-)(footnote'Inlines notes are easier to write, since
-you don\'t have to pick an identifier and move down to type the
-note.'¶
-)>
+    stamped: true } ]>
