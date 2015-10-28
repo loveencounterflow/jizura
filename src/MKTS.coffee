@@ -430,11 +430,12 @@ tracker_pattern = /// ^
 
 #-----------------------------------------------------------------------------------------------------------
 @_PRE.$rewrite_markdownit_tokens = ( S ) =>
-  unknown_tokens  = []
-  is_first        = yes
-  last_map        = [ 0, 0, ]
-  _send           = null
-  remark          = @_get_remark()
+  unknown_tokens        = []
+  is_first              = yes
+  last_map              = [ 0, 0, ]
+  _send                 = null
+  remark                = @_get_remark()
+  within_footnote_block = false
   #.........................................................................................................
   send_unknown = ( token, meta ) =>
     { type, } = token
@@ -459,15 +460,18 @@ tracker_pattern = /// ^
       if is_first
         is_first = no
         send [ '<', 'document', null, meta, ]
+      # #.....................................................................................................
+      # if type in [
+      #   'footnote_ref',
+      #   'footnote_open', 'footnote_close',
+      #   'footnote_anchor',
+      #   'footnote_block_open', 'footnote_block_close', ]
+      #   whisper '@a20g', token[ 'type' ]
       #.....................................................................................................
-      if type in [
-        'footnote_ref',
-        'footnote_open', 'footnote_close',
-        'footnote_anchor',
-        'footnote_block_open', 'footnote_block_close', ]
-        debug '©a5AIi', token
-      else unless S.has_ended
-        # debug '@a20g1TH9yLG', token[ 'markup' ] if type is 'bullet_list_open'
+      if type is 'footnote_block_open'  then within_footnote_block = yes
+      #.....................................................................................................
+      if within_footnote_block or not S.has_ended
+        # urge '@a20g', token[ 'type' ], within_footnote_block
         switch type
           # blocks
           when 'heading_open'       then send [ '[', token[ 'tag' ],  null,               meta, ]
@@ -492,6 +496,22 @@ tracker_pattern = /// ^
             send [ '(', 'code', null,                        meta,    ]
             send [ '.', 'text', token[ 'content' ], ( @copy meta ),  ]
             send [ ')', 'code', null,               ( @copy meta ),  ]
+          #.................................................................................................
+          when 'footnote_ref'
+            urge '@x22', JSON.stringify token
+          when 'footnote_open'
+            urge '@x45', JSON.stringify token
+            ( meta[ 'footnote' ]?= {} )[ 'id' ] = token[ 'meta' ][ 'id' ]
+            send [ '(', 'footnote', null, meta, ]
+          when 'footnote_close'
+            urge '@x58', JSON.stringify token
+            send [ ')', 'footnote', null, meta, ]
+          when 'footnote_anchor'
+            urge '@x37', JSON.stringify token
+          when 'footnote_block_open'
+            urge '@x67', JSON.stringify token
+          when 'footnote_block_close'
+            urge '@x77', JSON.stringify token
           #.................................................................................................
           when 'html_block'
             throw new Error "should never happen"
@@ -518,11 +538,14 @@ tracker_pattern = /// ^
                 if name is 'p' then send [ '.', name, null, meta, ]
                 else                send [ ')', name, null, meta, ]
               else throw new Error "unknown HTML tag position #{rpr position}"
+          #.................................................................................................
           else
-            # debug '@26.05', token
+            debug '@26.05', token
             send_unknown token, meta
         #...................................................................................................
         last_map = map
+      #.....................................................................................................
+      if type is 'footnote_block_close' then within_footnote_block = no
     #.......................................................................................................
     if end?
       if unknown_tokens.length > 0
@@ -544,10 +567,8 @@ tracker_pattern = /// ^
       ### TAINT consider to re-send `document>` ###
       send remark 'info', "encountered `<<!end>>` on line ##{line_nr}", @copy meta
       S.has_ended = yes
-    else if @select event, '>', 'document'
-      send event
     else
-      send event unless S.has_ended
+      send event
     #.......................................................................................................
     return null
 
@@ -1141,6 +1162,7 @@ tracker_pattern = /// ^
     urge 'index       ', S[ '_ESC' ][ 'index' ]
     tokens      = md_parser.parse md_source, S.environment
     debug '©iOCip', S.environment
+    # process.exit()
     # @set_meta R, 'environment', environment
     confluence.write token for token in tokens
     confluence.end()

@@ -33,4 +33,12 @@ and a third'' one.'¶
     col_nr: 25,
     markup: '',
     badge: '$process_end_command',
-    stamped: true } ]>
+    stamped: true } ](footnote'Here is the footnote.'¶
+)(footnote'Here’s one with multiple blocks.'¶
+'Subsequent paragraphs are indented to show that they
+belong to the previous footnote.'¶
+)(footnote'Third footnote.'¶
+)(footnote'Inlines notes are easier to write, since
+you don\'t have to pick an identifier and move down to type the
+note.'¶
+)>
