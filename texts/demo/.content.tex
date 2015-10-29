@@ -1,25 +1,25 @@
-\footnotemark[1]\footnotemark[2]\footnotemark[3]\footnotemark[4]\footnotemark[5]\footnotemark[6]\footnotetext[1]{}\footnotetext[2]{}\footnotetext[3]{}\footnotetext[4]{}\footnotetext[5]{}\footnotetext[6]{}
+
 % begin of MD document
 \mktsShowpar\par
 abc**DEF**d\mktsShowpar\par
 {\mktsStyleCode{}a\textbackslash{}<<!TEX>>b<<!MKTS>>c**DEF**d}\mktsShowpar\par
-Here is a footnote reference,---Here is the footnote.\mktsShowpar\par
---- and another,Here’s one with multiple blocks.\mktsShowpar\par
+Here is a footnote reference,\footnote{Here is the footnote.\mktsShowpar\par
+} and another,\footnote{Here’s one with multiple blocks.\mktsShowpar\par
 Subsequent paragraphs are indented to show that they
 belong to the previous footnote.\mktsShowpar\par
-Third footnote.\mktsShowpar\par
-------
-and a thirdInlines notes are easier to write, since
+}
+and a third\footnote{Third footnote.\mktsShowpar\par
+} one.\mktsShowpar\par
+Here is an inline note.\footnote{Inlines notes are easier to write, since
 you don't have to pick an identifier and move down to type the
 note.\mktsShowpar\par
------- one.Inlines notes are easier to write, since
+}\mktsShowpar\par
+Here is an inline note.\footnote{Inlines notes are easier to write, since
 you don't have to pick an identifier and move down to type the
 note.\mktsShowpar\par
-\mktsShowpar\par
-Here is an inline note.Inlines notes are easier to write, since
+} Here is an inline note.\footnote{Inlines notes are easier to write, since
 you don't have to pick an identifier and move down to type the
 note.\mktsShowpar\par
-------\mktsShowpar\par
-Here is an inline note.------ Here is an inline note.------
+}
 
 % end of MD document
