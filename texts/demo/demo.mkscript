@@ -18,30 +18,33 @@
     badge: '$expansion',
     stamped: true } ])'c**DEF**d'¶
 (code'a\\textbackslash{}<<!TEX>>b''<<!MKTS>>''c**DEF**d')¶
-'Here is a footnote reference,'(footnote'Here is the footnote.'¶
-)' and another,'(footnote'Here’s one with multiple blocks.'¶
+'Here is a footnote reference,'(footnote'Here is the footnote.')' and another,'(footnote'Here’s one with multiple blocks.'¶
 'Subsequent paragraphs are indented to show that they
-belong to the previous footnote.'¶
-)'
-and a third'(footnote'Third footnote.'¶
-)' one.'¶
+belong to the previous footnote.')'
+and a third'(footnote'Third footnote.')' one.'¶
 'Here is an inline note.'(footnote'Inlines notes are easier to write, since
 you don\'t have to pick an identifier and move down to type the
-note.'¶
-)¶
+note.')¶
 'Here is an inline note.'(footnote'Inlines notes are easier to write, since
 you don\'t have to pick an identifier and move down to type the
-note.'¶
-)' Here is an inline note.'(footnote'Inlines notes are easier to write, since
+note.')' Here is an inline note.'(footnote'Inlines notes are easier to write, since
 you don\'t have to pick an identifier and move down to type the
-note.'¶
-)'
+note. '
+█ 13 █ IGNORED: [ '.',
+  'raw',
+  'Raw content: \\TeX{}',
+  { line_nr: 13, col_nr: 14, markup: '', stamped: true } ]'.')¶
+'a line with '
+█ 30 █ IGNORED: [ '.',
+  'raw',
+  'raw content: \\TeX{}',
+  { line_nr: 30, col_nr: 32, markup: '', stamped: true } ]' displaying a logogram.
 '
-█ 24 █ IGNORED: [ '#',
+█ 30 █ IGNORED: [ '#',
   'info',
-  'encountered `<<!end>>` on line #24',
-  { line_nr: 24,
-    col_nr: 30,
+  'encountered `<<!end>>` on line #30',
+  { line_nr: 30,
+    col_nr: 32,
     markup: '',
     badge: '$process_end_command',
     stamped: true } ]>

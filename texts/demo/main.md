@@ -29,10 +29,10 @@ Here is an inline note.^[Inlines notes are easier to write, since
 you don't have to pick an identifier and move down to type the
 note.] Here is an inline note.^[Inlines notes are easier to write, since
 you don't have to pick an identifier and move down to type the
-note.]
-<<!end>>
+note. <<(raw>>Raw content: \TeX{}<<raw)>>.]
 
 a line with <<(raw>>raw content: \TeX{}<<raw)>> displaying a logogram.
+<<!end>>
 
 <!-- a short
 comment -->

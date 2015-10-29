@@ -147,6 +147,27 @@
 \topskip=\baselineskip%
 
 
+\usepackage[para,bottom,multiple]{footmisc}
+% \renewcommand{\footnotesize}{\normalsize}
+% \renewcommand{\footnotesize}{\fontsize{\myFontsize}{\myLineheight}\selectfont}
+% \renewcommand{\footnotelayout}{\fontsize{\myFontsize}{\myLineheight}\selectfont}
+% \usepackage[side]{footmisc}
+% % http://tex.stackexchange.com/a/141975/88579
+% \makeatletter
+%     \def\footnoterule{\kern-6\p@% you can put other values to increase vertical space between rule and notes (just try out); difference between the values after "kern" is the width of the rule!
+%   \hrule \@width 150mm \kern 5.7\p@}% the in value is the length of the footnoterule
+% \makeatother
+%
+% \addtolength{\skip\footins}{2pt}% vertical space between rule and main text
+%
+% \setlength{\footnotesep}{0mm}% vertical space between footnotes
+%
+% \let\origfootnote\footnote% font size of footnotes; changes \footnotesize command only inside footnotes!
+% \renewcommand{\footnote}[1]{%
+%    \renewcommand\footnotesize\scriptsize% here there is scriptsize in footnotes (example)
+%    \origfootnote{#1}}
+
+
 \newcommand{\mktsStyleBold}{%
   \renewcommand{\cn}[1]{{\adjustCjkIdeograph{\mktsFontfileCwtexqheibold##1}}}%
   \renewcommand{\ka}[1]{\adjustKatakana{\mktsFontfileCwtexqheibold##1}}%
@@ -168,7 +189,7 @@
 
 % ----------------------------------------------------------------------------------------------------------
 \usepackage{multicol}
-\setlength{\multicolsep}{6.0pt plus 2.0pt minus 1.5pt}
+% \setlength{\multicolsep}{6.0pt plus 2.0pt minus 1.5pt}
 \setlength{\multicolsep}{0mm plus 0mm minus 0mm}
 \setlength{\columnsep}{5mm}
 \setlength\columnseprule{0.155mm}

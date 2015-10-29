@@ -1,0 +1,67 @@
+
+\usepackage{cxltx-style-base}
+\usepackage{cxltx-style-trm}
+% \usepackage{cxltx-style-accentbox}
+\usepackage{cxltx-style-pushraise}
+\usepackage{cxltx-style-hyphenation-tolerance}
+\usepackage{cxltx-style-oddeven}
+\usepackage{cxltx-style-position-absolute}
+\usepackage{cxltx-style-pushraise}
+\usepackage{cxltx-style-smashbox}
+
+\newcommand{\mktsShowpar}{%
+  \makebox[0mm]{\color{red!25}¶}}
+
+% ----------------------------------------------------------------------------------------------------------
+% fontsizes
+\newdimen\myLineheight
+\newdimen\myFontsize
+% \myFontsize=3.5mm% too small
+% \myFontsize=4.1667mm
+% space between lines 4.6667mm - 3.8mm = 0.8667mm
+\myFontsize=3.8mm
+% now in fonts.sty:
+% \renewcommand{\adjustJzrCjkIdeograph}[1]{\prRaise{-0.125}{\makebox[1.1053\myFontsize]{#1}}} % !!!
+\myLineheight=4.6667mm
+% \myLineheight=3.8mm % reduced to fontsize
+\setlength{\baselineskip}{\myLineheight}
+\setlength{\parskip}{0mm}
+\setlength{\parindent}{0mm}
+% thx to http://www.tug.org/TUGboat/tb28-1/tb88bazargan.pdf for the next:
+\lineskiplimit=-10pt%
+\lineskip=0pt%
+\topskip=\baselineskip%
+
+% ----------------------------------------------------------------------------------------------------------
+% Footnotes
+% ### TAINT this combination does increase font size and line spacing in
+% footnotes, but the notes are still not run together, and the spacing
+% between footnotes is too small. — Considering to use endnotes instead. ###
+\usepackage[para,bottom,multiple]{footmisc}
+\usepackage{setspace,etoolbox}% http://ctan.org/pkg/{setspace,etoolbox}
+\makeatletter
+\patchcmd{\@footnotetext}% <cmd>
+  {\footnotesize}% <search>
+  {\normalsize\setstretch{1}}% <replace>
+  {}{}% <success><failure>
+\makeatother
+% ----------------------------------------------------------------------------------------------------------
+% mkts Styles
+% consider to put these into `.master.tex`
+\newcommand{\mktsStyleBold}{%
+  \renewcommand{\cn}[1]{{\adjustCjkIdeograph{\mktsFontfileCwtexqheibold##1}}}%
+  \renewcommand{\ka}[1]{\adjustKatakana{\mktsFontfileCwtexqheibold##1}}%
+  \renewcommand{\hi}[1]{\adjustHiragana{\mktsFontfileCwtexqheibold##1}}%
+  \renewcommand{\hg}[1]{\adjustHangeul{\mktsFontfileCwtexqheibold##1}}%
+  \fontsize{0.8\myFontsize}{0.8\myFontsize}\mktsFontfileUbuntub}
+
+\newcommand{\mktsStyleItalic}{%
+  \mktsFontfileEbgaramondtwelveitalic}
+
+\newcommand{\mktsStyleSymbol}{%
+  \mktsFontfileSunexta}
+
+% ### TAINT need to add space before and after code ###
+\newcommand{\mktsStyleCode}{%
+  \fontsize{0.8\myFontsize}{0.8\myFontsize}%%
+  \mktsFontfileSourcecodeproregular}
