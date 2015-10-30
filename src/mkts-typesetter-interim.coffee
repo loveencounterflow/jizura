@@ -127,7 +127,16 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
     #.......................................................................................................
     write ""
     write "% PACKAGES"
+    # write "\\usepackage{mkts2015-main}"
+    # write "\\usepackage{mkts2015-fonts}"
+    # write "\\usepackage{mkts2015-article}"
     write "\\usepackage{mkts2015-consolidated}"
+
+
+{\mktsFontfileSunexta
+\XeTeXlinebreaklocale "ja"% for Japanese
+\XeTeXlinebreakskip 0pt plus 0.1pt% sets the skip
+这们说时为过对还发开经现样动从间长话实头问进车业两给电关见门语让场东别题书记觉师爱应报员边论张总处产认结风带乐难该亲马华资钱许务吗妈变请专计单办费传欢习广图转军视连尔远满读联红达导设术战队运买试选观识节讲义证轻级决统调刚线评领热权类历课组饭较兴脸则备阳飞谁约标终诉议谈规岁际错词谢众园团续罗馆虽质紧够济亚显绝脑简创户闻剧纪击举细责汉龙农刘钟陈丽营仅}
 
     #-------------------------------------------------------------------------------------------------------
     # FONTS

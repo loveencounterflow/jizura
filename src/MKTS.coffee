@@ -128,11 +128,12 @@ misfit                    = Symbol 'misfit'
       continue
     #.......................................................................................................
     unless ( command = tex_command_by_rsgs[ rsg ] )?
-      message = "unknown RSG #{rpr rsg}: #{fncr} #{chr}"
-      if send?
-        send remark 'warn', "unknown RSG #{rpr rsg}: #{fncr} #{chr}", {}
-      else
-        warn message
+      command = tex_command_by_rsgs[ 'fallback' ] ? null
+      message = "unknown RSG #{rpr rsg}: #{fncr} #{chr} (using fallback #{rpr command})"
+      if send? then send remark 'warn', message, {}
+      else          warn message
+    #.......................................................................................................
+    unless command?
       advance()
       stretch.push chr
       continue
@@ -639,7 +640,9 @@ tracker_pattern = /// ^
           when '[' then sub_type = ']'
           when '(' then sub_type = ')'
         send remark 'resend', "`#{sub_name}#{sub_type}`", @copy meta
-        S.resend [ sub_type, sub_name, sub_text, ( @copy sub_meta ), ]
+        S.resend "debug '©Vc8qO'"
+        # S.resend [ sub_type, sub_name, sub_text, ( @copy sub_meta ), ]
+        send [ 'tex', "'©nAf98', \\end{multicols}", ]
       send event
     else if @select event, [ '{', '[', '(', ]
       tag_stack.push [ type, name, null, meta, ]
@@ -969,7 +972,8 @@ tracker_pattern = /// ^
   ///g
 
 #-----------------------------------------------------------------------------------------------------------
-@_ESC.escape_html_comments_raw_spans_and_commands = ( state, text ) =>
+@_ESC.escape_html_comments_raw_spans_and_commands = ( S, text ) =>
+  debug '©II6XI', rpr text
   R = text
   R = @_ESC.escape_escape_chrs R
   #.........................................................................................................
@@ -978,7 +982,7 @@ tracker_pattern = /// ^
     $2           ?= ''
     $1           += $2
     raw_content   = $3 ? ''
-    key           = @_ESC.register_content state, 'comment', raw_content.trim()
+    key           = @_ESC.register_content S, 'comment', raw_content.trim()
     return "#{$1}\x15#{key}\x13"
   #.........................................................................................................
   R = R.replace @_ESC.do_bracketed_pattern, ( _, $1, $2, $3 ) =>
@@ -987,7 +991,7 @@ tracker_pattern = /// ^
     $1           += $2
     raw_content   = $3 ? ''
     debug '©0qY0t', raw_content
-    id            = @_ESC.register_content state, 'do', raw_content
+    id            = @_ESC.register_content S, 'do', raw_content
     return "#{$1}\x15#{id}\x13"
   #.........................................................................................................
   R = R.replace @_ESC.raw_bracketed_pattern, ( _, $1, $2, $3 ) =>
@@ -995,12 +999,12 @@ tracker_pattern = /// ^
     $2           ?= ''
     $1           += $2
     raw_content   = $3 ? ''
-    id            = @_ESC.register_content state, 'raw', raw_content
+    id            = @_ESC.register_content S, 'raw', raw_content
     return "#{$1}\x15#{id}\x13"
   #.........................................................................................................
   R = R.replace @_ESC.raw_heredoc_pattern, ( _, $1, $2, $3 ) =>
     raw_content   = $3 ? ''
-    id            = @_ESC.register_content state, 'raw', raw_content
+    id            = @_ESC.register_content S, 'raw', raw_content
     return "#{$1}\x15#{id}\x13"
   #.........................................................................................................
   R = R.replace @_ESC.command_pattern, ( _, $1, $2, $3, $4, $5 ) =>
@@ -1009,7 +1013,7 @@ tracker_pattern = /// ^
     ### replace fences by `null` in case of empty string: ###
     parsed_content[ 0 ] = null if parsed_content[ 0 ].length is 0
     parsed_content[ 2 ] = null if parsed_content[ 2 ].length is 0
-    key                 = @_ESC.register_content state, 'action', raw_content, parsed_content
+    key                 = @_ESC.register_content S, 'action', raw_content, parsed_content
     return "#{$1}\x15#{key}\x13"
   #.........................................................................................................
   return R
@@ -1154,22 +1158,27 @@ tracker_pattern = /// ^
   md_parser = @_new_markdown_parser()
   return ( md_source ) =>
     ### TAINT must handle data in environment ###
-    md_source   = @_ESC.escape_html_comments_raw_spans_and_commands S, md_source
-    environment = {}
-    tokens      = md_parser.parse md_source, environment
-    # tokens      = md_parser.parse md_source, S.environment
-    #.......................................................................................................
-    ### TAINT intermediate solution ###
-    if ( keys = Object.keys environment ).length > 0
-      warn "ignoring keys from sub-parsing environment: #{rpr keys}"
-    #.......................................................................................................
-    if tokens.length > 0
-      ### Omit `paragraph_open` as first and `paragraph_close` as last token: ###
-      first_idx   = 0
-      last_idx    = tokens.length - 1
-      first_idx   = if tokens[ first_idx ][ 'type' ] is 'paragraph_open'  then first_idx + 1 else first_idx
-      last_idx    = if tokens[  last_idx ][ 'type' ] is 'paragraph_close' then  last_idx - 1 else  last_idx
-      stream.write tokens[ idx ] for idx in [ first_idx .. last_idx ]
+    if CND.isa_text md_source
+      md_source   = @_ESC.escape_html_comments_raw_spans_and_commands S, md_source
+      environment = {}
+      tokens      = md_parser.parse md_source, environment
+      # tokens      = md_parser.parse md_source, S.environment
+      #.......................................................................................................
+      ### TAINT intermediate solution ###
+      if ( keys = Object.keys environment ).length > 0
+        warn "ignoring keys from sub-parsing environment: #{rpr keys}"
+      #.......................................................................................................
+      if tokens.length > 0
+        ### Omit `paragraph_open` as first and `paragraph_close` as last token: ###
+        first_idx   = 0
+        last_idx    = tokens.length - 1
+        first_idx   = if tokens[ first_idx ][ 'type' ] is 'paragraph_open'  then first_idx + 1 else first_idx
+        last_idx    = if tokens[  last_idx ][ 'type' ] is 'paragraph_close' then  last_idx - 1 else  last_idx
+        ( debug '©9fdeD', "resending", tokens[ idx ] ) for idx in [ first_idx .. last_idx ]
+        stream.write tokens[ idx ] for idx in [ first_idx .. last_idx ]
+    else
+      debug '©vKQlM', "resending", md_source
+      stream.write md_source
 
 #===========================================================================================================
 # STREAM CREATION

@@ -155,6 +155,7 @@ module.exports = options =
       'u-cjk-kata':             'ka'
       'u-cjk-hira':             'hi'
       'u-hang-syl':             'hg'
+      'fallback':               'cn'
     #.......................................................................................................
     'glyph-styles':
       ### Other stuff: ###
