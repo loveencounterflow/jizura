@@ -89,6 +89,10 @@ misfit                    = Symbol 'misfit'
   ### An improved version of `XELATEX.tag_from_chr` ###
   ### TAINT should accept settings, fall back to `require`d `options.coffee` ###
   glyph_styles          = options[ 'tex' ]?[ 'glyph-styles'             ] ? {}
+  ### Legacy mode: force one command per non-latin character. This is OK for Chinese texts,
+  but a bad idea for all other scripts; in the future, MKTS's TeX formatting commands like
+  `\cn{}` will be rewritten to make this setting superfluous. ###
+  advance_each_chr      = options[ 'tex' ]?[ 'advance-each-chr'         ] ? no
   tex_command_by_rsgs   = options[ 'tex' ]?[ 'tex-command-by-rsgs'      ]
   last_command          = null
   R                     = []
@@ -111,37 +115,46 @@ misfit                    = Symbol 'misfit'
     return null
   #.........................................................................................................
   for chr in XNCHR.chrs_from_text text
-    chr_info    = XNCHR.analyze chr
-    { chr
-      uchr
-      fncr
-      rsg   }   = chr_info
-    #.......................................................................................................
-    switch rsg
-      when 'jzr-fig'  then chr = uchr
-      when 'u-pua'    then rsg = 'jzr-fig'
-    #.......................................................................................................
-    if ( replacement = glyph_styles[ chr ] )?
-      advance()
-      R.push replacement
-      last_command = null
-      continue
-    #.......................................................................................................
-    unless ( command = tex_command_by_rsgs[ rsg ] )?
-      command = tex_command_by_rsgs[ 'fallback' ] ? null
-      message = "unknown RSG #{rpr rsg}: #{fncr} #{chr} (using fallback #{rpr command})"
-      if send? then send remark 'warn', message, {}
-      else          warn message
+    ### Treat whitespace specially ###
+    ### TAINT better to check against /^\s$/ ??? ###
+    if chr in [ '\x20', '\n', '\r', '\t', ]
+      command = last_command
+    else
+      { chr
+        uchr
+        fncr
+        rsg   }   = XNCHR.analyze chr
+      #.......................................................................................................
+      switch rsg
+        when 'jzr-fig'  then chr = uchr
+        when 'u-pua'    then rsg = 'jzr-fig'
+      #.......................................................................................................
+      if ( replacement = glyph_styles[ chr ] )?
+        advance()
+        R.push replacement
+        last_command = null
+        continue
+      #.......................................................................................................
+      unless ( command = tex_command_by_rsgs[ rsg ] )?
+        command = tex_command_by_rsgs[ 'fallback' ] ? null
+        message = "unknown RSG #{rpr rsg}: #{fncr} #{chr} (using fallback #{rpr command})"
+        if send? then send remark 'warn', message, {}
+        else          warn message
     #.......................................................................................................
     unless command?
       advance()
       stretch.push chr
       continue
     #.......................................................................................................
-    if last_command isnt command
+    if advance_each_chr or last_command isnt command
       advance()
       last_command = command
-      stretch.push "\\#{command}{" unless command is 'latin'
+      ### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ###
+      unless command is 'latin'
+        command = 'cn'
+        stretch.push "{\\#{command}{}"
+      # stretch.push "{\\#{command}{}" unless command is 'latin'
+      ### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ###
     #.......................................................................................................
     stretch.push chr
   #.........................................................................................................

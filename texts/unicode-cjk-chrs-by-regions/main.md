@@ -1,6 +1,21 @@
 
-
 <<!multi-column>>
+
+xxx
+
+这们说时为过她說：「你好。」对还发开经现样动从间长话实头问进车业两给电关见门语
+这们说时为过对还发开经现样动从间长话实头问进车业两给电关见门语
+这们说时为过对还发开经现样动从间长她說：「你好。」话实头问进车业两给电关见门语
+这们说时为过对还发开经现样动从间长话实头问进车业两给电关见门语
+这们说时为过对还发开经现样动从间长话实头问进车业两给电关见门语
+这们说时为过对还发开经现样动从间长话实头问进车业两给电关见门语
+这们说时为过对还发开经现样动从间长话实头问进车业两给电关见门语
+
+xxx
+
+<<!end>>
+<<!end>>
+
 
 
 Here’s a so-called Euler-Venn-Diagram that shows (1) how many CJK character (a.k.a. ideograph, sinograph, tetragraph, …) codepoints in Unicode are considered ‘important for daily use’ (just under 10,000); (2) how many of those are used in each of the three important usage areas (i.e. Ⓒ for Mainland China (PRC without the Hong Kong and Macau SARs), Ⓙ for Japan, and Ⓣ for Taiwan, Hong Kong, and Macau); and (3) how much overlap there is for each of these regions. The bars made up from sample characters in the lower part visualize the same data, but this time with bar heights instead of circle areas being proportional to numbers.
@@ -15,7 +30,13 @@ You can see at a glance that
 * only 1% of all characters are uniquely shared by the PRC and Japan, the most frequent ones being 会来国学当内数声写将号参区. But observe that usage frequencies usually follow Zipf’s Law (quote: “the frequency of any word is inversely proportional to its rank in the frequency table”); because of this, any one character near the top of a frequency ranking will appear vastly more often than any one near the bottom of the same list. As a result, although the outcomes of the PRC’s and Japan’s post-war efforts to simplify characters share but one out of a hundred character shapes, those shapes are still exceedingly often seen in daily life.
 Of the three regions—Ⓒ, Ⓙ, Ⓣ—the Ⓣ region is the one with the most balanced shared usages, the other two regions showing greater relative differences between their subsets shared with zero, one or two of the other regions. In a sense, therefore, the Ⓣ region may be considered to be the 'most representative’ or 'most average’ one in terms of character usage.
 
-<!-- <<!end>> -->
+
+这们说时为过对还发开经现样动从间长话实头问进车业两给电关见门语让场东别题书记觉师爱应报员边论张总处产认结风带乐难该亲马华资钱许务吗妈变请专计单办费传欢习广图转军视连尔远满读联红达导设术战队运买试选观识节讲义证轻级决统调刚线评领热权类历课组饭较兴脸则备阳飞谁约标终诉议谈规岁际错词谢众园团续罗馆虽质紧够济亚显绝脑简创户闻剧纪击举细责汉龙农刘钟陈丽营仅
+
+这们说时为过对还发开经现样动从间长话实头问进车业两给电关见门语让场东别题书记觉师爱应报员边论张总处产认结风
+带乐难该亲马华资钱许务吗妈变请专计单办费传欢习广图转军视连尔远满读联红达导设术战队运买试选观识节讲义证轻级
+决统调刚线评领热权类历课组饭较兴脸则备阳飞谁约标终诉议谈规岁际错词谢众园团续罗馆虽质紧够济亚显绝脑简创户闻
+剧纪击举细责汉龙农刘钟陈丽营仅
 
 
 萬國碼第一版
