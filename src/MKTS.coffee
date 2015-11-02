@@ -97,28 +97,30 @@ misfit                    = Symbol 'misfit'
   `\cn{}` will be rewritten to make this setting superfluous. ###
   advance_each_chr      = options[ 'tex' ]?[ 'advance-each-chr'         ] ? no
   tex_command_by_rsgs   = options[ 'tex' ]?[ 'tex-command-by-rsgs'      ]
+  cjk_interchr_glue     = options[ 'tex' ]?[ 'cjk-interchr-glue'        ] ? '\ue080'
   last_command          = null
   R                     = []
-  stretch               = []
+  chunk                 = []
   last_rsg              = null
   remark                = if send? then @_get_remark() else null
   last_was_cjk          = no
+  is_latin_whitespace   = null
   #.........................................................................................................
   unless tex_command_by_rsgs?
     throw new Error "need setting 'tex-command-by-rsgs'"
   #.........................................................................................................
   advance = =>
-    if stretch.length > 0
-      # debug '©zDJqU', last_command, JSON.stringify stretch.join '.'
-      R.push stretch.join ''
+    if chunk.length > 0
+      # debug '©zDJqU', last_command, JSON.stringify chunk.join '.'
+      R.push chunk.join ''
       R.push '}' unless last_command in [ null, 'latin', ]
-    stretch.length = 0
+    chunk.length = 0
     return null
   #.........................................................................................................
   for chr in XNCHR.chrs_from_text text
     ### Treat whitespace specially ###
     ### TAINT better to check against /^\s$/ ??? ###
-    if chr in [ '\x20', '\n', '\r', '\t', ]
+    if ( is_latin_whitespace = chr in [ '\x20', '\n', '\r', '\t', ] )
       command = last_command
     else
       { chr
@@ -133,7 +135,8 @@ misfit                    = Symbol 'misfit'
       #.......................................................................................................
       this_is_cjk = @is_cjk_rsg rsg, options
       if last_was_cjk and this_is_cjk
-        stretch.push '\\cjkInterchrSpacing{}'
+        # chunk.push '\\cjkInterchrSpacing{}'
+        chunk.push cjk_interchr_glue
       last_was_cjk = this_is_cjk
       #.......................................................................................................
       ### TAINT if chr is a TeX active ASCII chr like `$`, `#`, then it will be escaped at this point
@@ -152,7 +155,7 @@ misfit                    = Symbol 'misfit'
     #.......................................................................................................
     unless command?
       advance()
-      stretch.push chr
+      chunk.push chr
       continue
     #.......................................................................................................
     if advance_each_chr or last_command isnt command
@@ -161,11 +164,11 @@ misfit                    = Symbol 'misfit'
       ### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ###
       unless command is 'latin'
         command = 'cn'
-        stretch.push "{\\#{command}{}"
-      # stretch.push "{\\#{command}{}" unless command is 'latin'
+        chunk.push "{\\#{command}{}"
+      # chunk.push "{\\#{command}{}" unless command is 'latin'
       ### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ###
     #.......................................................................................................
-    stretch.push chr
+    chunk.push chr
   #.........................................................................................................
   advance()
   return R.join ''

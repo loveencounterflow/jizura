@@ -180,6 +180,10 @@
 % 2) Display Styles
 % ----------------------------------------------------------------------------------------------------------
 \newcommand{\cjkInterchrSpacing}{\hskip -0.4pt plus 3pt minus 1pt}
+\catcode`\=\active%
+\def {\hskip -0.4pt plus 3pt minus 1pt}%
+% definition from p3 of http://texdoc.net/texmf-dist/doc/xelatex/xecjk/xeCJK.pdf
+% \newcommand{\cjkInterchrSpacing}{\hskip 0pt plus 0.08\baselineskip}
 % \newcommand{\cjkInterchrSpacingA}{\hskip -0.4pt plus 3pt minus 1pt}
 \newcommand{\adjustCjkIdeograph}[1]{\prRaise{-0.125}{#1}} % !!!
 % \newcommand{\adjustJzrCjkIdeograph}[1]{\prRaise{-0.125}{#1}} % !!!
@@ -198,7 +202,8 @@
 % \XeTeXlinebreaklocale "ja"% for Japanese
 % \XeTeXlinebreakskip 0pt plus 0.1pt% sets the skip
 % }
-\newcommand{\mktsAdjustCjk}{
+\newcommand{\mktsAdjustCjk}{%
+  % \cjkInterchrSpacing%
   % Should fix CJK linebreaks as per http://tex.stackexchange.com/a/38276/28067
   % ### TAINT this setting should be made only available inside CJK text regions ###
   % \XeTeXlinebreaklocale "ja"% for Japanese
