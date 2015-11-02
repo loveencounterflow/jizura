@@ -85,6 +85,9 @@ misfit                    = Symbol 'misfit'
       send event
 
 #-----------------------------------------------------------------------------------------------------------
+@is_cjk_rsg = ( rsg, options ) -> rsg in options[ 'tex' ][ 'cjk-rsgs' ]
+
+#-----------------------------------------------------------------------------------------------------------
 @fix_typography_for_tex = ( text, options, send = null ) ->
   ### An improved version of `XELATEX.tag_from_chr` ###
   ### TAINT should accept settings, fall back to `require`d `options.coffee` ###
@@ -99,6 +102,7 @@ misfit                    = Symbol 'misfit'
   stretch               = []
   last_rsg              = null
   remark                = if send? then @_get_remark() else null
+  last_was_cjk          = no
   #.........................................................................................................
   unless tex_command_by_rsgs?
     throw new Error "need setting 'tex-command-by-rsgs'"
@@ -106,11 +110,8 @@ misfit                    = Symbol 'misfit'
   advance = =>
     if stretch.length > 0
       # debug '©zDJqU', last_command, JSON.stringify stretch.join '.'
-      if last_command in [ null, 'latin', ]
-        R.push @escape_for_tex stretch.join ''
-      else
-        R.push stretch.join ''
-        R.push '}'
+      R.push stretch.join ''
+      R.push '}' unless last_command in [ null, 'latin', ]
     stretch.length = 0
     return null
   #.........................................................................................................
@@ -128,7 +129,15 @@ misfit                    = Symbol 'misfit'
       switch rsg
         when 'jzr-fig'  then chr = uchr
         when 'u-pua'    then rsg = 'jzr-fig'
+        when 'u-latin'  then chr = @escape_for_tex chr
       #.......................................................................................................
+      this_is_cjk = @is_cjk_rsg rsg, options
+      if last_was_cjk and this_is_cjk
+        stretch.push '\\cjkInterchrSpacing{}'
+      last_was_cjk = this_is_cjk
+      #.......................................................................................................
+      ### TAINT if chr is a TeX active ASCII chr like `$`, `#`, then it will be escaped at this point
+      and no more match entries in `glyph_styles` ###
       if ( replacement = glyph_styles[ chr ] )?
         advance()
         R.push replacement

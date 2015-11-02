@@ -157,6 +157,28 @@ module.exports = options =
       'u-hang-syl':             'hg'
       'fallback':               'cn'
     #.......................................................................................................
+    ### LIST of Unicode Range Sigils that contain codepoints to be treated as CJK characters: ###
+    'cjk-rsgs': [
+      'u-cjk'
+      'u-halfull'
+      # 'u-dingb'
+      'u-cjk-xa'
+      'u-cjk-xb'
+      'u-cjk-xc'
+      'u-cjk-xd'
+      'u-cjk-cmpi1'
+      'u-cjk-cmpi2'
+      'u-cjk-rad1'
+      'u-cjk-rad2'
+      'u-cjk-sym'
+      'u-cjk-strk'
+      'u-pua'
+      'jzr-fig'
+      'u-cjk-kata'
+      'u-cjk-hira'
+      'u-hang-syl'
+      ]
+    #.......................................................................................................
     'glyph-styles':
       ### Other stuff: ###
       '‰':          '{\\mktsFontfileOptima‰}'
