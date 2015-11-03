@@ -159,6 +159,24 @@
   \fontsize{0.8\myFontsize}{0.8\myFontsize}%%
   \mktsFontfileSourcecodeproregular}
 
+% ----------------------------------------------------------------------------------------------------------
+% https://groups.google.com/d/msg/comp.text.tex/J2qcZxgcR5M/3HyPquEDkcgJ
+% obeyalllines is like obeylines, excepts it also keeps blank lines
+\def\mktsMakeActive#1{\catcode`#113\relax}
+
+\def\mktsAdjustedPar{\par\mbox{}}
+\newdimen\mktsAdjustedParIndent
+\mktsAdjustedParIndent=0em
+\newskip\mktsAdjustedParSkip
+\mktsAdjustedParSkip=0pt plus 1pt
+
+{\mktsMakeActive\^^M
+  \gdef\mktsObeyAllLines{%
+    \parindent=\mktsAdjustedParIndent%
+    \parskip=\mktsAdjustedParSkip%
+    \mktsMakeActive\^^M%
+    \let^^M=\mktsAdjustedPar%
+    \leavevmode\hbox{}}}
 
 
 % ==========================================================================================================

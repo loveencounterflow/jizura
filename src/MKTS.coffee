@@ -847,7 +847,7 @@ tracker_pattern = /// ^
               when 'warn'   then  'RED'
               when 'info'   then  'BLUE'
               else                'grey'
-            log ( CND[ color ] kind ), ( CND.white message ), ( CND.grey my_badge )
+            log ( CND[ color ] '#' + kind ), ( CND.white message ), ( CND.grey my_badge )
           #.................................................................................................
           else
             log indentation + ( color type ) + ( color name ) + ' ' + text

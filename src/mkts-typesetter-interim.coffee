@@ -400,7 +400,7 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       #.....................................................................................................
       if type is '{'
         track.enter '{keep-lines}'
-        send [ 'tex', "\\begingroup\\obeyalllines{}", ]
+        send [ 'tex', "\\begingroup\\mktsObeyAllLines{}", ]
       else
         send [ 'tex', "\\endgroup{}", ]
         track.leave '{keep-lines}'
@@ -428,7 +428,7 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
       [ type, name, text, meta, ] = event
       #.....................................................................................................
       if type is '{'
-        send [ 'tex', "\\begingroup\\obeyalllines\\mktsStyleCode{}", ]
+        send [ 'tex', "\\begingroup\\mktsObeyAllLines\\mktsStyleCode{}", ]
       else
         send [ 'tex', "\\endgroup{}", ]
     #.......................................................................................................
