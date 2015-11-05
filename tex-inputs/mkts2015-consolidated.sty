@@ -62,6 +62,21 @@
 % % \pagegridsetup{top-left,step=\myLineheight,arrows=false}
 % % \pagegridsetup{top-left,step=7mm,arrows=false}
 
+
+% ----------------------------------------------------------------------------------------------------------
+% Footnotes
+% ### TAINT this combination does increase font size and line spacing in
+% footnotes, but the notes are still not run together, and the spacing
+% between footnotes is too small. — Considering to use endnotes instead. ###
+\usepackage[para,bottom,multiple]{footmisc}
+\usepackage{setspace,etoolbox}% http://ctan.org/pkg/{setspace,etoolbox}
+\makeatletter
+\patchcmd{\@footnotetext}% <cmd>
+  {\footnotesize}% <search>
+  {\normalsize\setstretch{1}}% <replace>
+  {}{}% <success><failure>
+\makeatother
+
 % ----------------------------------------------------------------------------------------------------------
 \let\footruleskip\undefined\usepackage{fancyhdr}
 \usepackage{fix2col}% Patch LaTeX's output routine to handle marks correctly with two columns
@@ -125,19 +140,6 @@
 \lineskip=0pt%
 \topskip=\baselineskip%
 
-% ----------------------------------------------------------------------------------------------------------
-% Footnotes
-% ### TAINT this combination does increase font size and line spacing in
-% footnotes, but the notes are still not run together, and the spacing
-% between footnotes is too small. — Considering to use endnotes instead. ###
-\usepackage[para,bottom,multiple]{footmisc}
-\usepackage{setspace,etoolbox}% http://ctan.org/pkg/{setspace,etoolbox}
-\makeatletter
-\patchcmd{\@footnotetext}% <cmd>
-  {\footnotesize}% <search>
-  {\normalsize\setstretch{1}}% <replace>
-  {}{}% <success><failure>
-\makeatother
 % ----------------------------------------------------------------------------------------------------------
 % mkts Styles
 % consider to put these into `.master.tex`

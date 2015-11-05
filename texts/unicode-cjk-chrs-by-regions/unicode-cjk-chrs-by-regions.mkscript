@@ -1,36 +1,12 @@
-█ 2 █ <document(!█ 2 █ {multi-column)¶
-█ 4 █ [h3'xxx']
-'{\\cn{}这们说时为过她說：}{\\cn{}「}{\\cn{}你好}\\prPushRaise{0.5}{0.25}{\\cn{。}}{\\cn{}」}{\\cn{}对还发开经现样动从间长话实头问进车业两给电关见门语
-这们说时为过对还发开经现样动从间长话实头问进车业两给电关见门语
-这们说时为过对还发开经现样动从间长她說：}{\\cn{}「}{\\cn{}你好}\\prPushRaise{0.5}{0.25}{\\cn{。}}{\\cn{}」}{\\cn{}话实头问进车业两给电关见门语
-这们说时为过对还发开经现样动从间长话实头问进车业两给电关见门语
-这们说时为过对还发开经现样动从间长话实头问进车业两给电关见门语
-这们说时为过对还发开经现样动从间长话实头问进车业两给电关见门语
-这们说时为过对还发开经现样动从间长话实头问进车业两给电关见门语}'¶
-'xxx '(code'{\\cn{}这们说时}')' xxx'¶
-█ 16 █ {code'xxx {\\cn{}这们说时 }**xxx**
-'}
-█ 20 █ {code'xxx {\\cn{}这们说时 }**xxx**
-'}
+█ 2 █ <document(code'<<(\\$>>''eval block''<<\\$)>>')¶
+(code'<<($>>''eval block''<<$)>>')¶
+!
 
-█ 24 █ IGNORED: [ '#',
+█ 6 █ IGNORED: [ '#',
   'info',
-  'encountered `<<!end>>` on line #24',
-  { line_nr: 24,
-    col_nr: 26,
+  'encountered `<<!end>>` on line #6',
+  { line_nr: 6,
+    col_nr: 7,
     markup: '',
-    badge: '$process_end_command',
-    stamped: true } ]'
-'
-█ 24 █ IGNORED: [ '#',
-  'info',
-  'encountered `<<!end>>` on line #24',
-  { line_nr: 24,
-    col_nr: 26,
-    markup: '',
-    badge: '$process_end_command',
-    stamped: true } ]
-█ undefined █ IGNORED: [ '#',
-  'resend',
-  '`multi-column}`',
-  { stamped: true, badge: '$close_dangling_open_tags' } ]>
+    stamped: true,
+    badge: '$process_end_command' } ]>

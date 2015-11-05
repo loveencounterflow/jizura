@@ -691,34 +691,6 @@ is_stamped                = MKTS.is_stamped.bind  MKTS
     else
       send event
 
-# #-----------------------------------------------------------------------------------------------------------
-# @MKTX.CLEANUP.$remove_postdef_dispensables = ( S ) ->
-#   last_was_definition = no
-#   remark              = MKTS._get_remark()
-#   return $ ( event, send ) =>
-#     if select event, ')', ':'
-#       # debug '>>> 1'
-#       last_was_definition = yes
-#       send event
-#     else if last_was_definition and select event,  '.', [ 'text', 'p', ]
-#       [ type, name, text, meta, ] = event
-#       if name is 'text'
-#         # debug '>>> 2'
-#         if ( /^\n*$/ ).test text
-#           # debug '>>> 3'
-#           send remark 'drop', "blank `.text` after command definition", copy meta
-#         else
-#           # debug '>>> 4'
-#           send event
-#       else
-#         # debug '>>> 5'
-#         send remark 'drop', "`.p` after command definition", copy meta
-#         last_was_definition = no
-#     else
-#       # debug '>>> 6'
-#       last_was_definition = no
-#       send event
-
 #-----------------------------------------------------------------------------------------------------------
 @MKTX.CLEANUP.$remove_empty_p_tags = ( S ) =>
   text_count  = 0

@@ -309,7 +309,7 @@ parse_methods = get_parse_html_methods()
 #===========================================================================================================
 # TRACKER
 #-----------------------------------------------------------------------------------------------------------
-@TRACKER    = {}
+@TRACKER = {}
 
 #-----------------------------------------------------------------------------------------------------------
 ### TAINT shouldn't be defined at module level ###
@@ -591,11 +591,13 @@ tracker_pattern = /// ^
   return $ ( event, send ) =>
     # [ type, name, text, meta, ] = event
     if @select event, '!', 'end'
-      [ _, _, _, meta, ]    = event
-      { line_nr, }          = meta
-      ### TAINT consider to re-send `document>` ###
-      send remark 'info', "encountered `<<!end>>` on line ##{line_nr}", @copy meta
-      S.has_ended = yes
+      if not S.has_ended
+        [ _, _, _, meta, ]    = event
+        { line_nr, }          = meta
+        ### TAINT consider to re-send `document>` ###
+        send @stamp event
+        send remark 'info', "encountered `<<!end>>` on line ##{line_nr}", @copy meta
+        S.has_ended = yes
     else
       send event
     #.......................................................................................................
