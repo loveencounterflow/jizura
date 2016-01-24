@@ -39,8 +39,8 @@ XNCHR                     = require './XNCHR'
 
 #-----------------------------------------------------------------------------------------------------------
 options =
-  sample:         null
-  # sample:         [ '疈', '國', '𠵓', ]
+  # sample:         null
+  sample:         [ '國', ]
   # sample:         [ '𡬜', '國', '𠵓', ]
   # sample:         [ '𡬜', '國', '𠵓', '后', '花', '醒', ]
 
@@ -354,8 +354,13 @@ options =
 find_duplicated_guides = ->
   D = require 'pipedreams'
   $ = D.remit.bind D
-  input   = njs_fs.createReadStream '/Volumes/Storage/io/jizura-datasources/data/5-derivatives/guide-pairs.txt'
-  output  = njs_fs.createWriteStream '/Volumes/Storage/io/jizura-datasources/data/5-derivatives/guide-pairs-duplicated.txt'
+  ### TAINT code duplication ###
+  ### TAIN make configurable / store in options ###
+  home              = njs_path.resolve __dirname, '../../jizura-datasources'
+  derivatives_home  = njs_path.resolve home, 'data/5-derivatives'
+  # derivatives_route = njs_path.resolve derivatives_home, 'guide-pairs.txt'
+  input             = njs_fs.createReadStream  njs_path.resolve derivatives_home, 'guide-pairs.txt'
+  output            = njs_fs.createWriteStream njs_path.resolve derivatives_home, 'guide-pairs-duplicated.txt'
   input
     .pipe D.$split()
     # .pipe D.$parse_csv headers: no
@@ -430,11 +435,10 @@ find_duplicated_guides()
   home            = njs_path.resolve __dirname, '../../jizura-datasources'
   source_route    = njs_path.resolve home, 'data/leveldb'
   target_route    = njs_path.resolve home, 'data/leveldb-v2'
-  # ### # # # # # # # # # # # # # # # # # # # # # ###
-  # target_route    = njs_path.resolve home, '/tmp/leveldb-v2'
-  # alert "using temp DB"
-  # ### # # # # # # # # # # # # # # # # # # # # # ###
-  # target_route    = '/tmp/leveldb-v2'
+  ### # # # # # # # # # # # # # # # # # # # # # ###
+  target_route    = '/tmp/leveldb-v2'
+  alert "using temp DB"
+  ### # # # # # # # # # # # # # # # # # # # # # ###
   target_db_size  = 1e6
   ds_options      = require njs_path.resolve home, 'options'
   source_db       = HOLLERITH.new_db source_route
@@ -454,8 +458,8 @@ find_duplicated_guides()
     help "read #{( Object.keys factor_infos ).length} entries for factor_infos"
     #.........................................................................................................
     # gte         = 'so|glyph:中'
-    # gte         = 'so|glyph:覆'
-    gte         = 'so|'
+    gte         = 'so|glyph:國'
+    # gte         = 'so|'
     lte         = @v1_lte_from_gte gte
     input       = source_db[ '%self' ].createKeyStream { gte, lte, }
     batch_size  = 1e4
