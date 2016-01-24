@@ -39,7 +39,7 @@ XNCHR                     = require './XNCHR'
 
 #-----------------------------------------------------------------------------------------------------------
 options =
-  sample:         null
+  # sample:         null
   # sample:         [ '疈', '國', '𠵓', ]
   # sample:         [ '𡬜', '國', '𠵓', ]
   # sample:         [ '𡬜', '國', '𠵓', '后', '花', '醒', ]
@@ -81,6 +81,18 @@ options =
   return $ ( key, send ) =>
     [ glyph, prd, obj, idx, ] = key
     send key unless prd is 'pod'
+
+#-----------------------------------------------------------------------------------------------------------
+@$remove_duplicate_kana_readings = ->
+  readings_by_glyph = {}
+  return $ ( key, send ) =>
+    [ glyph, prd, obj, idx, ] = key
+    if prd in [ 'reading/hi', ]
+      target = readings_by_glyph[ glyph ]?= []
+      if obj in target
+        return warn "skipping duplicate reading #{glyph} #{obj}"
+      target.push obj
+    send key
 
 #-----------------------------------------------------------------------------------------------------------
 @$cast_types = ( ds_options ) ->
@@ -430,10 +442,10 @@ find_duplicated_guides()
   home            = njs_path.resolve __dirname, '../../jizura-datasources'
   source_route    = njs_path.resolve home, 'data/leveldb'
   target_route    = njs_path.resolve home, 'data/leveldb-v2'
-  # ### # # # # # # # # # # # # # # # # # # # # # ###
-  # target_route    = njs_path.resolve home, '/tmp/leveldb-v2'
-  # alert "using temp DB"
-  # ### # # # # # # # # # # # # # # # # # # # # # ###
+  ### # # # # # # # # # # # # # # # # # # # # # ###
+  target_route    = njs_path.resolve home, '/tmp/leveldb-v2'
+  alert "using temp DB"
+  ### # # # # # # # # # # # # # # # # # # # # # ###
   # target_route    = '/tmp/leveldb-v2'
   target_db_size  = 1e6
   ds_options      = require njs_path.resolve home, 'options'
@@ -472,6 +484,7 @@ find_duplicated_guides()
       .pipe @$show_progress 1e4
       .pipe @$keep_small_sample()
       .pipe @$throw_out_pods()
+      .pipe @$remove_duplicate_kana_readings()
       .pipe @$cast_types ds_options
       .pipe @$collect_lists()
       .pipe @$compact_lists()
