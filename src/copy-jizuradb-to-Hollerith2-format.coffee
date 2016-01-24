@@ -41,6 +41,8 @@ XNCHR                     = require './XNCHR'
 options =
   # sample:         null
   sample:         [ '國', ]
+  # sample:         [ '國', '后', '花', '醒', ]
+  # sample:         [ '高', ]
   # sample:         [ '𡬜', '國', '𠵓', ]
   # sample:         [ '𡬜', '國', '𠵓', '后', '花', '醒', ]
 
@@ -277,6 +279,24 @@ options =
     send [ glyph, 'guide/kwic/v3/sortcode', permutations, ]
 
 #-----------------------------------------------------------------------------------------------------------
+@$add_factor_membership = ( factor_infos ) ->
+  glyphs_by_factors = {}
+  #.........................................................................................................
+  return $ ( phrase, send, end ) =>
+    if phrase?
+      send phrase
+      [ glyph, prd, obj, ] = phrase
+      return unless prd is 'guide/has/uchr'
+      for factor in obj
+        continue if factor is glyph
+        ( glyphs_by_factors[ factor ]?= new Set() ).add glyph
+    if end?
+      for factor, glyphs of glyphs_by_factors
+        glyphs.forEach ( glyph ) =>
+          send [ factor, 'factor/has/glyph/uchr', glyph, ]
+      end()
+
+#-----------------------------------------------------------------------------------------------------------
 @$add_guide_pairs = ( factor_infos ) ->
   sortcode_by_factors = {}
   sortcode_by_factors[ guide_uchr ] = sortcode for sortcode, guide_uchr of factor_infos
@@ -470,8 +490,10 @@ find_duplicated_guides()
     help "read #{( Object.keys factor_infos ).length} entries for factor_infos"
     #.........................................................................................................
     # gte         = 'so|glyph:中'
-    gte         = 'so|glyph:國'
-    # gte         = 'so|'
+    if ( CND.isa_list sample = options[ 'sample' ] ) and ( sample.length is 1 )
+      gte         = "so|glyph:#{sample[ 0 ]}"
+    else
+      gte         = 'so|'
     lte         = @v1_lte_from_gte gte
     input       = source_db[ '%self' ].createKeyStream { gte, lte, }
     batch_size  = 1e4
@@ -494,8 +516,9 @@ find_duplicated_guides()
       .pipe @$compact_lists()
       .pipe @$add_version_to_kwic_v1()
       .pipe @$add_kwic_v2()
-      .pipe @$add_kwic_v3     factor_infos
-      .pipe @$add_guide_pairs factor_infos
+      .pipe @$add_kwic_v3           factor_infos
+      .pipe @$add_guide_pairs       factor_infos
+      .pipe @$add_factor_membership factor_infos
       # .pipe D.$show()
       .pipe D.$count ( count ) -> help "kept #{ƒ count} phrases"
       .pipe D.$stop_time "copy Jizura DB"
