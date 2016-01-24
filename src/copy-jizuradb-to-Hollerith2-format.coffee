@@ -39,8 +39,8 @@ XNCHR                     = require './XNCHR'
 
 #-----------------------------------------------------------------------------------------------------------
 options =
-  # sample:         null
-  sample:         [ '國', ]
+  sample:         null
+  # sample:         [ '國', ]
   # sample:         [ '國', '后', '花', '醒', ]
   # sample:         [ '高', ]
   # sample:         [ '𡬜', '國', '𠵓', ]
@@ -292,8 +292,9 @@ options =
         ( glyphs_by_factors[ factor ]?= new Set() ).add glyph
     if end?
       for factor, glyphs of glyphs_by_factors
-        glyphs.forEach ( glyph ) =>
-          send [ factor, 'factor/has/glyph/uchr', glyph, ]
+        send [ factor, 'factor/has/glyph/uchr', Array.from glyphs.keys(), ]
+        # glyphs.forEach ( glyph ) =>
+        #   send [ factor, 'factor/has/glyph/uchr', glyph, ]
       end()
 
 #-----------------------------------------------------------------------------------------------------------
