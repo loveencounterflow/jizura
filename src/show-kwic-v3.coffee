@@ -38,6 +38,7 @@ $async                    = D.remit_async.bind D
 ASYNC                     = require 'async'
 CHR                       = require 'coffeenode-chr'
 KWIC                      = require 'kwic'
+TEXT                      = require 'coffeenode-text'
 #...........................................................................................................
 new_db                    = require 'level'
 # new_levelgraph            = require 'levelgraph'
@@ -160,23 +161,97 @@ HOLLERITH.$pick_values = ->
     db_route      = join __dirname, '../../jizura-datasources/data/leveldb-v2'
     db           ?= HOLLERITH.new_db db_route, create: no
     help "using DB at #{db[ '%self' ][ 'location' ]}"
-    factor_infos  = yield @read_factors db, resume
-    # debug '©g5bVR', factors; process.exit()
-    help "read #{( Object.keys factor_infos ).length} entries for factor_infos"
-    ranks         = {}
-    include       = Infinity
-    include       = 10000
-    include       = 15000
-    include       = 10
+    ### !!!!!!!!!!!!!!!!!!!!!!! ###
+    # factor_infos  = yield @read_factors db, resume
+    # # debug '©g5bVR', factors; process.exit()
+    # help "read #{( Object.keys factor_infos ).length} entries for factor_infos"
+    ### !!!!!!!!!!!!!!!!!!!!!!! ###
+    ranks               = {}
+    include             = 15000
+    include             = 10000
+    include             = 20000
+    include             = 5000
+    include             = Infinity
+    lineup_left_count   = 3
+    lineup_right_count  = 3
+    # include           = [ '𡳵', '𣐤', '𦾔', '𥈺', '𨂻', '寿', '邦', '帮', '畴', '铸', ]
     # include       = [ '寿', '邦', '帮', '畴', '铸', '筹', '涛', '祷', '绑', '綁',    ]
     # include       = Array.from '未釐犛剺味昧眛魅鮇沬妹業寐鄴澲末抹茉枺沫袜妺'
     # 'guide/hierarchy/uchr'
+    glyph_sample      = null
+    factor_sample     = null
     #.........................................................................................................
     ### TAINT use sets ###
-    glyph_sample  = null
-    # glyph_sample  = yield @read_sample db, include, resume
-    factor_sample = null
-    factor_sample = 日: 1
+    glyph_sample  = yield @read_sample db, include, resume
+    # factor_sample =
+    #   '旧': 1
+    #   '日': 1
+    #   '卓': 1
+    #   '桌': 1
+    #   '𠦝': 1
+    #   '東': 1
+    #   '車': 1
+    #   '更': 1
+    #   '㯥': 1
+    #   '䡛': 1
+    #   '轟': 1
+    #   '𨏿': 1
+    #   '昍': 1
+    #   '昌': 1
+    #   '晶': 1
+    #   '𣊭': 1
+    #   '早': 1
+    #   '': 1
+    #   '畢': 1
+    #   '': 1
+    #   '果': 1
+    #   '𣛕': 1
+    #   '𣡗': 1
+    #   '𣡾': 1
+    #   # '曱': 1
+    #   '甲': 1
+    #   '𤳅': 1
+    #   '𤳵': 1
+    #   '申': 1
+    #   '𤱓': 1
+    #   '禺': 1
+    #   '𥝉': 1
+    #   '': 1
+    #   '㬰': 1
+    #   '': 1
+    #   '电': 1
+    #   '': 1
+    #   '田': 1
+    #   '畕': 1
+    #   '畾': 1
+    #   '𤳳': 1
+    #   '由': 1
+    #   '甴': 1
+    #   '𡆪': 1
+    #   '白': 1
+    #   '㿟': 1
+    #   '皛': 1
+    #   '': 1
+    #   '鱼': 1
+    #   '魚': 1
+    #   '䲆': 1
+    #   '𩺰': 1
+    #   '鱻': 1
+    #   '䲜': 1
+    # factor_sample =
+    #   '旧': 1
+    #   '日': 1
+    #   '卓': 1
+    #   '桌': 1
+    #   '𠦝': 1
+    #   '昍': 1
+    #   '昌': 1
+    #   '晶': 1
+    #   '𣊭': 1
+    #   '早': 1
+    #   '白': 1
+    #   '㿟': 1
+    #   '皛': 1
     #.........................................................................................................
     $reorder_phrase = =>
       return $ ( phrase, send ) =>
@@ -194,32 +269,104 @@ HOLLERITH.$pick_values = ->
         # factors = [ prefix..., infix, suffix...,]
         # return ( infix is '山' ) and ( '水' in factors )
         return true if ( not glyph_sample? ) and ( not factor_sample? )
-        if glyph_sample? then return true if ( glyph of glyph_sample )
         [ _, infix, suffix, prefix, ] = sortcode
-        if factor_sample then return true if ( infix of factor_sample )
-        return false
+        in_glyph_sample   = ( not  glyph_sample? ) or ( glyph of  glyph_sample )
+        in_factor_sample  = ( not factor_sample? ) or ( infix of factor_sample )
+        return in_glyph_sample and in_factor_sample
     #.........................................................................................................
-    $format_sortcode_v3 = =>
-      return $ ( [ glyph, sortcode, ], send ) =>
-        [ _, infix, suffix, prefix, ] = sortcode
-        prefix.unshift '\u3000' until prefix.length >= 6
-        suffix.push    '\u3000' until suffix.length >= 6
-        prefix                        = prefix.join ''
-        suffix                        = suffix.join ''
-        lineup                        = prefix + '|' + infix + suffix
-        send [ glyph, lineup, ]
+    $insert_hr = =>
+      in_keeplines  = no
+      last_infix    = null
+      return $ ( event, send, end ) =>
+        if event?
+          [ glyph, sortcode, ]          = event
+          [ _, infix, suffix, prefix, ] = sortcode
+          if last_infix? and infix isnt last_infix
+            send "<<keep-lines)>>" if in_keeplines
+            send "*******************************************"
+            in_keeplines = no
+          last_infix = infix
+          send "<<(keep-lines>>" unless in_keeplines
+          in_keeplines = yes
+          send event
+        if end?
+          send "<<keep-lines)>>" if in_keeplines
+          end()
+    #.........................................................................................................
+    $count_lineup_lengths = =>
+      counts  = []
+      count   = 0
+      #.......................................................................................................
+      return $ ( event, send, end ) =>
+        if event?
+          #...................................................................................................
+          if CND.isa_list event
+            [ glyph, sortcode, ]          = event
+            [ _, infix, suffix, prefix, ] = sortcode
+            lineup                        = ( prefix.join '' ) + infix + ( suffix.join '' )
+            lineup_length                 = ( Array.from lineup.replace /\u3000/g, '' ).length
+            counts[ lineup_length ]       = ( counts[ lineup_length ] ? 0 ) + 1
+            ### !!!!!!!!!!!!!!!!!!!!!!! ###
+            send event
+            # # send event if glyph is '辭'
+            # if 3 < lineup_length < 8
+            #   count += +1
+            #   send event if count < 100
+            send event if lineup_length > 6
+            ### !!!!!!!!!!!!!!!!!!!!!!! ###
+          #...................................................................................................
+          else
+            send event
+        #.....................................................................................................
+        if end?
+          for length in [ 1 ... counts.length ]
+            count_txt = TEXT.flush_right ( ƒ counts[ length ] ), 10
+            help "found #{count_txt} lineups of length #{length}"
+          end()
+    #.........................................................................................................
+    $align_affixes = =>
+      return $ ( event, send ) =>
+        #.....................................................................................................
+        if CND.isa_list event
+          [ glyph, sortcode, ]          = event
+          [ _, infix, suffix, prefix, ] = sortcode
+          pre_prefix                    = []
+          post_suffix                   = []
+          pre_prefix.unshift  suffix.pop()   while suffix.length > lineup_right_count
+          post_suffix.push    prefix.shift() while prefix.length >  lineup_left_count
+          prefix.unshift '\u3000' until prefix.length >=  lineup_left_count -  pre_prefix.length
+          suffix.push    '\u3000' until suffix.length >= lineup_right_count - post_suffix.length
+          # log ( pre_prefix.join '' ), ( prefix.join ''), '|', infix, '|', ( suffix.join '' ), ( post_suffix.join '' ) + glyph
+          send [ glyph, [ pre_prefix, prefix, infix, suffix, post_suffix, ], ]
+        #.....................................................................................................
+        else
+          send event
     #.........................................................................................................
     $transform_v3 = => D.combine [
         $reorder_phrase()
         $exclude_gaiji()
         $include_sample()
         # D.$show()
-        $format_sortcode_v3()
+        $insert_hr()
+        $count_lineup_lengths()
+        $align_affixes()
         ]
     #.........................................................................................................
     $show = =>
-      return D.$observe ( [ glyph, lineup, ]) ->
-        echo lineup + glyph
+      return D.$observe ( event ) ->
+        if CND.isa_list event
+          [ glyph, lineup, ]  = event
+          [ pre_prefix
+            prefix
+            infix
+            suffix
+            post_suffix ]     = lineup
+          prefix                        = ( pre_prefix.join '' ) + (      prefix.join '' )
+          suffix                        = (     suffix.join '' ) + ( post_suffix.join '' )
+          lineup                        = prefix + '|' + infix + '|' + suffix
+          echo lineup + glyph # + '<<<\\\\>>>'
+        else
+          echo event
     #.........................................................................................................
     query_v3  = { prefix: [ 'pos', 'guide/kwic/v3/sortcode', ], }
     input_v3  = ( HOLLERITH.create_phrasestream db, query_v3 ).pipe $transform_v3()
