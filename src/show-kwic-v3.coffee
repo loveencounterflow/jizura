@@ -172,14 +172,15 @@ HOLLERITH.$pick_values = ->
     include             = 20000
     include             = 500
     include             = Infinity
-    lineup_left_count   = 3
+    lineup_left_count   = 2
     lineup_right_count  = 3
+    window_width        = lineup_left_count + 1 + lineup_right_count + 1
     # include           = [ '𡳵', '𣐤', '𦾔', '𥈺', '𨂻', '寿', '邦', '帮', '畴', '铸', ]
     # include       = [ '寿', '邦', '帮', '畴', '铸', '筹', '涛', '祷', '绑', '綁',    ]
     # include       = Array.from '未釐犛剺味昧眛魅鮇沬妹業寐鄴澲末抹茉枺沫袜妺'
-    # 'guide/hierarchy/uchr'
-    glyph_sample      = null
-    factor_sample     = null
+    include             = Array.from '虫𨙻𥦤曗𩡏鬱𡤇𡅹'
+    glyph_sample        = null
+    factor_sample       = null
     #.........................................................................................................
     ### TAINT use sets ###
     glyph_sample  = yield @read_sample db, include, resume
@@ -293,7 +294,7 @@ HOLLERITH.$pick_values = ->
             #   count += +1
             #   send event if count < 100
             ### !!!!!!!!!!!!!!!!!!!!!!! ###
-            if lineup_length > 7
+            if true # lineup_length > 7
               send event
               counts[ lineup_length ] = ( counts[ lineup_length ] ? 0 ) + 1
           #...................................................................................................
@@ -304,6 +305,29 @@ HOLLERITH.$pick_values = ->
           for length in [ 1 ... counts.length ]
             count_txt = TEXT.flush_right ( ƒ counts[ length ] ? 0 ), 10
             help "found #{count_txt} lineups of length #{length}"
+          end()
+    #.........................................................................................................
+    $_XXX_sort = =>
+      buffer  = []
+      #.......................................................................................................
+      return $ ( event, send, end ) =>
+        throw new Error "sort not possible with intermittent text events" if event? and not CND.isa_list event
+        buffer.push event
+        #.....................................................................................................
+        if end?
+          buffer.sort ( event_a, event_b ) ->
+            [ glyph_a, sortcode_a, ]            = event_a
+            [ glyph_b, sortcode_b, ]            = event_b
+            [ _, infix_a, suffix_a, prefix_a, ] = sortcode_a
+            [ _, infix_b, suffix_b, prefix_b, ] = sortcode_b
+            return +1 if prefix_a.length + suffix_a.length > prefix_b.length + suffix_b.length
+            return -1 if prefix_a.length + suffix_a.length < prefix_b.length + suffix_b.length
+            return +1 if glyph_a > glyph_b
+            return -1 if glyph_a < glyph_b
+            return +1 if suffix_a.length > suffix_b.length
+            return -1 if suffix_a.length < suffix_b.length
+            return  0
+          send event for event in buffer
           end()
     #.........................................................................................................
     $insert_hr = =>
@@ -331,14 +355,17 @@ HOLLERITH.$pick_values = ->
         if CND.isa_list event
           [ glyph, sortcode, ]          = event
           [ _, infix, suffix, prefix, ] = sortcode
-          pre_prefix                    = []
-          post_suffix                   = []
-          pre_prefix.unshift  suffix.pop()   while suffix.length > lineup_right_count
-          post_suffix.push    prefix.shift() while prefix.length >  lineup_left_count
-          prefix.unshift '\u3000' until prefix.length >=  lineup_left_count -  pre_prefix.length
-          suffix.push    '\u3000' until suffix.length >= lineup_right_count - post_suffix.length
-          # log ( pre_prefix.join '' ), ( prefix.join ''), '|', infix, '|', ( suffix.join '' ), ( post_suffix.join '' ) + glyph
-          send [ glyph, [ pre_prefix, prefix, infix, suffix, post_suffix, ], ]
+          overall_length                =  prefix.length + 1 + suffix.length
+          if overall_length < window_width
+            prefix.unshift '\u3007' until prefix.length >=  lineup_left_count
+            suffix.push    '\u3007' until suffix.length >= lineup_right_count
+          prefix_copy = Object.assign [], prefix
+          suffix_copy = Object.assign [], suffix
+          prefix.unshift '」'
+          prefix.splice 0, 0, suffix_copy...
+          suffix.push '「'
+          suffix.splice suffix.length, 0, prefix_copy...
+          send [ glyph, [ sortcode, infix, suffix, prefix, ], ]
         #.....................................................................................................
         else
           send event
@@ -363,22 +390,17 @@ HOLLERITH.$pick_values = ->
           help "containing #{ƒ lineup_count} lineups"
     #.........................................................................................................
     $show = =>
+      last_glyph = null
       return D.$observe ( event ) ->
         if CND.isa_list event
           [ glyph, sortcode, ]          = event
           [ _, infix, suffix, prefix, ] = sortcode
-          # [ pre_prefix
-          #   prefix
-          #   infix
-          #   suffix
-          #   post_suffix ]     = lineup
-          # prefix.splice             0, 0,  pre_prefix...
-          # suffix.splice prefix.length, 0, post_suffix...
-          # # prefix.shift()  until prefix.length <=  lineup_left_count
-          # # suffix.pop()    until suffix.length <= lineup_right_count
           prefix = prefix.join ''
           suffix = suffix.join ''
           lineup = prefix + '|' + infix + '|' + suffix
+          unless glyph is last_glyph
+            echo ''
+            last_glyph = glyph
           echo lineup + glyph # + '<<<\\\\>>>'
         else
           echo event
@@ -389,8 +411,9 @@ HOLLERITH.$pick_values = ->
         $include_sample()
         # D.$show()
         $count_lineup_lengths()
+        $_XXX_sort()
         # $insert_hr()
-        # $align_affixes()
+        $align_affixes()
         $count_glyphs_etc()
         $show()
         ]
