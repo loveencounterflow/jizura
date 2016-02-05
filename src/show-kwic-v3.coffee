@@ -170,7 +170,7 @@ HOLLERITH.$pick_values = ->
     include             = 15000
     include             = 10000
     include             = 20000
-    include             = 5000
+    include             = 500
     include             = Infinity
     lineup_left_count   = 3
     lineup_right_count  = 3
@@ -274,6 +274,38 @@ HOLLERITH.$pick_values = ->
         in_factor_sample  = ( not factor_sample? ) or ( infix of factor_sample )
         return in_glyph_sample and in_factor_sample
     #.........................................................................................................
+    $count_lineup_lengths = =>
+      counts  = []
+      count   = 0
+      #.......................................................................................................
+      return $ ( event, send, end ) =>
+        if event?
+          #...................................................................................................
+          if CND.isa_list event
+            [ glyph, sortcode, ]          = event
+            [ _, infix, suffix, prefix, ] = sortcode
+            lineup                        = ( prefix.join '' ) + infix + ( suffix.join '' )
+            lineup_length                 = ( Array.from lineup.replace /\u3000/g, '' ).length
+            ### !!!!!!!!!!!!!!!!!!!!!!! ###
+            # send event
+            # # send event if glyph is '辭'
+            # if 3 < lineup_length < 8
+            #   count += +1
+            #   send event if count < 100
+            ### !!!!!!!!!!!!!!!!!!!!!!! ###
+            if lineup_length > 7
+              send event
+              counts[ lineup_length ] = ( counts[ lineup_length ] ? 0 ) + 1
+          #...................................................................................................
+          else
+            send event
+        #.....................................................................................................
+        if end?
+          for length in [ 1 ... counts.length ]
+            count_txt = TEXT.flush_right ( ƒ counts[ length ] ? 0 ), 10
+            help "found #{count_txt} lineups of length #{length}"
+          end()
+    #.........................................................................................................
     $insert_hr = =>
       in_keeplines  = no
       last_infix    = null
@@ -291,37 +323,6 @@ HOLLERITH.$pick_values = ->
           send event
         if end?
           send "<<keep-lines)>>" if in_keeplines
-          end()
-    #.........................................................................................................
-    $count_lineup_lengths = =>
-      counts  = []
-      count   = 0
-      #.......................................................................................................
-      return $ ( event, send, end ) =>
-        if event?
-          #...................................................................................................
-          if CND.isa_list event
-            [ glyph, sortcode, ]          = event
-            [ _, infix, suffix, prefix, ] = sortcode
-            lineup                        = ( prefix.join '' ) + infix + ( suffix.join '' )
-            lineup_length                 = ( Array.from lineup.replace /\u3000/g, '' ).length
-            counts[ lineup_length ]       = ( counts[ lineup_length ] ? 0 ) + 1
-            ### !!!!!!!!!!!!!!!!!!!!!!! ###
-            send event
-            # # send event if glyph is '辭'
-            # if 3 < lineup_length < 8
-            #   count += +1
-            #   send event if count < 100
-            send event if lineup_length > 6
-            ### !!!!!!!!!!!!!!!!!!!!!!! ###
-          #...................................................................................................
-          else
-            send event
-        #.....................................................................................................
-        if end?
-          for length in [ 1 ... counts.length ]
-            count_txt = TEXT.flush_right ( ƒ counts[ length ] ), 10
-            help "found #{count_txt} lineups of length #{length}"
           end()
     #.........................................................................................................
     $align_affixes = =>
@@ -342,38 +343,63 @@ HOLLERITH.$pick_values = ->
         else
           send event
     #.........................................................................................................
+    $count_glyphs_etc = =>
+      glyphs        = new Set()
+      lineup_count  = 0
+      #.......................................................................................................
+      return D.$observe ( event, has_ended ) =>
+        if event?
+          #...................................................................................................
+          if CND.isa_list event
+            [ glyph, _, ] = event
+            glyphs.add glyph
+            lineup_count += +1
+          #...................................................................................................
+          else
+            send event
+        #.....................................................................................................
+        if has_ended
+          help "built KWIC for #{ƒ glyphs.size} glyphs"
+          help "containing #{ƒ lineup_count} lineups"
+    #.........................................................................................................
+    $show = =>
+      return D.$observe ( event ) ->
+        if CND.isa_list event
+          [ glyph, sortcode, ]          = event
+          [ _, infix, suffix, prefix, ] = sortcode
+          # [ pre_prefix
+          #   prefix
+          #   infix
+          #   suffix
+          #   post_suffix ]     = lineup
+          # prefix.splice             0, 0,  pre_prefix...
+          # suffix.splice prefix.length, 0, post_suffix...
+          # # prefix.shift()  until prefix.length <=  lineup_left_count
+          # # suffix.pop()    until suffix.length <= lineup_right_count
+          prefix = prefix.join ''
+          suffix = suffix.join ''
+          lineup = prefix + '|' + infix + '|' + suffix
+          echo lineup + glyph # + '<<<\\\\>>>'
+        else
+          echo event
+    #.........................................................................................................
     $transform_v3 = => D.combine [
         $reorder_phrase()
         $exclude_gaiji()
         $include_sample()
         # D.$show()
-        $insert_hr()
         $count_lineup_lengths()
-        $align_affixes()
+        # $insert_hr()
+        # $align_affixes()
+        $count_glyphs_etc()
+        $show()
         ]
-    #.........................................................................................................
-    $show = =>
-      return D.$observe ( event ) ->
-        if CND.isa_list event
-          [ glyph, lineup, ]  = event
-          [ pre_prefix
-            prefix
-            infix
-            suffix
-            post_suffix ]     = lineup
-          prefix                        = ( pre_prefix.join '' ) + (      prefix.join '' )
-          suffix                        = (     suffix.join '' ) + ( post_suffix.join '' )
-          lineup                        = prefix + '|' + infix + '|' + suffix
-          echo lineup + glyph # + '<<<\\\\>>>'
-        else
-          echo event
     #.........................................................................................................
     query_v3  = { prefix: [ 'pos', 'guide/kwic/v3/sortcode', ], }
     input_v3  = ( HOLLERITH.create_phrasestream db, query_v3 ).pipe $transform_v3()
       # .pipe D.$observe ( [ glyph, lineup, ] ) -> help glyph, lineup if glyph is '畴'
     #.........................................................................................................
-    input_v3
-      .pipe $show()
+    # input_v3
     #.........................................................................................................
     return null
 
@@ -388,7 +414,7 @@ unless module.parent?
     'route':                njs_path.resolve __dirname, '../../jizura-datasources/data/leveldb-v2'
     # 'route':            '/tmp/leveldb'
   #---------------------------------------------------------------------------------------------------------
-  debug '©AoOAS', options
+  # debug '©AoOAS', options
   # @find_good_kwic_sample_glyphs_3()
   @show_kwic_v3()
   # @show_codepoints_with_missing_predicates()
