@@ -41,7 +41,7 @@ XNCHR                     = require './XNCHR'
 options =
   sample:         null
   # sample:         [ '國', ]
-  # sample:         [ '國', '后', '花', '醒', ]
+  # sample:         [ '⿓', '龍', '龍', '邔', '𨙬', '國', '金', '釒', ]
   # sample:         [ '高', ]
   # sample:         [ '𡬜', '國', '𠵓', ]
   # sample:         [ '𡬜', '國', '𠵓', '后', '花', '醒', ]
@@ -298,6 +298,26 @@ options =
       end()
 
 #-----------------------------------------------------------------------------------------------------------
+@$add_sims = ->
+  sims_by_glyph = {}
+  #.........................................................................................................
+  return $ ( phrase, send, end ) =>
+    if phrase?
+      send phrase
+      [ source_glyph, prd, target_glyph, ] = phrase
+      return unless prd.startsWith 'sim/'
+      return unless XNCHR.is_inner_glyph source_glyph
+      [ _, tag, ] = prd.match /\/(.+)$/
+      target      = sims_by_glyph[ target_glyph ]?= {}
+      ( target[ tag ]?= [] ).push source_glyph
+    if end?
+      for target_glyph, sims of sims_by_glyph
+        send [ target_glyph, "sims/from", sims, ]
+        # for tag, source_glyphs of sims
+        #   send [ target_glyph, "sims/from/#{tag}", source_glyphs, ]
+      end()
+
+#-----------------------------------------------------------------------------------------------------------
 @$add_guide_pairs = ( factor_infos ) ->
   sortcode_by_factors = {}
   sortcode_by_factors[ guide_uchr ] = sortcode for sortcode, guide_uchr of factor_infos
@@ -520,6 +540,7 @@ find_duplicated_guides()
       .pipe @$add_kwic_v3           factor_infos
       .pipe @$add_guide_pairs       factor_infos
       .pipe @$add_factor_membership factor_infos
+      .pipe @$add_sims()
       # .pipe D.$show()
       .pipe D.$count ( count ) -> help "kept #{ƒ count} phrases"
       .pipe D.$stop_time "copy Jizura DB"
