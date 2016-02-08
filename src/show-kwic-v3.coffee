@@ -172,13 +172,13 @@ HOLLERITH.$pick_values = ->
     include             = 20000
     include             = 500
     include             = Infinity
-    lineup_left_count   = 2
-    lineup_right_count  = 3
-    window_width        = lineup_left_count + 1 + lineup_right_count + 1
+    prefix_max_length   = 3
+    suffix_max_length   = 3
+    window_width        = prefix_max_length + 1 + suffix_max_length + 1
     # include           = [ '𡳵', '𣐤', '𦾔', '𥈺', '𨂻', '寿', '邦', '帮', '畴', '铸', ]
     # include       = [ '寿', '邦', '帮', '畴', '铸', '筹', '涛', '祷', '绑', '綁',    ]
     # include       = Array.from '未釐犛剺味昧眛魅鮇沬妹業寐鄴澲末抹茉枺沫袜妺'
-    include             = Array.from '虫𨙻𥦤曗𩡏鬱𡤇𡅹'
+    include             = Array.from '虫𨙻𥦤曗𩡏鬱𡤇𥜹'
     glyph_sample        = null
     factor_sample       = null
     #.........................................................................................................
@@ -294,7 +294,7 @@ HOLLERITH.$pick_values = ->
             #   count += +1
             #   send event if count < 100
             ### !!!!!!!!!!!!!!!!!!!!!!! ###
-            if true # lineup_length > 7
+            if true # lineup_length is 8
               send event
               counts[ lineup_length ] = ( counts[ lineup_length ] ? 0 ) + 1
           #...................................................................................................
@@ -355,17 +355,51 @@ HOLLERITH.$pick_values = ->
         if CND.isa_list event
           [ glyph, sortcode, ]          = event
           [ _, infix, suffix, prefix, ] = sortcode
-          overall_length                =  prefix.length + 1 + suffix.length
-          if overall_length < window_width
-            prefix.unshift '\u3007' until prefix.length >=  lineup_left_count
-            suffix.push    '\u3007' until suffix.length >= lineup_right_count
-          prefix_copy = Object.assign [], prefix
-          suffix_copy = Object.assign [], suffix
-          prefix.unshift '」'
-          prefix.splice 0, 0, suffix_copy...
-          suffix.push '「'
-          suffix.splice suffix.length, 0, prefix_copy...
-          send [ glyph, [ sortcode, infix, suffix, prefix, ], ]
+          #...................................................................................................
+          prefix_length                 = prefix.length
+          suffix_length                 = suffix.length
+          prefix_delta                  = prefix_length - prefix_max_length
+          suffix_delta                  = suffix_length - suffix_max_length
+          prefix_excess_max_length      = suffix_max_length - suffix_length
+          suffix_excess_max_length      = prefix_max_length - prefix_length
+          prefix_excess                 = []
+          suffix_excess                 = []
+          prefix_padding                = []
+          suffix_padding                = []
+          # prefix_is_shortened           = no
+          # suffix_is_shortened           = no
+          #...................................................................................................
+          if prefix_delta > 0
+            prefix_excess = prefix.splice 0, prefix_delta
+          if suffix_delta > 0
+            suffix_excess = suffix.splice suffix.length - suffix_delta, suffix_delta
+          #...................................................................................................
+          while prefix_excess.length > 0 and prefix_excess.length > prefix_excess_max_length
+            # prefix_is_shortened = yes
+            prefix_excess.pop()
+          while suffix_excess.length > 0 and suffix_excess.length > suffix_excess_max_length
+            # suffix_is_shortened = yes
+            suffix_excess.shift()
+          #...................................................................................................
+          while prefix_padding.length + suffix_excess.length + prefix.length < prefix_max_length
+            prefix_padding.unshift '\u3000'
+          #...................................................................................................
+          while suffix_padding.length + prefix_excess.length + suffix.length < suffix_max_length
+            suffix_padding.unshift '\u3000'
+          #...................................................................................................
+          if prefix_excess.length > 0 then prefix_excess.unshift '「'
+          else                                    prefix.unshift '「'
+          if suffix_excess.length > 0 then suffix_excess.push    '」'
+          else                                    suffix.push    '」'
+          #...................................................................................................
+          prefix.splice 0, 0, prefix_padding...
+          prefix.splice 0, 0, suffix_excess...
+          suffix.splice suffix.length, 0, suffix_padding...
+          suffix.splice suffix.length, 0, prefix_excess...
+          #...................................................................................................
+          urge ( prefix.join '' ) + '【' + infix + '】' + ( suffix.join '' )
+          # send [ glyph, [ prefix_padding, suffix_excess, prefix, infix, suffix, prefix_excess, ], ]
+          send [ glyph, [ prefix, infix, suffix, ], ]
         #.....................................................................................................
         else
           send event
@@ -393,15 +427,18 @@ HOLLERITH.$pick_values = ->
       last_glyph = null
       return D.$observe ( event ) ->
         if CND.isa_list event
-          [ glyph, sortcode, ]          = event
-          [ _, infix, suffix, prefix, ] = sortcode
-          prefix = prefix.join ''
-          suffix = suffix.join ''
-          lineup = prefix + '|' + infix + '|' + suffix
+          [ glyph, lineup, ]          = event
+          [ prefix, infix, suffix, ]  = lineup
+          # [ prefix_padding, suffix_excess, prefix, infix, suffix, prefix_excess, ]  = lineup
+          # prefix_padding = prefix_padding.join ''
+          # suffix_excess = suffix_excess.join ''
+          prefix        = prefix.join ''
+          suffix        = suffix.join ''
+          lineup        = prefix + '【' + infix + '】' + suffix
           unless glyph is last_glyph
             echo ''
             last_glyph = glyph
-          echo lineup + glyph # + '<<<\\\\>>>'
+          echo '.' + lineup + '\u3000' + glyph
         else
           echo event
     #.........................................................................................................
