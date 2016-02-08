@@ -178,7 +178,8 @@ HOLLERITH.$pick_values = ->
     # include           = [ '𡳵', '𣐤', '𦾔', '𥈺', '𨂻', '寿', '邦', '帮', '畴', '铸', ]
     # include       = [ '寿', '邦', '帮', '畴', '铸', '筹', '涛', '祷', '绑', '綁',    ]
     # include       = Array.from '未釐犛剺味昧眛魅鮇沬妹業寐鄴澲末抹茉枺沫袜妺'
-    include             = Array.from '虫𨙻𥦤曗𩡏鬱𡤇𡅹'
+    # include             = Array.from '虫𨙻𥦤曗𩡏鬱𡤇𡅹'
+    include             = Array.from '虫𨙻𥦤曗䭢鬱𡤇𡅹'
     glyph_sample        = null
     factor_sample       = null
     #.........................................................................................................
@@ -356,19 +357,54 @@ HOLLERITH.$pick_values = ->
           [ glyph, sortcode, ]          = event
           [ _, infix, suffix, prefix, ] = sortcode
           overall_length                =  prefix.length + 1 + suffix.length
-          if overall_length < window_width
-            prefix.unshift '\u3007' until prefix.length >=  lineup_left_count
-            suffix.push    '\u3007' until suffix.length >= lineup_right_count
-          prefix_copy = Object.assign [], prefix
-          suffix_copy = Object.assign [], suffix
-          prefix.unshift '」'
-          prefix.splice 0, 0, suffix_copy...
-          suffix.push '「'
-          suffix.splice suffix.length, 0, prefix_copy...
-          send [ glyph, [ sortcode, infix, suffix, prefix, ], ]
+          preprefix   = ( new Array Math.max 0,  lineup_left_count - prefix.length ).fill '\u3007'
+          postsuffix  = ( new Array Math.max 0, lineup_right_count - suffix.length ).fill '\u3007'
+          left  = [ preprefix...,     prefix... ]
+          right = [    suffix..., postsuffix... ]
+          # left  = [ preprefix..., '「',     prefix... ]
+          # right = [    suffix..., '」', postsuffix... ]
+          send [ glyph, [ sortcode, left, infix, right, ], ]
         #.....................................................................................................
         else
           send event
+    #.........................................................................................................
+    $show = =>
+      last_glyph = null
+      return D.$observe ( event ) ->
+        if CND.isa_list event
+          [ glyph, sortcode, ]          = event
+          [ _, prefix, infix, suffix, ] = sortcode
+          prefix = prefix.join ''
+          suffix = suffix.join ''
+          lineup = prefix + '〔' + infix + '〕' + suffix
+          # lineup = prefix + '|' + infix + '|' + suffix
+          unless glyph is last_glyph
+            echo ''
+            last_glyph = glyph
+          echo lineup + glyph # + '<<<\\\\>>>'
+        else
+          echo event
+    # #.........................................................................................................
+    # $align_affixes = =>
+    #   return $ ( event, send ) =>
+    #     #.....................................................................................................
+    #     if CND.isa_list event
+    #       [ glyph, sortcode, ]          = event
+    #       [ _, infix, suffix, prefix, ] = sortcode
+    #       overall_length                =  prefix.length + 1 + suffix.length
+    #       if overall_length < window_width
+    #         prefix.unshift '\u3007' until prefix.length >=  lineup_left_count
+    #         suffix.push    '\u3007' until suffix.length >= lineup_right_count
+    #       prefix_copy = Object.assign [], prefix
+    #       suffix_copy = Object.assign [], suffix
+    #       prefix.unshift '」'
+    #       prefix.splice 0, 0, suffix_copy...
+    #       suffix.push '「'
+    #       suffix.splice suffix.length, 0, prefix_copy...
+    #       send [ glyph, [ sortcode, infix, suffix, prefix, ], ]
+    #     #.....................................................................................................
+    #     else
+    #       send event
     #.........................................................................................................
     $count_glyphs_etc = =>
       glyphs        = new Set()
@@ -388,22 +424,6 @@ HOLLERITH.$pick_values = ->
         if has_ended
           help "built KWIC for #{ƒ glyphs.size} glyphs"
           help "containing #{ƒ lineup_count} lineups"
-    #.........................................................................................................
-    $show = =>
-      last_glyph = null
-      return D.$observe ( event ) ->
-        if CND.isa_list event
-          [ glyph, sortcode, ]          = event
-          [ _, infix, suffix, prefix, ] = sortcode
-          prefix = prefix.join ''
-          suffix = suffix.join ''
-          lineup = prefix + '|' + infix + '|' + suffix
-          unless glyph is last_glyph
-            echo ''
-            last_glyph = glyph
-          echo lineup + glyph # + '<<<\\\\>>>'
-        else
-          echo event
     #.........................................................................................................
     $transform_v3 = => D.combine [
         $reorder_phrase()
