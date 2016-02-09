@@ -349,6 +349,28 @@ HOLLERITH.$pick_values = ->
           send "<<keep-lines)>>" if in_keeplines
           end()
     #.........................................................................................................
+    $insert_keeplines = =>
+      in_keeplines  = no
+      last_glyph    = null
+      return $ ( event, send, end ) =>
+        if event?
+          if CND.isa_list event
+            [ glyph, sortcode, ] = event
+            if last_glyph? and glyph isnt last_glyph
+              send "<<keep-lines)>>" if in_keeplines
+              send "\n"
+              # send "*******************************************"
+              in_keeplines = no
+            last_glyph = glyph
+            send "<<(keep-lines>>" unless in_keeplines
+            in_keeplines = yes
+            send event
+          else
+            send event
+        if end?
+          send "<<keep-lines)>>" if in_keeplines
+          end()
+    #.........................................................................................................
     $align_affixes = =>
       return $ ( event, send ) =>
         #.....................................................................................................
@@ -415,9 +437,6 @@ HOLLERITH.$pick_values = ->
             [ glyph, _, ] = event
             glyphs.add glyph
             lineup_count += +1
-          #...................................................................................................
-          else
-            send event
         #.....................................................................................................
         if has_ended
           help "built KWIC for #{ƒ glyphs.size} glyphs"
@@ -436,9 +455,9 @@ HOLLERITH.$pick_values = ->
           suffix        = suffix.join ''
           lineup        = prefix + '【' + infix + '】' + suffix
           unless glyph is last_glyph
-            echo ''
+            # echo ''
             last_glyph = glyph
-          echo '.' + lineup + '\u3000' + glyph
+          echo lineup + '\u3000' + glyph
         else
           echo event
     #.........................................................................................................
@@ -450,6 +469,7 @@ HOLLERITH.$pick_values = ->
         $count_lineup_lengths()
         $_XXX_sort()
         # $insert_hr()
+        $insert_keeplines()
         $align_affixes()
         $count_glyphs_etc()
         $show()
