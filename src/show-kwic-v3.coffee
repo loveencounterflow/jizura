@@ -377,6 +377,7 @@ HOLLERITH.$pick_values = ->
         if CND.isa_list event
           [ glyph, sortcode, ]          = event
           [ _, infix, suffix, prefix, ] = sortcode
+<<<<<<< HEAD
           #...................................................................................................
           prefix_length                 = prefix.length
           suffix_length                 = suffix.length
@@ -422,9 +423,57 @@ HOLLERITH.$pick_values = ->
           urge ( prefix.join '' ) + '【' + infix + '】' + ( suffix.join '' )
           # send [ glyph, [ prefix_padding, suffix_excess, prefix, infix, suffix, prefix_excess, ], ]
           send [ glyph, [ prefix, infix, suffix, ], ]
+=======
+          overall_length                =  prefix.length + 1 + suffix.length
+          preprefix   = ( new Array Math.max 0,  lineup_left_count - prefix.length ).fill '\u3007'
+          postsuffix  = ( new Array Math.max 0, lineup_right_count - suffix.length ).fill '\u3007'
+          left  = [ preprefix...,     prefix... ]
+          right = [    suffix..., postsuffix... ]
+          # left  = [ preprefix..., '「',     prefix... ]
+          # right = [    suffix..., '」', postsuffix... ]
+          send [ glyph, [ sortcode, left, infix, right, ], ]
+>>>>>>> e3d595d7d692ecea4549a589798c7e3c5028a236
         #.....................................................................................................
         else
           send event
+    #.........................................................................................................
+    $show = =>
+      last_glyph = null
+      return D.$observe ( event ) ->
+        if CND.isa_list event
+          [ glyph, sortcode, ]          = event
+          [ _, prefix, infix, suffix, ] = sortcode
+          prefix = prefix.join ''
+          suffix = suffix.join ''
+          lineup = prefix + '〔' + infix + '〕' + suffix
+          # lineup = prefix + '|' + infix + '|' + suffix
+          unless glyph is last_glyph
+            echo ''
+            last_glyph = glyph
+          echo lineup + glyph # + '<<<\\\\>>>'
+        else
+          echo event
+    # #.........................................................................................................
+    # $align_affixes = =>
+    #   return $ ( event, send ) =>
+    #     #.....................................................................................................
+    #     if CND.isa_list event
+    #       [ glyph, sortcode, ]          = event
+    #       [ _, infix, suffix, prefix, ] = sortcode
+    #       overall_length                =  prefix.length + 1 + suffix.length
+    #       if overall_length < window_width
+    #         prefix.unshift '\u3007' until prefix.length >=  lineup_left_count
+    #         suffix.push    '\u3007' until suffix.length >= lineup_right_count
+    #       prefix_copy = Object.assign [], prefix
+    #       suffix_copy = Object.assign [], suffix
+    #       prefix.unshift '」'
+    #       prefix.splice 0, 0, suffix_copy...
+    #       suffix.push '「'
+    #       suffix.splice suffix.length, 0, prefix_copy...
+    #       send [ glyph, [ sortcode, infix, suffix, prefix, ], ]
+    #     #.....................................................................................................
+    #     else
+    #       send event
     #.........................................................................................................
     $count_glyphs_etc = =>
       glyphs        = new Set()
@@ -442,6 +491,7 @@ HOLLERITH.$pick_values = ->
           help "built KWIC for #{ƒ glyphs.size} glyphs"
           help "containing #{ƒ lineup_count} lineups"
     #.........................................................................................................
+<<<<<<< HEAD
     $show = =>
       last_glyph = null
       return D.$observe ( event ) ->
@@ -461,6 +511,8 @@ HOLLERITH.$pick_values = ->
         else
           echo event
     #.........................................................................................................
+=======
+>>>>>>> e3d595d7d692ecea4549a589798c7e3c5028a236
     $transform_v3 = => D.combine [
         $reorder_phrase()
         $exclude_gaiji()
