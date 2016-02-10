@@ -1,6 +1,85 @@
 
 
 
+
+###
+
+
+`$align_affixes_with_braces`
+
+
+```
+<<(keep-lines>>
+　　　「【虫】」　　　　虫
+
+　　「冄【阝】」　　　　𨙻
+　　　「【冄】阝」　　　𨙻
+
+　「穴扌【未】」　　　　𥦤
+　　「穴【扌】未」　　　𥦤
+　　　「【穴】扌未」　　𥦤
+
+「日业䒑【未】」　　　　曗
+　「日业【䒑】未」　　　曗
+　　「日【业】䒑未」　　曗
+　　　「【日】业䒑未」　曗
+
+日𠂇⺝【阝】」　　「禾　𩡏
+「禾日𠂇【⺝】阝」　　　𩡏
+　「禾日【𠂇】⺝阝」　　𩡏
+　　「禾【日】𠂇⺝阝」　𩡏
+阝」　　「【禾】日𠂇⺝　𩡏
+
+木冖鬯【彡】」　「木缶　鬱
+缶木冖【鬯】彡」　「木　鬱
+「木缶木【冖】鬯彡」　　鬱
+　「木缶【木】冖鬯彡」　鬱
+彡」　「木【缶】木冖鬯　鬱
+鬯彡」　「【木】缶木冖　鬱
+
+山一几【夊】」「女山彳　𡤇
+彳山一【几】夊」「女山　𡤇
+山彳山【一】几夊」「女　𡤇
+「女山彳【山】一几夊」　𡤇
+夊」「女山【彳】山一几　𡤇
+几夊」「女【山】彳山一　𡤇
+一几夊」「【女】山彳山　𡤇
+
+目𠃊八【夊】」二小　𥜹
+匕目𠃊【八】夊」二　𥜹
+小匕目【𠃊】八夊」　𥜹
+「二小匕【目】𠃊八夊」　𥜹
+「二小【匕】目𠃊八」　𥜹
+夊「二【小】匕目𠃊　𥜹
+八夊「【二】小匕目　𥜹
+𠃊八夊「【】二小匕　𥜹
+<<keep-lines)>>
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+###
+
+
+
+
+
+
+
+
+
+
+
 ############################################################################################################
 njs_path                  = require 'path'
 # njs_fs                    = require 'fs'
@@ -49,6 +128,7 @@ HOLLERITH                 = require 'hollerith'
 options                   = null
 #-----------------------------------------------------------------------------------------------------------
 @_misfit          = Symbol 'misfit'
+
 
 #===========================================================================================================
 #
@@ -392,7 +472,61 @@ HOLLERITH.$pick_values = ->
           send "<<keep-lines)>>"
           end()
     #.........................................................................................................
-    $align_affixes = =>
+    $align_affixes_with_braces = =>
+      return $ ( event, send ) =>
+        #.....................................................................................................
+        if CND.isa_list event
+          [ glyph, sortcode, ]          = event
+          [ _, infix, suffix, prefix, ] = sortcode
+          #...................................................................................................
+          prefix_length                 = prefix.length
+          suffix_length                 = suffix.length
+          prefix_delta                  = prefix_length - prefix_max_length
+          suffix_delta                  = suffix_length - suffix_max_length
+          prefix_excess_max_length      = suffix_max_length - suffix_length
+          suffix_excess_max_length      = prefix_max_length - prefix_length
+          prefix_excess                 = []
+          suffix_excess                 = []
+          prefix_padding                = []
+          suffix_padding                = []
+          prefix_is_shortened           = no
+          suffix_is_shortened           = no
+          #...................................................................................................
+          if prefix_delta > 0
+            prefix_excess = prefix.splice 0, prefix_delta
+          if suffix_delta > 0
+            suffix_excess = suffix.splice suffix.length - suffix_delta, suffix_delta
+          #...................................................................................................
+          while prefix_excess.length > 0 and prefix_excess.length > prefix_excess_max_length
+            prefix_is_shortened = yes
+            prefix_excess.pop()
+          while suffix_excess.length > 0 and suffix_excess.length > suffix_excess_max_length
+            suffix_is_shortened = yes
+            suffix_excess.shift()
+          #...................................................................................................
+          while prefix_padding.length + suffix_excess.length + prefix.length < prefix_max_length
+            prefix_padding.unshift '\u3000'
+          while suffix_padding.length + prefix_excess.length + suffix.length < suffix_max_length
+            suffix_padding.unshift '\u3000'
+          #...................................................................................................
+          if prefix_excess.length > 0 then prefix_excess.unshift '「' unless prefix_excess.length is 0
+          else                                    prefix.unshift '「' unless prefix_delta > 0
+          if suffix_excess.length > 0 then suffix_excess.push    '」' unless suffix_excess.length is 0
+          else                                    suffix.push    '」' unless suffix_delta > 0
+          #...................................................................................................
+          prefix.splice 0, 0, prefix_padding...
+          prefix.splice 0, 0, suffix_excess...
+          suffix.splice suffix.length, 0, suffix_padding...
+          suffix.splice suffix.length, 0, prefix_excess...
+          #...................................................................................................
+          urge ( prefix.join '' ) + '【' + infix + '】' + ( suffix.join '' )
+          # send [ glyph, [ prefix_padding, suffix_excess, prefix, infix, suffix, prefix_excess, ], ]
+          send [ glyph, [ prefix, infix, suffix, ], ]
+        #.....................................................................................................
+        else
+          send event
+    #.........................................................................................................
+    $align_affixes_with_spaces = =>
       return $ ( event, send ) =>
         #.....................................................................................................
         if CND.isa_list event
@@ -463,27 +597,6 @@ HOLLERITH.$pick_values = ->
           echo lineup + glyph # + '<<<\\\\>>>'
         else
           echo event
-    # #.........................................................................................................
-    # $align_affixes = =>
-    #   return $ ( event, send ) =>
-    #     #.....................................................................................................
-    #     if CND.isa_list event
-    #       [ glyph, sortcode, ]          = event
-    #       [ _, infix, suffix, prefix, ] = sortcode
-    #       overall_length                =  prefix.length + 1 + suffix.length
-    #       if overall_length < window_width
-    #         prefix.unshift '\u3007' until prefix.length >=  lineup_left_count
-    #         suffix.push    '\u3007' until suffix.length >= lineup_right_count
-    #       prefix_copy = Object.assign [], prefix
-    #       suffix_copy = Object.assign [], suffix
-    #       prefix.unshift '」'
-    #       prefix.splice 0, 0, suffix_copy...
-    #       suffix.push '「'
-    #       suffix.splice suffix.length, 0, prefix_copy...
-    #       send [ glyph, [ sortcode, infix, suffix, prefix, ], ]
-    #     #.....................................................................................................
-    #     else
-    #       send event
     #.........................................................................................................
     $count_glyphs_etc = =>
       glyphs        = new Set()
@@ -530,7 +643,8 @@ HOLLERITH.$pick_values = ->
         # $insert_hr()
         # $insert_many_keeplines()
         $insert_single_keepline()
-        $align_affixes()
+        # $align_affixes_with_braces()
+        $align_affixes_with_spaces()
         $count_glyphs_etc()
         $show()
         ]
