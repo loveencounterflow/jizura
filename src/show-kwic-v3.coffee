@@ -349,7 +349,7 @@ HOLLERITH.$pick_values = ->
           send "<<keep-lines)>>" if in_keeplines
           end()
     #.........................................................................................................
-    $insert_keeplines = =>
+    $insert_many_keeplines = =>
       in_keeplines  = no
       last_glyph    = null
       return $ ( event, send, end ) =>
@@ -358,7 +358,7 @@ HOLLERITH.$pick_values = ->
             [ glyph, sortcode, ] = event
             if last_glyph? and glyph isnt last_glyph
               send "<<keep-lines)>>" if in_keeplines
-              send "\n"
+              send ''
               # send "*******************************************"
               in_keeplines = no
             last_glyph = glyph
@@ -369,6 +369,27 @@ HOLLERITH.$pick_values = ->
             send event
         if end?
           send "<<keep-lines)>>" if in_keeplines
+          end()
+    #.........................................................................................................
+    $insert_single_keepline = =>
+      is_first      = yes
+      last_glyph    = null
+      return $ ( event, send, end ) =>
+        if event?
+          if is_first
+            send "<<(keep-lines>>"
+            is_first = no
+          if CND.isa_list event
+            [ glyph, sortcode, ] = event
+            if last_glyph? and glyph isnt last_glyph
+              send ''
+              # send "*******************************************"
+            last_glyph = glyph
+            send event
+          else
+            send event
+        if end?
+          send "<<keep-lines)>>"
           end()
     #.........................................................................................................
     $align_affixes = =>
@@ -388,8 +409,8 @@ HOLLERITH.$pick_values = ->
           suffix_excess                 = []
           prefix_padding                = []
           suffix_padding                = []
-          # prefix_is_shortened           = no
-          # suffix_is_shortened           = no
+          prefix_is_shortened           = no
+          suffix_is_shortened           = no
           #...................................................................................................
           if prefix_delta > 0
             prefix_excess = prefix.splice 0, prefix_delta
@@ -397,10 +418,10 @@ HOLLERITH.$pick_values = ->
             suffix_excess = suffix.splice suffix.length - suffix_delta, suffix_delta
           #...................................................................................................
           while prefix_excess.length > 0 and prefix_excess.length > prefix_excess_max_length
-            # prefix_is_shortened = yes
+            prefix_is_shortened = yes
             prefix_excess.pop()
           while suffix_excess.length > 0 and suffix_excess.length > suffix_excess_max_length
-            # suffix_is_shortened = yes
+            suffix_is_shortened = yes
             suffix_excess.shift()
           #...................................................................................................
           while prefix_padding.length + suffix_excess.length + prefix.length < prefix_max_length
@@ -409,9 +430,9 @@ HOLLERITH.$pick_values = ->
           while suffix_padding.length + prefix_excess.length + suffix.length < suffix_max_length
             suffix_padding.unshift '\u3000'
           #...................................................................................................
-          if prefix_excess.length > 0 then prefix_excess.unshift '「'
+          if prefix_excess.length > 0 then prefix_excess.unshift '「' unless prefix_is_shortened
           else                                    prefix.unshift '「'
-          if suffix_excess.length > 0 then suffix_excess.push    '」'
+          if suffix_excess.length > 0 then suffix_excess.push    '」' unless suffix_is_shortened
           else                                    suffix.push    '」'
           #...................................................................................................
           prefix.splice 0, 0, prefix_padding...
@@ -507,7 +528,8 @@ HOLLERITH.$pick_values = ->
         $count_lineup_lengths()
         $_XXX_sort()
         # $insert_hr()
-        $insert_keeplines()
+        # $insert_many_keeplines()
+        $insert_single_keepline()
         $align_affixes()
         $count_glyphs_etc()
         $show()
