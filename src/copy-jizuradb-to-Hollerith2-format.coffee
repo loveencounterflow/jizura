@@ -279,6 +279,57 @@ options =
     send [ glyph, 'guide/kwic/v3/sortcode', permutations, ]
 
 #-----------------------------------------------------------------------------------------------------------
+@$add_kwic_v3_wrapped_lineups = ( factor_infos ) ->
+  prefix_max_length   = 3
+  suffix_max_length   = 3
+  #.........................................................................................................
+  return $ ( [ sbj, prd, obj, ], send ) =>
+    send [ sbj, prd, obj, ]
+    return unless prd is 'guide/kwic/v3/sortcode'
+    [ glyph, _, permutations, ]   = [ sbj, prd, obj, ]
+    lineups                       = []
+    #.......................................................................................................
+    for permutation, idx in permutations
+      [ sortcode, infix, suffix, prefix, ] = permutation
+      #.....................................................................................................
+      prefix_length                 = prefix.length
+      suffix_length                 = suffix.length
+      prefix_delta                  = prefix_length - prefix_max_length
+      suffix_delta                  = suffix_length - suffix_max_length
+      prefix_excess_max_length      = suffix_max_length - suffix_length
+      suffix_excess_max_length      = prefix_max_length - prefix_length
+      prefix_excess                 = []
+      suffix_excess                 = []
+      prefix_padding                = []
+      suffix_padding                = []
+      #.....................................................................................................
+      if prefix_delta > 0
+        prefix_excess = prefix.splice 0, prefix_delta
+      if suffix_delta > 0
+        suffix_excess = suffix.splice suffix.length - suffix_delta, suffix_delta
+      #.....................................................................................................
+      while prefix_excess.length > 0 and prefix_excess.length > prefix_excess_max_length - 1
+        prefix_excess.pop()
+      while suffix_excess.length > 0 and suffix_excess.length > suffix_excess_max_length - 1
+        suffix_excess.shift()
+      #.....................................................................................................
+      while prefix_padding.length + suffix_excess.length + prefix.length < prefix_max_length
+        prefix_padding.unshift '\u3000'
+      while suffix_padding.length + prefix_excess.length + suffix.length < suffix_max_length
+        suffix_padding.unshift '\u3000'
+      #.....................................................................................................
+      prefix.splice 0, 0, prefix_padding...
+      prefix.splice 0, 0, suffix_excess...
+      suffix.splice suffix.length, 0, suffix_padding...
+      suffix.splice suffix.length, 0, prefix_excess...
+      #.....................................................................................................
+      prefix = prefix.join ''
+      suffix = suffix.join ''
+      lineups.push [ sortcode, infix, suffix, prefix, ]
+    #.......................................................................................................
+    send [ glyph, 'guide/kwic/v3/sortcode/wrapped-lineups', lineups, ]
+
+#-----------------------------------------------------------------------------------------------------------
 @$add_factor_membership = ( factor_infos ) ->
   glyphs_by_factors = {}
   #.........................................................................................................
@@ -537,9 +588,10 @@ find_duplicated_guides()
       .pipe @$compact_lists()
       .pipe @$add_version_to_kwic_v1()
       .pipe @$add_kwic_v2()
-      .pipe @$add_kwic_v3           factor_infos
-      .pipe @$add_guide_pairs       factor_infos
-      .pipe @$add_factor_membership factor_infos
+      .pipe @$add_kwic_v3                 factor_infos
+      .pipe @$add_kwic_v3_wrapped_lineups factor_infos
+      .pipe @$add_guide_pairs             factor_infos
+      .pipe @$add_factor_membership       factor_infos
       .pipe @$add_sims()
       # .pipe D.$show()
       .pipe D.$count ( count ) -> help "kept #{ƒ count} phrases"

@@ -5,10 +5,8 @@
 ###
 
 
-`$align_affixes_with_braces`
+`@$align_affixes_with_braces`
 
-
-```
 <<(keep-lines>>
 　　　「【虫】」　　　　虫
 
@@ -45,26 +43,64 @@
 几夊」「女【山】彳山一　𡤇
 一几夊」「【女】山彳山　𡤇
 
-目𠃊八【夊】」二小　𥜹
-匕目𠃊【八】夊」二　𥜹
-小匕目【𠃊】八夊」　𥜹
-「二小匕【目】𠃊八夊」　𥜹
-「二小【匕】目𠃊八」　𥜹
-夊「二【小】匕目𠃊　𥜹
-八夊「【二】小匕目　𥜹
-𠃊八夊「【】二小匕　𥜹
+目𠃊八【夊】」「二小　𥜹
+匕目𠃊【八】夊」「二　𥜹
+小匕目【𠃊】八夊」「　𥜹
+二小匕【目】𠃊八夊」　𥜹
+「二小【匕】目𠃊八　𥜹
+夊」「二【小】匕目𠃊　𥜹
+八夊」「【二】小匕目　𥜹
+𠃊八夊」「【】二小匕　𥜹
 <<keep-lines)>>
-```
 
 
+`align_affixes_with_spaces`
 
+<<(keep-lines>>
+　　　【虫】　　　　虫
 
+　　冄【阝】　　　　𨙻
+　　　【冄】阝　　　𨙻
 
+　穴扌【未】　　　　𥦤
+　　穴【扌】未　　　𥦤
+　　　【穴】扌未　　𥦤
 
+日业䒑【未】　　　　曗
+　日业【䒑】未　　　曗
+　　日【业】䒑未　　曗
+　　　【日】业䒑未　曗
 
+日𠂇⺝【阝】　　禾　𩡏
+禾日𠂇【⺝】阝　　　𩡏
+　禾日【𠂇】⺝阝　　𩡏
+　　禾【日】𠂇⺝阝　𩡏
+阝　　【禾】日𠂇⺝　𩡏
 
+木冖鬯【彡】　木缶　鬱
+缶木冖【鬯】彡　木　鬱
+木缶木【冖】鬯彡　　鬱
+　木缶【木】冖鬯彡　鬱
+彡　木【缶】木冖鬯　鬱
+鬯彡　【木】缶木冖　鬱
 
+山一几【夊】　女山　𡤇
+彳山一【几】夊　女　𡤇
+山彳山【一】几夊　　𡤇
+女山彳【山】一几夊　𡤇
+　女山【彳】山一几　𡤇
+夊　女【山】彳山一　𡤇
+几夊　【女】山彳山　𡤇
 
+目𠃊八【夊】　二　𥜹
+匕目𠃊【八】夊　　𥜹
+小匕目【𠃊】八夊　　𥜹
+二小匕【目】𠃊八夊　𥜹
+二小【匕】目𠃊八　𥜹
+　二【小】匕目𠃊　𥜹
+夊　【二】小匕目　𥜹
+八夊　【】二小匕　𥜹
+<<keep-lines)>>
 
 
 
@@ -130,79 +166,6 @@ options                   = null
 @_misfit          = Symbol 'misfit'
 
 
-#===========================================================================================================
-#
-#-----------------------------------------------------------------------------------------------------------
-@initialize = ( handler ) ->
-  options[ 'db' ] = HOLLERITH.new_db options[ 'route' ]
-  handler null
-
-
-#-----------------------------------------------------------------------------------------------------------
-HOLLERITH.$pick_subject = ->
-  return $ ( lkey, send ) =>
-    [ pt, _, v0, _, v1, ] = lkey
-    send if pt is 'so' then v0 else v1
-
-#-----------------------------------------------------------------------------------------------------------
-HOLLERITH.$pick_object = ->
-  return $ ( lkey, send ) =>
-    [ pt, _, v0, _, v1, ] = lkey
-    send if pt is 'so' then v1 else v0
-
-#-----------------------------------------------------------------------------------------------------------
-HOLLERITH.$pick_values = ->
-  return $ ( lkey, send ) =>
-    [ pt, _, v0, _, v1, ] = lkey
-    send if pt is 'so' then [ v0, v1, ] else [ v1, v0, ]
-
-#-----------------------------------------------------------------------------------------------------------
-@dump_jizura_db = ->
-  source_db   = HOLLERITH.new_db '/Volumes/Storage/temp/jizura-hollerith2'
-  prefix      = [ 'spo', '𡏠', ]
-  prefix      = [ 'spo', '㔰', ]
-  input       = HOLLERITH.create_phrasestream source_db, prefix
-  #.........................................................................................................
-  input
-    .pipe D.$count ( count ) -> help "read #{count} keys"
-    .pipe $ ( data, send ) => send JSON.stringify data
-    .pipe D.$show()
-
-#-----------------------------------------------------------------------------------------------------------
-@read_factors = ( db, handler ) ->
-  #.........................................................................................................
-  step ( resume ) =>
-    Z         = {}
-    db_route  = join __dirname, '../../jizura-datasources/data/leveldb-v2'
-    db       ?= HOLLERITH.new_db db_route, create: no
-    #.......................................................................................................
-    prefix  = [ 'pos', 'factor/', ]
-    query   = { prefix, star: '*', }
-    input   = HOLLERITH.create_phrasestream db, query
-    #.......................................................................................................
-    input
-      .pipe do =>
-        last_sbj  = null
-        target    = null
-        #...................................................................................................
-        return $ ( phrase, send, end ) =>
-          #.................................................................................................
-          if phrase?
-            [ _, prd, obj, sbj, ] = phrase
-            prd           = prd.replace /^factor\//g, ''
-            sbj           = CHR.as_uchr sbj, input: 'xncr'
-            if sbj isnt last_sbj
-              send target if target?
-              target    = Z[ sbj ]?= { glyph: sbj, }
-              last_sbj  = sbj
-            target[ prd ] = obj
-            Z[ obj ]      = target if prd is 'sortcode'
-          #.................................................................................................
-          if end?
-            send target if target?
-            end()
-      .pipe D.$on_end -> handler null, Z
-
 #-----------------------------------------------------------------------------------------------------------
 @read_sample = ( db, limit_or_list, handler ) ->
   ### Return a gamut of select glyphs from the DB. `limit_or_list` may be a list of glyphs or a number
@@ -241,24 +204,16 @@ HOLLERITH.$pick_values = ->
     db_route      = join __dirname, '../../jizura-datasources/data/leveldb-v2'
     db           ?= HOLLERITH.new_db db_route, create: no
     help "using DB at #{db[ '%self' ][ 'location' ]}"
-    ### !!!!!!!!!!!!!!!!!!!!!!! ###
-    # factor_infos  = yield @read_factors db, resume
-    # # debug '©g5bVR', factors; process.exit()
-    # help "read #{( Object.keys factor_infos ).length} entries for factor_infos"
-    ### !!!!!!!!!!!!!!!!!!!!!!! ###
     ranks               = {}
-    include             = 15000
     include             = 10000
     include             = 20000
     include             = 500
+    include             = 15000
     include             = Infinity
-    prefix_max_length   = 3
-    suffix_max_length   = 3
-    window_width        = prefix_max_length + 1 + suffix_max_length + 1
     # include           = [ '𡳵', '𣐤', '𦾔', '𥈺', '𨂻', '寿', '邦', '帮', '畴', '铸', ]
     # include       = [ '寿', '邦', '帮', '畴', '铸', '筹', '涛', '祷', '绑', '綁',    ]
     # include       = Array.from '未釐犛剺味昧眛魅鮇沬妹業寐鄴澲末抹茉枺沫袜妺'
-    include             = Array.from '虫𨙻𥦤曗𩡏鬱𡤇𥜹'
+    # include             = Array.from '虫𨙻𥦤曗𩡏鬱𡤇𥜹'
     glyph_sample        = null
     factor_sample       = null
     #.........................................................................................................
@@ -319,38 +274,40 @@ HOLLERITH.$pick_values = ->
     #   '𩺰': 1
     #   '鱻': 1
     #   '䲜': 1
-    # factor_sample =
-    #   '旧': 1
-    #   '日': 1
-    #   '卓': 1
-    #   '桌': 1
-    #   '𠦝': 1
-    #   '昍': 1
-    #   '昌': 1
-    #   '晶': 1
-    #   '𣊭': 1
-    #   '早': 1
-    #   '白': 1
-    #   '㿟': 1
-    #   '皛': 1
+    factor_sample =
+      '旧': 1
+      '日': 1
+      '卓': 1
+      '桌': 1
+      '𠦝': 1
+      '昍': 1
+      '昌': 1
+      '晶': 1
+      '𣊭': 1
+      '早': 1
+      '白': 1
+      '㿟': 1
+      '皛': 1
     #.........................................................................................................
     $reorder_phrase = =>
       return $ ( phrase, send ) =>
         ### extract sortcode ###
-        [ _, _, sortcode, glyph, _, ] = phrase
-        send [ glyph, sortcode, ]
+        [ _, _, sortrow, glyph, _, ]  = phrase
+        [ _, infix, suffix, prefix, ] = sortrow
+        send [ glyph, prefix, infix, suffix, ]
     #.........................................................................................................
     $exclude_gaiji = =>
-      return D.$filter ( [ glyph, sortcode ] ) =>
+      return D.$filter ( event ) =>
+        [ glyph, ] = event
         return ( not glyph.startsWith '&' ) or ( glyph.startsWith '&jzr#' )
     #.........................................................................................................
     $include_sample = =>
-      return D.$filter ( [ glyph, sortcode ] ) =>
+      return D.$filter ( event ) =>
         # [ _, infix, suffix, prefix, ] = sortcode
         # factors = [ prefix..., infix, suffix...,]
         # return ( infix is '山' ) and ( '水' in factors )
         return true if ( not glyph_sample? ) and ( not factor_sample? )
-        [ _, infix, suffix, prefix, ] = sortcode
+        [ glyph, prefix, infix, suffix, ] = event
         in_glyph_sample   = ( not  glyph_sample? ) or ( glyph of  glyph_sample )
         in_factor_sample  = ( not factor_sample? ) or ( infix of factor_sample )
         return in_glyph_sample and in_factor_sample
@@ -386,29 +343,29 @@ HOLLERITH.$pick_values = ->
             count_txt = TEXT.flush_right ( ƒ counts[ length ] ? 0 ), 10
             help "found #{count_txt} lineups of length #{length}"
           end()
-    #.........................................................................................................
-    $_XXX_sort = =>
-      buffer  = []
-      #.......................................................................................................
-      return $ ( event, send, end ) =>
-        throw new Error "sort not possible with intermittent text events" if event? and not CND.isa_list event
-        buffer.push event
-        #.....................................................................................................
-        if end?
-          buffer.sort ( event_a, event_b ) ->
-            [ glyph_a, sortcode_a, ]            = event_a
-            [ glyph_b, sortcode_b, ]            = event_b
-            [ _, infix_a, suffix_a, prefix_a, ] = sortcode_a
-            [ _, infix_b, suffix_b, prefix_b, ] = sortcode_b
-            return +1 if prefix_a.length + suffix_a.length > prefix_b.length + suffix_b.length
-            return -1 if prefix_a.length + suffix_a.length < prefix_b.length + suffix_b.length
-            return +1 if glyph_a > glyph_b
-            return -1 if glyph_a < glyph_b
-            return +1 if suffix_a.length > suffix_b.length
-            return -1 if suffix_a.length < suffix_b.length
-            return  0
-          send event for event in buffer
-          end()
+    # #.........................................................................................................
+    # $_XXX_sort = =>
+    #   buffer  = []
+    #   #.......................................................................................................
+    #   return $ ( event, send, end ) =>
+    #     throw new Error "sort not possible with intermittent text events" if event? and not CND.isa_list event
+    #     buffer.push event
+    #     #.....................................................................................................
+    #     if end?
+    #       buffer.sort ( event_a, event_b ) ->
+    #         [ glyph_a, sortcode_a, ]            = event_a
+    #         [ glyph_b, sortcode_b, ]            = event_b
+    #         [ _, infix_a, suffix_a, prefix_a, ] = sortcode_a
+    #         [ _, infix_b, suffix_b, prefix_b, ] = sortcode_b
+    #         return +1 if prefix_a.length + suffix_a.length > prefix_b.length + suffix_b.length
+    #         return -1 if prefix_a.length + suffix_a.length < prefix_b.length + suffix_b.length
+    #         return +1 if glyph_a > glyph_b
+    #         return -1 if glyph_a < glyph_b
+    #         return +1 if suffix_a.length > suffix_b.length
+    #         return -1 if suffix_a.length < suffix_b.length
+    #         return  0
+    #       send event for event in buffer
+    #       end()
     #.........................................................................................................
     $insert_hr = =>
       in_keeplines  = no
@@ -453,150 +410,23 @@ HOLLERITH.$pick_values = ->
     #.........................................................................................................
     $insert_single_keepline = =>
       is_first      = yes
-      last_glyph    = null
+      last_infix    = null
       return $ ( event, send, end ) =>
         if event?
           if is_first
             send "<<(keep-lines>>"
             is_first = no
           if CND.isa_list event
-            [ glyph, sortcode, ] = event
-            if last_glyph? and glyph isnt last_glyph
+            [ glyph, prefix, infix, suffix, ] = event
+            if last_infix? and infix isnt last_infix
               send ''
-              # send "*******************************************"
-            last_glyph = glyph
+            last_infix = infix
             send event
           else
             send event
         if end?
           send "<<keep-lines)>>"
           end()
-    #.........................................................................................................
-    $align_affixes_with_braces = =>
-      return $ ( event, send ) =>
-        #.....................................................................................................
-        if CND.isa_list event
-          [ glyph, sortcode, ]          = event
-          [ _, infix, suffix, prefix, ] = sortcode
-          #...................................................................................................
-          prefix_length                 = prefix.length
-          suffix_length                 = suffix.length
-          prefix_delta                  = prefix_length - prefix_max_length
-          suffix_delta                  = suffix_length - suffix_max_length
-          prefix_excess_max_length      = suffix_max_length - suffix_length
-          suffix_excess_max_length      = prefix_max_length - prefix_length
-          prefix_excess                 = []
-          suffix_excess                 = []
-          prefix_padding                = []
-          suffix_padding                = []
-          prefix_is_shortened           = no
-          suffix_is_shortened           = no
-          #...................................................................................................
-          if prefix_delta > 0
-            prefix_excess = prefix.splice 0, prefix_delta
-          if suffix_delta > 0
-            suffix_excess = suffix.splice suffix.length - suffix_delta, suffix_delta
-          #...................................................................................................
-          while prefix_excess.length > 0 and prefix_excess.length > prefix_excess_max_length
-            prefix_is_shortened = yes
-            prefix_excess.pop()
-          while suffix_excess.length > 0 and suffix_excess.length > suffix_excess_max_length
-            suffix_is_shortened = yes
-            suffix_excess.shift()
-          #...................................................................................................
-          while prefix_padding.length + suffix_excess.length + prefix.length < prefix_max_length
-            prefix_padding.unshift '\u3000'
-          while suffix_padding.length + prefix_excess.length + suffix.length < suffix_max_length
-            suffix_padding.unshift '\u3000'
-          #...................................................................................................
-          if prefix_excess.length > 0 then prefix_excess.unshift '「' unless prefix_excess.length is 0
-          else                                    prefix.unshift '「' unless prefix_delta > 0
-          if suffix_excess.length > 0 then suffix_excess.push    '」' unless suffix_excess.length is 0
-          else                                    suffix.push    '」' unless suffix_delta > 0
-          #...................................................................................................
-          prefix.splice 0, 0, prefix_padding...
-          prefix.splice 0, 0, suffix_excess...
-          suffix.splice suffix.length, 0, suffix_padding...
-          suffix.splice suffix.length, 0, prefix_excess...
-          #...................................................................................................
-          urge ( prefix.join '' ) + '【' + infix + '】' + ( suffix.join '' )
-          # send [ glyph, [ prefix_padding, suffix_excess, prefix, infix, suffix, prefix_excess, ], ]
-          send [ glyph, [ prefix, infix, suffix, ], ]
-        #.....................................................................................................
-        else
-          send event
-    #.........................................................................................................
-    $align_affixes_with_spaces = =>
-      return $ ( event, send ) =>
-        #.....................................................................................................
-        if CND.isa_list event
-          [ glyph, sortcode, ]          = event
-          [ _, infix, suffix, prefix, ] = sortcode
-          #...................................................................................................
-          prefix_length                 = prefix.length
-          suffix_length                 = suffix.length
-          prefix_delta                  = prefix_length - prefix_max_length
-          suffix_delta                  = suffix_length - suffix_max_length
-          prefix_excess_max_length      = suffix_max_length - suffix_length
-          suffix_excess_max_length      = prefix_max_length - prefix_length
-          prefix_excess                 = []
-          suffix_excess                 = []
-          prefix_padding                = []
-          suffix_padding                = []
-          prefix_is_shortened           = no
-          suffix_is_shortened           = no
-          #...................................................................................................
-          if prefix_delta > 0
-            prefix_excess = prefix.splice 0, prefix_delta
-          if suffix_delta > 0
-            suffix_excess = suffix.splice suffix.length - suffix_delta, suffix_delta
-          #...................................................................................................
-          while prefix_excess.length > 0 and prefix_excess.length > prefix_excess_max_length
-            prefix_is_shortened = yes
-            prefix_excess.pop()
-          while suffix_excess.length > 0 and suffix_excess.length > suffix_excess_max_length
-            suffix_is_shortened = yes
-            suffix_excess.shift()
-          #...................................................................................................
-          while prefix_padding.length + suffix_excess.length + prefix.length < prefix_max_length
-            prefix_padding.unshift '\u3000'
-          #...................................................................................................
-          while suffix_padding.length + prefix_excess.length + suffix.length < suffix_max_length
-            suffix_padding.unshift '\u3000'
-          #...................................................................................................
-          if prefix_excess.length > 0 then prefix_excess.unshift '「' unless prefix_is_shortened
-          else                                    prefix.unshift '「'
-          if suffix_excess.length > 0 then suffix_excess.push    '」' unless suffix_is_shortened
-          else                                    suffix.push    '」'
-          #...................................................................................................
-          prefix.splice 0, 0, prefix_padding...
-          prefix.splice 0, 0, suffix_excess...
-          suffix.splice suffix.length, 0, suffix_padding...
-          suffix.splice suffix.length, 0, prefix_excess...
-          #...................................................................................................
-          urge ( prefix.join '' ) + '【' + infix + '】' + ( suffix.join '' )
-          # send [ glyph, [ prefix_padding, suffix_excess, prefix, infix, suffix, prefix_excess, ], ]
-          send [ glyph, [ prefix, infix, suffix, ], ]
-        #.....................................................................................................
-        else
-          send event
-    #.........................................................................................................
-    $show = =>
-      last_glyph = null
-      return D.$observe ( event ) ->
-        if CND.isa_list event
-          [ glyph, sortcode, ]          = event
-          [ _, prefix, infix, suffix, ] = sortcode
-          prefix = prefix.join ''
-          suffix = suffix.join ''
-          lineup = prefix + '〔' + infix + '〕' + suffix
-          # lineup = prefix + '|' + infix + '|' + suffix
-          unless glyph is last_glyph
-            echo ''
-            last_glyph = glyph
-          echo lineup + glyph # + '<<<\\\\>>>'
-        else
-          echo event
     #.........................................................................................................
     $count_glyphs_etc = =>
       glyphs        = new Set()
@@ -615,21 +445,11 @@ HOLLERITH.$pick_values = ->
           help "containing #{ƒ lineup_count} lineups"
     #.........................................................................................................
     $show = =>
-      last_glyph = null
       return D.$observe ( event ) ->
         if CND.isa_list event
-          [ glyph, lineup, ]          = event
-          [ prefix, infix, suffix, ]  = lineup
-          # [ prefix_padding, suffix_excess, prefix, infix, suffix, prefix_excess, ]  = lineup
-          # prefix_padding = prefix_padding.join ''
-          # suffix_excess = suffix_excess.join ''
-          prefix        = prefix.join ''
-          suffix        = suffix.join ''
-          lineup        = prefix + '【' + infix + '】' + suffix
-          unless glyph is last_glyph
-            # echo ''
-            last_glyph = glyph
-          echo lineup + '\u3000' + glyph
+          [ glyph, prefix, infix, suffix, ] = event
+          lineup                            = prefix + '【' + infix + '】' + suffix
+          echo lineup + '|' + glyph
         else
           echo event
     #.........................................................................................................
@@ -637,25 +457,134 @@ HOLLERITH.$pick_values = ->
         $reorder_phrase()
         $exclude_gaiji()
         $include_sample()
-        # D.$show()
-        $count_lineup_lengths()
-        $_XXX_sort()
-        # $insert_hr()
-        # $insert_many_keeplines()
+        D.$show()
+        # $count_lineup_lengths()
+        # $_XXX_sort()
+        # # $insert_hr()
+        # # $insert_many_keeplines()
         $insert_single_keepline()
-        # $align_affixes_with_braces()
-        $align_affixes_with_spaces()
+        # # @$align_affixes_with_braces()
+        # @$align_affixes_with_spaces()
         $count_glyphs_etc()
         $show()
         ]
     #.........................................................................................................
-    query_v3  = { prefix: [ 'pos', 'guide/kwic/v3/sortcode', ], }
+    query_v3  = { prefix: [ 'pos', 'guide/kwic/v3/sortcode/wrapped-lineups', ], }
     input_v3  = ( HOLLERITH.create_phrasestream db, query_v3 ).pipe $transform_v3()
       # .pipe D.$observe ( [ glyph, lineup, ] ) -> help glyph, lineup if glyph is '畴'
     #.........................................................................................................
     # input_v3
     #.........................................................................................................
     return null
+
+
+#-----------------------------------------------------------------------------------------------------------
+@$align_affixes_with_braces = =>
+  prefix_max_length   = 3
+  suffix_max_length   = 3
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    #.......................................................................................................
+    if CND.isa_list event
+      [ glyph, sortcode, ]          = event
+      [ _, infix, suffix, prefix, ] = sortcode
+      #.....................................................................................................
+      prefix_length                 = prefix.length
+      suffix_length                 = suffix.length
+      prefix_delta                  = prefix_length - prefix_max_length
+      suffix_delta                  = suffix_length - suffix_max_length
+      prefix_excess_max_length      = suffix_max_length - suffix_length
+      suffix_excess_max_length      = prefix_max_length - prefix_length
+      prefix_excess                 = []
+      suffix_excess                 = []
+      prefix_padding                = []
+      suffix_padding                = []
+      prefix_is_shortened           = no
+      suffix_is_shortened           = no
+      #.....................................................................................................
+      if prefix_delta > 0
+        prefix_excess = prefix.splice 0, prefix_delta
+      if suffix_delta > 0
+        suffix_excess = suffix.splice suffix.length - suffix_delta, suffix_delta
+      #.....................................................................................................
+      while prefix_excess.length > 0 and prefix_excess.length > prefix_excess_max_length
+        prefix_is_shortened = yes
+        prefix_excess.pop()
+      while suffix_excess.length > 0 and suffix_excess.length > suffix_excess_max_length
+        suffix_is_shortened = yes
+        suffix_excess.shift()
+      #.....................................................................................................
+      while prefix_padding.length + suffix_excess.length + prefix.length < prefix_max_length
+        prefix_padding.unshift '\u3000'
+      while suffix_padding.length + prefix_excess.length + suffix.length < suffix_max_length
+        suffix_padding.unshift '\u3000'
+      #.....................................................................................................
+      if prefix_excess.length > 0 then prefix_excess.unshift '「' unless prefix_excess.length is 0
+      else                                    prefix.unshift '「' unless prefix_delta > 0
+      if suffix_excess.length > 0 then suffix_excess.push    '」' unless suffix_excess.length is 0
+      else                                    suffix.push    '」' unless suffix_delta > 0
+      #.....................................................................................................
+      prefix.splice 0, 0, prefix_padding...
+      prefix.splice 0, 0, suffix_excess...
+      suffix.splice suffix.length, 0, suffix_padding...
+      suffix.splice suffix.length, 0, prefix_excess...
+      #.....................................................................................................
+      urge ( prefix.join '' ) + '【' + infix + '】' + ( suffix.join '' )
+      # send [ glyph, [ prefix_padding, suffix_excess, prefix, infix, suffix, prefix_excess, ], ]
+      send [ glyph, [ prefix, infix, suffix, ], ]
+    #.......................................................................................................
+    else
+      send event
+
+#-----------------------------------------------------------------------------------------------------------
+@$align_affixes_with_spaces = =>
+  ### This code has been used in `copy-jizuradb-to-Hollerith2-format#add_kwic_v3_wrapped_lineups` ###
+  prefix_max_length   = 3
+  suffix_max_length   = 3
+  #.........................................................................................................
+  return $ ( event, send ) =>
+    #.......................................................................................................
+    if CND.isa_list event
+      [ glyph, sortcode, ]          = event
+      [ _, infix, suffix, prefix, ] = sortcode
+      #.....................................................................................................
+      prefix_length                 = prefix.length
+      suffix_length                 = suffix.length
+      prefix_delta                  = prefix_length - prefix_max_length
+      suffix_delta                  = suffix_length - suffix_max_length
+      prefix_excess_max_length      = suffix_max_length - suffix_length
+      suffix_excess_max_length      = prefix_max_length - prefix_length
+      prefix_excess                 = []
+      suffix_excess                 = []
+      prefix_padding                = []
+      suffix_padding                = []
+      #.....................................................................................................
+      if prefix_delta > 0
+        prefix_excess = prefix.splice 0, prefix_delta
+      if suffix_delta > 0
+        suffix_excess = suffix.splice suffix.length - suffix_delta, suffix_delta
+      #.....................................................................................................
+      while prefix_excess.length > 0 and prefix_excess.length > prefix_excess_max_length - 1
+        prefix_excess.pop()
+      while suffix_excess.length > 0 and suffix_excess.length > suffix_excess_max_length - 1
+        suffix_excess.shift()
+      #.....................................................................................................
+      while prefix_padding.length + suffix_excess.length + prefix.length < prefix_max_length
+        prefix_padding.unshift '\u3000'
+      while suffix_padding.length + prefix_excess.length + suffix.length < suffix_max_length
+        suffix_padding.unshift '\u3000'
+      #.....................................................................................................
+      prefix.splice 0, 0, prefix_padding...
+      prefix.splice 0, 0, suffix_excess...
+      suffix.splice suffix.length, 0, suffix_padding...
+      suffix.splice suffix.length, 0, prefix_excess...
+      #.....................................................................................................
+      urge ( prefix.join '' ) + '【' + infix + '】' + ( suffix.join '' )
+      # send [ glyph, [ prefix_padding, suffix_excess, prefix, infix, suffix, prefix_excess, ], ]
+      send [ glyph, [ prefix, infix, suffix, ], ]
+    #.......................................................................................................
+    else
+      send event
 
 
 ############################################################################################################
