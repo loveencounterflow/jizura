@@ -208,8 +208,8 @@ options                   = null
     include             = 20000
     include             = 15000
     include             = 500
-    include             = Infinity
     include             = 10000
+    include             = Infinity
     # include           = [ '𡳵', '𣐤', '𦾔', '𥈺', '𨂻', '寿', '邦', '帮', '畴', '铸', ]
     # include       = [ '寿', '邦', '帮', '畴', '铸', '筹', '涛', '祷', '绑', '綁',    ]
     # include       = Array.from '未釐犛剺味昧眛魅鮇沬妹業寐鄴澲末抹茉枺沫袜妺'
@@ -288,6 +288,8 @@ options                   = null
       '白': 1
       '㿟': 1
       '皛': 1
+    factor_sample =
+      '耂': 1
     #.........................................................................................................
     $reorder_phrase = =>
       return $ ( phrase, send ) =>
@@ -408,7 +410,7 @@ options                   = null
           send "<<keep-lines)>>" if in_keeplines
           end()
     #.........................................................................................................
-    $insert_single_keepline = =>
+    $insert_single_keeplines = =>
       is_first      = yes
       last_infix    = null
       return $ ( event, send, end ) =>
@@ -430,19 +432,39 @@ options                   = null
     #.........................................................................................................
     $count_glyphs_etc = =>
       glyphs        = new Set()
+      factor_pairs  = {}
       lineup_count  = 0
       #.......................................................................................................
       return D.$observe ( event, has_ended ) =>
         if event?
           #...................................................................................................
           if CND.isa_list event
-            [ glyph, _, ] = event
+            [ glyph, prefix, infix, suffix, ] = event
+            prefix = prefix.trim()
+            suffix = suffix.trim()
+            if prefix.length > 0
+              prefix                = Array.from prefix
+              key                   = prefix[ prefix.length - 1 ] + infix + '\u3000'
+              factor_pairs[ key ]   = ( factor_pairs[ key ] ? 0 ) + 1
+            if suffix.length > 0
+              suffix                = Array.from suffix
+              key                   = '\u3000' + infix + suffix[ 0 ]
+              factor_pairs[ key ]   = ( factor_pairs[ key ] ? 0 ) + 1
             glyphs.add glyph
             lineup_count += +1
         #.....................................................................................................
         if has_ended
           help "built KWIC for #{ƒ glyphs.size} glyphs"
           help "containing #{ƒ lineup_count} lineups"
+          factor_pairs = ( [ factor_pair, count, ] for factor_pair, count of factor_pairs )
+          factor_pairs.sort ( a, b ) ->
+            return +1 if a[ 1 ] < b[ 1 ]
+            return -1 if a[ 1 ] > b[ 1 ]
+            return +1 if a[ 0 ] > b[ 0 ]
+            return -1 if a[ 0 ] < b[ 0 ]
+            return  0
+          for [ factor_pair, count, ] in factor_pairs
+            urge factor_pair, count
     #.........................................................................................................
     $show = =>
       return D.$observe ( event ) ->
@@ -457,12 +479,12 @@ options                   = null
         $reorder_phrase()
         $exclude_gaiji()
         $include_sample()
-        D.$show()
+        # D.$show()
         # $count_lineup_lengths()
         # $_XXX_sort()
         # # $insert_hr()
         # # $insert_many_keeplines()
-        $insert_single_keepline()
+        $insert_single_keeplines()
         # # @$align_affixes_with_braces()
         # @$align_affixes_with_spaces()
         $count_glyphs_etc()
