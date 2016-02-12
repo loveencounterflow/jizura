@@ -205,11 +205,11 @@ options                   = null
     db           ?= HOLLERITH.new_db db_route, create: no
     help "using DB at #{db[ '%self' ][ 'location' ]}"
     ranks               = {}
-    include             = 10000
     include             = 20000
-    include             = 500
     include             = 15000
+    include             = 500
     include             = Infinity
+    include             = 10000
     # include           = [ '𡳵', '𣐤', '𦾔', '𥈺', '𨂻', '寿', '邦', '帮', '畴', '铸', ]
     # include       = [ '寿', '邦', '帮', '畴', '铸', '筹', '涛', '祷', '绑', '綁',    ]
     # include       = Array.from '未釐犛剺味昧眛魅鮇沬妹業寐鄴澲末抹茉枺沫袜妺'

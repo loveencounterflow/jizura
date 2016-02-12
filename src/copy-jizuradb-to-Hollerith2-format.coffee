@@ -21,11 +21,6 @@ echo                      = CND.echo.bind CND
 #...........................................................................................................
 suspend                   = require 'coffeenode-suspend'
 step                      = suspend.step
-after                     = suspend.after
-eventually                = suspend.eventually
-immediately               = suspend.immediately
-repeat_immediately        = suspend.repeat_immediately
-every                     = suspend.every
 #...........................................................................................................
 D                         = require 'pipedreams'
 $                         = D.remit.bind D
