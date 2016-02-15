@@ -442,13 +442,16 @@ options                   = null
             [ glyph, prefix, infix, suffix, ] = event
             prefix = prefix.trim()
             suffix = suffix.trim()
-            if prefix.length > 0
-              prefix                = Array.from prefix
-              key                   = prefix[ prefix.length - 1 ] + infix + '\u3000'
-              factor_pairs[ key ]   = ( factor_pairs[ key ] ? 0 ) + 1
+            # if prefix.length > 0
+            #   prefix                = Array.from prefix
+            #   key                   = prefix[ prefix.length - 1 ] + infix + '\u3000'
+            #   factor_pairs[ key ]   = ( factor_pairs[ key ] ? 0 ) + 1
             if suffix.length > 0
               suffix                = Array.from suffix
               key                   = '\u3000' + infix + suffix[ 0 ]
+              factor_pairs[ key ]   = ( factor_pairs[ key ] ? 0 ) + 1
+            else
+              key                   = '\u3000' + infix + '\u3000'
               factor_pairs[ key ]   = ( factor_pairs[ key ] ? 0 ) + 1
             glyphs.add glyph
             lineup_count += +1
