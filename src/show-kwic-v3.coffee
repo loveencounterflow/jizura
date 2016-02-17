@@ -7,7 +7,7 @@
 
 `@$align_affixes_with_braces`
 
-<<(keep-lines>>
+```keep-lines squish: yes
 　　　「【虫】」　　　　虫
 
 　　「冄【阝】」　　　　𨙻
@@ -51,12 +51,12 @@
 夊」「二【小】匕目𠃊　𥜹
 八夊」「【二】小匕目　𥜹
 𠃊八夊」「【】二小匕　𥜹
-<<keep-lines)>>
+```
 
 
 `align_affixes_with_spaces`
 
-<<(keep-lines>>
+```keep-lines squish: yes
 　　　【虫】　　　　虫
 
 　　冄【阝】　　　　𨙻
@@ -100,7 +100,7 @@
 　二【小】匕目𠃊　𥜹
 夊　【二】小匕目　𥜹
 八夊　【】二小匕　𥜹
-<<keep-lines)>>
+```
 
 
 
@@ -377,15 +377,15 @@ options                   = null
           [ glyph, sortcode, ]          = event
           [ _, infix, suffix, prefix, ] = sortcode
           if last_infix? and infix isnt last_infix
-            send "<<keep-lines)>>" if in_keeplines
+            send "```" if in_keeplines
             send "*******************************************"
             in_keeplines = no
           last_infix = infix
-          send "<<(keep-lines>>" unless in_keeplines
+          send "```keep-lines squish: yes" unless in_keeplines
           in_keeplines = yes
           send event
         if end?
-          send "<<keep-lines)>>" if in_keeplines
+          send "```" if in_keeplines
           end()
     #.........................................................................................................
     $insert_many_keeplines = =>
@@ -396,18 +396,18 @@ options                   = null
           if CND.isa_list event
             [ glyph, sortcode, ] = event
             if last_glyph? and glyph isnt last_glyph
-              send "<<keep-lines)>>" if in_keeplines
+              send "```" if in_keeplines
               send ''
               # send "*******************************************"
               in_keeplines = no
             last_glyph = glyph
-            send "<<(keep-lines>>" unless in_keeplines
+            send "```keep-lines squish: yes" unless in_keeplines
             in_keeplines = yes
             send event
           else
             send event
         if end?
-          send "<<keep-lines)>>" if in_keeplines
+          send "```" if in_keeplines
           end()
     #.........................................................................................................
     $insert_single_keeplines = =>
@@ -416,7 +416,7 @@ options                   = null
       return $ ( event, send, end ) =>
         if event?
           if is_first
-            send "<<(keep-lines>>"
+            send "```keep-lines squish: yes"
             is_first = no
           if CND.isa_list event
             [ glyph, prefix, infix, suffix, ] = event
@@ -427,7 +427,7 @@ options                   = null
           else
             send event
         if end?
-          send "<<keep-lines)>>"
+          send "```"
           end()
     #.........................................................................................................
     $count_glyphs_etc = =>
@@ -442,32 +442,33 @@ options                   = null
             [ glyph, prefix, infix, suffix, ] = event
             prefix = prefix.trim()
             suffix = suffix.trim()
-            # if prefix.length > 0
+            if prefix.length > 0
+              null
             #   prefix                = Array.from prefix
             #   key                   = prefix[ prefix.length - 1 ] + infix + '\u3000'
             #   factor_pairs[ key ]   = ( factor_pairs[ key ] ? 0 ) + 1
             if suffix.length > 0
               suffix                = Array.from suffix
               key                   = '\u3000' + infix + suffix[ 0 ]
-              factor_pairs[ key ]   = ( factor_pairs[ key ] ? 0 ) + 1
-            else
-              key                   = '\u3000' + infix + '\u3000'
-              factor_pairs[ key ]   = ( factor_pairs[ key ] ? 0 ) + 1
+              factor_pairs[ key ]  ?= new Set()
+              factor_pairs[ key ].add glyph
+            # else
+            #   key                   = '\u3000' + infix + '\u3000'
             glyphs.add glyph
             lineup_count += +1
         #.....................................................................................................
         if has_ended
           help "built KWIC for #{ƒ glyphs.size} glyphs"
           help "containing #{ƒ lineup_count} lineups"
-          factor_pairs = ( [ factor_pair, count, ] for factor_pair, count of factor_pairs )
+          factor_pairs = ( [ factor_pair, ( Array.from glyphs ), ] for factor_pair, glyphs of factor_pairs )
           factor_pairs.sort ( a, b ) ->
-            return +1 if a[ 1 ] < b[ 1 ]
-            return -1 if a[ 1 ] > b[ 1 ]
-            return +1 if a[ 0 ] > b[ 0 ]
-            return -1 if a[ 0 ] < b[ 0 ]
+            return +1 if a[ 1 ].length < b[ 1 ].length
+            return -1 if a[ 1 ].length > b[ 1 ].length
+            return +1 if a[ 0 ]        > b[ 0 ]
+            return -1 if a[ 0 ]        < b[ 0 ]
             return  0
-          for [ factor_pair, count, ] in factor_pairs
-            urge factor_pair, count
+          for [ factor_pair, glyphs, ] in factor_pairs
+            urge factor_pair, ( glyphs.join '' ), glyphs.length
     #.........................................................................................................
     $show = =>
       return D.$observe ( event ) ->
