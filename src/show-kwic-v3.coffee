@@ -443,7 +443,7 @@ $write_stats = ( S ) =>
 
 #-----------------------------------------------------------------------------------------------------------
 $write_output = ( S ) =>
-  output      = njs_fs.createWriteStream S.output_route
+  output      = njs_fs.createWriteStream S.kwic_route
   line_count  = 0
   #.........................................................................................................
   return D.$observe ( event, has_ended ) ->
@@ -458,7 +458,7 @@ $write_output = ( S ) =>
       line_count += +1
     #.......................................................................................................
     if has_ended
-      help "wrote #{line_count} lines to #{S.output_route}"
+      help "wrote #{line_count} lines to #{S.kwic_route}"
       output.end()
 
 #-----------------------------------------------------------------------------------------------------------

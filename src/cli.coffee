@@ -1,8 +1,8 @@
 
 
 ############################################################################################################
-# njs_path                  = require 'path'
-# njs_fs                    = require 'fs'
+njs_path                  = require 'path'
+njs_fs                    = require 'fs'
 #...........................................................................................................
 CND                       = require 'cnd'
 rpr                       = CND.rpr
@@ -54,7 +54,7 @@ app_name  = process.argv[ 1 ]
 app.version ( require '../package.json' )[ 'version' ]
 
 #-----------------------------------------------------------------------------------------------------------
-get_stats_route = ( input, fallback = null ) ->
+get_do_stats = ( input, fallback = false ) ->
   return fallback unless input?
   return input
 
@@ -71,6 +71,15 @@ get_factor_sample = ( input, fallback = null ) ->
   return Array.from input
 
 #-----------------------------------------------------------------------------------------------------------
+isa_folder = ( route ) ->
+  try
+    fstats = njs_fs.statSync route
+  catch error
+    return false if error.code is 'ENOENT'
+    throw error
+  return fstats.isDirectory()
+
+#-----------------------------------------------------------------------------------------------------------
 app
   .command      "mkts <filename>"
   .description  "typeset MD source in <filename>, output PDF"
@@ -84,27 +93,38 @@ app
 #-----------------------------------------------------------------------------------------------------------
 app
   #.........................................................................................................
-  .command      "kwic <output_route>"
-  .description  "render (excerpt of) KWIC index to <output_route>"
-  .option       "-s --stats [stats-filename]",  "render KWIC infix statistics"
-  .option       "-g --glyphs [glyphs]",         "which glyphs to include"
-  .option       "-f --factors [factors]",       "which factors to include"
+  .command      "kwic [output_route]"
+  .description  "render (excerpt of) KWIC index (to output_route where given; must be a folder)"
+  .option       "-s, --stats",              "show KWIC infix statistics [false]"
+  .option       "-g, --glyphs [glyphs]",    "which glyphs to include"
+  .option       "-f, --factors [factors]",  "which factors to include"
   #.........................................................................................................
   .action ( output_route, options ) ->
     help ( CND.white "#{app_name}" ), ( CND.gold 'kwic' )#, ( CND.lime kwic_route )
     #.......................................................................................................
-    stats_route     = get_stats_route   options.stats
-    glyph_sample    = get_glyph_sample  options.glyphs
-    factor_sample   = get_factor_sample options.factors
+    do_stats                    = get_do_stats      options[ 'stats'    ]
+    glyph_sample                = get_glyph_sample  options[ 'glyphs'   ]
+    factor_sample               = get_factor_sample options[ 'factors'  ]
+    output_route               ?= null
+    kwic_route                  = null
+    stats_route                 = null
+    if factor_sample? then  key = "kwic_g.#{glyph_sample}_f.#{factor_sample.join ''}"
+    else                    key = "kwic_g.#{glyph_sample}"
     #.......................................................................................................
-    help "KWIC index will be written to #{output_route}"
+    if output_route?
+      throw new Error "#{output_route}:\nnot a folder" unless isa_folder output_route
+      output_route  = njs_path.resolve __dirname, output_route
+      kwic_route    = njs_path.join output_route, "#{key}-kwic.md"
+      stats_route   = njs_path.join output_route, "#{key}-stats.md" if do_stats?
+    #.......................................................................................................
+    help "key for this collection is #{key}"
+    if output_route? then   help "KWIC index will be written to #{kwic_route}"
     if stats_route? then    help "statistics will be written to #{stats_route}"
-    else                    help "no statistics will be written"
     help "glyph_sample is #{rpr glyph_sample}"
     if factor_sample? then  help "factors: #{factor_sample.join ''}"
     else                    help "all factors will be included"
     #.......................................................................................................
-    S = { glyph_sample, factor_sample, output_route, stats_route, }
+    S = { glyph_sample, factor_sample, output_route, kwic_route, stats_route, key, }
     #.......................................................................................................
     SHOW_KWIC_V3 = require './show-kwic-v3'
     SHOW_KWIC_V3.show_kwic_v3 S
@@ -113,6 +133,7 @@ app
 ############################################################################################################
 # app.on '--help', -> info "here's the rundown"
 app.parse process.argv
+
 unless app.args?.length > 0
   warn "missing arguments"
   app.help()
