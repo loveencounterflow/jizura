@@ -59,7 +59,7 @@ get_do_stats = ( input, fallback = false ) ->
   return input
 
 #-----------------------------------------------------------------------------------------------------------
-get_glyph_sample = ( input, fallback = 1000 ) ->
+get_glyph_sample = ( input, fallback = Infinity ) ->
   return fallback unless input?
   return Infinity if input in [ Infinity, 'all', 'infinity', 'Infinity', ]
   return R if CND.isa_number ( R = parseInt input, 10 )
@@ -108,13 +108,18 @@ app
     output_route               ?= null
     kwic_route                  = null
     stats_route                 = null
-    if factor_sample? then  key = "kwic_g.#{glyph_sample}_f.#{factor_sample.join ''}"
-    else                    key = "kwic_g.#{glyph_sample}"
+    #.......................................................................................................
+    if glyph_sample is Infinity         then glyph_sample_key = 'all'
+    else if CND.isa_number glyph_sample then glyph_sample_key = rpr glyph_sample
+    else                                     glyph_sample_key = glyph_sample.join ''
+    if factor_sample? then  key = "g.#{glyph_sample_key}_f.#{factor_sample.join ''}"
+    else                    key = "g.#{glyph_sample_key}"
+    key                         = "kwic-#{CND.id_from_text key, 4}-#{key}"
     #.......................................................................................................
     if output_route?
       throw new Error "#{output_route}:\nnot a folder" unless isa_folder output_route
       output_route  = njs_path.resolve __dirname, output_route
-      kwic_route    = njs_path.join output_route, "#{key}-kwic.md"
+      kwic_route    = njs_path.join output_route, "#{key}-glyphs.md"
       stats_route   = njs_path.join output_route, "#{key}-stats.md" if do_stats?
     #.......................................................................................................
     help "key for this collection is #{key}"

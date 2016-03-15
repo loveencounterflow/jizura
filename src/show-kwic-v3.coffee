@@ -389,7 +389,8 @@ $insert_single_keeplines = ( S ) =>
 #-----------------------------------------------------------------------------------------------------------
 $write_stats = ( S ) =>
   glyphs        = new Set()
-  factor_pairs  = {}
+  infixes       = new Set()
+  factor_pairs  = new Map()
   lineup_count  = 0
   output        = if S.stats_route? then njs_fs.createWriteStream S.stats_route else null
   line_count    = 0
@@ -399,43 +400,54 @@ $write_stats = ( S ) =>
       #...................................................................................................
       if CND.isa_list event
         [ glyph, prefix, infix, suffix, ] = event
-        prefix = prefix.trim()
+        # prefix = prefix.trim()
         suffix = suffix.trim()
-        if prefix.length > 0
-          null
-        #   prefix                = Array.from prefix
-        #   key                   = prefix[ prefix.length - 1 ] + infix + '\u3000'
-        #   factor_pairs[ key ]   = ( factor_pairs[ key ] ? 0 ) + 1
         if suffix.length > 0
-          suffix                = Array.from suffix
-          key                   = '\u3000' + infix + suffix[ 0 ]
-          factor_pairs[ key ]  ?= new Set()
-          factor_pairs[ key ].add glyph
-        # else
-        #   key                   = '\u3000' + infix + '\u3000'
-        glyphs.add glyph
+          suffix  = Array.from suffix
+          key     = "#{infix},#{infix}#{suffix[ 0 ]}"
+          factor_pairs.set key, target = new Set() unless ( target = factor_pairs.get key )?
+          target.add glyph
+        infixes.add infix
+        glyphs.add  glyph
         lineup_count += +1
     #.....................................................................................................
     if has_ended
       help "built KWIC for #{ƒ glyphs.size} glyphs"
       help "containing #{ƒ lineup_count} lineups"
-      factor_pairs = ( [ factor_pair, ( Array.from glyphs ), ] for factor_pair, glyphs of factor_pairs )
+      infixes = Array.from infixes
+      debug '4398', factor_pairs
+      factor_pairs  = Array.from factor_pairs
+      for entry in factor_pairs
+        entry[ 0 ] = entry[ 0 ].split ','
+        entry[ 1 ] = Array.from entry[ 1 ]
+      debug '4398', factor_pairs
       factor_pairs.sort ( a, b ) ->
-        return +1 if a[ 1 ].length < b[ 1 ].length
-        return -1 if a[ 1 ].length > b[ 1 ].length
-        return +1 if a[ 0 ]        > b[ 0 ]
-        return -1 if a[ 0 ]        < b[ 0 ]
+        [ [ a_infix, a_pair, ], a_glyphs, ] = a
+        [ [ b_infix, b_pair, ], b_glyphs, ] = b
+        a_infix_idx                         = infixes.indexOf a_infix
+        b_infix_idx                         = infixes.indexOf b_infix
+        return +1 if a_infix_idx     > b_infix_idx
+        return -1 if a_infix_idx     < b_infix_idx
+        return +1 if a_glyphs.length < b_glyphs.length
+        return -1 if a_glyphs.length > b_glyphs.length
+        return +1 if a_pair          > b_pair
+        return -1 if a_pair          < b_pair
         return  0
       #.....................................................................................................
       output.write "```keep-lines squish: yes\n"
       #.....................................................................................................
-      for [ factor_pair, glyphs, ] in factor_pairs
-        line = [ factor_pair, ( glyphs.join '' ), glyphs.length, '\n', ].join ''
+      last_infix = null
+      for [ [ infix, factor_pair, ], glyphs, ] in factor_pairs
+        # debug [ [ infix, factor_pair, ], glyphs, ]
+        output.write '\n' if last_infix? and last_infix isnt infix
+        last_infix  = infix
+        line        = [ factor_pair, '\u3000', ( glyphs.join '' ), glyphs.length, '\n', ].join ''
         output.write line
         line_count += +1
       #.....................................................................................................
       output.write "```\n"
       output.end()
+      help "found #{infixes.length} infixes: #{infixes.join ''}"
       help "wrote #{line_count} lines to #{S.stats_route}"
       S.handler null if S.handler?
   #.........................................................................................................
