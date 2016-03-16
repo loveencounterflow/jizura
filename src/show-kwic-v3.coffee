@@ -198,6 +198,11 @@ options                   = null
     .pipe D.$on_end -> handler null, Z
 
 #-----------------------------------------------------------------------------------------------------------
+@describe = ( S ) ->
+  R = []
+  R.push
+
+#-----------------------------------------------------------------------------------------------------------
 @show_kwic_v3 = ( S ) ->
   # # include           = [ '𡳵', '𣐤', '𦾔', '𥈺', '𨂻', '寿', '邦', '帮', '畴', '铸', ]
   # # include       = [ '寿', '邦', '帮', '畴', '铸', '筹', '涛', '祷', '绑', '綁',    ]
@@ -219,7 +224,7 @@ options                   = null
     _fs[ factor ] = 1 for factor in S.factor_sample
     S.factor_sample = _fs
   #.........................................................................................................
-  S.description = @describe S
+  # S.description = @describe S
   #.........................................................................................................
   S.query       = { prefix: [ 'pos', 'guide/kwic/v3/sortcode/wrapped-lineups', ], }
   S.db_route    = join __dirname, '../../jizura-datasources/data/leveldb-v2'
@@ -397,13 +402,15 @@ $write_stats = ( S ) =>
       #...................................................................................................
       if CND.isa_list event
         [ glyph, prefix, infix, suffix, ] = event
-        # prefix = prefix.trim()
-        suffix = suffix.trim()
-        if suffix.length > 0
-          suffix  = Array.from suffix
-          key     = "#{infix},#{infix}#{suffix[ 0 ]}"
-          factor_pairs.set key, target = new Set() unless ( target = factor_pairs.get key )?
-          target.add glyph
+        if suffix.startsWith '\u3000'
+          suffix = ''
+        else
+          suffix = suffix.trim()
+        # if suffix.length > 0
+        suffix  = Array.from suffix
+        key     = "#{infix},#{infix}#{suffix[ 0 ]}"
+        factor_pairs.set key, target = new Set() unless ( target = factor_pairs.get key )?
+        target.add glyph
         infixes.add infix
         glyphs.add  glyph
         lineup_count += +1
@@ -445,10 +452,14 @@ $write_stats = ( S ) =>
           output.write "——.#{infix}.——\n"
         last_infix  = infix
         glyph_count = glyphs.length
+        if glyph_count > 999
+          glyph_count_txt = "<<<{\\tfScale{0.5}{1}#{glyph_count}}>>>#{glyph_count}"
+        else
+          glyph_count_txt = "#{glyph_count}"
         if S.width?
           glyphs.push '\u3000'  while glyphs.length < S.width
           glyphs.pop()          while glyphs.length > S.width
-        line = [ factor_pair, separator, ( glyphs.join '' ), "<<<\\hfill{}>>>", glyph_count, '\n', ].join ''
+        line = [ factor_pair, separator, ( glyphs.join '' ), "<<<\\hfill{}>>>", glyph_count_txt, '\n', ].join ''
         output.write line
         line_count += +1
       #.....................................................................................................
