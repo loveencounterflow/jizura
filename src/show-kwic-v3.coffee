@@ -199,11 +199,6 @@ options                   = null
 
 #-----------------------------------------------------------------------------------------------------------
 @show_kwic_v3 = ( S ) ->
-  # include             = 20000
-  # include             = 15000
-  # include             = 10000
-  # include             = Infinity
-  # include             = 1500
   # # include           = [ '𡳵', '𣐤', '𦾔', '𥈺', '𨂻', '寿', '邦', '帮', '畴', '铸', ]
   # # include       = [ '寿', '邦', '帮', '畴', '铸', '筹', '涛', '祷', '绑', '綁',    ]
   # # include       = Array.from '未釐犛剺味昧眛魅鮇沬妹業寐鄴澲末抹茉枺沫袜妺'
@@ -224,9 +219,11 @@ options                   = null
     _fs[ factor ] = 1 for factor in S.factor_sample
     S.factor_sample = _fs
   #.........................................................................................................
-  S.query     = { prefix: [ 'pos', 'guide/kwic/v3/sortcode/wrapped-lineups', ], }
-  S.db_route  = join __dirname, '../../jizura-datasources/data/leveldb-v2'
-  S.db        = HOLLERITH.new_db S.db_route, create: no
+  S.description = @describe S
+  #.........................................................................................................
+  S.query       = { prefix: [ 'pos', 'guide/kwic/v3/sortcode/wrapped-lineups', ], }
+  S.db_route    = join __dirname, '../../jizura-datasources/data/leveldb-v2'
+  S.db          = HOLLERITH.new_db S.db_route, create: no
   # S         = { db_route, db, query, glyph_sample, factor_sample, handler, }
   help "using DB at #{S.db[ '%self' ][ 'location' ]}"
   #.........................................................................................................
@@ -415,12 +412,10 @@ $write_stats = ( S ) =>
       help "built KWIC for #{ƒ glyphs.size} glyphs"
       help "containing #{ƒ lineup_count} lineups"
       infixes = Array.from infixes
-      debug '4398', factor_pairs
       factor_pairs  = Array.from factor_pairs
       for entry in factor_pairs
         entry[ 0 ] = entry[ 0 ].split ','
         entry[ 1 ] = Array.from entry[ 1 ]
-      debug '4398', factor_pairs
       factor_pairs.sort ( a, b ) ->
         [ [ a_infix, a_pair, ], a_glyphs, ] = a
         [ [ b_infix, b_pair, ], b_glyphs, ] = b
@@ -436,12 +431,24 @@ $write_stats = ( S ) =>
       #.....................................................................................................
       output.write "```keep-lines squish: yes\n"
       #.....................................................................................................
-      last_infix = null
+      last_infix  = null
+      # separator   = '\u3000' # Ideographic Space
+      # separator   = '\u2004' # Three-per-em Space
+      # separator   = '\u2005' # Four-per-em Space
+      separator   = '】'
+      # separator   = '\u2006' # Six-per-em Space
       for [ [ infix, factor_pair, ], glyphs, ] in factor_pairs
-        # debug [ [ infix, factor_pair, ], glyphs, ]
-        output.write '\n' if last_infix? and last_infix isnt infix
+        if last_infix isnt infix
+          # output.write '\n' if last_infix?
+          # output.write "<<<\\dotfill>>>#{infix}<<<\\dotfill>>>\n"
+          # output.write "<<<\\hrulefill>>>#{infix}<<<\\hrulefill>>>\n"
+          output.write "——.#{infix}.——\n"
         last_infix  = infix
-        line        = [ factor_pair, '\u3000', ( glyphs.join '' ), glyphs.length, '\n', ].join ''
+        glyph_count = glyphs.length
+        if S.width?
+          glyphs.push '\u3000'  while glyphs.length < S.width
+          glyphs.pop()          while glyphs.length > S.width
+        line = [ factor_pair, separator, ( glyphs.join '' ), "<<<\\hfill{}>>>", glyph_count, '\n', ].join ''
         output.write line
         line_count += +1
       #.....................................................................................................
@@ -464,7 +471,7 @@ $write_output = ( S ) =>
       if CND.isa_list event
         [ glyph, prefix, infix, suffix, ] = event
         lineup                            = prefix + '【' + infix + '】' + suffix
-        output.write lineup + '|' + glyph + '\n'
+        output.write lineup + "<<<\\hfill{}>>>" + glyph + '\n'
       else
         output.write event + '\n'
       line_count += +1

@@ -59,6 +59,15 @@ get_do_stats = ( input, fallback = false ) ->
   return input
 
 #-----------------------------------------------------------------------------------------------------------
+get_width = ( input, fallback = null ) ->
+  return fallback unless input?
+  return null if input in [ Infinity, 'full', 'infinity', 'Infinity', ]
+  R = parseInt input, 10
+  unless ( R is parseFloat input ) and ( CND.isa_number R ) and ( R >= 0 )
+    throw new Error "expected non-negative integer number for width, got #{rpr input}"
+  return R
+
+#-----------------------------------------------------------------------------------------------------------
 get_glyph_sample = ( input, fallback = Infinity ) ->
   return fallback unless input?
   return Infinity if input in [ Infinity, 'all', 'infinity', 'Infinity', ]
@@ -96,6 +105,7 @@ app
   .command      "kwic [output_route]"
   .description  "render (excerpt of) KWIC index (to output_route where given; must be a folder)"
   .option       "-s, --stats",              "show KWIC infix statistics [false]"
+  .option       "-w, --width [count]",      "maximum number of glyphs in infix statistics [full]"
   .option       "-g, --glyphs [glyphs]",    "which glyphs to include"
   .option       "-f, --factors [factors]",  "which factors to include"
   #.........................................................................................................
@@ -103,6 +113,7 @@ app
     help ( CND.white "#{app_name}" ), ( CND.gold 'kwic' )#, ( CND.lime kwic_route )
     #.......................................................................................................
     do_stats                    = get_do_stats      options[ 'stats'    ]
+    width                       = get_width         options[ 'width'    ]
     glyph_sample                = get_glyph_sample  options[ 'glyphs'   ]
     factor_sample               = get_factor_sample options[ 'factors'  ]
     output_route               ?= null
@@ -112,9 +123,11 @@ app
     if glyph_sample is Infinity         then glyph_sample_key = 'all'
     else if CND.isa_number glyph_sample then glyph_sample_key = rpr glyph_sample
     else                                     glyph_sample_key = glyph_sample.join ''
-    if factor_sample? then  key = "g.#{glyph_sample_key}_f.#{factor_sample.join ''}"
-    else                    key = "g.#{glyph_sample_key}"
-    key                         = "kwic-#{CND.id_from_text key, 4}-#{key}"
+    key = [ "g.#{glyph_sample_key}", ]
+    key.push "f.#{factor_sample.join ''}" if factor_sample?
+    key.push "w.#{width}"                 if width?
+    key = key.join '-'
+    key = "kwic-#{CND.id_from_text key, 4}-#{key}"
     #.......................................................................................................
     if output_route?
       throw new Error "#{output_route}:\nnot a folder" unless isa_folder output_route
@@ -129,7 +142,7 @@ app
     if factor_sample? then  help "factors: #{factor_sample.join ''}"
     else                    help "all factors will be included"
     #.......................................................................................................
-    S = { glyph_sample, factor_sample, output_route, kwic_route, stats_route, key, }
+    S = { glyph_sample, factor_sample, output_route, kwic_route, stats_route, width, key, }
     #.......................................................................................................
     SHOW_KWIC_V3 = require './show-kwic-v3'
     SHOW_KWIC_V3.show_kwic_v3 S
