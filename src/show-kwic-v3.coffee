@@ -198,25 +198,29 @@ options                   = null
     .pipe D.$on_end -> handler null, Z
 
 #-----------------------------------------------------------------------------------------------------------
-@describe = ( S ) ->
+@describe_glyphs = ( S ) ->
   R = []
-  R.push
+  debug '0102', S
+  if S.glyph_sample is Infinity
+    R.push "<<<$N ≈ #{CND.format_number 75000}$>>>"
+  else if CND.isa_number S.glyph_sample
+    R.push "<<<$N = #{CND.format_number S.glyph_sample}$>>>"
+  else
+    R.push "glyphs #{S.glyph_sample.join ''}"
+  return R.join '\n'
+
+#-----------------------------------------------------------------------------------------------------------
+@describe_stats = ( S ) ->
+  R = []
+  return R.join '\n'
 
 #-----------------------------------------------------------------------------------------------------------
 @show_kwic_v3 = ( S ) ->
-  # # include           = [ '𡳵', '𣐤', '𦾔', '𥈺', '𨂻', '寿', '邦', '帮', '畴', '铸', ]
-  # # include       = [ '寿', '邦', '帮', '畴', '铸', '筹', '涛', '祷', '绑', '綁',    ]
-  # # include       = Array.from '未釐犛剺味昧眛魅鮇沬妹業寐鄴澲末抹茉枺沫袜妺'
-  # # include             = Array.from '虫𨙻𥦤曗𩡏鬱𡤇𥜹'
-  # glyph_sample        = null
-  # factor_sample       = null
   #.........................................................................................................
-  ### TAINT use sets ###
   # factor_sample =
   #   '旧日卓桌𠦝東車更㯥䡛轟𨏿昍昌晶𣊭早畢果𣛕𣡗𣡾曱甲𤳅𤳵申𤱓禺𥝉㬰电田畕畾𤳳由甴𡆪白㿟皛鱼魚䲆𩺰鱻䲜'
   # factor_sample = '旧日卓桌𠦝昍昌晶𣊭早白㿟皛'
   # factor_sample = '耂'
-  #.........................................................................................................
   #.........................................................................................................
   ### TAINT temporary; going to use sets ###
   if S.factor_sample?
@@ -224,7 +228,8 @@ options                   = null
     _fs[ factor ] = 1 for factor in S.factor_sample
     S.factor_sample = _fs
   #.........................................................................................................
-  # S.description = @describe S
+  S.glyphs_description  = @describe_glyphs S
+  S.stats_description   = @describe_stats S
   #.........................................................................................................
   S.query       = { prefix: [ 'pos', 'guide/kwic/v3/sortcode/wrapped-lineups', ], }
   S.db_route    = join __dirname, '../../jizura-datasources/data/leveldb-v2'
@@ -281,13 +286,6 @@ $count_lineup_lengths = ( S ) =>
         [ _, infix, suffix, prefix, ] = sortcode
         lineup                        = ( prefix.join '' ) + infix + ( suffix.join '' )
         lineup_length                 = ( Array.from lineup.replace /\u3000/g, '' ).length
-        ### !!!!!!!!!!!!!!!!!!!!!!! ###
-        # send event
-        # # send event if glyph is '辭'
-        # if 3 < lineup_length < 8
-        #   count += +1
-        #   send event if count < 100
-        ### !!!!!!!!!!!!!!!!!!!!!!! ###
         if true # lineup_length is 8
           send event
           counts[ lineup_length ] = ( counts[ lineup_length ] ? 0 ) + 1
@@ -299,93 +297,6 @@ $count_lineup_lengths = ( S ) =>
       for length in [ 1 ... counts.length ]
         count_txt = TEXT.flush_right ( ƒ counts[ length ] ? 0 ), 10
         help "found #{count_txt} lineups of length #{length}"
-      end()
-# #.........................................................................................................
-# $_XXX_sort = ( S ) =>
-#   buffer  = []
-#   #.......................................................................................................
-#   return $ ( event, send, end ) =>
-#     throw new Error "sort not possible with intermittent text events" if event? and not CND.isa_list event
-#     buffer.push event
-#     #.....................................................................................................
-#     if end?
-#       buffer.sort ( event_a, event_b ) ->
-#         [ glyph_a, sortcode_a, ]            = event_a
-#         [ glyph_b, sortcode_b, ]            = event_b
-#         [ _, infix_a, suffix_a, prefix_a, ] = sortcode_a
-#         [ _, infix_b, suffix_b, prefix_b, ] = sortcode_b
-#         return +1 if prefix_a.length + suffix_a.length > prefix_b.length + suffix_b.length
-#         return -1 if prefix_a.length + suffix_a.length < prefix_b.length + suffix_b.length
-#         return +1 if glyph_a > glyph_b
-#         return -1 if glyph_a < glyph_b
-#         return +1 if suffix_a.length > suffix_b.length
-#         return -1 if suffix_a.length < suffix_b.length
-#         return  0
-#       send event for event in buffer
-#       end()
-
-#-----------------------------------------------------------------------------------------------------------
-$insert_hr = ( S ) =>
-  in_keeplines  = no
-  last_infix    = null
-  return $ ( event, send, end ) =>
-    if event?
-      [ glyph, sortcode, ]          = event
-      [ _, infix, suffix, prefix, ] = sortcode
-      if last_infix? and infix isnt last_infix
-        send "```" if in_keeplines
-        send "*******************************************"
-        in_keeplines = no
-      last_infix = infix
-      send "```keep-lines squish: yes" unless in_keeplines
-      in_keeplines = yes
-      send event
-    if end?
-      send "```" if in_keeplines
-      end()
-
-#-----------------------------------------------------------------------------------------------------------
-$insert_many_keeplines = ( S ) =>
-  in_keeplines  = no
-  last_glyph    = null
-  return $ ( event, send, end ) =>
-    if event?
-      if CND.isa_list event
-        [ glyph, sortcode, ] = event
-        if last_glyph? and glyph isnt last_glyph
-          send "```" if in_keeplines
-          send ''
-          # send "*******************************************"
-          in_keeplines = no
-        last_glyph = glyph
-        send "```keep-lines squish: yes" unless in_keeplines
-        in_keeplines = yes
-        send event
-      else
-        send event
-    if end?
-      send "```" if in_keeplines
-      end()
-
-#-----------------------------------------------------------------------------------------------------------
-$insert_single_keeplines = ( S ) =>
-  is_first      = yes
-  last_infix    = null
-  return $ ( event, send, end ) =>
-    if event?
-      if is_first
-        send "```keep-lines squish: yes"
-        is_first = no
-      if CND.isa_list event
-        [ glyph, prefix, infix, suffix, ] = event
-        if last_infix? and infix isnt last_infix
-          send ''
-        last_infix = infix
-        send event
-      else
-        send event
-    if end?
-      send "```"
       end()
 
 #-----------------------------------------------------------------------------------------------------------
@@ -465,21 +376,25 @@ $write_stats = ( S ) =>
       #.....................................................................................................
       output.write "```\n"
       output.end()
-      help "found #{infixes.length} infixes: #{infixes.join ''}"
+      help "found #{infixes.length} infixes"
       help "wrote #{line_count} lines to #{S.stats_route}"
       S.handler null if S.handler?
   #.........................................................................................................
   return null
 
 #-----------------------------------------------------------------------------------------------------------
-$write_output = ( S ) =>
-  output      = njs_fs.createWriteStream S.kwic_route
+$write_glyphs = ( S ) =>
+  output      = njs_fs.createWriteStream S.glyphs_route
   line_count  = 0
+  is_first    = yes
   #.........................................................................................................
   return D.$observe ( event, has_ended ) ->
     #.......................................................................................................
     if event?
       if CND.isa_list event
+        if is_first
+          output.write "```keep-lines squish: yes\n"
+          is_first = no
         [ glyph, prefix, infix, suffix, ] = event
         lineup                            = prefix + '【' + infix + '】' + suffix
         output.write lineup + "<<<\\hfill{}>>>" + glyph + '\n'
@@ -488,7 +403,18 @@ $write_output = ( S ) =>
       line_count += +1
     #.......................................................................................................
     if has_ended
-      help "wrote #{line_count} lines to #{S.kwic_route}"
+      output.write "```\n"
+      help "wrote #{line_count} lines to #{S.glyphs_route}"
+      output.end()
+
+#-----------------------------------------------------------------------------------------------------------
+$write_glyphs_description = ( S ) =>
+  output      = njs_fs.createWriteStream S.glyphs_description_route
+  #.........................................................................................................
+  return D.$observe ( event, has_ended ) ->
+    if has_ended
+      output.write S.glyphs_description
+      help "wrote glyphs description to #{S.glyphs_description_route}"
       output.end()
 
 #-----------------------------------------------------------------------------------------------------------
@@ -605,31 +531,27 @@ $transform_v3 = ( S ) =>
     $reorder_phrase                 S
     $exclude_gaiji                  S
     $include_sample                 S
-    # D.$show                         S
     # $count_lineup_lengths           S
-    # $_XXX_sort                      S
-    # # $insert_hr                    S
-    # # $insert_many_keeplines        S
-    $insert_single_keeplines        S
-    # # @$align_affixes_with_braces   S
+    # @$align_affixes_with_braces     S
     # @$align_affixes_with_spaces     S
     $write_stats                    S
-    $write_output                   S
+    $write_glyphs                   S
+    $write_glyphs_description       S
     D.$on_end => S.handler null if S.handler?
     ]
 
 
 
-############################################################################################################
-unless module.parent?
+# ############################################################################################################
+# unless module.parent?
 
-  #---------------------------------------------------------------------------------------------------------
-  options =
-    #.......................................................................................................
-    # 'route':                njs_path.join __dirname, '../dbs/demo'
-    'route':                njs_path.resolve __dirname, '../../jizura-datasources/data/leveldb-v2'
-    # 'route':            '/tmp/leveldb'
-  #---------------------------------------------------------------------------------------------------------
-  @show_kwic_v3()
+#   #---------------------------------------------------------------------------------------------------------
+#   options =
+#     #.......................................................................................................
+#     # 'route':                njs_path.join __dirname, '../dbs/demo'
+#     'route':                njs_path.resolve __dirname, '../../jizura-datasources/data/leveldb-v2'
+#     # 'route':            '/tmp/leveldb'
+#   #---------------------------------------------------------------------------------------------------------
+#   @show_kwic_v3()
 
 

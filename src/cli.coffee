@@ -110,15 +110,17 @@ app
   .option       "-f, --factors [factors]",  "which factors to include"
   #.........................................................................................................
   .action ( output_route, options ) ->
-    help ( CND.white "#{app_name}" ), ( CND.gold 'kwic' )#, ( CND.lime kwic_route )
+    help ( CND.white "#{app_name}" ), ( CND.gold 'kwic' )#, ( CND.lime glyphs_route )
     #.......................................................................................................
     do_stats                    = get_do_stats      options[ 'stats'    ]
     width                       = get_width         options[ 'width'    ]
     glyph_sample                = get_glyph_sample  options[ 'glyphs'   ]
     factor_sample               = get_factor_sample options[ 'factors'  ]
     output_route               ?= null
-    kwic_route                  = null
+    glyphs_route                = null
+    glyphs_description_route    = null
     stats_route                 = null
+    stats_description_route     = null
     #.......................................................................................................
     if glyph_sample is Infinity         then glyph_sample_key = 'all'
     else if CND.isa_number glyph_sample then glyph_sample_key = rpr glyph_sample
@@ -130,19 +132,32 @@ app
     key = "kwic-#{CND.id_from_text key, 4}-#{key}"
     #.......................................................................................................
     if output_route?
+      output_route  = njs_path.resolve process.cwd(), output_route
       throw new Error "#{output_route}:\nnot a folder" unless isa_folder output_route
-      output_route  = njs_path.resolve __dirname, output_route
-      kwic_route    = njs_path.join output_route, "#{key}-glyphs.md"
-      stats_route   = njs_path.join output_route, "#{key}-stats.md" if do_stats?
+      glyphs_route              = njs_path.join output_route, "#{key}-glyphs.md"
+      glyphs_description_route  = njs_path.join output_route, "#{key}-glyphs-description.md"
+      if do_stats?
+        stats_route             = njs_path.join output_route, "#{key}-stats.md"
+        stats_description_route = njs_path.join output_route, "#{key}-stats-description.md"
     #.......................................................................................................
     help "key for this collection is #{key}"
-    if output_route? then   help "KWIC index will be written to #{kwic_route}"
+    if output_route? then   help "KWIC index will be written to #{glyphs_route}"
     if stats_route? then    help "statistics will be written to #{stats_route}"
     help "glyph_sample is #{rpr glyph_sample}"
     if factor_sample? then  help "factors: #{factor_sample.join ''}"
     else                    help "all factors will be included"
     #.......................................................................................................
-    S = { glyph_sample, factor_sample, output_route, kwic_route, stats_route, width, key, }
+    S = {
+      command: 'kwic'
+      glyph_sample
+      factor_sample
+      output_route
+      glyphs_route
+      stats_route
+      glyphs_description_route
+      stats_description_route
+      width
+      key                       }
     #.......................................................................................................
     SHOW_KWIC_V3 = require './show-kwic-v3'
     SHOW_KWIC_V3.show_kwic_v3 S
