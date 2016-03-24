@@ -165,7 +165,6 @@ options                   = null
 #-----------------------------------------------------------------------------------------------------------
 @_misfit          = Symbol 'misfit'
 
-
 #-----------------------------------------------------------------------------------------------------------
 @read_sample = ( db, limit_or_list, handler ) ->
   ### Return a gamut of select glyphs from the DB. `limit_or_list` may be a list of glyphs or a number
@@ -198,21 +197,34 @@ options                   = null
     .pipe D.$on_end -> handler null, Z
 
 #-----------------------------------------------------------------------------------------------------------
-@describe_glyphs = ( S ) ->
-  R = []
-  debug '0102', S
+@_describe_glyph_sample = ( S ) ->
   if S.glyph_sample is Infinity
     ### TAINT font substitution should be configured in options or other appropriate place ###
-    R.push "<<<{\\mktsStyleSmallcapsall{}KWIC}>>> Index for *N* <<<{\\mktsFontfileOptima{}≈}>>> #{CND.format_number 75000, ','}"
+    return "gamut of *N* <<<{\\mktsFontfileOptima{}≈}>>> #{CND.format_number 75000, ','} glyphs"
   else if CND.isa_number S.glyph_sample
-    R.push "<<<{\\mktsStyleSmallcapsall{}KWIC}>>> Index for *N* = #{CND.format_number S.glyph_sample, ','}"
+    return "gamut of *N* = #{CND.format_number S.glyph_sample, ','} glyphs"
   else
-    R.push "<<<{\\mktsStyleSmallcapsall{}KWIC}>>> Index for glyphs #{S.glyph_sample.join ''}"
+    return "selected glyphs: #{S.glyph_sample.join ''}"
+
+#-----------------------------------------------------------------------------------------------------------
+@describe_glyphs = ( S ) ->
+  factors = Object.keys S.factor_sample
+  R       = []
+  R.push "___KWIC___ Index for "
+  ### TAINT type-dependent code ###
+  if factors.length > 0
+    R.push "factors #{factors.join ''}; "
+  R.push @_describe_glyph_sample S
   return R.join '\n'
 
 #-----------------------------------------------------------------------------------------------------------
 @describe_stats = ( S ) ->
-  R = []
+  # debug '9080', S
+  factors = Object.keys S.factor_sample
+  R       = []
+  R.push "Statistics for the co-occurrances of the factors #{factors.join ''}"
+  R.push "when in leading position (\ue045 indicates first/last position);"
+  R.push @_describe_glyph_sample S
   return R.join '\n'
 
 #-----------------------------------------------------------------------------------------------------------
@@ -231,6 +243,8 @@ options                   = null
   #.........................................................................................................
   S.glyphs_description  = @describe_glyphs S
   S.stats_description   = @describe_stats S
+  urge S.glyphs_description
+  urge S.stats_description
   #.........................................................................................................
   S.query       = { prefix: [ 'pos', 'guide/kwic/v3/sortcode/wrapped-lineups', ], }
   S.db_route    = join __dirname, '../../jizura-datasources/data/leveldb-v2'
@@ -315,7 +329,7 @@ $write_stats = ( S ) =>
       if CND.isa_list event
         [ glyph, prefix, infix, suffix, ] = event
         if suffix.startsWith '\u3000'
-          suffix = ''
+          suffix = '\ue045'
         else
           suffix = suffix.trim()
         # if suffix.length > 0
@@ -388,6 +402,7 @@ $write_glyphs = ( S ) =>
   output      = njs_fs.createWriteStream S.glyphs_route
   line_count  = 0
   is_first    = yes
+  last_infix  = null
   #.........................................................................................................
   return D.$observe ( event, has_ended ) ->
     #.......................................................................................................
@@ -397,8 +412,12 @@ $write_glyphs = ( S ) =>
           output.write "```keep-lines squish: yes\n"
           is_first = no
         [ glyph, prefix, infix, suffix, ] = event
-        lineup                            = prefix + '【' + infix + '】' + suffix
-        output.write lineup + "<<<\\hfill{}>>>" + glyph + '\n'
+        if infix isnt last_infix
+          last_infix = infix
+          output.write "——.#{infix}.——\n"
+        else
+          lineup = prefix + '【' + infix + '】' + suffix
+          output.write lineup + "<<<\\hfill{}>>>" + glyph + '\n'
       else
         output.write event + '\n'
       line_count += +1
@@ -416,6 +435,16 @@ $write_glyphs_description = ( S ) =>
     if has_ended
       output.write S.glyphs_description
       help "wrote glyphs description to #{S.glyphs_description_route}"
+      output.end()
+
+#-----------------------------------------------------------------------------------------------------------
+$write_stats_description = ( S ) =>
+  output      = njs_fs.createWriteStream S.stats_description_route
+  #.........................................................................................................
+  return D.$observe ( event, has_ended ) ->
+    if has_ended
+      output.write S.stats_description
+      help "wrote stats description to #{S.stats_description_route}"
       output.end()
 
 #-----------------------------------------------------------------------------------------------------------
@@ -538,6 +567,7 @@ $transform_v3 = ( S ) =>
     $write_stats                    S
     $write_glyphs                   S
     $write_glyphs_description       S
+    $write_stats_description        S
     D.$on_end => S.handler null if S.handler?
     ]
 
