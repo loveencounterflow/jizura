@@ -213,7 +213,8 @@ options                   = null
   R.push "___KWIC___ Index for "
   ### TAINT type-dependent code ###
   if factors.length > 0
-    R.push "factors #{factors.join ''}; "
+    plural = if factors.length > 1 then 's' else ''
+    R.push "factor#{plural} #{factors.join ''}; "
   R.push @_describe_glyph_sample S
   return R.join '\n'
 
@@ -221,8 +222,9 @@ options                   = null
 @describe_stats = ( S ) ->
   # debug '9080', S
   factors = Object.keys S.factor_sample
+  plural  = if factors.length > 1 then 's' else ''
   R       = []
-  R.push "Statistics for the co-occurrances of the factors #{factors.join ''}"
+  R.push "Statistics for co-occurrances of factor#{plural} #{factors.join ''}"
   R.push "when in leading position (\ue045 indicates first/last position);"
   R.push @_describe_glyph_sample S
   return R.join '\n'
@@ -414,7 +416,8 @@ $write_glyphs = ( S ) =>
         [ glyph, prefix, infix, suffix, ] = event
         if infix isnt last_infix
           last_infix = infix
-          output.write "——.#{infix}.——\n"
+          # output.write "——.#{infix}.——\n"
+          output.write prefix + '【' + infix + '】' + suffix + '\n'
         else
           lineup = prefix + '【' + infix + '】' + suffix
           output.write lineup + "<<<\\hfill{}>>>" + glyph + '\n'
