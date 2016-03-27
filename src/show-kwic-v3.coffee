@@ -173,23 +173,23 @@ options                   = null
   glyphs whose rank is not worse than the given limit is returned. If `limit_or_list` is smaller than zero
   or equals infinity, `null` is returned to indicate absence of a filter. ###
   Z         = {}
-  #.......................................................................................................
+  #.........................................................................................................
   if CND.isa_list limit_or_list
     Z[ glyph ] = 1 for glyph in limit_or_list
     return handler null, Z
-  #.......................................................................................................
+  #.........................................................................................................
   return handler null, null if limit_or_list < 0 or limit_or_list is Infinity
-  #.......................................................................................................
+  #.........................................................................................................
   throw new Error "expected list or number, got a #{type}" unless CND.isa_number limit_or_list
-  #.......................................................................................................
+  #.........................................................................................................
   db_route  = join __dirname, '../../jizura-datasources/data/leveldb-v2'
   db       ?= HOLLERITH.new_db db_route, create: no
-  #.......................................................................................................
+  #.........................................................................................................
   lo      = [ 'pos', 'rank/cjt', 0, ]
   hi      = [ 'pos', 'rank/cjt', limit_or_list, ]
   query   = { lo, hi, }
   input   = HOLLERITH.create_phrasestream db, query
-  #.......................................................................................................
+  #.........................................................................................................
   input
     .pipe $ ( phrase, send ) =>
         [ _, _, _, glyph, ] = phrase
@@ -225,8 +225,10 @@ options                   = null
   factors = Object.keys S.factor_sample
   plural  = if factors.length > 1 then 's' else ''
   R       = []
-  R.push "Statistics for co-occurrances of factor#{plural} #{factors.join ''}"
-  R.push "when in leading position (\ue045 indicates first/last position);"
+  R.push "Statistics for factor#{plural} #{factors.join ''}"
+  if S.two_stats then R.push "and its immediate suffix and prefix factors"
+  else                R.push "and its immediate suffix factors"
+  R.push " (\ue045 indicates first/last position);"
   R.push @_describe_glyph_sample S
   return R.join '\n'
 
@@ -256,7 +258,7 @@ options                   = null
   help "using DB at #{S.db[ '%self' ][ 'location' ]}"
   #.........................................................................................................
   step ( resume ) =>
-    #.........................................................................................................
+    #.......................................................................................................
     S.glyph_sample = yield @read_sample S.db, S.glyph_sample, resume
     # debug '9853', ( Object.keys S.glyph_sample ).length
     input           = ( HOLLERITH.create_phrasestream S.db, S.query ).pipe $transform_v3 S
@@ -295,10 +297,10 @@ $include_sample = ( S ) =>
 $count_lineup_lengths = ( S ) =>
   counts  = []
   count   = 0
-  #.......................................................................................................
+  #.........................................................................................................
   return $ ( event, send, end ) =>
     if event?
-      #...................................................................................................
+      #.....................................................................................................
       if CND.isa_list event
         [ glyph, sortcode, ]          = event
         [ _, infix, suffix, prefix, ] = sortcode
@@ -307,10 +309,10 @@ $count_lineup_lengths = ( S ) =>
         if true # lineup_length is 8
           send event
           counts[ lineup_length ] = ( counts[ lineup_length ] ? 0 ) + 1
-      #...................................................................................................
+      #.....................................................................................................
       else
         send event
-    #.....................................................................................................
+    #.......................................................................................................
     if end?
       for length in [ 1 ... counts.length ]
         count_txt = TEXT.flush_right ( ƒ counts[ length ] ? 0 ), 10
@@ -321,43 +323,59 @@ $count_lineup_lengths = ( S ) =>
 $write_stats = ( S ) =>
   return D.$pass_through() unless S.do_stats
   glyphs        = new Set()
+  ### NB that we use a JS `Set` to record unique infixes; it has the convenient property of keeping the
+  insertion order of its elements, so afterwards we can use it to determine the infix ordering. ###
   infixes       = new Set()
   factor_pairs  = new Map()
   lineup_count  = 0
   output        = njs_fs.createWriteStream S.stats_route
   line_count    = 0
-  #.......................................................................................................
+  #.........................................................................................................
   return D.$observe ( event, has_ended ) =>
     if event?
-      #...................................................................................................
+      #.....................................................................................................
       if CND.isa_list event
         [ glyph, prefix, infix, suffix, ] = event
-        if suffix.startsWith '\u3000'
-          suffix = '\ue045'
-        else
-          suffix = suffix.trim()
-        # if suffix.length > 0
+        #...................................................................................................
+        if suffix.startsWith '\u3000' then suffix = '\ue045'
+        else                               suffix = suffix.trim()
         suffix  = Array.from suffix
-        key     = "#{infix},#{infix}#{suffix[ 0 ]}"
+        # if S.two_stats then key = "#{infix},#{infix}#{suffix[ 0 ]}"
+        # else                key = "#{infix},#{infix}#{suffix[ 0 ]}-1"
+        key = "#{infix},#{infix}#{suffix[ 0 ]},1"
         factor_pairs.set key, target = new Set() unless ( target = factor_pairs.get key )?
         target.add glyph
+        #...................................................................................................
+        if S.with_prefixes
+          if prefix.endsWith '\u3000' then prefix = '\ue045'
+          else                             prefix = prefix.trim()
+          prefix  = Array.from prefix
+          key     = "#{infix},#{prefix[ prefix.length - 1 ]}#{infix},2"
+          factor_pairs.set key, target = new Set() unless ( target = factor_pairs.get key )?
+          target.add glyph
+        #...................................................................................................
         infixes.add infix
         glyphs.add  glyph
         lineup_count += +1
-    #.....................................................................................................
+    #.......................................................................................................
     if has_ended
       help "built KWIC for #{ƒ glyphs.size} glyphs"
       help "containing #{ƒ lineup_count} lineups"
-      infixes = Array.from infixes
+      infixes       = Array.from infixes
       factor_pairs  = Array.from factor_pairs
       for entry in factor_pairs
-        entry[ 0 ] = entry[ 0 ].split ','
-        entry[ 1 ] = Array.from entry[ 1 ]
+        entry[ 0 ]      = entry[ 0 ].split ','
+        entry[ 0 ][ 2 ] = parseInt entry[ 0 ][ 2 ], 10
+        entry[ 1 ]      = Array.from entry[ 1 ]
+      #.....................................................................................................
       factor_pairs.sort ( a, b ) ->
-        [ [ a_infix, a_pair, ], a_glyphs, ] = a
-        [ [ b_infix, b_pair, ], b_glyphs, ] = b
-        a_infix_idx                         = infixes.indexOf a_infix
-        b_infix_idx                         = infixes.indexOf b_infix
+        [ [ a_infix, a_pair, a_series, ], a_glyphs, ] = a
+        [ [ b_infix, b_pair, b_series, ], b_glyphs, ] = b
+        a_infix_idx                                   = infixes.indexOf a_infix
+        b_infix_idx                                   = infixes.indexOf b_infix
+        if S.two_stats
+          return +1 if a_series > b_series
+          return -1 if a_series < b_series
         return +1 if a_infix_idx     > b_infix_idx
         return -1 if a_infix_idx     < b_infix_idx
         return +1 if a_glyphs.length < b_glyphs.length
@@ -366,34 +384,43 @@ $write_stats = ( S ) =>
         return -1 if a_pair          < b_pair
         return  0
       #.....................................................................................................
+      output.write "<<(JZR.vertical-bar>>\n"
       output.write "```keep-lines squish: yes\n"
       #.....................................................................................................
       last_infix  = null
-      # separator   = '\u3000' # Ideographic Space
-      # separator   = '\u2004' # Three-per-em Space
-      # separator   = '\u2005' # Four-per-em Space
+      last_series = null
       separator   = '】'
-      # separator   = '\u2006' # Six-per-em Space
-      for [ [ infix, factor_pair, ], glyphs, ] in factor_pairs
+      for [ [ infix, factor_pair, series, ], glyphs, ] in factor_pairs
+        #...................................................................................................
         if last_infix isnt infix
-          # output.write '\n' if last_infix?
-          # output.write "<<<\\dotfill>>>#{infix}<<<\\dotfill>>>\n"
-          # output.write "<<<\\hrulefill>>>#{infix}<<<\\hrulefill>>>\n"
           output.write "——.#{infix}.——\n"
         last_infix  = infix
+        #...................................................................................................
+        if S.two_stats and last_series? and last_series isnt series
+          output.write "```\n"
+          output.write "<<)>>\n"
+          output.write "\n====================================\n\n"
+          output.write "\n<<(slash>>\n"
+          output.write "\n------------------------------------\n"
+          output.write "<<)>>\n\n"
+          # output.write "\n<<!slash [ 'tex', '\\\\mktsRulePlain{}', ]>>\n\n"
+          output.write "<<(JZR.vertical-bar>>\n"
+          output.write "```keep-lines squish: yes\n"
+          output.write "——.#{infix}.——\n"
+        last_series = series
+        #...................................................................................................
         glyph_count = glyphs.length
-        # if glyph_count > 999
-        #   glyph_count_txt = "<<<{\\tfScale{0.5}{1}#{glyph_count}}>>>#{glyph_count}"
-        # else
+        # if glyph_count > 999 then glyph_count_txt = "<<<{\\tfScale{0.5}{1}#{glyph_count}}>>>#{glyph_count}"
         glyph_count_txt = "#{glyph_count}"
         if S.width?
           glyphs.push '\u3000'  while glyphs.length < S.width
           glyphs.pop()          while glyphs.length > S.width
-        line = [ factor_pair, separator, ( glyphs.join '' ), "<<<\\hfill{}>>>", glyph_count_txt, '\n', ].join ''
+        line = [ factor_pair, separator, ( glyphs.join '' ), '==>', glyph_count_txt, '\n', ].join ''
         output.write line
         line_count += +1
       #.....................................................................................................
       output.write "```\n"
+      output.write "<<)>>\n"
       output.end()
       help "found #{infixes.length} infixes"
       help "wrote #{line_count} lines to #{S.stats_route}"

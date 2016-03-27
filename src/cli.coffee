@@ -54,7 +54,9 @@ app_name  = process.argv[ 1 ]
 app.version ( require '../package.json' )[ 'version' ]
 
 #-----------------------------------------------------------------------------------------------------------
-get_do_stats = ( input, fallback = false ) ->
+get_do_stats = \
+get_with_prefixes = \
+get_two_stats = ( input, fallback = false ) ->
   return fallback unless input?
   return input
 
@@ -105,7 +107,8 @@ app
   .command      "kwic [output_route]"
   .description  "render (excerpt of) KWIC index (to output_route where given; must be a folder)"
   .option       "-s, --stats",              "show KWIC infix statistics [false]"
-  .option       "-p, --prefixes",           "infix statistics to include prefixes [false]"
+  .option       "-p, --prefixes",           "infix statistics to include prefixes (only with -s) [false]"
+  .option       "-2, --two",                "separate prefix and suffix stats (only with -sp) [false]"
   .option       "-w, --width [count]",      "maximum number of glyphs in infix statistics [full]"
   .option       "-g, --glyphs [glyphs]",    "which glyphs to include"
   .option       "-f, --factors [factors]",  "which factors to include"
@@ -114,7 +117,8 @@ app
     help ( CND.white "#{app_name}" ), ( CND.gold 'kwic' )#, ( CND.lime glyphs_route )
     #.......................................................................................................
     do_stats                    = get_do_stats      options[ 'stats'    ]
-    with_prefixes               = get_do_stats      options[ 'prefixes' ]
+    with_prefixes               = get_with_prefixes options[ 'prefixes' ]
+    two_stats                   = get_two_stats     options[ 'two'      ]
     width                       = get_width         options[ 'width'    ]
     glyph_sample                = get_glyph_sample  options[ 'glyphs'   ]
     factor_sample               = get_factor_sample options[ 'factors'  ]
@@ -126,15 +130,18 @@ app
     #.......................................................................................................
     if with_prefixes and not do_stats
       throw new Error "switch -p (--prefixes) only valid with -s (--stats)"
+    if two_stats and not ( do_stats and with_prefixes )
+      throw new Error "switch -2 only valid with -sp (--prefixes and --stats)"
     #.......................................................................................................
     if glyph_sample is Infinity         then glyph_sample_key = 'all'
     else if CND.isa_number glyph_sample then glyph_sample_key = rpr glyph_sample
     else                                     glyph_sample_key = glyph_sample.join ''
     key = [ "g.#{glyph_sample_key}", ]
     key.push "f.#{factor_sample.join ''}" if factor_sample?
-    if with_prefixes and do_stats then key.push "sp"
-    else if do_stats              then key.push "s"
-    key.push "w.#{width}"                 if width?
+    if      do_stats and with_prefixes and two_stats  then key.push "sp2"
+    else if do_stats and with_prefixes                then key.push "sp"
+    else if do_stats                                  then key.push "s"
+    key.push "w.#{width}" if width?
     key = key.join '-'
     key = "kwic-#{CND.id_from_text key, 4}-#{key}"
     #.......................................................................................................
@@ -165,6 +172,7 @@ app
       stats_description_route
       do_stats
       with_prefixes
+      two_stats
       width
       key                       }
     #.......................................................................................................
