@@ -221,6 +221,7 @@ options                   = null
 #-----------------------------------------------------------------------------------------------------------
 @describe_stats = ( S ) ->
   # debug '9080', S
+  return "(no stats)" unless S.do_stats
   factors = Object.keys S.factor_sample
   plural  = if factors.length > 1 then 's' else ''
   R       = []
@@ -318,11 +319,12 @@ $count_lineup_lengths = ( S ) =>
 
 #-----------------------------------------------------------------------------------------------------------
 $write_stats = ( S ) =>
+  return D.$pass_through() unless S.do_stats
   glyphs        = new Set()
   infixes       = new Set()
   factor_pairs  = new Map()
   lineup_count  = 0
-  output        = if S.stats_route? then njs_fs.createWriteStream S.stats_route else null
+  output        = njs_fs.createWriteStream S.stats_route
   line_count    = 0
   #.......................................................................................................
   return D.$observe ( event, has_ended ) =>
@@ -380,10 +382,10 @@ $write_stats = ( S ) =>
           output.write "——.#{infix}.——\n"
         last_infix  = infix
         glyph_count = glyphs.length
-        if glyph_count > 999
-          glyph_count_txt = "<<<{\\tfScale{0.5}{1}#{glyph_count}}>>>#{glyph_count}"
-        else
-          glyph_count_txt = "#{glyph_count}"
+        # if glyph_count > 999
+        #   glyph_count_txt = "<<<{\\tfScale{0.5}{1}#{glyph_count}}>>>#{glyph_count}"
+        # else
+        glyph_count_txt = "#{glyph_count}"
         if S.width?
           glyphs.push '\u3000'  while glyphs.length < S.width
           glyphs.pop()          while glyphs.length > S.width
@@ -432,7 +434,7 @@ $write_glyphs = ( S ) =>
 
 #-----------------------------------------------------------------------------------------------------------
 $write_glyphs_description = ( S ) =>
-  output      = njs_fs.createWriteStream S.glyphs_description_route
+  output = njs_fs.createWriteStream S.glyphs_description_route
   #.........................................................................................................
   return D.$observe ( event, has_ended ) ->
     if has_ended
@@ -442,7 +444,8 @@ $write_glyphs_description = ( S ) =>
 
 #-----------------------------------------------------------------------------------------------------------
 $write_stats_description = ( S ) =>
-  output      = njs_fs.createWriteStream S.stats_description_route
+  return D.$pass_through() unless S.do_stats
+  output = njs_fs.createWriteStream S.stats_description_route
   #.........................................................................................................
   return D.$observe ( event, has_ended ) ->
     if has_ended
