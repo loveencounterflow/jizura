@@ -400,28 +400,22 @@ $write_stats = ( S ) =>
       separator   = '】'
       for [ [ infix, factor_pair, series, ], glyphs, ] in factor_pairs
         #...................................................................................................
-        if last_infix isnt infix
-          if S.two_stats
-            unless in_suffix_part then  output.write "——.#{infix}\ue023.——\n"
-            else                        output.write "——.\ue023#{infix}.——\n"
-          else
-            output.write "——.\ue023#{infix}\ue023.——\n"
-        last_infix  = infix
-        #...................................................................................................
         if S.two_stats and last_series? and last_series isnt series
           in_suffix_part = yes
           output.write "```\n"
           output.write "<<)>><<)>>\n"
           output.write "\n:::::::::::::::::::::::::::::::::::::\n\n"
-          # output.write "\n°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°\n\n"
-          # output.write "\n====================================\n\n"
-          # output.write "\n<<(slash>>\n"
-          # output.write "\n------------------------------------\n"
-          # output.write "<<)>>\n\n"
-          # output.write "\n<<!slash [ 'tex', '\\\\mktsRulePlain{}', ]>>\n\n"
           output.write "<<(columns 4>><<(JZR.vertical-bar>>\n"
           output.write "```keep-lines squish: yes\n"
           output.write "——.\ue023#{infix}.——\n"
+        #...................................................................................................
+        else if last_infix isnt infix
+          if S.two_stats
+            unless in_suffix_part then  output.write "——.#{infix}\ue023.——\n"
+            else                        output.write "——.\ue023#{infix}.——\n"
+          else
+            output.write "——.\ue023#{infix}\ue023.——\n"
+        last_infix = infix
         last_series = series
         #...................................................................................................
         glyph_count = glyphs.length
