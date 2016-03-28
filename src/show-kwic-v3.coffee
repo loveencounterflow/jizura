@@ -210,12 +210,12 @@ options                   = null
 @describe_glyphs = ( S ) ->
   factors = Object.keys S.factor_sample
   R       = []
-  R.push "___KWIC___ Index for "
+  R.push "<<(em>> ___KWIC___ Index for "
   ### TAINT type-dependent code ###
   if factors.length > 0
     plural = if factors.length > 1 then 's' else ''
     R.push "factor#{plural} #{factors.join ''}; "
-  R.push @_describe_glyph_sample S
+  R.push ( @_describe_glyph_sample S ) + ':<<)>>'
   return R.join '\n'
 
 #-----------------------------------------------------------------------------------------------------------
@@ -223,13 +223,18 @@ options                   = null
   # debug '9080', S
   return "(no stats)" unless S.do_stats
   factors = Object.keys S.factor_sample
-  plural  = if factors.length > 1 then 's' else ''
+  if factors.length is 1
+    plural  = ""
+    pronoun = "its"
+  else
+    plural  = "s"
+    pronoun = "their"
   R       = []
-  R.push "Statistics for factor#{plural} #{factors.join ''}"
-  if S.two_stats then R.push "and its immediate suffix and prefix factors"
-  else                R.push "and its immediate suffix factors"
+  R.push "<<(em>>Statistics for factor#{plural} #{factors.join ''}"
+  if S.two_stats then R.push "and #{pronoun} immediate suffix and prefix factors"
+  else                R.push "and #{pronoun} immediate suffix factors"
   R.push " (\ue045 indicates first/last position);"
-  R.push @_describe_glyph_sample S
+  R.push ( @_describe_glyph_sample S ) + ':<<)>>'
   return R.join '\n'
 
 #-----------------------------------------------------------------------------------------------------------
@@ -322,14 +327,15 @@ $count_lineup_lengths = ( S ) =>
 #-----------------------------------------------------------------------------------------------------------
 $write_stats = ( S ) =>
   return D.$pass_through() unless S.do_stats
-  glyphs        = new Set()
+  glyphs          = new Set()
   ### NB that we use a JS `Set` to record unique infixes; it has the convenient property of keeping the
   insertion order of its elements, so afterwards we can use it to determine the infix ordering. ###
-  infixes       = new Set()
-  factor_pairs  = new Map()
-  lineup_count  = 0
-  output        = njs_fs.createWriteStream S.stats_route
-  line_count    = 0
+  infixes         = new Set()
+  factor_pairs    = new Map()
+  lineup_count    = 0
+  output          = njs_fs.createWriteStream S.stats_route
+  line_count      = 0
+  in_suffix_part  = no
   #.........................................................................................................
   return D.$observe ( event, has_ended ) =>
     if event?
@@ -384,7 +390,9 @@ $write_stats = ( S ) =>
         return -1 if a_pair          < b_pair
         return  0
       #.....................................................................................................
-      output.write "<<(JZR.vertical-bar>>\n"
+      ### TAINT column count should be accessible through CLI and otherwise be calculated according to
+      paper size and lineup lengths ###
+      output.write "<<(columns 4>><<(JZR.vertical-bar>>\n"
       output.write "```keep-lines squish: yes\n"
       #.....................................................................................................
       last_infix  = null
@@ -393,20 +401,27 @@ $write_stats = ( S ) =>
       for [ [ infix, factor_pair, series, ], glyphs, ] in factor_pairs
         #...................................................................................................
         if last_infix isnt infix
-          output.write "——.#{infix}.——\n"
+          if S.two_stats
+            unless in_suffix_part then  output.write "——.#{infix}\ue023.——\n"
+            else                        output.write "——.\ue023#{infix}.——\n"
+          else
+            output.write "——.\ue023#{infix}\ue023.——\n"
         last_infix  = infix
         #...................................................................................................
         if S.two_stats and last_series? and last_series isnt series
+          in_suffix_part = yes
           output.write "```\n"
-          output.write "<<)>>\n"
-          output.write "\n====================================\n\n"
-          output.write "\n<<(slash>>\n"
-          output.write "\n------------------------------------\n"
-          output.write "<<)>>\n\n"
+          output.write "<<)>><<)>>\n"
+          output.write "\n:::::::::::::::::::::::::::::::::::::\n\n"
+          # output.write "\n°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°\n\n"
+          # output.write "\n====================================\n\n"
+          # output.write "\n<<(slash>>\n"
+          # output.write "\n------------------------------------\n"
+          # output.write "<<)>>\n\n"
           # output.write "\n<<!slash [ 'tex', '\\\\mktsRulePlain{}', ]>>\n\n"
-          output.write "<<(JZR.vertical-bar>>\n"
+          output.write "<<(columns 4>><<(JZR.vertical-bar>>\n"
           output.write "```keep-lines squish: yes\n"
-          output.write "——.#{infix}.——\n"
+          output.write "——.\ue023#{infix}.——\n"
         last_series = series
         #...................................................................................................
         glyph_count = glyphs.length
@@ -420,7 +435,7 @@ $write_stats = ( S ) =>
         line_count += +1
       #.....................................................................................................
       output.write "```\n"
-      output.write "<<)>>\n"
+      output.write "<<)>><<)>>\n"
       output.end()
       help "found #{infixes.length} infixes"
       help "wrote #{line_count} lines to #{S.stats_route}"
@@ -440,6 +455,9 @@ $write_glyphs = ( S ) =>
     if event?
       if CND.isa_list event
         if is_first
+          ### TAINT column count should be accessible through CLI and otherwise be calculated according to
+          paper size and lineup lengths ###
+          output.write "<<(columns 4>><<(JZR.vertical-bar>>\n"
           output.write "```keep-lines squish: yes\n"
           is_first = no
         [ glyph, prefix, infix, suffix, ] = event
@@ -449,13 +467,14 @@ $write_glyphs = ( S ) =>
           output.write prefix + '【' + infix + '】' + suffix + '\n'
         else
           lineup = prefix + '【' + infix + '】' + suffix
-          output.write lineup + "<<<\\hfill{}>>>" + glyph + '\n'
+          output.write lineup + '==>' + glyph + '\n'
       else
         output.write event + '\n'
       line_count += +1
     #.......................................................................................................
     if has_ended
       output.write "```\n"
+      output.write "<<)>><<)>>\n"
       help "wrote #{line_count} lines to #{S.glyphs_route}"
       output.end()
 
