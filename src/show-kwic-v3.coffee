@@ -208,11 +208,9 @@ options                   = null
 
 #-----------------------------------------------------------------------------------------------------------
 @describe_glyphs = ( S ) ->
-  factors = Object.keys S.factor_sample
   R       = []
   R.push "<<(em>> ___KWIC___ Index for "
-  ### TAINT type-dependent code ###
-  if factors.length > 0
+  if S.factor_sample? and ( factors = Object.keys S.factor_sample ).length > 0
     plural = if factors.length > 1 then 's' else ''
     R.push "factor#{plural} #{factors.join ''}; "
   R.push ( @_describe_glyph_sample S ) + ':<<)>>'
@@ -222,6 +220,7 @@ options                   = null
 @describe_stats = ( S ) ->
   # debug '9080', S
   return "(no stats)" unless S.do_stats
+  return "XXXXX" unless S.factor_sample?
   factors = Object.keys S.factor_sample
   if factors.length is 1
     plural  = ""
@@ -297,32 +296,6 @@ $include_sample = ( S ) =>
     in_glyph_sample   = ( not  S.glyph_sample? ) or ( glyph of  S.glyph_sample )
     in_factor_sample  = ( not S.factor_sample? ) or ( infix of S.factor_sample )
     return in_glyph_sample and in_factor_sample
-
-#-----------------------------------------------------------------------------------------------------------
-$count_lineup_lengths = ( S ) =>
-  counts  = []
-  count   = 0
-  #.........................................................................................................
-  return $ ( event, send, end ) =>
-    if event?
-      #.....................................................................................................
-      if CND.isa_list event
-        [ glyph, sortcode, ]          = event
-        [ _, infix, suffix, prefix, ] = sortcode
-        lineup                        = ( prefix.join '' ) + infix + ( suffix.join '' )
-        lineup_length                 = ( Array.from lineup.replace /\u3000/g, '' ).length
-        if true # lineup_length is 8
-          send event
-          counts[ lineup_length ] = ( counts[ lineup_length ] ? 0 ) + 1
-      #.....................................................................................................
-      else
-        send event
-    #.......................................................................................................
-    if end?
-      for length in [ 1 ... counts.length ]
-        count_txt = TEXT.flush_right ( ƒ counts[ length ] ? 0 ), 10
-        help "found #{count_txt} lineups of length #{length}"
-      end()
 
 #-----------------------------------------------------------------------------------------------------------
 $write_stats = ( S ) =>
@@ -403,9 +376,9 @@ $write_stats = ( S ) =>
         if S.two_stats and last_series? and last_series isnt series
           in_suffix_part = yes
           output.write "```\n"
-          output.write "<<)>><<)>>\n"
-          output.write "\n:::::::::::::::::::::::::::::::::::::\n\n"
-          output.write "<<(columns 4>><<(JZR.vertical-bar>>\n"
+          # output.write "<<)>><<)>>\n"
+          output.write "\n/0------------------------------0/\n\n"
+          # output.write "<<(columns 4>><<(JZR.vertical-bar>>\n"
           output.write "```keep-lines squish: yes\n"
           output.write "——.\ue023#{infix}.——\n"
         #...................................................................................................
@@ -439,10 +412,11 @@ $write_stats = ( S ) =>
 
 #-----------------------------------------------------------------------------------------------------------
 $write_glyphs = ( S ) =>
-  output      = njs_fs.createWriteStream S.glyphs_route
-  line_count  = 0
-  is_first    = yes
-  last_infix  = null
+  output        = njs_fs.createWriteStream S.glyphs_route
+  line_count    = 0
+  is_first      = yes
+  last_infix    = null
+  empty_prefix  = '\u3000\u3000\u3000'
   #.........................................................................................................
   return D.$observe ( event, has_ended ) ->
     #.......................................................................................................
@@ -455,13 +429,11 @@ $write_glyphs = ( S ) =>
           output.write "```keep-lines squish: yes\n"
           is_first = no
         [ glyph, prefix, infix, suffix, ] = event
-        if infix isnt last_infix
-          last_infix = infix
+        if ( infix isnt last_infix ) and ( glyph isnt infix )
           # output.write "——.#{infix}.——\n"
-          output.write prefix + '【' + infix + '】' + suffix + '\n'
-        else
-          lineup = prefix + '【' + infix + '】' + suffix
-          output.write lineup + '==>' + glyph + '\n'
+          output.write empty_prefix + '【' + infix + '】' + '\n'
+        output.write prefix + '【' + infix + '】' + suffix + '==>' + glyph + '\n'
+        last_infix = infix
       else
         output.write event + '\n'
       line_count += +1
@@ -493,113 +465,141 @@ $write_stats_description = ( S ) =>
       help "wrote stats description to #{S.stats_description_route}"
       output.end()
 
-#-----------------------------------------------------------------------------------------------------------
-@$align_affixes_with_braces = ( S ) =>
-  prefix_max_length   = 3
-  suffix_max_length   = 3
-  #.........................................................................................................
-  return $ ( event, send ) =>
-    #.......................................................................................................
-    if CND.isa_list event
-      [ glyph, sortcode, ]          = event
-      [ _, infix, suffix, prefix, ] = sortcode
-      #.....................................................................................................
-      prefix_length                 = prefix.length
-      suffix_length                 = suffix.length
-      prefix_delta                  = prefix_length - prefix_max_length
-      suffix_delta                  = suffix_length - suffix_max_length
-      prefix_excess_max_length      = suffix_max_length - suffix_length
-      suffix_excess_max_length      = prefix_max_length - prefix_length
-      prefix_excess                 = []
-      suffix_excess                 = []
-      prefix_padding                = []
-      suffix_padding                = []
-      prefix_is_shortened           = no
-      suffix_is_shortened           = no
-      #.....................................................................................................
-      if prefix_delta > 0
-        prefix_excess = prefix.splice 0, prefix_delta
-      if suffix_delta > 0
-        suffix_excess = suffix.splice suffix.length - suffix_delta, suffix_delta
-      #.....................................................................................................
-      while prefix_excess.length > 0 and prefix_excess.length > prefix_excess_max_length
-        prefix_is_shortened = yes
-        prefix_excess.pop()
-      while suffix_excess.length > 0 and suffix_excess.length > suffix_excess_max_length
-        suffix_is_shortened = yes
-        suffix_excess.shift()
-      #.....................................................................................................
-      while prefix_padding.length + suffix_excess.length + prefix.length < prefix_max_length
-        prefix_padding.unshift '\u3000'
-      while suffix_padding.length + prefix_excess.length + suffix.length < suffix_max_length
-        suffix_padding.unshift '\u3000'
-      #.....................................................................................................
-      if prefix_excess.length > 0 then prefix_excess.unshift '「' unless prefix_excess.length is 0
-      else                                    prefix.unshift '「' unless prefix_delta > 0
-      if suffix_excess.length > 0 then suffix_excess.push    '」' unless suffix_excess.length is 0
-      else                                    suffix.push    '」' unless suffix_delta > 0
-      #.....................................................................................................
-      prefix.splice 0, 0, prefix_padding...
-      prefix.splice 0, 0, suffix_excess...
-      suffix.splice suffix.length, 0, suffix_padding...
-      suffix.splice suffix.length, 0, prefix_excess...
-      #.....................................................................................................
-      urge ( prefix.join '' ) + '【' + infix + '】' + ( suffix.join '' )
-      # send [ glyph, [ prefix_padding, suffix_excess, prefix, infix, suffix, prefix_excess, ], ]
-      send [ glyph, [ prefix, infix, suffix, ], ]
-    #.......................................................................................................
-    else
-      send event
 
-#-----------------------------------------------------------------------------------------------------------
-@$align_affixes_with_spaces = ( S ) =>
-  ### This code has been used in `copy-jizuradb-to-Hollerith2-format#add_kwic_v3_wrapped_lineups` ###
-  prefix_max_length   = 3
-  suffix_max_length   = 3
-  #.........................................................................................................
-  return $ ( event, send ) =>
-    #.......................................................................................................
-    if CND.isa_list event
-      [ glyph, sortcode, ]          = event
-      [ _, infix, suffix, prefix, ] = sortcode
-      #.....................................................................................................
-      prefix_length                 = prefix.length
-      suffix_length                 = suffix.length
-      prefix_delta                  = prefix_length - prefix_max_length
-      suffix_delta                  = suffix_length - suffix_max_length
-      prefix_excess_max_length      = suffix_max_length - suffix_length
-      suffix_excess_max_length      = prefix_max_length - prefix_length
-      prefix_excess                 = []
-      suffix_excess                 = []
-      prefix_padding                = []
-      suffix_padding                = []
-      #.....................................................................................................
-      if prefix_delta > 0
-        prefix_excess = prefix.splice 0, prefix_delta
-      if suffix_delta > 0
-        suffix_excess = suffix.splice suffix.length - suffix_delta, suffix_delta
-      #.....................................................................................................
-      while prefix_excess.length > 0 and prefix_excess.length > prefix_excess_max_length - 1
-        prefix_excess.pop()
-      while suffix_excess.length > 0 and suffix_excess.length > suffix_excess_max_length - 1
-        suffix_excess.shift()
-      #.....................................................................................................
-      while prefix_padding.length + suffix_excess.length + prefix.length < prefix_max_length
-        prefix_padding.unshift '\u3000'
-      while suffix_padding.length + prefix_excess.length + suffix.length < suffix_max_length
-        suffix_padding.unshift '\u3000'
-      #.....................................................................................................
-      prefix.splice 0, 0, prefix_padding...
-      prefix.splice 0, 0, suffix_excess...
-      suffix.splice suffix.length, 0, suffix_padding...
-      suffix.splice suffix.length, 0, prefix_excess...
-      #.....................................................................................................
-      urge ( prefix.join '' ) + '【' + infix + '】' + ( suffix.join '' )
-      # send [ glyph, [ prefix_padding, suffix_excess, prefix, infix, suffix, prefix_excess, ], ]
-      send [ glyph, [ prefix, infix, suffix, ], ]
-    #.......................................................................................................
-    else
-      send event
+# #-----------------------------------------------------------------------------------------------------------
+# $count_lineup_lengths = ( S ) =>
+#   counts  = []
+#   count   = 0
+#   #.........................................................................................................
+#   return $ ( event, send, end ) =>
+#     if event?
+#       #.....................................................................................................
+#       if CND.isa_list event
+#         [ glyph, sortcode, ]          = event
+#         [ _, infix, suffix, prefix, ] = sortcode
+#         lineup                        = ( prefix.join '' ) + infix + ( suffix.join '' )
+#         lineup_length                 = ( Array.from lineup.replace /\u3000/g, '' ).length
+#         if true # lineup_length is 8
+#           send event
+#           counts[ lineup_length ] = ( counts[ lineup_length ] ? 0 ) + 1
+#       #.....................................................................................................
+#       else
+#         send event
+#     #.......................................................................................................
+#     if end?
+#       for length in [ 1 ... counts.length ]
+#         count_txt = TEXT.flush_right ( ƒ counts[ length ] ? 0 ), 10
+#         help "found #{count_txt} lineups of length #{length}"
+#       end()
+
+# #-----------------------------------------------------------------------------------------------------------
+# @$align_affixes_with_braces = ( S ) =>
+#   prefix_max_length   = 3
+#   suffix_max_length   = 3
+#   #.........................................................................................................
+#   return $ ( event, send ) =>
+#     #.......................................................................................................
+#     if CND.isa_list event
+#       [ glyph, sortcode, ]          = event
+#       [ _, infix, suffix, prefix, ] = sortcode
+#       #.....................................................................................................
+#       prefix_length                 = prefix.length
+#       suffix_length                 = suffix.length
+#       prefix_delta                  = prefix_length - prefix_max_length
+#       suffix_delta                  = suffix_length - suffix_max_length
+#       prefix_excess_max_length      = suffix_max_length - suffix_length
+#       suffix_excess_max_length      = prefix_max_length - prefix_length
+#       prefix_excess                 = []
+#       suffix_excess                 = []
+#       prefix_padding                = []
+#       suffix_padding                = []
+#       prefix_is_shortened           = no
+#       suffix_is_shortened           = no
+#       #.....................................................................................................
+#       if prefix_delta > 0
+#         prefix_excess = prefix.splice 0, prefix_delta
+#       if suffix_delta > 0
+#         suffix_excess = suffix.splice suffix.length - suffix_delta, suffix_delta
+#       #.....................................................................................................
+#       while prefix_excess.length > 0 and prefix_excess.length > prefix_excess_max_length
+#         prefix_is_shortened = yes
+#         prefix_excess.pop()
+#       while suffix_excess.length > 0 and suffix_excess.length > suffix_excess_max_length
+#         suffix_is_shortened = yes
+#         suffix_excess.shift()
+#       #.....................................................................................................
+#       while prefix_padding.length + suffix_excess.length + prefix.length < prefix_max_length
+#         prefix_padding.unshift '\u3000'
+#       while suffix_padding.length + prefix_excess.length + suffix.length < suffix_max_length
+#         suffix_padding.unshift '\u3000'
+#       #.....................................................................................................
+#       if prefix_excess.length > 0 then prefix_excess.unshift '「' unless prefix_excess.length is 0
+#       else                                    prefix.unshift '「' unless prefix_delta > 0
+#       if suffix_excess.length > 0 then suffix_excess.push    '」' unless suffix_excess.length is 0
+#       else                                    suffix.push    '」' unless suffix_delta > 0
+#       #.....................................................................................................
+#       prefix.splice 0, 0, prefix_padding...
+#       prefix.splice 0, 0, suffix_excess...
+#       suffix.splice suffix.length, 0, suffix_padding...
+#       suffix.splice suffix.length, 0, prefix_excess...
+#       #.....................................................................................................
+#       urge ( prefix.join '' ) + '【' + infix + '】' + ( suffix.join '' )
+#       # send [ glyph, [ prefix_padding, suffix_excess, prefix, infix, suffix, prefix_excess, ], ]
+#       send [ glyph, [ prefix, infix, suffix, ], ]
+#     #.......................................................................................................
+#     else
+#       send event
+
+# #-----------------------------------------------------------------------------------------------------------
+# @$align_affixes_with_spaces = ( S ) =>
+#   ### This code has been used in `copy-jizuradb-to-Hollerith2-format#add_kwic_v3_wrapped_lineups` ###
+#   prefix_max_length   = 3
+#   suffix_max_length   = 3
+#   #.........................................................................................................
+#   return $ ( event, send ) =>
+#     #.......................................................................................................
+#     if CND.isa_list event
+#       [ glyph, sortcode, ]          = event
+#       [ _, infix, suffix, prefix, ] = sortcode
+#       #.....................................................................................................
+#       prefix_length                 = prefix.length
+#       suffix_length                 = suffix.length
+#       prefix_delta                  = prefix_length - prefix_max_length
+#       suffix_delta                  = suffix_length - suffix_max_length
+#       prefix_excess_max_length      = suffix_max_length - suffix_length
+#       suffix_excess_max_length      = prefix_max_length - prefix_length
+#       prefix_excess                 = []
+#       suffix_excess                 = []
+#       prefix_padding                = []
+#       suffix_padding                = []
+#       #.....................................................................................................
+#       if prefix_delta > 0
+#         prefix_excess = prefix.splice 0, prefix_delta
+#       if suffix_delta > 0
+#         suffix_excess = suffix.splice suffix.length - suffix_delta, suffix_delta
+#       #.....................................................................................................
+#       while prefix_excess.length > 0 and prefix_excess.length > prefix_excess_max_length - 1
+#         prefix_excess.pop()
+#       while suffix_excess.length > 0 and suffix_excess.length > suffix_excess_max_length - 1
+#         suffix_excess.shift()
+#       #.....................................................................................................
+#       while prefix_padding.length + suffix_excess.length + prefix.length < prefix_max_length
+#         prefix_padding.unshift '\u3000'
+#       while suffix_padding.length + prefix_excess.length + suffix.length < suffix_max_length
+#         suffix_padding.unshift '\u3000'
+#       #.....................................................................................................
+#       prefix.splice 0, 0, prefix_padding...
+#       prefix.splice 0, 0, suffix_excess...
+#       suffix.splice suffix.length, 0, suffix_padding...
+#       suffix.splice suffix.length, 0, prefix_excess...
+#       #.....................................................................................................
+#       urge ( prefix.join '' ) + '【' + infix + '】' + ( suffix.join '' )
+#       # send [ glyph, [ prefix_padding, suffix_excess, prefix, infix, suffix, prefix_excess, ], ]
+#       send [ glyph, [ prefix, infix, suffix, ], ]
+#     #.......................................................................................................
+#     else
+#       send event
+
 
 #-----------------------------------------------------------------------------------------------------------
 $transform_v3 = ( S ) =>
