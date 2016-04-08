@@ -103,6 +103,32 @@ app
 
 #-----------------------------------------------------------------------------------------------------------
 app
+  .command      "repetitions"
+  .description  "find repeated components in formulas or lineups"
+  .option       "--formulas", "look in formulas"
+  .option       "--lineups",  "look in lineups"
+  #.........................................................................................................
+  .action ( options ) ->
+    #.......................................................................................................
+    command   = options[ 'command' ]
+    lineups   = options[ 'lineups'  ] ? false
+    formulas  = options[ 'formulas' ] ? false
+    #.......................................................................................................
+    if lineups is formulas
+      throw new Error "must indicate either --lineups or else --formulas"
+    source = if lineups then 'lineups' else 'formulas'
+    #.......................................................................................................
+    S = {
+      command
+      source
+      }
+    #.......................................................................................................
+    help ( CND.grey "#{app_name}" ), ( CND.gold 'repetitions' ), ( CND.lime '--' + source )
+    SRF = require './show-repeated-factors'
+    SRF.show_repeated_factors S
+
+#-----------------------------------------------------------------------------------------------------------
+app
   #.........................................................................................................
   .command      "kwic [output_route]"
   .description  "render (excerpt of) KWIC index (to output_route where given; must be a folder)"
