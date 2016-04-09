@@ -535,8 +535,7 @@ find_duplicated_guides()
   source_route    = njs_path.resolve home, 'data/leveldb'
   target_route    = njs_path.resolve home, 'data/leveldb-v2'
   # ### # # # # # # # # # # # # # # # # # # # # # ###
-  # target_route    = '/tmp/leveldb-v2'
-  # alert "using temp DB"
+  # target_route    = '/tmp/leveldb-v2'; alert "using temp DB"
   # ### # # # # # # # # # # # # # # # # # # # # # ###
   target_db_size  = 1e6
   ds_options      = require njs_path.resolve home, 'options'

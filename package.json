@@ -29,7 +29,6 @@
   "scripts": {
     "build": "gulp --harmony build",
     "compare-cjkvi": "npm run build && node --harmony --harmony-proxies lib/compare-recent-cjkvi-ids-data.js",
-    "mkts": "node --harmony lib/cli.js mkts $2",
     "test": "npm run build && node --harmony lib/tests.js"
   },
   "repository": {

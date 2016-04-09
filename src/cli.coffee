@@ -90,23 +90,23 @@ isa_folder = ( route ) ->
     throw error
   return fstats.isDirectory()
 
-#-----------------------------------------------------------------------------------------------------------
-app
-  .command      "mkts <filename>"
-  .description  "typeset MD source in <filename>, output PDF"
-  #.........................................................................................................
-  .action ( filename ) ->
-    help ( CND.grey "#{app_name}" ), ( CND.gold 'mkts' ), ( CND.lime filename )
-    MKTS = require './mkts-typesetter-interim'
-    CND.dir MKTS
-    MKTS.pdf_from_md filename
+# #-----------------------------------------------------------------------------------------------------------
+# app
+#   .command      "mkts <filename>"
+#   .description  "typeset MD source in <filename>, output PDF"
+#   #.........................................................................................................
+#   .action ( filename ) ->
+#     help ( CND.grey "#{app_name}" ), ( CND.gold 'mkts' ), ( CND.lime filename )
+#     MKTS = require './mkts-typesetter-interim'
+#     CND.dir MKTS
+#     MKTS.pdf_from_md filename
 
 #-----------------------------------------------------------------------------------------------------------
 app
   .command      "repetitions"
   .description  "find repeated components in formulas or lineups"
-  .option       "--formulas", "look in formulas"
   .option       "--lineups",  "look in lineups"
+  .option       "--formulas", "look in formulas"
   #.........................................................................................................
   .action ( options ) ->
     #.......................................................................................................
@@ -114,16 +114,16 @@ app
     lineups   = options[ 'lineups'  ] ? false
     formulas  = options[ 'formulas' ] ? false
     #.......................................................................................................
-    if lineups is formulas
-      throw new Error "must indicate either --lineups or else --formulas"
-    source = if lineups then 'lineups' else 'formulas'
+    if ( not lineups ) and ( not formulas )
+      throw new Error "must indicate source (--lineups, --formulas, or both)"
     #.......................................................................................................
     S = {
       command
-      source
+      lineups
+      formulas
       }
     #.......................................................................................................
-    help ( CND.grey "#{app_name}" ), ( CND.gold 'repetitions' ), ( CND.lime '--' + source )
+    help ( CND.grey "#{app_name}" ), ( CND.gold 'repetitions' )
     SRF = require './show-repeated-factors'
     SRF.show_repeated_factors S
 
