@@ -89,17 +89,17 @@ $look_for_repetitions = ( S ) =>
       #.....................................................................................................
       switch prd
         when S.prd_for_lineups
-          sigil      = 'Ｌ'
+          sigil      = 'ℓ'
         when S.prd_for_formulas
-          sigil      = 'Ｆ'
+          sigil      = 'f'
           components = ( XNCHR.as_uchr component for component in components )
         else throw new Error "unknown predicate #{rpr prd}"
       #.....................................................................................................
-      components  = sigil + components.join ''
+      components  = components.join ''
       glyph       = XNCHR.as_uchr glyph
       fncr        = XNCHR.as_fncr glyph
       key         = ( ( XNCHR.as_uchr component ) for component in repeated_components ).join ''
-      send [ key, fncr, glyph, components, ]
+      send [ key, fncr, glyph, sigil, components, ]
 
 #-----------------------------------------------------------------------------------------------------------
 $aggregate = ( S ) =>
@@ -107,16 +107,25 @@ $aggregate = ( S ) =>
   return $ ( phrase, send, end ) =>
     #.......................................................................................................
     if phrase?
-      [ key, fncr, glyph, components, ] = phrase
-      entry   = [ fncr, glyph, components, ].join '\t'
-      target  = cache[ key ]?= []
-      target.push entry unless entry in target
+      [ key, fncr, glyph, sigil, components, ] = phrase
+      entry     = [ fncr, glyph, components, ].join '\t'
+      target_0  = cache[ key ]?= {}
+      target_1  = target_0[ entry ]?= []
+      target_1.push sigil unless sigil in target_1
+      # if glyph is '桓'
+      #   # debug '0921', cache
+      #   # process.exit()
+      #   end = send.end
     #.......................................................................................................
     if end?
       for key, entries of cache
-        for entry, idx in entries
+        idx = -1
+        for entry, sigils of entries
+          idx += +1
           key = '\u3000' unless idx is 0
-          send [ key, entry, ]
+          line = "#{entry} #{sigils.join ''}"
+          send [ key, line, ]
+      process.exit()
       end()
 
 #-----------------------------------------------------------------------------------------------------------
