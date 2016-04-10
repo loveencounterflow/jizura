@@ -25,3 +25,116 @@ u-cjk/82bb  芻   ⿱⿹勹&jzr#xe223;⿹勹&jzr#xe223;
 ```
 
 
+## Common Formula Elements
+
+≈●┬┊
+⿱⿰⿻⿴⿵⿶⿸⿹⿺⿷
+⿻&jzr#xe228;
+
+⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻
+◰↔↻↕
+
+&jzr#xe222;
+
+
+
+↻ 
+↔ 
+↕ 
+
+● 
+
+⿰  
+
+
+⿱  
+
+
+
+⿺  
+
+
+⿸  
+
+
+⿹  
+
+◰ 
+
+
+⿶  
+
+
+
+⿷  
+
+
+⿵  
+
+
+
+
+⿴  
+
+⿻  
+
+
+≈ 
+
+
+⺝一乚丶丨丿𠃌丅㇇
+亠丷
+≈&jzr#xe11f;
+&jzr#xe1d1;
+㚘𪢴
+𡗜
+黃
+黄
+兓
+⿻冖亞
+𪯢
+↻或&cdp#x8aea;
+⿰&jzr#e1f5;&jzr#e1f4; &cdp#x85e6;
+&jzr#xe251;&cdp#x89b6;
+〓
+&jzr#xe252;&cdp#x88db;
+&jzr#xe256;⿰夕&jzr#xe18b;
+
+XXX  ☛  os|strokeorder/short:33434343412|glyph:𠂿|0
+XXX  ☛  os|strokeorder/short:33434343412|glyph:𠦬|0
+
+
+u-latn/a7   §   <5>
+u-cjk-rad2/2e84 ⺄   <5>
+u-cjk-sym/3006  〆   <5>
+u-cjk-sym/3007  〇   <5>
+u-cjk-sym/3025  〥   <5>
+u-cjk-sym/303b  〻   <5>
+u-cjk-sym/303d  〽   <5>
+u-cjk-strk/31c1 ㇁   <5>
+u-cjk-strk/31c2 ㇂   <5>
+u-cjk-strk/31c3 ㇃   <5>
+u-cjk-strk/31c4 ㇄   <5>
+u-cjk-strk/31c5 ㇅   <5>
+u-cjk-strk/31c7 ㇇   <5>
+u-cjk-strk/31c8 ㇈   <5>
+u-cjk-strk/31c9 ㇉   <5>
+u-cjk-strk/31ca ㇊   <5>
+u-cjk-strk/31cb ㇋   <5>
+u-cjk-strk/31cc ㇌   <5>
+u-cjk-strk/31ce ㇎   <5>
+u-cjk-strk/31e2 ㇢   <5>
+u-cjk/4e41  乁   <5>
+u-cjk/4e59  乙   <5>
+u-cjk/4e5a  乚   <5>
+u-cjk/4e5b  乛   <5>
+u-cjk-xb/200c9  𠃉   <5>
+u-cjk-xb/200ca  𠃊   *<5>
+u-cjk-xb/200cb  𠃋   <5>
+u-cjk-xb/200cc  𠃌   <5>
+u-cjk-xb/200cd  𠃍   <5>
+u-cjk-xb/200d1  𠃑   <5>
+u-cjk-xb/2010c  𠄌   <5>
+u-cjk-xb/2010e  𠄎   <5>
+u-cjk-xb/21fe8  𡿨   <5>
+u-cjk/4ea0  亠   <41>
