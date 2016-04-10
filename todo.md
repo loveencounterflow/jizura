@@ -1,5 +1,7 @@
 
 
+
+
 # todo
 
 Add half of 芻 as factor (`shape-factor-hierarchy.txt`, lines 1502ff):
@@ -11,10 +13,11 @@ Add half of 芻 as factor (`shape-factor-hierarchy.txt`, lines 1502ff):
 3 丿 35            勹 35523                         *x2v            芻
 ```
 
-correct formula for 芻 (line 13809):
+correct formulas:
 
 ```
-u-cjk/82bb  芻   ⿱⿹勹&jzr#xe223;⿹勹&jzr#xe223;
+sfo 13809u-cjk/82bb  芻   ⿱⿹勹&jzr#xe223;⿹勹&jzr#xe223;
+sfo 28912u-cjk-xb/203c8  𠏈   ⿰亻⿱⿹勹&jzr#xe223;匋
 ```
 
 
