@@ -469,6 +469,7 @@ find_duplicated_guides = ->
     .pipe $ ( [ line, _, guides, glyph, ], send ) => send [ line, glyph, guides, ]
     .pipe $ ( fields, send ) =>
       [ line, glyph, guides, ] = fields
+      # debug '0912', rpr fields
       unless CND.isa_text guides
         warn line, fields
       send fields
