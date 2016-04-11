@@ -21,8 +21,9 @@
     "pipedreams": "^0.2.32"
   },
   "devDependencies": {
-    "gulp": "^3.9.0",
-    "gulp-coffee": "^2.3.1",
+    "coffee-script": "^1.10.0",
+    "gulp": "^3.9.1",
+    "gulp-coffee": "^2.3.2",
     "gulp-sourcemaps": "^1.5.2",
     "guy-test": "^1.0.5"
   },

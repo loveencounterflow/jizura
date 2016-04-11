@@ -112,6 +112,7 @@ $aggregate = ( S ) =>
       target_0  = cache[ key ]?= {}
       target_1  = target_0[ entry ]?= []
       target_1.push sigil unless sigil in target_1
+      debug '©77388', glyph, entry if glyph in '㢸㢽㣃䰜䰞弻弼粥鬻𢏺𢐁𢐆㵉'
       # if glyph is '桓'
       #   # debug '0921', cache
       #   # process.exit()
