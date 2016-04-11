@@ -449,42 +449,42 @@ options =
       debug '©70RRX', new Date()
       end()
 
-#===========================================================================================================
-find_duplicated_guides = ->
-  D = require 'pipedreams'
-  $ = D.remit.bind D
-  ### TAINT code duplication ###
-  ### TAIN make configurable / store in options ###
-  home              = njs_path.resolve __dirname, '../../jizura-datasources'
-  derivatives_home  = njs_path.resolve home, 'data/5-derivatives'
-  # derivatives_route = njs_path.resolve derivatives_home, 'guide-pairs.txt'
-  input             = njs_fs.createReadStream  njs_path.resolve derivatives_home, 'guide-pairs.txt'
-  output            = njs_fs.createWriteStream njs_path.resolve derivatives_home, 'guide-pairs-duplicated.txt'
-  input
-    .pipe D.$split()
-    # .pipe D.$parse_csv headers: no
-    .pipe $ ( line, send ) => send line unless line.length is 0
-    .pipe $ ( line, send ) => send line unless line.startsWith '#'
-    .pipe $ ( line, send ) => send [ line, ( line.split '\t' )... ]
-    .pipe $ ( [ line, _, guides, glyph, ], send ) => send [ line, glyph, guides, ]
-    .pipe $ ( fields, send ) =>
-      [ line, glyph, guides, ] = fields
-      # debug '0912', rpr fields
-      unless CND.isa_text guides
-        warn line, fields
-      send fields
-    .pipe $ ( [ line, glyph, guides, ], send ) =>
-      send [ line, glyph, ( Array.from guides )... ]
-    .pipe $ ( fields, send ) =>
-      [ line, glyph, guide_0, guide_1, ] = fields
-      send fields unless guide_0 is '一' or guide_1 is '一'
-    .pipe $ ( fields, send ) =>
-      [ line, glyph, guide_0, guide_1, ] = fields
-      send fields if guide_0 is guide_1
-    # .pipe D.$show()
-    .pipe $ ( [ line, glyph, guide_0, guide_1, ], send ) => send line + '\n'
-    .pipe output
-find_duplicated_guides()
+# #===========================================================================================================
+# find_duplicated_guides = ->
+#   D = require 'pipedreams'
+#   $ = D.remit.bind D
+#   ### TAINT code duplication ###
+#   ### TAIN make configurable / store in options ###
+#   home              = njs_path.resolve __dirname, '../../jizura-datasources'
+#   derivatives_home  = njs_path.resolve home, 'data/5-derivatives'
+#   # derivatives_route = njs_path.resolve derivatives_home, 'guide-pairs.txt'
+#   input             = njs_fs.createReadStream  njs_path.resolve derivatives_home, 'guide-pairs.txt'
+#   output            = njs_fs.createWriteStream njs_path.resolve derivatives_home, 'guide-pairs-duplicated.txt'
+#   input
+#     .pipe D.$split()
+#     # .pipe D.$parse_csv headers: no
+#     .pipe $ ( line, send ) => send line unless line.length is 0
+#     .pipe $ ( line, send ) => send line unless line.startsWith '#'
+#     .pipe $ ( line, send ) => send [ line, ( line.split '\t' )... ]
+#     .pipe $ ( [ line, _, guides, glyph, ], send ) => send [ line, glyph, guides, ]
+#     .pipe $ ( fields, send ) =>
+#       [ line, glyph, guides, ] = fields
+#       # debug '0912', rpr fields
+#       unless CND.isa_text guides
+#         warn line, fields
+#       send fields
+#     .pipe $ ( [ line, glyph, guides, ], send ) =>
+#       send [ line, glyph, ( Array.from guides )... ]
+#     .pipe $ ( fields, send ) =>
+#       [ line, glyph, guide_0, guide_1, ] = fields
+#       send fields unless guide_0 is '一' or guide_1 is '一'
+#     .pipe $ ( fields, send ) =>
+#       [ line, glyph, guide_0, guide_1, ] = fields
+#       send fields if guide_0 is guide_1
+#     # .pipe D.$show()
+#     .pipe $ ( [ line, glyph, guide_0, guide_1, ], send ) => send line + '\n'
+#     .pipe output
+# find_duplicated_guides()
 
 #-----------------------------------------------------------------------------------------------------------
 @v1_split_so_bkey = ( bkey ) ->
@@ -585,7 +585,7 @@ find_duplicated_guides()
       .pipe @$add_kwic_v2()
       .pipe @$add_kwic_v3                 factor_infos
       .pipe @$add_kwic_v3_wrapped_lineups factor_infos
-      .pipe @$add_guide_pairs             factor_infos
+      # .pipe @$add_guide_pairs             factor_infos
       .pipe @$add_factor_membership       factor_infos
       .pipe @$add_sims()
       # .pipe D.$show()

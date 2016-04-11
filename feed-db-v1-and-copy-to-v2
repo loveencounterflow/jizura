@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 
 
-n 0.10.34                                                                       && \
+# n 0.10.34                                                                       && \
+# n 5.1.1                                                                         && \
+
 cd /Volumes/Storage/io/jizura-datasources                                       && \
 ./build                                                                         && \
 node lib/feed-db.js build fresh x >> /tmp/tailer                                && \
-n 5.1.1                                                                         && \
 cd /Volumes/Storage/io/jizura                                                   && \
 gulp --harmony build                                                            && \
 node --harmony lib/copy-jizuradb-to-Hollerith2-format.js >> /tmp/tailer
