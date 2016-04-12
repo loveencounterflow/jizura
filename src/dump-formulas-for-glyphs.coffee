@@ -43,113 +43,71 @@ XNCHR                     = require './XNCHR'
 HOLLERITH                 = require 'hollerith'
 # LRSL                      = require 'longest-repeating-sublist'
 
-XNCHR.chrs_from_text "𢐨𢐮𢰅𣹎𤑜𤑨𤑵𤙗𥋡𥽮𦭲𦳪𦽙𧙭𧛴𧩿𨂳𩱆𩱌𩱍𩱎𩱒𩱓𩱖𩱗𩱚𩱜𩱞𩱟𩱠𩱡𩱣𩱤𩱥𩱦𩱧𩱨𩱪𩱫𩱭𩱮𩱯𩱰𩱱𩱲𩱳𩱶𩱷𪾞𫙆𫙇"
+# XNCHR.chrs_from_text "𢐨𢐮𢰅𣹎𤑜𤑨𤑵𤙗𥋡𥽮𦭲𦳪𦽙𧙭𧛴𧩿𨂳𩱆𩱌𩱍𩱎𩱒𩱓𩱖𩱗𩱚𩱜𩱞𩱟𩱠𩱡𩱣𩱤𩱥𩱦𩱧𩱨𩱪𩱫𩱭𩱮𩱯𩱰𩱱𩱲𩱳𩱶𩱷𪾞𫙆𫙇"
 
 #-----------------------------------------------------------------------------------------------------------
-@show_repeated_factors = ( S ) ->
+@dump_formulas = ( S ) ->
   #.........................................................................................................
-  S.query             = { prefix: [ 'spo', ], }
   S.db_route          = join __dirname, '../../jizura-datasources/data/leveldb-v2'
   S.db                = HOLLERITH.new_db S.db_route, create: no
-  S.prd_for_lineups   = 'guide/lineup/uchr'
-  S.prd_for_formulas  = 'formula/ic0'
   help "using DB at #{S.db[ '%self' ][ 'location' ]}"
-  input               = ( HOLLERITH.create_phrasestream S.db, S.query ).pipe $transform S
+  input               = D.create_throughstream()
+  input.pipe $transform S
+  #.........................................................................................................
+  for glyph in S.glyphs
+    input.write glyph
+  input.end()
   #.........................................................................................................
   return null
 
 #-----------------------------------------------------------------------------------------------------------
-$filter_inner_glyphs = ( S ) =>
-  return $ ( phrase, send ) =>
-    [ _, glyph, prd, obj, ] = phrase
-    send phrase if XNCHR.is_inner_glyph glyph
+$query = ( S ) =>
+  return D.remit_async_spread ( glyph, send ) =>
+    query = { prefix: [ 'spo', glyph, 'formula' ], }
+    input = ( HOLLERITH.create_phrasestream S.db, query )
+    input
+      .pipe $ ( phrase, _ ) =>
+        [ ..., formulas, ] = phrase
+        send [ glyph, formula, idx, ] for formula, idx in formulas
+        send.done()
 
 #-----------------------------------------------------------------------------------------------------------
-$filter_relevant_phrases = ( S ) =>
-  prds = []
-  prds.push S.prd_for_lineups  if S.lineups
-  prds.push S.prd_for_formulas if S.formulas
-  return $ ( phrase, send ) =>
-    [ _, glyph, prd, obj, ] = phrase
-    send [ glyph, prd, obj, ] if prd in prds
+$add_fncr = ( S ) =>
+  return $ ( [ glyph, formula, idx, ], send ) =>
+    fncr = XNCHR.as_fncr glyph
+    send [ glyph, fncr, formula, idx, ]
 
 #-----------------------------------------------------------------------------------------------------------
-$show_progress = ( S ) =>
-  count = 0
-  return $ ( phrase, send ) =>
-    send phrase
-    info count if ( count += +1 ) % 1000 is 0
+$sort = ( S ) =>
+  return D.$sort ( a, b ) =>
+    [ a_glyph, a_fncr, a_formula, a_idx, ] = a
+    [ b_glyph, b_fncr, b_formula, b_idx, ] = b
+    a_cid = XNCHR.as_cid a_glyph
+    b_cid = XNCHR.as_cid b_glyph
+    return +1 if a_cid > b_cid
+    return -1 if a_cid < b_cid
+    return +1 if a_idx > b_idx
+    return -1 if a_idx < b_idx
+    return  0
 
 #-----------------------------------------------------------------------------------------------------------
-$look_for_repetitions = ( S ) =>
-  return $ ( phrase, send ) =>
-    [ glyph, prd, components, ] = phrase
-    #.......................................................................................................
-    switch prd
-      when S.prd_for_lineups  then components = Array.from components.trim()
-      when S.prd_for_formulas then null
-      else throw new Error "unknown predicate #{rpr prd}"
-    #.......................................................................................................
-    if ( repeated_components = LRSL.find_longest_repeating_sublist components )?
-      #.....................................................................................................
-      switch prd
-        when S.prd_for_lineups
-          sigil      = 'ℓ'
-        when S.prd_for_formulas
-          sigil      = 'f'
-          components = ( XNCHR.as_uchr component for component in components )
-        else throw new Error "unknown predicate #{rpr prd}"
-      #.....................................................................................................
-      components  = components.join ''
-      glyph       = XNCHR.as_uchr glyph
-      fncr        = XNCHR.as_fncr glyph
-      key         = ( ( XNCHR.as_uchr component ) for component in repeated_components ).join ''
-      send [ key, fncr, glyph, sigil, components, ]
-
-#-----------------------------------------------------------------------------------------------------------
-$aggregate = ( S ) =>
-  cache = {}
-  return $ ( phrase, send, end ) =>
-    #.......................................................................................................
-    if phrase?
-      [ key, fncr, glyph, sigil, components, ] = phrase
-      entry     = [ fncr, glyph, components, ].join '\t'
-      target_0  = cache[ key ]?= {}
-      target_1  = target_0[ entry ]?= []
-      target_1.push sigil unless sigil in target_1
-      debug '©77388', glyph, entry if glyph in '㢸㢽㣃䰜䰞弻弼粥鬻𢏺𢐁𢐆㵉'
-      # if glyph is '桓'
-      #   # debug '0921', cache
-      #   # process.exit()
-      #   end = send.end
-    #.......................................................................................................
-    if end?
-      for key, entries of cache
-        idx = -1
-        for entry, sigils of entries
-          idx += +1
-          key = '\u3000' unless idx is 0
-          line = "#{entry} #{sigils.join ''}"
-          send [ key, line, ]
-      process.exit()
-      end()
+$reorder = ( S ) =>
+  return $ ( [ glyph, fncr, formula, idx, ], send ) =>
+    glyph = XNCHR.as_chr glyph
+    send [ fncr, glyph, formula, ]
 
 #-----------------------------------------------------------------------------------------------------------
 $show = ( S ) =>
-  return D.$observe ( phrase ) =>
-    echo phrase.join '\t'
-    # [ key, fncr, glyph, components, ] = phrase
-    # echo "#{key}\t#{glyph}\t#{components}"
-
+  return D.$observe ( fields ) =>
+    echo fields.join '\t'
 
 #-----------------------------------------------------------------------------------------------------------
 $transform = ( S ) =>
   return D.combine [
-    $filter_inner_glyphs        S
-    $filter_relevant_phrases    S
-    $show_progress              S
-    $look_for_repetitions       S
-    $aggregate                  S
+    $query                      S
+    $add_fncr                   S
+    $sort                       S
+    $reorder                    S
     $show                       S
     D.$on_end => S.handler null if S.handler?
     ]

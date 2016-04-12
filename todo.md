@@ -30,6 +30,8 @@ sfo 28912u-cjk-xb/203c8  𠏈   ⿰亻⿱⿹勹&jzr#xe223;匋
 
 ## Common Formula Elements
 
+⿻弜
+
 ≈●┬┊
 ⿱⿰⿻⿴⿵⿶⿸⿹⿺⿷
 ⿻&jzr#xe228;
