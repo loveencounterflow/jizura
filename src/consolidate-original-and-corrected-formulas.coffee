@@ -48,25 +48,36 @@ HOLLERITH                 = require 'hollerith'
 #-----------------------------------------------------------------------------------------------------------
 @consolidate_formulas = ( S ) ->
   options             = require '../../jizura-datasources/options'
-  original_route      = options[ 'ds-routes' ][ 'formulas'              ]
+  originals_route     = options[ 'ds-routes' ][ 'formulas'              ]
   consolidated_route  = options[ 'ds-routes' ][ 'formulas-consolidated' ]
   corrections_route   = options[ 'ds-routes' ][ 'formulas-corrections'  ]
   help """Collecting formulas from
-    #{original_route}
+    #{originals_route}
     and
     #{corrections_route}
     into
     #{consolidated_route}"""
   #.........................................................................................................
   output              = njs_fs.createWriteStream consolidated_route
-  # input               = njs_fs.createReadStream original_route
-  input               = njs_fs.createReadStream corrections_route
+  corrections_input   = njs_fs.createReadStream corrections_route
+  corrections_input
+    .pipe $transform            S
+    .pipe $collect_corrections  S
+    .pipe $ ( corrections, send ) => S.corrections = corrections
+    .pipe D.$on_end =>
+      originals_input = njs_fs.createReadStream originals_route
+      originals_input
+        .pipe $transform          S
+        .pipe $replace_corrected  S
+        .pipe $format_line        S
+        .pipe D.$on_end =>
+          urge "output written to #{consolidated_route}"
+        .pipe output
   #.........................................................................................................
   # S.db_route          = join __dirname, '../../jizura-datasources/data/leveldb-v2'
   # S.db                = HOLLERITH.new_db S.db_route, create: no
   # help "using DB at #{S.db[ '%self' ][ 'location' ]}"
   # input               = D.create_throughstream()
-  input.pipe $transform S
   # #.........................................................................................................
   # for glyph in S.glyphs
   #   input.write glyph
@@ -74,48 +85,83 @@ HOLLERITH                 = require 'hollerith'
   # #.........................................................................................................
   return null
 
-#-----------------------------------------------------------------------------------------------------------
-$query = ( S ) =>
-  return D.remit_async_spread ( glyph, send ) =>
-    query = { prefix: [ 'spo', glyph, 'formula' ], }
-    input = ( HOLLERITH.create_phrasestream S.db, query )
-    input
-      .pipe $ ( phrase, _ ) =>
-        [ ..., formulas, ] = phrase
-        send [ glyph, formula, idx, ] for formula, idx in formulas
-        send.done()
+# #-----------------------------------------------------------------------------------------------------------
+# $query = ( S ) ->
+#   return D.remit_async_spread ( glyph, send ) =>
+#     query = { prefix: [ 'spo', glyph, 'formula' ], }
+#     input = ( HOLLERITH.create_phrasestream S.db, query )
+#     input
+#       .pipe $ ( phrase, _ ) =>
+#         [ ..., formulas, ] = phrase
+#         send [ glyph, formula, idx, ] for formula, idx in formulas
+#         send.done()
+
+# #-----------------------------------------------------------------------------------------------------------
+# $add_fncr = ( S ) ->
+#   return $ ( [ glyph, formula, idx, ], send ) =>
+#     fncr = XNCHR.as_fncr glyph
+#     send [ glyph, fncr, formula, idx, ]
+
+# #-----------------------------------------------------------------------------------------------------------
+# $sort = ( S ) ->
+#   return D.$sort ( a, b ) =>
+#     [ a_fncr, a_glyph, a_formula, a_idx, ] = a
+#     [ b_fncr, b_glyph, b_formula, b_idx, ] = b
+#     a_cid = XNCHR.as_cid a_glyph
+#     b_cid = XNCHR.as_cid b_glyph
+#     return +1 if a_cid > b_cid
+#     return -1 if a_cid < b_cid
+#     return +1 if a_idx > b_idx
+#     return -1 if a_idx < b_idx
+#     return  0
 
 #-----------------------------------------------------------------------------------------------------------
-$add_fncr = ( S ) =>
-  return $ ( [ glyph, formula, idx, ], send ) =>
-    fncr = XNCHR.as_fncr glyph
-    send [ glyph, fncr, formula, idx, ]
+$collect_corrections = ( S ) ->
+  Z = {}
+  return $ ( fields, send, end ) =>
+    if fields?
+      [ fncr, glyph, formula, ] = fields
+      ( Z[ glyph ]?= [] ).push formula
+    if end?
+      send Z
+      end()
+    #.......................................................................................................
+    return null
 
 #-----------------------------------------------------------------------------------------------------------
-$sort = ( S ) =>
-  return D.$sort ( a, b ) =>
-    [ a_glyph, a_fncr, a_formula, a_idx, ] = a
-    [ b_glyph, b_fncr, b_formula, b_idx, ] = b
-    a_cid = XNCHR.as_cid a_glyph
-    b_cid = XNCHR.as_cid b_glyph
-    return +1 if a_cid > b_cid
-    return -1 if a_cid < b_cid
-    return +1 if a_idx > b_idx
-    return -1 if a_idx < b_idx
-    return  0
+$replace_corrected = ( S ) ->
+  seen_glyphs = new Set()
+  return $ ( fields, send ) =>
+    [ fncr, glyph, formula, ] = fields
+    return if seen_glyphs.has glyph
+    if ( corrected_formulas = S.corrections[ glyph ] )?
+      for corrected_formula in corrected_formulas
+        send [ fncr, glyph, corrected_formula, ]
+    else
+      send [ fncr, glyph, formula, ]
+    #.......................................................................................................
+    return null
+
+#-----------------------------------------------------------------------------------------------------------
+$format_line = ( S ) ->
+  return $ ( fields, send ) =>
+    send ( fields.join '\t' ) + '\n'
+    #.......................................................................................................
+    return null
+
 
 #===========================================================================================================
 # GENERICS
 # (should really be in PipeDreams)
 #-----------------------------------------------------------------------------------------------------------
-$split_fields = ( S ) =>
+$split_fields = ( S ) ->
   return $ ( line, send ) =>
     send line.split '\t'
     #.......................................................................................................
     return null
 
 #-----------------------------------------------------------------------------------------------------------
-$trim = ( S ) =>
+$trim = ( S ) ->
   return $ ( data, send ) =>
     switch type = CND.type_of data
       when 'text' then send data.trim()
@@ -125,7 +171,7 @@ $trim = ( S ) =>
     return null
 
 #-----------------------------------------------------------------------------------------------------------
-$drop_comments = ( S ) =>
+$drop_comments = ( S ) ->
   return $ ( fields, send ) =>
     Z = []
     for field in fields
@@ -136,7 +182,7 @@ $drop_comments = ( S ) =>
     return null
 
 #-----------------------------------------------------------------------------------------------------------
-$skip_empty = ( S ) =>
+$skip_empty = ( S ) ->
   return $ ( data, send ) =>
     return null unless data?
     switch type = CND.type_of data
@@ -146,7 +192,7 @@ $skip_empty = ( S ) =>
     return null
 
 #-----------------------------------------------------------------------------------------------------------
-$show = ( S ) =>
+$show = ( S ) ->
   return D.$observe ( fields ) =>
     echo fields.join '\t'
     #.......................................................................................................
@@ -162,9 +208,9 @@ $transform = ( S ) =>
     $drop_comments()
     $skip_empty()
     $trim()
-    D.$show()
+    # D.$show()
     # $show                       S
-    D.$on_end => S.handler null if S.handler?
+    # D.$on_end => S.handler null if S.handler?
     ]
 
 
