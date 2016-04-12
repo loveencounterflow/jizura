@@ -141,8 +141,25 @@ app
       glyphs
       }
     #.......................................................................................................
-    help ( CND.grey "#{app_name}" ), ( CND.gold glyphs.join '' )
+    help ( CND.grey "#{app_name}" ), ( CND.gold 'formulas' ), ( CND.lime glyphs.join '' )
     DFFG.dump_formulas S
+
+#-----------------------------------------------------------------------------------------------------------
+app
+  .command      "consolidate-formulas"
+  .description  """
+    consolidate formulas from `shape-breakdown-formula.txt`
+    and `shape-breakdown-formula-corrections.txt`
+    into new source file `shape-breakdown-formula-merged.txt`. Notice that the
+    formulas in `shape-breakdown-formula-naive.txt` will *not* be merged."""
+  #.........................................................................................................
+  .action ( glyphs ) ->
+    COCF = require './consolidate-original-and-corrected-formulas'
+    #.......................................................................................................
+    S = {}
+    #.......................................................................................................
+    help ( CND.grey "#{app_name}" ), ( CND.gold 'consolidate-formulas' )
+    COCF.consolidate_formulas S
 
 #-----------------------------------------------------------------------------------------------------------
 app
