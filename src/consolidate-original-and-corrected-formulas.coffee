@@ -48,24 +48,25 @@ HOLLERITH                 = require 'hollerith'
 #-----------------------------------------------------------------------------------------------------------
 @consolidate_formulas = ( S ) ->
   options             = require '../../jizura-datasources/options'
-  orginal_route       = options[ 'ds-routes' ][ 'formulas'              ]
+  original_route      = options[ 'ds-routes' ][ 'formulas'              ]
   consolidated_route  = options[ 'ds-routes' ][ 'formulas-consolidated' ]
-  corrected_route     = options[ 'ds-routes' ][ 'formulas-corrected'    ]
+  corrections_route   = options[ 'ds-routes' ][ 'formulas-corrections'  ]
   help """Collecting formulas from
-    #{orginal_route}
+    #{original_route}
     and
-    #{corrected_route}
+    #{corrections_route}
     into
     #{consolidated_route}"""
-  process.exit()
+  #.........................................................................................................
   output              = njs_fs.createWriteStream consolidated_route
-  input               = njs_fs.createReadStream route
-  # #.........................................................................................................
+  # input               = njs_fs.createReadStream original_route
+  input               = njs_fs.createReadStream corrections_route
+  #.........................................................................................................
   # S.db_route          = join __dirname, '../../jizura-datasources/data/leveldb-v2'
   # S.db                = HOLLERITH.new_db S.db_route, create: no
   # help "using DB at #{S.db[ '%self' ][ 'location' ]}"
   # input               = D.create_throughstream()
-  # input.pipe $transform S
+  input.pipe $transform S
   # #.........................................................................................................
   # for glyph in S.glyphs
   #   input.write glyph
@@ -103,25 +104,66 @@ $sort = ( S ) =>
     return -1 if a_idx < b_idx
     return  0
 
+#===========================================================================================================
+# GENERICS
+# (should really be in PipeDreams)
 #-----------------------------------------------------------------------------------------------------------
-$reorder = ( S ) =>
-  return $ ( [ glyph, fncr, formula, idx, ], send ) =>
-    glyph = XNCHR.as_chr glyph
-    send [ fncr, glyph, formula, ]
+$split_fields = ( S ) =>
+  return $ ( line, send ) =>
+    send line.split '\t'
+    #.......................................................................................................
+    return null
+
+#-----------------------------------------------------------------------------------------------------------
+$trim = ( S ) =>
+  return $ ( data, send ) =>
+    switch type = CND.type_of data
+      when 'text' then send data.trim()
+      when 'list' then send ( d.trim() for d in data when CND.isa_text d )
+      else throw new Error "unable to split a #{type}"
+    #.......................................................................................................
+    return null
+
+#-----------------------------------------------------------------------------------------------------------
+$drop_comments = ( S ) =>
+  return $ ( fields, send ) =>
+    Z = []
+    for field in fields
+      break if field.startsWith '#'
+      Z.push field
+    send Z
+    #.......................................................................................................
+    return null
+
+#-----------------------------------------------------------------------------------------------------------
+$skip_empty = ( S ) =>
+  return $ ( data, send ) =>
+    return null unless data?
+    switch type = CND.type_of data
+      when 'text', 'list' then send data unless data.length is 0
+      else send data
+    #.......................................................................................................
+    return null
 
 #-----------------------------------------------------------------------------------------------------------
 $show = ( S ) =>
   return D.$observe ( fields ) =>
     echo fields.join '\t'
+    #.......................................................................................................
+    return null
 
 #-----------------------------------------------------------------------------------------------------------
 $transform = ( S ) =>
   return D.combine [
-    $query                      S
-    $add_fncr                   S
-    $sort                       S
-    $reorder                    S
-    $show                       S
+    D.$split()
+    $trim()
+    $skip_empty()
+    $split_fields()
+    $drop_comments()
+    $skip_empty()
+    $trim()
+    D.$show()
+    # $show                       S
     D.$on_end => S.handler null if S.handler?
     ]
 
