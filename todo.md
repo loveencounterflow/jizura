@@ -3,6 +3,15 @@
 
 
 # todo
+
+## Build CLI
+
+```
+gulp build && node lib/cli.js consolidate-formulas
+```
+
+## New JZR Components
+
 木x3h, 木x2v, 木x4q
 ```
 u-cjk-xb-23786  𣞆   ⿱艸(⿰木木木)
