@@ -23,6 +23,10 @@ u-cjk-xb-23e11  𣸑   ⿰氵(⿱木一木)
 木木  u-cjk-xb-224b9  𢒹   广木木木木彡 ℓ
 ```
 
+氵x2h for 㳲 etc.; 太x2h for 𡄛
+
+𧆔賷
+
 
 Add half of 芻 as factor (`shape-factor-hierarchy.txt`, lines 1502ff):
 
