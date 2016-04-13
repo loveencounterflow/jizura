@@ -4,6 +4,8 @@
 # n 0.10.34                                                                       && \
 # n 5.1.1                                                                         && \
 
+cd /Volumes/Storage/io/jizura                                                   && \
+gulp build && node lib/cli.js consolidate-formulas                              && \
 cd /Volumes/Storage/io/jizura-datasources                                       && \
 ./build                                                                         && \
 node lib/feed-db.js build fresh x >> /tmp/tailer                                && \

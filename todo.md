@@ -10,6 +10,10 @@
 gulp build && node lib/cli.js consolidate-formulas
 ```
 
+```
+./feed-db-v1-and-copy-to-v2 && gulp build && node lib/cli.js repetitions --lineups > ../jizura-datasources/data/5-derivatives/glyphs-with-repetitions-in-lineups.txt
+```
+
 ## New JZR Components
 
 木x3h, 木x2v, 木x4q
