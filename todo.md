@@ -3,6 +3,12 @@
 
 
 # todo
+木x3h, 木x2v
+```
+u-cjk-xb-23786  𣞆   ⿱艸(⿰木木木)
+u-cjk-xb-23e11  𣸑   ⿰氵(⿱木一木)
+```
+
 
 Add half of 芻 as factor (`shape-factor-hierarchy.txt`, lines 1502ff):
 
@@ -29,7 +35,7 @@ sfo 28912u-cjk-xb/203c8  𠏈   ⿰亻⿱⿹勹&jzr#xe223;匋
 
 
 ## Common Formula Elements
-
+（）［］【】《》〈〉…‧、「」。，！？；：
 ⿻弜
 
 ≈●┬┊
