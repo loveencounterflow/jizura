@@ -23,6 +23,8 @@ u-cjk-xb-23e11  𣸑   ⿰氵(⿱木一木)
 木木  u-cjk-xb-224b9  𢒹   广木木木木彡 ℓ
 ```
 
+羊x2h for 羼𠠮𢺟𦏐
+
 氵x2h for 㳲 etc.; 太x2h for 𡄛
 
 𧆔賷
