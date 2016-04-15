@@ -64,6 +64,7 @@ HOLLERITH                 = require 'hollerith'
 $query = ( S ) =>
   return D.remit_async_spread ( glyph, send ) =>
     query = { prefix: [ 'spo', glyph, 'formula' ], }
+    # query = { prefix: [ 'spo', glyph, 'guide/lineup/uchr' ], }
     input = ( HOLLERITH.create_phrasestream S.db, query )
     input
       .pipe $ ( phrase, _ ) =>
