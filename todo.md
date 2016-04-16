@@ -16,16 +16,20 @@ gulp build && node lib/cli.js consolidate-formulas
 
 ## New JZR Components
 
-木x3h, 木x2v, 木x4q
+林
+
+木x3h jzr-e378
+木x2v jzr-e379, jzr-e37a
+木x4q jzr-e37b
 ```
 u-cjk-xb-23786  𣞆   ⿱艸(⿰木木木)
 u-cjk-xb-23e11  𣸑   ⿰氵(⿱木一木)
 木木  u-cjk-xb-224b9  𢒹   广木木木木彡 ℓ
 ```
 
-羊x2h for 羼𠠮𢺟𦏐
+羊x2h jzr-e37c for 羼𠠮𢺟𦏐
 
-氵x2h for 㳲 etc.; 太x2h for 𡄛
+氵x2h jzr-e37d for 㳲 etc.; 太x2h for 𡄛
 
 𧆔賷
 
