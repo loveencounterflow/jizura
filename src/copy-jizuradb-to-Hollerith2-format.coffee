@@ -554,6 +554,9 @@ options =
     yield HOLLERITH.clear target_db, resume
     #.........................................................................................................
     factor_infos  = yield @read_factors source_db, resume
+    # for key, factor of factor_infos
+    #   debug key, factor if ( XNCHR.as_uchr factor ) in '羊⺶丷䒑'
+    # process.exit 1
     help "read #{( Object.keys factor_infos ).length} entries for factor_infos"
     #.........................................................................................................
     # gte         = 'so|glyph:中'
