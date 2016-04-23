@@ -250,8 +250,9 @@ options =
   ### see `demo/show_kwic_v2_and_v3_sample` ###
   #.........................................................................................................
   return $ ( [ sbj, prd, obj, ], send ) =>
-    send [ sbj, prd, obj, ]
-    return unless prd is 'guide/kwic/v1/sortcode'
+    return if prd.startsWith 'guide/kwic/v2/'
+    return if prd.startsWith 'guide/kwic/v1/' and ( prd isnt 'guide/kwic/v1/sortcode' )
+    return send [ sbj, prd, obj, ]             if ( prd isnt 'guide/kwic/v1/sortcode' )
     #.......................................................................................................
     [ glyph, _, [ sortcode_v1, ... ], ] = [ sbj, prd, obj, ]
     #.......................................................................................................
@@ -585,7 +586,7 @@ options =
       .pipe @$collect_lists()
       .pipe @$compact_lists()
       .pipe @$add_version_to_kwic_v1()
-      .pipe @$add_kwic_v2()
+      # .pipe @$add_kwic_v2()
       .pipe @$add_kwic_v3                 factor_infos
       .pipe @$add_kwic_v3_wrapped_lineups factor_infos
       # .pipe @$add_guide_pairs             factor_infos
