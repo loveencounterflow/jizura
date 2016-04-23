@@ -251,8 +251,8 @@ options =
   #.........................................................................................................
   return $ ( [ sbj, prd, obj, ], send ) =>
     return if prd.startsWith 'guide/kwic/v2/'
-    return if prd.startsWith 'guide/kwic/v1/' and ( prd isnt 'guide/kwic/v1/sortcode' )
-    return send [ sbj, prd, obj, ]             if ( prd isnt 'guide/kwic/v1/sortcode' )
+    return send [ sbj, prd, obj, ] unless prd.startsWith 'guide/kwic/v1/'
+    return if prd isnt 'guide/kwic/v1/sortcode'
     #.......................................................................................................
     [ glyph, _, [ sortcode_v1, ... ], ] = [ sbj, prd, obj, ]
     #.......................................................................................................
