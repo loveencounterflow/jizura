@@ -29,6 +29,7 @@ $async                    = D.remit_async.bind D
 HOLLERITH                 = require 'hollerith'
 # DEMO                      = require './demo'
 KWIC                      = require 'kwic'
+IDLX                      = require 'idlx'
 XNCHR                     = require './XNCHR'
 ƒ                         = CND.format_number.bind CND
 
@@ -345,6 +346,49 @@ options =
       end()
 
 #-----------------------------------------------------------------------------------------------------------
+@$add_components = ( factor_infos ) ->
+  # factors       = new Set()
+  # factors.add factor for _, factor of factor_infos
+  ### Immediate Constituents (ICs) ###
+  ics_by_glyph  = {}
+  seen_glyphs   = new Set()
+  glyph_count   = 0
+  #.........................................................................................................
+  resolve_ics = ( glyph ) =>
+    return if seen_glyphs.has glyph
+    seen_glyphs.add glyph
+    if ( entry = ics_by_glyph[ glyph ] )?
+      for ic in Array.from entry.keys()
+        resolve_ics ic
+        if ( sub_entry = ics_by_glyph[ ic ] )?
+          for sub_ic in Array.from sub_entry
+            entry.add sub_ic
+  #.........................................................................................................
+  return $ ( phrase, send, end ) =>
+    #.......................................................................................................
+    if phrase?
+      send phrase
+      [ glyph, prd, obj, ] = phrase
+      return unless prd is 'formula'
+      ### TAINT collecting ICs from outer glyphs might aid in resolving more inner glyphs ###
+      return unless XNCHR.is_inner_glyph glyph
+      glyph         = XNCHR.as_uchr glyph
+      glyph_count  += +1
+      for formula, formula_idx in obj
+        ics     = IDLX.find_all_non_operators formula
+        target  = ics_by_glyph[ glyph ]?= new Set()
+        target.add ( XNCHR.as_uchr ic ) for ic in ics
+    #.......................................................................................................
+    if end?
+      resolve_ics glyph                         for glyph of ics_by_glyph
+      ics_by_glyph[ glyph ] = Array.from entry  for glyph, entry of ics_by_glyph
+      for glyph, ics of ics_by_glyph
+        send [ glyph, 'component/uchr', ics, ]
+      end()
+    #.......................................................................................................
+    return null
+
+#-----------------------------------------------------------------------------------------------------------
 @$add_sims = ->
   sims_by_glyph = {}
   #.........................................................................................................
@@ -591,6 +635,7 @@ options =
       .pipe @$add_kwic_v3_wrapped_lineups factor_infos
       # .pipe @$add_guide_pairs             factor_infos
       .pipe @$add_factor_membership       factor_infos
+      .pipe @$add_components      factor_infos
       .pipe @$add_sims()
       # .pipe D.$show()
       .pipe D.$count ( count ) -> help "kept #{ƒ count} phrases"
