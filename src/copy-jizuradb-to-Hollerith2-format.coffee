@@ -346,9 +346,19 @@ options =
       end()
 
 #-----------------------------------------------------------------------------------------------------------
-@$add_components = ( factor_infos ) ->
-  # factors       = new Set()
-  # factors.add factor for _, factor of factor_infos
+### TAINT code duplication ###
+@$add_components = ->
+  ### The field `component/uchr` lists all the components that appear as part of a given glyph,
+  collected from all its formulas and down through all recursive steps of component resolution. The
+  resulting lists can, therefore, be quite long and potentially include parts that are present in
+  virtually all glyphs, such as `丿` or `一`. The components listed are unique and appear in no
+  particular order. As an example, the DB contains the folloqing entry:
+
+  ```
+  spo|䱴|component/uchr: [ '魚', '恒', '', '灬', '𠂊', '田', '丿', '㇇', '囗', '十', '日',
+  '丨', '冂', '一', '𠃌', '彐', '', '', '丶', '', '忄', '亘', '旦', ]
+  ```
+  ###
   ### Immediate Constituents (ICs) ###
   ics_by_glyph  = {}
   seen_glyphs   = new Set()
@@ -385,6 +395,76 @@ options =
       for glyph, ics of ics_by_glyph
         send [ glyph, 'component/uchr', ics, ]
       end()
+    #.......................................................................................................
+    return null
+
+#-----------------------------------------------------------------------------------------------------------
+### TAINT code duplication ###
+@$add_factorial_factors = ( factor_infos ) ->
+  ### Factorial Factors: the factors of factors; used for cross-referencing. E.g. the formula of
+  鬲 is ⿱𠮛⿵冂&jzr#xe152;; all the components of 鬲 are factors except for 𠮛, which must again be
+  analyzed into 𠮛:⿱一口, leading to the entry 鬲:一口冂&jzr#xe152;. ###
+  factors           = new Set()
+  factors.add factor for _, factor of factor_infos
+  ### Immediate Constituents (ICs) ###
+  factors_by_factor = {}
+  seen_glyphs       = new Set()
+  glyph_count       = 0
+  #.........................................................................................................
+  resolve_ics_to_factors = ( glyph ) =>
+    return if seen_glyphs.has glyph
+    seen_glyphs.add glyph
+    if ( entry = factors_by_factor[ glyph ] )?
+      for ic in Array.from entry.keys()
+        resolve_ics_to_factors ic
+        if ( sub_entry = factors_by_factor[ ic ] )?
+          for sub_ic in Array.from sub_entry
+            entry.add sub_ic
+  #.........................................................................................................
+  return $ ( phrase, send, end ) =>
+    #.......................................................................................................
+    if phrase?
+      send phrase
+      [ glyph, prd, obj, ] = phrase
+      return unless prd is 'formula'
+      ### TAINT collecting ICs from outer glyphs might aid in resolving more inner glyphs ###
+      return unless XNCHR.is_inner_glyph glyph
+      glyph         = XNCHR.as_uchr glyph
+      glyph_count  += +1
+      for formula, formula_idx in obj
+        ics     = IDLX.find_all_non_operators formula
+        target  = factors_by_factor[ glyph ]?= new Set()
+        target.add ( XNCHR.as_uchr ic ) for ic in ics
+    #.......................................................................................................
+    if end?
+      resolve_ics_to_factors glyph                         for glyph of factors_by_factor
+      factors_by_factor[ glyph ] = Array.from entry  for glyph, entry of factors_by_factor
+      # for glyph, ics of factors_by_factor
+      #   send [ glyph, 'component/uchr', ics, ]
+      end()
+    #.......................................................................................................
+    return null
+
+#-----------------------------------------------------------------------------------------------------------
+### TAINT code duplication ###
+@$add_lineup_postfixes = ->
+  #.........................................................................................................
+  return $ ( phrase, send ) =>
+    #.......................................................................................................
+    send phrase
+    [ glyph, prd, obj, ]  = phrase
+    return unless prd is 'guide/kwic/v3/sortcode'
+    return unless XNCHR.is_inner_glyph glyph
+    #.......................................................................................................
+    forwards_lineups  = []
+    backwards_lineups = []
+    #.......................................................................................................
+    for permutation, idx in obj
+      [ sortcode, infix, suffix, prefix, ] = permutation
+      forwards_lineups.push  infix + suffix.join ''
+      backwards_lineups.push infix + ( Object.assign [], prefix ).reverse().join ''
+    send [ glyph, 'guide/kwic/lineup/forwards',   forwards_lineups, ]
+    send [ glyph, 'guide/kwic/lineup/backwards', backwards_lineups, ]
     #.......................................................................................................
     return null
 
@@ -635,7 +715,9 @@ options =
       .pipe @$add_kwic_v3_wrapped_lineups factor_infos
       # .pipe @$add_guide_pairs             factor_infos
       .pipe @$add_factor_membership       factor_infos
-      .pipe @$add_components      factor_infos
+      .pipe @$add_components()
+      .pipe @$add_lineup_postfixes()
+      .pipe @$add_factorial_factors       factor_infos
       .pipe @$add_sims()
       # .pipe D.$show()
       .pipe D.$count ( count ) -> help "kept #{ƒ count} phrases"

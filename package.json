@@ -5,7 +5,7 @@
   "main": "lib/main.js",
   "dependencies": {
     "async": "^1.4.2",
-    "cnd": "^2.0.2",
+    "cnd": "^2.0.3",
     "coffee-script": "^1.10.0",
     "coffeenode-chr": "^1.0.2",
     "coffeenode-docopt": "^0.1.1",
