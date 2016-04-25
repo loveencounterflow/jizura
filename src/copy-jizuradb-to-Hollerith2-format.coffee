@@ -390,7 +390,7 @@ options =
         target.add ( XNCHR.as_uchr ic ) for ic in ics
     #.......................................................................................................
     if end?
-      resolve_ics glyph                         for glyph of ics_by_glyph
+      resolve_ics glyph                         for glyph        of ics_by_glyph
       ics_by_glyph[ glyph ] = Array.from entry  for glyph, entry of ics_by_glyph
       for glyph, ics of ics_by_glyph
         send [ glyph, 'component/uchr', ics, ]
@@ -409,17 +409,17 @@ options =
   ### Immediate Constituents (ICs) ###
   factors_by_factor = {}
   seen_glyphs       = new Set()
-  glyph_count       = 0
   #.........................................................................................................
-  resolve_ics_to_factors = ( glyph ) =>
-    return if seen_glyphs.has glyph
-    seen_glyphs.add glyph
-    if ( entry = factors_by_factor[ glyph ] )?
-      for ic in Array.from entry.keys()
-        resolve_ics_to_factors ic
-        if ( sub_entry = factors_by_factor[ ic ] )?
-          for sub_ic in Array.from sub_entry
-            entry.add sub_ic
+  # resolve_ics_to_factors = ( glyph ) =>
+  #   return if seen_glyphs.has glyph
+  #   seen_glyphs.add glyph
+  #   return unless factors.has glyph
+  #   if ( entry = factors_by_factor[ glyph ] )?
+  #     for ic in Array.from entry.keys()
+  #       resolve_ics_to_factors ic
+  #       if ( sub_entry = factors_by_factor[ ic ] )?
+  #         for sub_ic in Array.from sub_entry
+  #           entry.add sub_ic
   #.........................................................................................................
   return $ ( phrase, send, end ) =>
     #.......................................................................................................
@@ -430,24 +430,24 @@ options =
       ### TAINT collecting ICs from outer glyphs might aid in resolving more inner glyphs ###
       return unless XNCHR.is_inner_glyph glyph
       glyph         = XNCHR.as_uchr glyph
-      glyph_count  += +1
       for formula, formula_idx in obj
         ics     = IDLX.find_all_non_operators formula
         target  = factors_by_factor[ glyph ]?= new Set()
         target.add ( XNCHR.as_uchr ic ) for ic in ics
     #.......................................................................................................
     if end?
-      resolve_ics_to_factors glyph                         for glyph of factors_by_factor
-      factors_by_factor[ glyph ] = Array.from entry  for glyph, entry of factors_by_factor
-      # for glyph, ics of factors_by_factor
-      #   send [ glyph, 'component/uchr', ics, ]
+      # factors_lst = Array.from factors.keys()
+      # resolve_ics_to_factors glyph for glyph in factors_lst
+      # for glyph in factors_lst
+      #   sub_factors = Array.from factors_by_factor[ glyph ]
+      #   send [ glyph, 'factor/subfactor/uchr', sub_factors, ]
       end()
     #.......................................................................................................
     return null
 
 #-----------------------------------------------------------------------------------------------------------
 ### TAINT code duplication ###
-@$add_lineup_postfixes = ->
+@$add_lineup_back_and_forwards = ->
   #.........................................................................................................
   return $ ( phrase, send ) =>
     #.......................................................................................................
@@ -716,7 +716,7 @@ options =
       # .pipe @$add_guide_pairs             factor_infos
       .pipe @$add_factor_membership       factor_infos
       .pipe @$add_components()
-      .pipe @$add_lineup_postfixes()
+      .pipe @$add_lineup_back_and_forwards()
       .pipe @$add_factorial_factors       factor_infos
       .pipe @$add_sims()
       # .pipe D.$show()
