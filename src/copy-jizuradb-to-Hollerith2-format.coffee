@@ -405,10 +405,12 @@ options =
   鬲 is ⿱𠮛⿵冂&jzr#xe152;; all the components of 鬲 are factors except for 𠮛, which must again be
   analyzed into 𠮛:⿱一口, leading to the entry 鬲:一口冂&jzr#xe152;. ###
   factors           = new Set()
-  factors.add factor for _, factor of factor_infos
+  factors.add ( XNCHR.as_uchr factor ) for _, factor of factor_infos
+  # debug '©67157', factors; process.exit 1
   ### Immediate Constituents (ICs) ###
   factors_by_factor = {}
   seen_glyphs       = new Set()
+  factor_count      = 0
   #.........................................................................................................
   # resolve_ics_to_factors = ( glyph ) =>
   #   return if seen_glyphs.has glyph
@@ -430,17 +432,31 @@ options =
       ### TAINT collecting ICs from outer glyphs might aid in resolving more inner glyphs ###
       return unless XNCHR.is_inner_glyph glyph
       glyph         = XNCHR.as_uchr glyph
+      factor_count += +1 if factors.has glyph
+      entry         = factors_by_factor[ glyph ]?= []
       for formula, formula_idx in obj
         ics     = IDLX.find_all_non_operators formula
-        target  = factors_by_factor[ glyph ]?= new Set()
-        target.add ( XNCHR.as_uchr ic ) for ic in ics
+        entry.push ( ( XNCHR.as_uchr ic ) for ic in ics )
     #.......................................................................................................
     if end?
-      # factors_lst = Array.from factors.keys()
-      # resolve_ics_to_factors glyph for glyph in factors_lst
-      # for glyph in factors_lst
-      #   sub_factors = Array.from factors_by_factor[ glyph ]
-      #   send [ glyph, 'factor/subfactor/uchr', sub_factors, ]
+      factors_by_factor_json  = JSON.stringify      factors_by_factor, null, '  '
+      factors_json            = JSON.stringify ( Array.from factors ), null, '  '
+      ics_route               = njs_path.resolve __dirname, '../../jizura-datasources/data/5-derivatives/ics-by-glyphs.json'
+      factors_route           = njs_path.resolve __dirname, '../../jizura-datasources/data/5-derivatives/factors.json'
+      warn "write to #{ics_route}"
+      njs_fs.writeFileSync ics_route, factors_by_factor_json
+      warn "write to #{factors_route}"
+      njs_fs.writeFileSync factors_route, factors_json
+      #.....................................................................................................
+      for factor in Array.from factors.keys()
+        unless ( entry = factors_by_factor[ factor ] )?
+          whisper "no ICs for factor #{factor}"
+          continue
+        for ics in entry
+          for ic in ics
+            unless factors.has ic
+              warn "factor #{factor} has non-factorial IC #{ic}"
+      #.....................................................................................................
       end()
     #.......................................................................................................
     return null
