@@ -63,14 +63,20 @@ HOLLERITH                 = require 'hollerith'
 #-----------------------------------------------------------------------------------------------------------
 $query = ( S ) =>
   return D.remit_async_spread ( glyph, send ) =>
-    query = { prefix: [ 'spo', glyph, 'formula' ], }
+    query   = { prefix: [ 'spo', glyph, 'formula' ], }
+    is_done = no
+    debug '332', query
     # query = { prefix: [ 'spo', glyph, 'guide/lineup/uchr' ], }
     input = ( HOLLERITH.create_phrasestream S.db, query )
     input
-      .pipe $ ( phrase, _ ) =>
-        [ ..., formulas, ] = phrase
-        send [ glyph, formula, idx, ] for formula, idx in formulas
-        send.done()
+      .pipe $ ( phrase, _, end ) =>
+        if phrase?
+          [ ..., formulas, ] = phrase
+          send [ glyph, formula, idx, ] for formula, idx in formulas
+          # send.done()
+        if end?
+          warn "#{glyph}."
+          send.done()
 
 #-----------------------------------------------------------------------------------------------------------
 $add_fncr = ( S ) =>
