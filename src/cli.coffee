@@ -16,49 +16,26 @@ warn                      = CND.get_logger 'warn',      badge
 help                      = CND.get_logger 'help',      badge
 urge                      = CND.get_logger 'urge',      badge
 echo                      = CND.echo.bind CND
-# #...........................................................................................................
-# ƒ                         = CND.format_number.bind CND
-# HELPERS                   = require './HELPERS'
-# # options                   = require './options'
-# TEXLIVEPACKAGEINFO        = require './TEXLIVEPACKAGEINFO'
-# options_route             = '../options.coffee'
-# { CACHE, OPTIONS, }       = require './OPTIONS'
-# SEMVER                    = require 'semver'
-# #...........................................................................................................
-# MKTS                      = require './MKTS'
-
-
-###
-
-app       = require 'commander'
-app_name  = process.argv[ 1 ]
-
-app
-  .version ( require '../package.json' )[ 'version' ]
-  .command 'mkts <filename>'
-  .action ( filename ) ->
-    help ( CND.grey "#{app_name}" ), ( CND.gold 'mkts' ), ( CND.lime filename )
-    MKTS = require './mkts-typesetter-interim'
-    CND.dir MKTS
-    MKTS.pdf_from_md filename
-
-app.parse process.argv
-# debug '©nES6R', process.argv
-
-###
-
 
 #-----------------------------------------------------------------------------------------------------------
 app       = require 'commander'
 app_name  = process.argv[ 1 ]
 app.version ( require '../package.json' )[ 'version' ]
+is_tty    =
 
 #-----------------------------------------------------------------------------------------------------------
 get_do_stats = \
 get_with_prefixes = \
-get_two_stats = ( input, fallback = false ) ->
+get_uchrs = \
+get_two_stats = \
+get_boolean = ( input, fallback = false ) ->
   return fallback unless input?
   return input
+
+#-----------------------------------------------------------------------------------------------------------
+get_colors = ( input, is_tty, fallback = false ) ->
+  return true if input?
+  return if is_tty then true else false
 
 #-----------------------------------------------------------------------------------------------------------
 get_width = ( input, fallback = null ) ->
@@ -129,16 +106,29 @@ app
 
 #-----------------------------------------------------------------------------------------------------------
 app
-  .command      "formulas <glyphs>"
+  .command      "formulas"
   .description  "dump formulas for glyphs"
+  .option       "-g, --glyphs [glyphs]",     "glyphs to be searched for"
+  .option       "-c, --colors",              "use colors even when redirecting to file [false]"
+  .option       "-u, --uchrs",               "use characters instead of NCRs for PUA codepoints [false]"
+  .option       "-i, --noidcs",              "omit IDCs [false]"
+  .option       "-s, --sort",                "sort results by CID [false]"
   #.........................................................................................................
-  .action ( glyphs ) ->
+  .action ( options ) ->
     XNCHR   = require './XNCHR'
     DFFG    = require './dump-formulas-for-glyphs'
-    glyphs  = XNCHR.chrs_from_text glyphs
+    glyphs  = XNCHR.chrs_from_text  options[ 'glyphs' ] ? ''
+    colors  = get_colors            options[ 'colors' ], process.stdout.isTTY
+    uchrs   = get_uchrs             options[ 'uchrs' ]
+    noidcs  = get_uchrs             options[ 'noidcs' ]
+    sort    = get_boolean           options[ 'sort' ], false
     #.......................................................................................................
     S = {
       glyphs
+      colors
+      uchrs
+      noidcs
+      sort
       }
     #.......................................................................................................
     help ( CND.grey "#{app_name}" ), ( CND.gold 'formulas' ), ( CND.lime glyphs.join '' )
@@ -149,9 +139,10 @@ app
   .command      "consolidate-formulas"
   .description  """
     consolidate formulas from `shape-breakdown-formula.txt`
-    and `shape-breakdown-formula-corrections.txt`
-    into new source file `shape-breakdown-formula-merged.txt`. Notice that the
-    formulas in `shape-breakdown-formula-naive.txt` will *not* be merged."""
+                                   and `shape-breakdown-formula-corrections.txt` into new
+                                   source file `shape-breakdown-formula-merged.txt`. Notice
+                                   that the formulas in `shape-breakdown-formula-naive.txt`
+                                   will *not* be merged."""
   #.........................................................................................................
   .action ( glyphs ) ->
     COCF = require './consolidate-original-and-corrected-formulas'
@@ -165,7 +156,9 @@ app
 app
   #.........................................................................................................
   .command      "kwic [output_route]"
-  .description  "render (excerpt of) KWIC index (to output_route where given; must be a folder)"
+  .description  """
+    render (excerpt of) KWIC index (to
+                                   output_route where given; must be a folder)"""
   .option       "-s, --stats",              "show KWIC infix statistics [false]"
   .option       "-p, --prefixes",           "infix statistics to include prefixes (only with -s) [false]"
   .option       "-2, --two",                "separate prefix and suffix stats (only with -sp) [false]"
@@ -247,3 +240,5 @@ app.parse process.argv
 unless app.args?.length > 0
   warn "missing arguments"
   app.help()
+
+

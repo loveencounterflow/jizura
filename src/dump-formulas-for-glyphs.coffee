@@ -9,7 +9,7 @@ join                      = njs_path.join
 #...........................................................................................................
 CND                       = require 'cnd'
 rpr                       = CND.rpr
-badge                     = 'JIZURA/show-repeated-factors'
+badge                     = 'JIZURA/dump-formulas'
 log                       = CND.get_logger 'plain',     badge
 info                      = CND.get_logger 'info',      badge
 whisper                   = CND.get_logger 'whisper',   badge
@@ -37,6 +37,7 @@ D                         = require 'pipedreams'
 $                         = D.remit.bind D
 $async                    = D.remit_async.bind D
 ASYNC                     = require 'async'
+IDLX                      = require 'idlx'
 XNCHR                     = require './XNCHR'
 #...........................................................................................................
 # new_db                    = require 'level'
@@ -54,9 +55,22 @@ HOLLERITH                 = require 'hollerith'
   input               = D.create_throughstream()
   input.pipe $transform S
   #.........................................................................................................
-  for glyph in S.glyphs
-    input.write glyph
-  input.end()
+  input_from_pipe = not process.stdin.isTTY
+  #.........................................................................................................
+  if input_from_pipe
+    if S.glyphs.length > 0
+      warn "unable to accept glyphs from both stdin and option -g / --glyphs"
+      process.exit 1
+    process.stdin
+      .pipe D.$split()
+      .pipe $ ( line, send ) ->
+        for chr in XNCHR.chrs_from_text line
+          send chr
+      .pipe input
+  else
+    for glyph in S.glyphs
+      input.write glyph
+    input.end()
   #.........................................................................................................
   return null
 
@@ -100,6 +114,7 @@ $unique = ( S ) =>
 
 #-----------------------------------------------------------------------------------------------------------
 $sort = ( S ) =>
+  return D.$pass_through() unless S.sort
   return D.$sort ( a, b ) =>
     [ a_glyph, a_fncr, a_formula, a_idx, ] = a
     [ b_glyph, b_fncr, b_formula, b_idx, ] = b
@@ -120,7 +135,22 @@ $reorder = ( S ) =>
 #-----------------------------------------------------------------------------------------------------------
 $show = ( S ) =>
   return D.$observe ( fields ) =>
-    echo fields.join '\t'
+    [ fncr, glyph, formula, ] = fields
+    #.......................................................................................................
+    if S.noidcs then  ics = IDLX.find_all_non_operators formula
+    else              ics = XNCHR.chrs_from_text formula
+    #.......................................................................................................
+    if S.uchrs
+      glyph = XNCHR.as_uchr glyph
+      ics   = ( ( XNCHR.as_uchr ic ) for ic in ics )
+    #.......................................................................................................
+    formula = ics.join ''
+    formula = '\ue024' if formula.length is 0
+    #.......................................................................................................
+    if S.colors
+      echo ( CND.grey fncr ), ( CND.gold glyph ), ( CND.lime formula )
+    else
+      echo [ fncr, glyph, formula, ].join '\t'
 
 #-----------------------------------------------------------------------------------------------------------
 $transform = ( S ) =>
