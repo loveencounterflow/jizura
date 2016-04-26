@@ -81,6 +81,24 @@ $add_fncr = ( S ) =>
     send [ glyph, fncr, formula, idx, ]
 
 #-----------------------------------------------------------------------------------------------------------
+$normalize_glyph = ( S ) =>
+  return $ ( glyph, send ) =>
+    ### TAINT doesn't work with Gaiji NCRs like `&gt#x4cef;` ###
+    rsg   = XNCHR.as_rsg glyph
+    cid   = XNCHR.as_cid glyph
+    csg   = if rsg in [ 'u-pua', 'jzr-fig', ] then 'jzr' else 'u'
+    glyph = XNCHR.chr_from_cid_and_csg cid, csg if csg isnt 'u'
+    send glyph
+
+#-----------------------------------------------------------------------------------------------------------
+$unique = ( S ) =>
+  seen_glyphs = new Set()
+  return $ ( glyph, send ) =>
+    return if seen_glyphs.has glyph
+    seen_glyphs.add glyph
+    send glyph
+
+#-----------------------------------------------------------------------------------------------------------
 $sort = ( S ) =>
   return D.$sort ( a, b ) =>
     [ a_glyph, a_fncr, a_formula, a_idx, ] = a
@@ -96,7 +114,7 @@ $sort = ( S ) =>
 #-----------------------------------------------------------------------------------------------------------
 $reorder = ( S ) =>
   return $ ( [ glyph, fncr, formula, idx, ], send ) =>
-    glyph = XNCHR.as_chr glyph
+    # glyph = XNCHR.as_chr glyph
     send [ fncr, glyph, formula, ]
 
 #-----------------------------------------------------------------------------------------------------------
@@ -107,6 +125,8 @@ $show = ( S ) =>
 #-----------------------------------------------------------------------------------------------------------
 $transform = ( S ) =>
   return D.combine [
+    $normalize_glyph            S
+    $unique                     S
     $query                      S
     $add_fncr                   S
     $sort                       S
