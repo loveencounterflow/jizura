@@ -412,17 +412,6 @@ options =
   seen_glyphs       = new Set()
   factor_count      = 0
   #.........................................................................................................
-  # resolve_ics_to_factors = ( glyph ) =>
-  #   return if seen_glyphs.has glyph
-  #   seen_glyphs.add glyph
-  #   return unless factors.has glyph
-  #   if ( entry = factors_by_factor[ glyph ] )?
-  #     for ic in Array.from entry.keys()
-  #       resolve_ics_to_factors ic
-  #       if ( sub_entry = factors_by_factor[ ic ] )?
-  #         for sub_ic in Array.from sub_entry
-  #           entry.add sub_ic
-  #.........................................................................................................
   return $ ( phrase, send, end ) =>
     #.......................................................................................................
     if phrase?
@@ -447,15 +436,15 @@ options =
       njs_fs.writeFileSync ics_route, factors_by_factor_json
       warn "write to #{factors_route}"
       njs_fs.writeFileSync factors_route, factors_json
-      #.....................................................................................................
-      for factor in Array.from factors.keys()
-        unless ( entry = factors_by_factor[ factor ] )?
-          whisper "no ICs for factor #{factor}"
-          continue
-        for ics in entry
-          for ic in ics
-            unless factors.has ic
-              warn "factor #{factor} has non-factorial IC #{ic}"
+      # #.....................................................................................................
+      # for factor in Array.from factors.keys()
+      #   unless ( entry = factors_by_factor[ factor ] )?
+      #     whisper "no ICs for factor #{factor}"
+      #     continue
+      #   for ics in entry
+      #     for ic in ics
+      #       unless factors.has ic
+      #         warn "factor #{factor} has non-factorial IC #{ic}"
       #.....................................................................................................
       end()
     #.......................................................................................................
