@@ -188,63 +188,63 @@ options =
     R.push [ infix, suffix, prefix, ].join ','
   return R
 
-#-----------------------------------------------------------------------------------------------------------
-@$add_kwic_v2 = ->
-  ### see `demo/show_kwic_v2_and_v3_sample` ###
-  last_glyph            = null
-  long_wrapped_lineups  = null
-  return $ ( [ sbj, prd, obj, ], send ) =>
-    #.......................................................................................................
-    if prd is 'guide/has/uchr'
-      last_glyph            = sbj
-      long_wrapped_lineups  = @_long_wrapped_lineups_from_guides obj
-    #.......................................................................................................
-    return send [ sbj, prd, obj, ] unless prd.startsWith 'guide/kwic/v1/'
-    #.......................................................................................................
-    switch prd.replace /^guide\/kwic\/v1\//, ''
-      when 'lineup/wrapped/infix', 'lineup/wrapped/prefix', 'lineup/wrapped/suffix', 'lineup/wrapped/single'
-        ### copy to target ###
-        send [ sbj, prd, obj, ]
-      when 'sortcode'
-        [ glyph, _, sortcodes_v1, ] = [ sbj, prd, obj, ]
-        sortcodes_v2                = []
-        #...................................................................................................
-        ### The difference between KWIC sortcodes of version 1 and version 2 lies in the re-arrangement
-        of the factor codes and the index codes. In v1, the index codes appeared interspersed with
-        the factor codes; in v2, the index codes come up front and the index codes come in the latter half
-        of the sortcode strings. The effect of this rearrangement is that now that all of the indexes
-        (which indicate the position of each factor in the lineup) are weaker than any of the factor codes,
-        like sequences of factor codes (and, therefore, factors) will always be grouped together (whereas
-        in v1, only like factors with like positions appeared together, and often like sequences appeared
-        with other sequences interspersed where their indexes demanded it so). ###
-        for sortcode_v1 in sortcodes_v1
-          sortrow_v1 = ( x for x in sortcode_v1.split /(........,..),/ when x.length > 0 )
-          sortrow_v1 = ( x.split ',' for x in sortrow_v1 )
-          sortrow_v2 = []
-          sortrow_v2.push sortcode for [ sortcode, _, ] in sortrow_v1
-          sortrow_v2.push position for [ _, position, ] in sortrow_v1
-          sortcodes_v2.push sortrow_v2.join ','
-        #...................................................................................................
-        unless glyph is last_glyph
-          return send.error new Error "unexpected mismatch: #{rpr glyph}, #{rpr last_glyph}"
-        #...................................................................................................
-        unless long_wrapped_lineups?
-          return send.error new Error "missing long wrapped lineups for glyph #{rpr glyph}"
-        #...................................................................................................
-        unless sortcodes_v2.length is long_wrapped_lineups.length
-          warn 'sortcodes_v2:         ', sortcodes_v2
-          warn 'long_wrapped_lineups: ', long_wrapped_lineups
-          return send.error new Error "length mismatch for glyph #{rpr glyph}"
-        #...................................................................................................
-        sortcodes_v1[ idx ] += ";" + lineup for lineup, idx in long_wrapped_lineups
-        sortcodes_v2[ idx ] += ";" + lineup for lineup, idx in long_wrapped_lineups
-        send [ glyph, 'guide/kwic/v2/lineup/wrapped/single', long_wrapped_lineups, ]
-        long_wrapped_lineups  = null
-        #...................................................................................................
-        send [ glyph, prd, sortcodes_v1, ]
-        send [ glyph, 'guide/kwic/v2/sortcode', sortcodes_v2, ]
-      else
-        send.error new Error "unhandled predicate #{rpr prd}"
+# #-----------------------------------------------------------------------------------------------------------
+# @$add_kwic_v2 = ->
+#   ### see `demo/show_kwic_v2_and_v3_sample` ###
+#   last_glyph            = null
+#   long_wrapped_lineups  = null
+#   return $ ( [ sbj, prd, obj, ], send ) =>
+#     #.......................................................................................................
+#     if prd is 'guide/has/uchr'
+#       last_glyph            = sbj
+#       long_wrapped_lineups  = @_long_wrapped_lineups_from_guides obj
+#     #.......................................................................................................
+#     return send [ sbj, prd, obj, ] unless prd.startsWith 'guide/kwic/v1/'
+#     #.......................................................................................................
+#     switch prd.replace /^guide\/kwic\/v1\//, ''
+#       when 'lineup/wrapped/infix', 'lineup/wrapped/prefix', 'lineup/wrapped/suffix', 'lineup/wrapped/single'
+#         ### copy to target ###
+#         send [ sbj, prd, obj, ]
+#       when 'sortcode'
+#         [ glyph, _, sortcodes_v1, ] = [ sbj, prd, obj, ]
+#         sortcodes_v2                = []
+#         #...................................................................................................
+#         ### The difference between KWIC sortcodes of version 1 and version 2 lies in the re-arrangement
+#         of the factor codes and the index codes. In v1, the index codes appeared interspersed with
+#         the factor codes; in v2, the index codes come up front and the index codes come in the latter half
+#         of the sortcode strings. The effect of this rearrangement is that now that all of the indexes
+#         (which indicate the position of each factor in the lineup) are weaker than any of the factor codes,
+#         like sequences of factor codes (and, therefore, factors) will always be grouped together (whereas
+#         in v1, only like factors with like positions appeared together, and often like sequences appeared
+#         with other sequences interspersed where their indexes demanded it so). ###
+#         for sortcode_v1 in sortcodes_v1
+#           sortrow_v1 = ( x for x in sortcode_v1.split /(........,..),/ when x.length > 0 )
+#           sortrow_v1 = ( x.split ',' for x in sortrow_v1 )
+#           sortrow_v2 = []
+#           sortrow_v2.push sortcode for [ sortcode, _, ] in sortrow_v1
+#           sortrow_v2.push position for [ _, position, ] in sortrow_v1
+#           sortcodes_v2.push sortrow_v2.join ','
+#         #...................................................................................................
+#         unless glyph is last_glyph
+#           return send.error new Error "unexpected mismatch: #{rpr glyph}, #{rpr last_glyph}"
+#         #...................................................................................................
+#         unless long_wrapped_lineups?
+#           return send.error new Error "missing long wrapped lineups for glyph #{rpr glyph}"
+#         #...................................................................................................
+#         unless sortcodes_v2.length is long_wrapped_lineups.length
+#           warn 'sortcodes_v2:         ', sortcodes_v2
+#           warn 'long_wrapped_lineups: ', long_wrapped_lineups
+#           return send.error new Error "length mismatch for glyph #{rpr glyph}"
+#         #...................................................................................................
+#         sortcodes_v1[ idx ] += ";" + lineup for lineup, idx in long_wrapped_lineups
+#         sortcodes_v2[ idx ] += ";" + lineup for lineup, idx in long_wrapped_lineups
+#         send [ glyph, 'guide/kwic/v2/lineup/wrapped/single', long_wrapped_lineups, ]
+#         long_wrapped_lineups  = null
+#         #...................................................................................................
+#         send [ glyph, prd, sortcodes_v1, ]
+#         send [ glyph, 'guide/kwic/v2/sortcode', sortcodes_v2, ]
+#       else
+#         send.error new Error "unhandled predicate #{rpr prd}"
 
 #-----------------------------------------------------------------------------------------------------------
 @$add_kwic_v3 = ( factor_infos ) ->
