@@ -288,6 +288,8 @@ options =
     #.......................................................................................................
     for permutation, idx in permutations
       [ sortcode, infix, suffix, prefix, ] = permutation
+      suffix = Object.assign [], suffix
+      prefix = Object.assign [], prefix
       #.....................................................................................................
       prefix_length                 = prefix.length
       suffix_length                 = suffix.length
